@@ -6,6 +6,7 @@ const nav = [
   ['To rent', '/properties/to-rent'],
   ['Agents', '/agents'],
   ['Agencies', '/agencies'],
+  ['Business', '/business'],
 ];
 
 export function SiteHeader() {
