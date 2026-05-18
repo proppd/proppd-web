@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     description: 'Modern South African property technology for real listings and verified enquiries.',
     url: 'https://proppd.com',
     siteName: 'Proppd',
-    images: [{ url: '/proppd-logo-light.png', width: 1536, height: 864, alt: 'Proppd logo' }],
+    images: [{ url: '/proppd-logo-horizontal.png', width: 1200, height: 315, alt: 'Proppd logo' }],
   },
 };
 

@@ -39,7 +39,7 @@ export function HeroSearch() {
         <div className="rounded-[2.5rem] border border-white bg-white/80 p-5 shadow-2xl shadow-slate-300/50 backdrop-blur">
           <div className="rounded-[2rem] bg-[#050A30] p-6 text-white">
             <div className="rounded-[1.5rem] bg-white p-8">
-              <Image src="/proppd-logo-light.png" alt="Proppd logo" width={720} height={405} className="mx-auto h-auto w-full" priority />
+              <Image src="/proppd-logo-horizontal.png" alt="Proppd logo" width={1200} height={315} className="mx-auto h-auto w-full" priority />
             </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               {[
