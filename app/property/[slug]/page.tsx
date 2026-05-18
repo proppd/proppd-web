@@ -1,10 +1,11 @@
 import { ArrowLeft, Bath, BedDouble, Building2, CalendarDays, Car, CheckCircle2, MapPin, ShieldCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { EnquiryForm } from '@/components/property/enquiry-form';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { listings } from '@/lib/demo-data';
-import { buildEnquiryMailto, buildListingShareText, getListingBySlug, getListingFacts, getRelatedListings } from '@/lib/listings/details';
+import { buildListingShareText, getListingBySlug, getListingFacts, getRelatedListings } from '@/lib/listings/details';
 
 export function generateStaticParams() {
   return listings.map((listing) => ({ slug: listing.slug }));
@@ -17,8 +18,8 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
 
   const facts = getListingFacts(listing);
   const relatedListings = getRelatedListings(listings, listing, 2);
-  const enquiryHref = buildEnquiryMailto(listing);
   const shareText = buildListingShareText(listing);
+  const agentProfileHref = `/agents/${slugifyName(listing.agent)}`;
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -96,33 +97,18 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
               </div>
             </article>
 
-            <aside className="h-fit rounded-[2.5rem] bg-white p-6 shadow-sm lg:sticky lg:top-6">
-              <p className="text-sm font-black uppercase tracking-[.18em] text-[#3B49FF]">Enquire safely</p>
-              <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">Contact {listing.agent}</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-600">
-                Send a prefilled enquiry to Proppd. The full Supabase lead workflow is staged behind this POPIA-aware handoff.
-              </p>
-              <div className="mt-5 rounded-3xl bg-[#F5F7FA] p-4 text-sm text-slate-600">
-                <p className="font-black text-[#050A30]">Your enquiry includes:</p>
-                <ul className="mt-3 space-y-2 font-bold">
-                  <li>• Listing title and price</li>
-                  <li>• Proppd property URL</li>
-                  <li>• Agent routing context</li>
-                </ul>
-              </div>
-              <a className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[#050A30] px-5 py-3 font-black text-white shadow-lg shadow-slate-900/10" href={enquiryHref}>
-                <span className="text-white">Email enquiry</span>
-              </a>
-              <a className="mt-3 inline-flex w-full justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30]" href={`/agents/${slugifyName(listing.agent)}`}>
-                View agent profile
-              </a>
-              <p className="mt-5 rounded-2xl bg-[#eefcf9] p-4 text-xs font-bold leading-5 text-[#0f766e]">
-                POPIA note: only send personal details you are comfortable sharing for this property enquiry.
-              </p>
-              <div className="mt-5 rounded-2xl border border-slate-200 p-4 text-xs font-mono leading-5 text-slate-500">
-                {shareText}
-              </div>
-            </aside>
+            <EnquiryForm
+              agentProfileHref={agentProfileHref}
+              listing={{
+                id: listing.slug,
+                slug: listing.slug,
+                title: listing.title,
+                price: listing.price,
+                agent: listing.agent,
+                agency: listing.agency,
+              }}
+              shareText={shareText}
+            />
           </div>
 
           {relatedListings.length > 0 && (
