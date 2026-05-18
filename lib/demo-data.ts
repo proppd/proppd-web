@@ -3,6 +3,9 @@ export type Listing = {
   purpose: 'For sale' | 'To rent';
   title: string;
   location: string;
+  suburb: string;
+  city: string;
+  province: string;
   price: string;
   priceValue: number;
   beds: number;
@@ -12,6 +15,15 @@ export type Listing = {
   agency: string;
   agent: string;
   gradient: string;
+  description: string;
+  features: string[];
+  highlights: string[];
+  mandate: 'Verified mandate' | 'Owner verified' | 'Agency verified';
+  listedAt: string;
+  floorSize?: number;
+  erfSize?: number;
+  rates?: string;
+  levies?: string;
   featured?: boolean;
 };
 
@@ -21,6 +33,9 @@ export const listings: Listing[] = [
     purpose: 'For sale',
     title: 'Modern 3-bedroom house in Sandton',
     location: 'Sandton, Johannesburg',
+    suburb: 'Sandton',
+    city: 'Johannesburg',
+    province: 'Gauteng',
     price: 'R 3 250 000',
     priceValue: 3250000,
     beds: 3,
@@ -30,6 +45,16 @@ export const listings: Listing[] = [
     agency: 'Proppd Verified Realty',
     agent: 'Lerato Mokoena',
     gradient: 'from-[#050A30] via-[#1b2cff] to-[#12D6C5]',
+    description:
+      'A secure, move-in-ready Sandton home with open-plan living, a private entertainment patio, and fast access to major business nodes. Built for buyers who want verified information before they book a viewing.',
+    features: ['Solar-ready inverter point', 'Private garden', 'Open-plan kitchen', 'Covered patio', 'Security estate access', 'Fibre ready'],
+    highlights: ['Verified mandate', 'Transfer-ready document pack', 'Family-friendly estate'],
+    mandate: 'Verified mandate',
+    listedAt: '2026-05-09',
+    floorSize: 188,
+    erfSize: 402,
+    rates: 'R 1 850 pm',
+    levies: 'R 1 420 pm',
     featured: true,
   },
   {
@@ -37,6 +62,9 @@ export const listings: Listing[] = [
     purpose: 'To rent',
     title: 'Sea Point apartment with secure parking',
     location: 'Sea Point, Cape Town',
+    suburb: 'Sea Point',
+    city: 'Cape Town',
+    province: 'Western Cape',
     price: 'R 18 500 pm',
     priceValue: 18500,
     beds: 2,
@@ -46,6 +74,14 @@ export const listings: Listing[] = [
     agency: 'Atlantic Property Co.',
     agent: 'Mia Jacobs',
     gradient: 'from-[#041025] via-[#3B49FF] to-[#12D6C5]',
+    description:
+      'A bright Atlantic Seaboard rental with secure parking, sea-facing balcony light, and managed viewing coordination. Ideal for professionals who need a verified rental before submitting documents.',
+    features: ['Secure basement parking', 'Balcony', 'Lift access', '24-hour access control', 'Walk to promenade', 'Fibre ready'],
+    highlights: ['Occupation-ready', 'Managed rental screening', 'Verified agency listing'],
+    mandate: 'Agency verified',
+    listedAt: '2026-05-12',
+    floorSize: 82,
+    levies: 'Included in rent',
     featured: true,
   },
   {
@@ -53,6 +89,9 @@ export const listings: Listing[] = [
     purpose: 'For sale',
     title: 'Family townhouse in Umhlanga',
     location: 'Umhlanga, Durban',
+    suburb: 'Umhlanga',
+    city: 'Durban',
+    province: 'KwaZulu-Natal',
     price: 'R 2 150 000',
     priceValue: 2150000,
     beds: 3,
@@ -62,6 +101,16 @@ export const listings: Listing[] = [
     agency: 'Coastal Living',
     agent: 'Aiden Naidoo',
     gradient: 'from-[#050A30] via-[#1167ff] to-[#12D6C5]',
+    description:
+      'A lock-up-and-go Umhlanga townhouse with practical family spaces, pet-friendly outdoor flow, and an agency-verified sale file. Positioned for coastal buyers who want clarity before an offer.',
+    features: ['Pet-friendly garden', 'Double parking bay', 'Complex pool', 'Guest bathroom', 'North-coast access', 'Secure complex'],
+    highlights: ['Owner verified', 'Complex financials requested', 'Coastal family location'],
+    mandate: 'Owner verified',
+    listedAt: '2026-05-14',
+    floorSize: 136,
+    erfSize: 218,
+    rates: 'R 1 260 pm',
+    levies: 'R 2 050 pm',
     featured: true,
   },
 ];
