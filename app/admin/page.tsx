@@ -106,7 +106,7 @@ export default function Page() {
               <div className="rounded-[2rem] border border-slate-200 bg-[#eefcf9] p-6">
                 <p className="text-sm font-black uppercase tracking-[.16em] text-[#0f766e]">Next backend gate</p>
                 <p className="mt-3 text-sm font-bold leading-6 text-[#0f766e]">
-                  This is an honest admin prototype backed by typed demo data. The next production gate is Supabase persistence with RLS, audit events, and notification routing.
+                  Supabase schema, RLS, and seed foundations are now in the repo. The next production gate is applying them to Supabase, then wiring live lead writes, audit events, and notification routing.
                 </p>
               </div>
             </aside>
