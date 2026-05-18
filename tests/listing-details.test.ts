@@ -8,6 +8,14 @@ describe('listing detail helpers', () => {
     expect(listing?.agent).toBe('Mia Jacobs');
   });
 
+  it('keeps listing IDs aligned with Supabase seed UUIDs for lead writes', () => {
+    expect(listings.map((listing) => listing.id)).toEqual([
+      'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+      'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+      'ffffffff-ffff-4fff-8fff-ffffffffffff',
+    ]);
+  });
+
   it('builds display facts without empty optional rows', () => {
     const rental = listings.find((listing) => listing.slug === 'sea-point-apartment-with-parking-20401');
     expect(rental).toBeDefined();

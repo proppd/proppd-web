@@ -100,7 +100,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
             <EnquiryForm
               agentProfileHref={agentProfileHref}
               listing={{
-                id: listing.slug,
+                id: listing.id,
                 slug: listing.slug,
                 title: listing.title,
                 price: listing.price,

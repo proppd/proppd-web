@@ -1,4 +1,5 @@
 export type Listing = {
+  id: string;
   slug: string;
   purpose: 'For sale' | 'To rent';
   title: string;
@@ -29,6 +30,7 @@ export type Listing = {
 
 export const listings: Listing[] = [
   {
+    id: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
     slug: 'modern-3-bedroom-house-in-sandton-12345',
     purpose: 'For sale',
     title: 'Modern 3-bedroom house in Sandton',
@@ -58,6 +60,7 @@ export const listings: Listing[] = [
     featured: true,
   },
   {
+    id: 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
     slug: 'sea-point-apartment-with-parking-20401',
     purpose: 'To rent',
     title: 'Sea Point apartment with secure parking',
@@ -85,6 +88,7 @@ export const listings: Listing[] = [
     featured: true,
   },
   {
+    id: 'ffffffff-ffff-4fff-8fff-ffffffffffff',
     slug: 'family-townhouse-in-umhlanga-77120',
     purpose: 'For sale',
     title: 'Family townhouse in Umhlanga',

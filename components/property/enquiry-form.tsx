@@ -31,6 +31,7 @@ export function EnquiryForm({ listing, agentProfileHref, shareText }: EnquiryFor
   const [errors, setErrors] = useState<string[]>([]);
   const [mailtoHref, setMailtoHref] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isReady = useMemo(() => validateLeadInput(form).success, [form]);
 
@@ -43,7 +44,7 @@ export function EnquiryForm({ listing, agentProfileHref, shareText }: EnquiryFor
     return (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => updateField(key, event.target.value);
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const validation = validateLeadInput(form);
     if (validation.success === false) {
@@ -61,8 +62,47 @@ export function EnquiryForm({ listing, agentProfileHref, shareText }: EnquiryFor
 
     setErrors([]);
     setMailtoHref(href);
-    setStatus('Enquiry checked. Open your email app to send it to Proppd.');
-    window.location.href = href;
+    setIsSubmitting(true);
+    setStatus('Saving your enquiry securely...');
+
+    try {
+      const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          ...validation.data,
+          listingId: listing.id,
+          sourcePage: `/property/${listing.slug}`,
+        }),
+      });
+      const payload = (await response.json().catch(() => null)) as { ok?: boolean; errors?: string[]; error?: string } | null;
+
+      if (response.ok && payload?.ok) {
+        setStatus('Enquiry saved. Proppd will route it to the relevant agent or agency.');
+        setMailtoHref(null);
+        return;
+      }
+
+      if (response.status === 503) {
+        setStatus('Live storage is not configured yet. Open your email app to send the verified enquiry to Proppd.');
+        window.location.href = href;
+        return;
+      }
+
+      if (payload?.errors?.length) {
+        setErrors(payload.errors);
+        setStatus('Please fix the highlighted enquiry details first.');
+        return;
+      }
+
+      setStatus(payload?.error ?? 'We could not save the enquiry. Open your email app to send it to Proppd.');
+      window.location.href = href;
+    } catch {
+      setStatus('Network issue while saving. Open your email app to send the verified enquiry to Proppd.');
+      window.location.href = href;
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -70,7 +110,7 @@ export function EnquiryForm({ listing, agentProfileHref, shareText }: EnquiryFor
       <p className="text-sm font-black uppercase tracking-[.18em] text-[#3B49FF]">Verified enquiry</p>
       <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">Contact {listing.agent}</h2>
       <p className="mt-3 text-sm leading-6 text-slate-600">
-        Capture your details once. Proppd validates the enquiry, includes listing context, and keeps POPIA consent explicit before handoff.
+        Capture your details once. Proppd saves configured enquiries securely, keeps POPIA consent explicit, and falls back to email handoff if storage is unavailable.
       </p>
 
       <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
@@ -168,8 +208,12 @@ export function EnquiryForm({ listing, agentProfileHref, shareText }: EnquiryFor
           </p>
         )}
 
-        <button className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#050A30] px-5 py-3 font-black text-white shadow-lg shadow-slate-900/10" type="submit">
-          <Mail size={18} /> <span className="text-white">Validate and email enquiry</span>
+        <button
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#050A30] px-5 py-3 font-black text-white shadow-lg shadow-slate-900/10 disabled:cursor-not-allowed disabled:opacity-60"
+          type="submit"
+          disabled={isSubmitting}
+        >
+          <Mail size={18} /> <span className="text-white">{isSubmitting ? 'Saving enquiry...' : 'Send verified enquiry'}</span>
         </button>
 
         {mailtoHref && (
