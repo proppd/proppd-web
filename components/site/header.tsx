@@ -6,7 +6,7 @@ const nav = [
   ['Sell', '/list-with-us'],
   ['Agents', '/agents'],
   ['Agencies', '/agencies'],
-  ['Home Loans', '/request-valuation'],
+  ['Home Loans', '/home-loans'],
 ];
 
 export function SiteHeader() {
