@@ -7,6 +7,7 @@ describe('parseListingFilters', () => {
     const filters = parseListingFilters(
       new URLSearchParams({
         purpose: 'rent',
+        q: 'secure parking',
         location: 'Cape Town',
         minPrice: '10000',
         maxPrice: '20000',
@@ -18,6 +19,7 @@ describe('parseListingFilters', () => {
 
     expect(filters).toEqual({
       purpose: 'rent',
+      query: 'secure parking',
       location: 'Cape Town',
       propertyType: undefined,
       minPrice: 10000,
@@ -60,5 +62,12 @@ describe('applyListingFilters', () => {
     const results = applyListingFilters(listings, filters);
 
     expect(results.map((listing) => listing.priceValue)).toEqual([3250000, 2150000]);
+  });
+
+  it('searches listing text beyond the location field', () => {
+    const filters = parseListingFilters(new URLSearchParams({ q: 'coastal family' }));
+    const results = applyListingFilters(listings, filters);
+
+    expect(results.map((listing) => listing.slug)).toEqual(['family-townhouse-in-umhlanga-77120']);
   });
 });

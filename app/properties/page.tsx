@@ -19,10 +19,17 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
       <SiteHeader />
       <section className="border-b border-slate-200 bg-white px-4 py-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-center">
-            <label className="flex min-h-14 items-center gap-3 rounded-full border border-slate-300 bg-white px-5 text-sm font-bold text-slate-500 shadow-sm">
+          <form action="/properties" className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-center">
+            <label className="flex min-h-14 items-center gap-3 rounded-full border border-slate-300 bg-white px-5 text-sm font-bold text-slate-500 shadow-sm focus-within:border-[#3B49FF] focus-within:ring-4 focus-within:ring-[#3B49FF]/10">
               <Search size={21} className="text-[#3B49FF]" />
-              <span className="truncate">{filters.location || 'South Africa'} · Search suburb, city, school, agent, or listing ID</span>
+              <input
+                name="q"
+                type="search"
+                defaultValue={filters.query ?? ''}
+                className="min-w-0 flex-1 bg-transparent font-bold text-[#050A30] outline-none placeholder:text-slate-500"
+                placeholder="Search suburb, city, school, agent, or listing ID"
+                aria-label="Search properties"
+              />
             </label>
             <div className="flex flex-wrap gap-2">
               <FilterButton active={filters.purpose !== 'all'}>{filters.purpose === 'all' ? 'For sale & rent' : filters.purpose === 'sale' ? 'For sale' : 'To rent'}</FilterButton>
@@ -32,11 +39,11 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
               <a className="inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-300 bg-white px-4 text-sm font-black shadow-sm transition hover:border-[#3B49FF]" href="/properties">
                 <SlidersHorizontal size={16} /> More
               </a>
-              <a className="inline-flex min-h-11 items-center rounded-full bg-[#3B49FF] px-5 text-sm font-black text-white shadow-lg shadow-[#3B49FF]/20" href="/properties">
+              <button className="inline-flex min-h-11 items-center rounded-full bg-[#3B49FF] px-5 text-sm font-black text-white shadow-lg shadow-[#3B49FF]/20" type="submit">
                 Search
-              </a>
+              </button>
             </div>
-          </div>
+          </form>
         </div>
       </section>
 
@@ -47,10 +54,10 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                 <div>
                   <h1 className="text-2xl font-black tracking-[-.04em] sm:text-3xl">
-                    {filtered.length} homes around {filters.location || 'South Africa'}
+                    {filtered.length} homes {searchScopeLabel(filters)}
                   </h1>
                   <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
-                    Price-first verified homes with saved search and agent routing.
+                    {filters.query ? `Matching “${filters.query}” across listing facts, areas, agents, and agencies.` : 'Price-first verified homes with saved search and agent routing.'}
                   </p>
                 </div>
                 <div className="flex shrink-0 gap-2">
@@ -116,6 +123,12 @@ function FilterButton({ children, active = false }: { children: ReactNode; activ
       {children} <ChevronDown size={15} />
     </button>
   );
+}
+
+function searchScopeLabel(filters: { query?: string; location?: string }) {
+  if (filters.query && filters.location) return `matching “${filters.query}” around ${filters.location}`;
+  if (filters.query) return `matching “${filters.query}”`;
+  return `around ${filters.location || 'South Africa'}`;
 }
 
 function priceLabel(minPrice?: number, maxPrice?: number) {

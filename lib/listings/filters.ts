@@ -5,6 +5,7 @@ export type ListingSort = 'featured' | 'price-asc' | 'price-desc' | 'newest';
 
 export type ListingFilters = {
   purpose: ListingPurposeFilter;
+  query?: string;
   location?: string;
   propertyType?: string;
   minPrice?: number;
@@ -29,6 +30,7 @@ export function parseListingFilters(searchParams: URLSearchParams): ListingFilte
 
   return {
     purpose,
+    query: normalizeText(searchParams.get('q') || searchParams.get('query')),
     location: normalizeText(searchParams.get('location')),
     propertyType: normalizeText(searchParams.get('propertyType') || searchParams.get('type')),
     minPrice: parsePositiveNumber(searchParams.get('minPrice')),
@@ -52,6 +54,7 @@ export function applyListingFilters(items: Listing[], filters: ListingFilters): 
       if (listing.purpose !== expectedPurpose) return false;
     }
 
+    if (filters.query && !matchesSearchQuery(listing, filters.query)) return false;
     if (filters.location && !contains(listing.location, filters.location)) return false;
     if (filters.propertyType && !contains(listing.type, filters.propertyType)) return false;
     if (filters.agency && !contains(listing.agency, filters.agency)) return false;
@@ -120,6 +123,26 @@ function parsePage(value: string | null): number {
 
 function contains(value: string, query: string): boolean {
   return value.toLowerCase().includes(query.toLowerCase());
+}
+
+function matchesSearchQuery(listing: Listing, query: string): boolean {
+  const haystack = [
+    listing.id,
+    listing.slug,
+    listing.title,
+    listing.location,
+    listing.suburb,
+    listing.city,
+    listing.province,
+    listing.type,
+    listing.agency,
+    listing.agent,
+    listing.description,
+    ...listing.features,
+    ...listing.highlights,
+  ].join(' ');
+
+  return contains(haystack, query);
 }
 
 function sortListings(items: Listing[], sort: ListingSort): Listing[] {

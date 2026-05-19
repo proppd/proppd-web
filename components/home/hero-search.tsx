@@ -32,18 +32,24 @@ export function HeroSearch() {
               </a>
             ))}
           </div>
-          <div className="grid gap-3 pt-3 lg:grid-cols-[1fr_auto_auto]">
-            <label className="flex min-h-16 items-center gap-3 rounded-2xl border border-slate-200 bg-[#F8FAFC] px-5 text-left text-base font-bold text-slate-500 shadow-inner shadow-slate-100">
+          <form action="/properties" className="grid gap-3 pt-3 lg:grid-cols-[1fr_auto_auto]">
+            <label className="flex min-h-16 items-center gap-3 rounded-2xl border border-slate-200 bg-[#F8FAFC] px-5 text-left text-base font-bold text-slate-500 shadow-inner shadow-slate-100 focus-within:border-[#3B49FF] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#3B49FF]/10">
               <Search size={23} className="shrink-0 text-[#3B49FF]" />
-              <span className="truncate">Enter a suburb, city, province, agent, or listing ID</span>
+              <input
+                name="q"
+                type="search"
+                className="min-w-0 flex-1 bg-transparent text-base font-bold text-[#050A30] outline-none placeholder:text-slate-500"
+                placeholder="Enter a suburb, city, province, agent, or listing ID"
+                aria-label="Search properties"
+              />
             </label>
             <a className="inline-flex min-h-16 items-center justify-center gap-2 rounded-2xl border border-slate-200 px-5 font-black text-[#050A30] hover:bg-[#F5F7FA]" href="/properties">
               <SlidersHorizontal size={19} /> Filters
             </a>
-            <a className="inline-flex min-h-16 items-center justify-center gap-2 rounded-2xl bg-[#3B49FF] px-7 font-black text-white shadow-xl shadow-[#3B49FF]/25 transition hover:bg-[#050A30]" href="/properties">
+            <button className="inline-flex min-h-16 items-center justify-center gap-2 rounded-2xl bg-[#3B49FF] px-7 font-black text-white shadow-xl shadow-[#3B49FF]/25 transition hover:bg-[#050A30]" type="submit">
               Search <ArrowRight size={19} />
-            </a>
-          </div>
+            </button>
+          </form>
         </div>
 
         <div className="mx-auto mt-5 flex max-w-5xl flex-wrap items-center justify-center gap-2 text-sm font-bold text-[#050A30] lg:justify-start">
