@@ -1,9 +1,10 @@
 import type React from 'react';
 import type { Metadata } from 'next';
 import { AlertTriangle, CheckCircle2, Clock3, Filter, ShieldCheck, UserCheck, Search, X } from 'lucide-react';
+import { LeadModerationControls } from '@/components/admin/lead-moderation-controls';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { demoLeads } from '@/lib/leads/demo-leads';
+import { loadPortalDiagnostics, loadPortalLeadQueue } from '@/lib/proppd/backend';
 import {
   filterLeads,
   formatLeadIntent,
@@ -51,7 +52,8 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   const selectedStatus = parseStatus(getSingleParam(params.status));
   const selectedQuality = parseQuality(getSingleParam(params.quality));
 
-  const filteredLeads = filterLeads(demoLeads, {
+  const [leadPayload, diagnostics] = await Promise.all([loadPortalLeadQueue(), loadPortalDiagnostics()]);
+  const filteredLeads = filterLeads(leadPayload.items, {
     query,
     status: selectedStatus,
     quality: selectedQuality,
@@ -60,6 +62,15 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   const stats = getLeadPipelineStats(filteredLeads);
   const grouped = groupLeadsByStatus(filteredLeads);
   const hasFilters = Boolean(query || selectedStatus !== 'all' || selectedQuality !== 'all');
+  const moderationEnabled = leadPayload.source !== 'demo' && leadPayload.source !== 'error';
+  const sourceLabel =
+    leadPayload.source === 'database'
+      ? 'Live queue connected to Supabase'
+      : leadPayload.source === 'empty'
+        ? 'Live backend connected, no leads yet'
+        : leadPayload.source === 'demo'
+          ? 'Demo preview queue'
+          : 'Queue unavailable';
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -78,6 +89,9 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                 <p className="mt-5 text-sm font-bold uppercase tracking-[.18em] text-white/50">
                   {hasFilters ? `Showing ${filteredLeads.length} filtered leads` : `Showing all ${stats.total} leads`}
                 </p>
+                <div className={`mt-6 inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[.18em] ${moderationEnabled ? 'bg-white/10 text-white' : 'bg-amber-100 text-amber-900'}`}>
+                  {sourceLabel}
+                </div>
               </div>
               <div className="rounded-[2rem] border border-white/10 bg-white/10 p-6 backdrop-blur">
                 <p className="text-sm font-black uppercase tracking-[.18em] text-white/60">Queue snapshot</p>
@@ -117,6 +131,10 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
 
           <section className="mt-8 grid gap-8 lg:grid-cols-[1fr_340px]">
             <div className="rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
+              <div className={`mb-6 rounded-[1.75rem] border px-5 py-4 text-sm font-bold ${moderationEnabled ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
+                <span className="font-black uppercase tracking-[.14em]">Lead moderation</span>
+                <span className="ml-3">{moderationEnabled ? 'Live review actions are enabled.' : 'Actions stay in preview until a live Supabase database is connected.'}</span>
+              </div>
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Lead queue</p>
@@ -198,7 +216,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
               ) : null}
 
               <div className="mt-6 overflow-hidden rounded-[2rem] border border-slate-200">
-                <div className="hidden grid-cols-[1fr_120px_110px_100px_130px] gap-4 bg-[#F5F7FA] px-5 py-3 text-xs font-black uppercase tracking-[.14em] text-slate-500 md:grid">
+                <div className="hidden grid-cols-[1fr_120px_110px_100px_240px] gap-4 bg-[#F5F7FA] px-5 py-3 text-xs font-black uppercase tracking-[.14em] text-slate-500 md:grid">
                   <span>Lead</span>
                   <span>Intent</span>
                   <span>Quality</span>
@@ -208,7 +226,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                 <div className="divide-y divide-slate-200">
                   {queue.length > 0 ? (
                     queue.map((lead) => (
-                      <a key={lead.id} className="grid gap-4 px-5 py-5 transition hover:bg-[#F5F7FA] md:grid-cols-[1fr_120px_110px_100px_130px]" href={`/property/${lead.listingSlug}`}>
+                      <div key={lead.id} className="grid gap-4 px-5 py-5 transition hover:bg-[#F5F7FA] md:grid-cols-[1fr_120px_110px_100px_240px]">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
                             <p className="font-black text-[#050A30]">{lead.name}</p>
@@ -216,13 +234,26 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                           </div>
                           <p className="mt-1 text-sm font-bold text-slate-500">{lead.listingTitle}</p>
                           <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{lead.message}</p>
+                          <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <a className="inline-flex rounded-full bg-white px-3 py-2 text-xs font-black text-[#3B49FF] ring-1 ring-slate-200 transition hover:ring-[#3B49FF]" href={`/property/${lead.listingSlug}`}>
+                              Open listing
+                            </a>
+                            <a className="inline-flex rounded-full bg-slate-100 px-3 py-2 text-xs font-black text-slate-600 transition hover:bg-slate-200" href={`mailto:${lead.email}?subject=Proppd follow-up for ${encodeURIComponent(lead.listingTitle)}`}>
+                              Reply by email
+                            </a>
+                          </div>
                           {lead.flags.length > 0 && <p className="mt-2 text-xs font-black text-red-600">Flags: {lead.flags.join(', ')}</p>}
                         </div>
                         <p className="text-sm font-black text-[#3B49FF]">{formatLeadIntent(lead.intent)}</p>
                         <p><span className={`rounded-full px-3 py-1 text-xs font-black ${qualityStyles[lead.quality]}`}>{lead.quality}</span></p>
                         <p className="text-sm font-black capitalize text-slate-600">{lead.status}</p>
-                        <p><span className="inline-flex whitespace-nowrap rounded-full bg-[#050A30] px-4 py-2 text-xs font-black text-white">Review lead</span></p>
-                      </a>
+                        <LeadModerationControls
+                          leadId={lead.id}
+                          currentStatus={lead.status}
+                          currentQuality={lead.quality}
+                          enabled={moderationEnabled}
+                        />
+                      </div>
                     ))
                   ) : (
                     <div className="px-5 py-10 text-center">
@@ -248,7 +279,9 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
               <div className="rounded-[2rem] border border-slate-200 bg-[#eefcf9] p-6">
                 <p className="text-sm font-black uppercase tracking-[.16em] text-[#0f766e]">Next backend gate</p>
                 <p className="mt-3 text-sm font-bold leading-6 text-[#0f766e]">
-                  Supabase schema, RLS, and seed foundations are now in the repo. The next production gate is applying them to Supabase, then wiring live lead writes, audit events, and notification routing.
+                  {diagnostics.databaseConfigured
+                    ? `Supabase is wired for backend reads${diagnostics.canReadDatabase ? ' and the live queue is reachable.' : ', but the database check is currently failing.'}`
+                    : 'Supabase is not connected yet, so the admin queue is running on demo data.'}
                 </p>
                 <div className="mt-5 grid gap-3 sm:grid-cols-3">
                   <AdminNote title="Live writes" text="Persist new enquiries to the operational queue." />
