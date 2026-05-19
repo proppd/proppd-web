@@ -70,4 +70,12 @@ describe('applyListingFilters', () => {
 
     expect(results.map((listing) => listing.slug)).toEqual(['family-townhouse-in-umhlanga-77120']);
   });
+
+  it('combines purpose tabs with full-text listing search', () => {
+    const saleFilters = parseListingFilters(new URLSearchParams({ purpose: 'sale', q: 'secure parking' }));
+    const rentFilters = parseListingFilters(new URLSearchParams({ purpose: 'rent', q: 'secure parking' }));
+
+    expect(applyListingFilters(listings, saleFilters)).toEqual([]);
+    expect(applyListingFilters(listings, rentFilters).map((listing) => listing.slug)).toEqual(['sea-point-apartment-with-parking-20401']);
+  });
 });
