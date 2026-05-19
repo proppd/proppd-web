@@ -1,8 +1,16 @@
 import type React from 'react';
+import type { Metadata } from 'next';
 import { ArrowRight, BarChart3, CheckCircle2, ClipboardCheck, Home, ShieldCheck } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { buildValuationRequestMailto, formatValuationReason, valuationReadinessSteps, type ValuationReason } from '@/lib/valuation/request';
+
+export const metadata: Metadata = {
+  title: 'Request valuation',
+  alternates: {
+    canonical: '/request-valuation',
+  },
+};
 
 const reasons: { id: ValuationReason; title: string; detail: string; example: string }[] = [
   {
