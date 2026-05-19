@@ -42,7 +42,12 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-3 overflow-hidden rounded-[2rem] bg-white p-3 shadow-sm lg:grid-cols-[1.35fr_.65fr]">
             <div className={`relative min-h-[25rem] overflow-hidden rounded-[1.5rem] bg-gradient-to-br ${listing.gradient} p-6 text-white`}>
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_18%,rgba(255,255,255,.42),transparent_14rem),linear-gradient(180deg,rgba(5,10,48,0)_30%,rgba(5,10,48,.65)_100%)]" />
+              <img
+                src={listing.photos[0]?.src}
+                alt={listing.photos[0]?.alt ?? listing.title}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,48,.12)_0%,rgba(5,10,48,.08)_42%,rgba(5,10,48,.82)_100%)]" />
               <div className="relative flex gap-2">
                 <span className="rounded-md bg-white px-3 py-1 text-xs font-black uppercase tracking-[.08em] text-[#050A30]">{listing.purpose}</span>
                 <span className="rounded-md bg-[#12D6C5] px-3 py-1 text-xs font-black uppercase tracking-[.08em] text-[#050A30]">Verified</span>
@@ -51,14 +56,18 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                 <p className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-black backdrop-blur"><MapPin size={16} /> {listing.location}</p>
                 <h1 className="mt-4 text-4xl font-black tracking-[-.065em] sm:text-6xl">{listing.title}</h1>
               </div>
+              <div className="absolute bottom-6 right-6 hidden rounded-full bg-white px-4 py-2 text-sm font-black text-[#050A30] shadow-lg sm:block">
+                View all {listing.photos.length} photos
+              </div>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-              {listing.highlights.slice(0, 2).map((highlight, index) => (
-                <div key={highlight} className={`relative min-h-48 overflow-hidden rounded-[1.5rem] bg-gradient-to-br ${listing.gradient} p-5 text-white`}>
-                  <div className="absolute inset-0 bg-[#050A30]/25" />
+              {listing.photos.slice(1, 3).map((photo, index) => (
+                <div key={photo.src} className={`relative min-h-48 overflow-hidden rounded-[1.5rem] bg-gradient-to-br ${listing.gradient} p-5 text-white`}>
+                  <img src={photo.src} alt={photo.alt} className="absolute inset-0 h-full w-full object-cover" />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,48,.18)_0%,rgba(5,10,48,.62)_100%)]" />
                   <div className="relative flex h-full flex-col justify-between">
-                    <span className="w-fit rounded-full bg-white/90 px-3 py-1 text-xs font-black text-[#050A30]">Photo {index + 2} / 18</span>
-                    <p className="text-xl font-black tracking-[-.03em]">{highlight}</p>
+                    <span className="w-fit rounded-full bg-white/90 px-3 py-1 text-xs font-black text-[#050A30]">Photo {index + 2} / {listing.photos.length}</span>
+                    <p className="text-xl font-black tracking-[-.03em]">{listing.highlights[index]}</p>
                   </div>
                 </div>
               ))}

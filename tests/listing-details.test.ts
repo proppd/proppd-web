@@ -16,6 +16,14 @@ describe('listing detail helpers', () => {
     ]);
   });
 
+  it('keeps demo listings backed by accessible gallery photos', () => {
+    for (const listing of listings) {
+      expect(listing.photos.length).toBeGreaterThanOrEqual(3);
+      expect(listing.photos[0]?.src).toContain('images.unsplash.com');
+      expect(listing.photos.every((photo) => photo.alt.length > 12)).toBe(true);
+    }
+  });
+
   it('builds display facts without empty optional rows', () => {
     const rental = listings.find((listing) => listing.slug === 'sea-point-apartment-with-parking-20401');
     expect(rental).toBeDefined();

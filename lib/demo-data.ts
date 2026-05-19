@@ -16,6 +16,7 @@ export type Listing = {
   agency: string;
   agent: string;
   gradient: string;
+  photos: { src: string; alt: string }[];
   description: string;
   features: string[];
   highlights: string[];
@@ -47,6 +48,20 @@ export const listings: Listing[] = [
     agency: 'Proppd Verified Realty',
     agent: 'Lerato Mokoena',
     gradient: 'from-[#050A30] via-[#1b2cff] to-[#12D6C5]',
+    photos: [
+      {
+        src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80',
+        alt: 'Modern suburban house exterior with garden',
+      },
+      {
+        src: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80',
+        alt: 'Open-plan living room with neutral finishes',
+      },
+      {
+        src: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=900&q=80',
+        alt: 'Modern kitchen and dining area',
+      },
+    ],
     description:
       'A secure, move-in-ready Sandton home with open-plan living, a private entertainment patio, and fast access to major business nodes. Built for buyers who want verified information before they book a viewing.',
     features: ['Solar-ready inverter point', 'Private garden', 'Open-plan kitchen', 'Covered patio', 'Security estate access', 'Fibre ready'],
@@ -77,6 +92,20 @@ export const listings: Listing[] = [
     agency: 'Atlantic Property Co.',
     agent: 'Mia Jacobs',
     gradient: 'from-[#041025] via-[#3B49FF] to-[#12D6C5]',
+    photos: [
+      {
+        src: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1400&q=80',
+        alt: 'Bright apartment lounge with balcony light',
+      },
+      {
+        src: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=80',
+        alt: 'Compact modern apartment living space',
+      },
+      {
+        src: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=900&q=80',
+        alt: 'Apartment bedroom with clean finishes',
+      },
+    ],
     description:
       'A bright Atlantic Seaboard rental with secure parking, sea-facing balcony light, and managed viewing coordination. Ideal for professionals who need a verified rental before submitting documents.',
     features: ['Secure basement parking', 'Balcony', 'Lift access', '24-hour access control', 'Walk to promenade', 'Fibre ready'],
@@ -105,6 +134,20 @@ export const listings: Listing[] = [
     agency: 'Coastal Living',
     agent: 'Aiden Naidoo',
     gradient: 'from-[#050A30] via-[#1167ff] to-[#12D6C5]',
+    photos: [
+      {
+        src: 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1400&q=80',
+        alt: 'Townhouse exterior with landscaped entrance',
+      },
+      {
+        src: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=900&q=80',
+        alt: 'Townhouse open-plan lounge and dining area',
+      },
+      {
+        src: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=80',
+        alt: 'Family home bedroom with warm light',
+      },
+    ],
     description:
       'A lock-up-and-go Umhlanga townhouse with practical family spaces, pet-friendly outdoor flow, and an agency-verified sale file. Positioned for coastal buyers who want clarity before an offer.',
     features: ['Pet-friendly garden', 'Double parking bay', 'Complex pool', 'Guest bathroom', 'North-coast access', 'Secure complex'],
