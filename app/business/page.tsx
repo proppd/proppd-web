@@ -1,7 +1,15 @@
 import type React from 'react';
+import type { Metadata } from 'next';
 import { Bot, Building2, CheckCircle2, Handshake, MessageCircle, Search, ShieldCheck, Sparkles, Users, type LucideIcon } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
+
+export const metadata: Metadata = {
+  title: 'Business model',
+  alternates: {
+    canonical: '/business',
+  },
+};
 
 const problems = [
   'Expensive listing platforms that make visibility feel pay-to-play.',

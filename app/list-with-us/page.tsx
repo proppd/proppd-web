@@ -1,8 +1,22 @@
 import type React from 'react';
+import type { Metadata } from 'next';
 import { ArrowRight, CheckCircle2, ShieldCheck, Sparkles, UsersRound } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { buildAgencyApplicationMailto, launchPackages } from '@/lib/agents/onboarding';
+
+export const metadata: Metadata = {
+  title: 'List with Proppd',
+  alternates: {
+    canonical: '/list-with-us',
+  },
+};
+
+const launchSignals = [
+  ['Verified profiles', 'Agency details, areas, and listings are checked before exposure.'],
+  ['Cleaner handoff', 'Enquiries carry the context your team needs to respond faster.'],
+  ['Pilot review', 'Every request is assessed before onboarding is approved.'],
+];
 
 const onboardingSteps = [
   'Send your agency details and priority areas.',
@@ -27,7 +41,15 @@ export default function Page() {
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <a className="rounded-full bg-white px-6 py-3 text-sm font-black !text-[#050A30]" href={buildAgencyApplicationMailto({ packageName: 'Agency Growth' })}>Apply for launch access</a>
-                  <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-black text-white" href="/dashboard">View AgentOS demo</a>
+                  <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-black text-white" href="/dashboard">See the AgentOS workspace</a>
+                </div>
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                  {launchSignals.map(([title, text]) => (
+                    <div key={title} className="rounded-2xl border border-white/10 bg-white/6 p-4">
+                      <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">{title}</p>
+                      <p className="mt-2 text-sm font-bold leading-6 text-white/72">{text}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
               <div className="rounded-[2rem] border border-white/10 bg-white/10 p-6 backdrop-blur">
@@ -38,7 +60,7 @@ export default function Page() {
                 </p>
                 <div className="mt-6 rounded-2xl bg-white p-4 text-[#050A30]">
                   <p className="text-xs font-black uppercase tracking-[.14em] text-slate-500">Pilot promise</p>
-                  <p className="mt-2 font-black">No fake “instant CRM” claim — every request is reviewed before onboarding.</p>
+                  <p className="mt-2 font-black">Measured launch, real review, and no fake “instant CRM” claim.</p>
                 </div>
               </div>
             </div>

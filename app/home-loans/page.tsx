@@ -1,7 +1,15 @@
+import type { Metadata } from 'next';
 import { Calculator, CheckCircle2, FileCheck2, ShieldCheck, TrendingUp } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { estimateAffordability, formatRand } from '@/lib/finance/affordability';
+
+export const metadata: Metadata = {
+  title: 'Home loans',
+  alternates: {
+    canonical: '/home-loans',
+  },
+};
 
 const buyerScenarios = [
   {
