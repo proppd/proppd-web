@@ -187,7 +187,10 @@ export function EnquiryForm({ listing, agentProfileHref, shareText }: EnquiryFor
             checked={form.popiaConsent}
             onChange={(event) => updateField('popiaConsent', event.target.checked)}
           />
-          <span>I consent to Proppd processing my details for this property enquiry and sharing them with the relevant agent or agency.</span>
+          <span>
+            I consent to Proppd processing my details for this property enquiry and sharing them with the relevant agent or agency.
+            {!form.popiaConsent && <span className="mt-1 block font-black text-[#0f766e]">Required before sending.</span>}
+          </span>
         </label>
 
         {errors.length > 0 && (
@@ -211,7 +214,8 @@ export function EnquiryForm({ listing, agentProfileHref, shareText }: EnquiryFor
         <button
           className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#050A30] px-5 py-3 font-black text-white shadow-lg shadow-slate-900/10 disabled:cursor-not-allowed disabled:opacity-60"
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !form.popiaConsent}
+          aria-disabled={isSubmitting || !form.popiaConsent}
         >
           <Mail size={18} /> <span className="text-white">{isSubmitting ? 'Saving enquiry...' : 'Send verified enquiry'}</span>
         </button>
