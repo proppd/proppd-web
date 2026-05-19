@@ -109,6 +109,33 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
               </a>
             </aside>
           </div>
+
+          <div className="mt-8 grid gap-4 lg:grid-cols-[1fr_.9fr]">
+            <div className="rounded-[2rem] bg-white p-6 shadow-sm">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">How to work with this agency</p>
+              <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">Simple, verified, and route-friendly.</h2>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                <AgencyPill title="Browse" text="Review the branch, team, and current stock." />
+                <AgencyPill title="Choose" text="Open a listing and compare the verified details." />
+                <AgencyPill title="Enquire" text="Use the agency handoff to start the conversation." />
+              </div>
+            </div>
+            <div className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-6">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Need a shortlist?</p>
+              <p className="mt-2 text-2xl font-black tracking-[-.04em]">Search more in {agency.city}.</p>
+              <p className="mt-3 text-sm font-bold leading-6 text-slate-600">
+                Keep browsing across agents and agencies, or send a direct enquiry to this branch when you are ready.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <a className="rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white" href={`/properties?agency=${encodeURIComponent(agency.name)}`}>
+                  View listings
+                </a>
+                <a className="rounded-full bg-white px-5 py-3 text-sm font-black text-[#050A30] shadow-sm" href={`/agents?agency=${encodeURIComponent(agency.name)}`}>
+                  Browse agents
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
       <SiteFooter />
@@ -121,6 +148,15 @@ function AgencyMetric({ icon, label, value }: { icon: React.ReactNode; label: st
     <div className="rounded-3xl bg-[#F5F7FA] p-5">
       <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.16em] text-slate-400">{icon} {label}</div>
       <div className="mt-2 text-xl font-black text-[#050A30]">{value}</div>
+    </div>
+  );
+}
+
+function AgencyPill({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-3xl bg-[#F5F7FA] p-4">
+      <div className="text-sm font-black text-[#050A30]">{title}</div>
+      <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{text}</p>
     </div>
   );
 }

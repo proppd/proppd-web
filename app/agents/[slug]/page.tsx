@@ -97,6 +97,33 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
               </a>
             ))}
           </div>
+
+          <div className="mt-8 grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
+            <div className="rounded-[2rem] bg-white p-6 shadow-sm">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Working with this agent</p>
+              <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">A clean path from search to enquiry.</h2>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                <ProfilePill title="Search" text="Filter by area, stock, or school catchment." />
+                <ProfilePill title="Shortlist" text="Open listing details and compare verified options." />
+                <ProfilePill title="Reach out" text="Send a structured enquiry or viewing request." />
+              </div>
+            </div>
+            <div className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-6">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Next step</p>
+              <p className="mt-2 text-2xl font-black tracking-[-.04em]">Need help in {agent.area}?</p>
+              <p className="mt-3 text-sm font-bold leading-6 text-slate-600">
+                Browse the current stock, open a property page, or send a direct enquiry to {agent.name} through Proppd.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <a className="rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white" href={`/properties?agent=${encodeURIComponent(agent.name)}`}>
+                  Browse listings
+                </a>
+                <a className="rounded-full bg-white px-5 py-3 text-sm font-black text-[#050A30] shadow-sm" href={`mailto:info@proppd.com?subject=Agent enquiry: ${agent.name}`}>
+                  Email agent
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
       <SiteFooter />
@@ -109,6 +136,15 @@ function ProfileStat({ label, value, icon }: { label: string; value: string; ico
     <div className="rounded-3xl bg-[#F5F7FA] p-4">
       <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.16em] text-slate-400">{icon} {label}</div>
       <div className="mt-2 text-lg font-black text-[#050A30]">{value}</div>
+    </div>
+  );
+}
+
+function ProfilePill({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-3xl bg-[#F5F7FA] p-4">
+      <div className="text-sm font-black text-[#050A30]">{title}</div>
+      <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{text}</p>
     </div>
   );
 }
