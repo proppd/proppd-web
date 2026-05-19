@@ -15,9 +15,14 @@ type SubmitState =
   | { status: 'success'; message: string }
   | { status: 'error'; message: string };
 
+const INVITE_EMAIL = 'info@proppd.com';
+
 export function SupabaseLoginForm({ supabaseUrl, publishableKey }: LoginFormProps) {
   const [email, setEmail] = useState('');
-  const [state, setState] = useState<SubmitState>({ status: 'idle', message: 'Enter the email linked to your Proppd agent or admin profile.' });
+  const [state, setState] = useState<SubmitState>({
+    status: 'idle',
+    message: 'Enter the email linked to your Proppd agent or admin profile.',
+  });
   const isConfigured = Boolean(supabaseUrl && publishableKey);
 
   const supabase = useMemo(() => {
@@ -25,17 +30,24 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey }: LoginFormProp
     return createClient(supabaseUrl, publishableKey, { auth: { persistSession: true, autoRefreshToken: true } });
   }, [publishableKey, supabaseUrl]);
 
+  const cleanEmail = email.trim().toLowerCase();
+  const isValidEmail = cleanEmail.includes('@') && cleanEmail.includes('.');
+
   async function submitMagicLink(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!supabase) {
-      setState({ status: 'error', message: 'Invite-only login is still being connected. Email info@proppd.com from your agency inbox for access.' });
+    if (!isValidEmail) {
+      setState({ status: 'error', message: 'Enter a valid work email address.' });
       return;
     }
 
-    const cleanEmail = email.trim().toLowerCase();
-    if (!cleanEmail || !cleanEmail.includes('@')) {
-      setState({ status: 'error', message: 'Enter a valid email address.' });
+    if (!supabase) {
+      const subject = encodeURIComponent('Proppd access request');
+      const body = encodeURIComponent(
+        [`Please approve Proppd access for: ${cleanEmail}`, '', 'Agency:', 'Role:', 'Notes:'].join('\n'),
+      );
+      setState({ status: 'success', message: 'Opening your email app with a ready-to-send access request.' });
+      window.location.href = `mailto:${INVITE_EMAIL}?subject=${subject}&body=${body}`;
       return;
     }
 
@@ -60,28 +72,47 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey }: LoginFormProp
   return (
     <div className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-4 sm:p-5">
       <form className="grid gap-3 sm:grid-cols-[1fr_auto]" onSubmit={submitMagicLink}>
-        <label className="sr-only" htmlFor="login-email">Email address</label>
+        <label className="sr-only" htmlFor="login-email">
+          Email address
+        </label>
         <input
           id="login-email"
-          className="rounded-full border border-slate-200 bg-white px-5 py-4 text-sm font-bold text-[#050A30] outline-none transition placeholder:text-slate-400 focus:border-[#3B49FF] focus:ring-4 focus:ring-[#3B49FF]/10 disabled:cursor-not-allowed disabled:bg-slate-100"
+          className="rounded-full border border-slate-200 bg-white px-5 py-4 text-sm font-bold text-[#050A30] outline-none transition placeholder:text-slate-400 focus:border-[#3B49FF] focus:ring-4 focus:ring-[#3B49FF]/10"
           type="email"
           placeholder="you@agency.co.za"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          disabled={!isConfigured || state.status === 'loading'}
+          inputMode="email"
+          autoComplete="email"
+          autoCapitalize="none"
+          spellCheck={false}
           required
         />
         <button
           className="rounded-full bg-[#050A30] px-6 py-4 text-sm font-black text-white transition hover:bg-[#3B49FF] disabled:cursor-not-allowed disabled:bg-slate-400"
           type="submit"
-          disabled={!isConfigured || state.status === 'loading'}
+          disabled={state.status === 'loading'}
         >
-          {state.status === 'loading' ? 'Sending…' : 'Send login link'}
+          {state.status === 'loading' ? 'Sending…' : isConfigured ? 'Send login link' : 'Request invite'}
         </button>
       </form>
-      <p className={`mt-4 text-sm font-bold leading-6 ${state.status === 'error' ? 'text-red-600' : state.status === 'success' ? 'text-[#0f766e]' : 'text-slate-600'}`}>
-        {isConfigured ? state.message : 'Invite-only login is still being connected. Email info@proppd.com from your agency inbox for access.'}
-      </p>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+        <p
+          aria-live="polite"
+          className={`text-sm font-bold leading-6 ${state.status === 'error' ? 'text-red-600' : state.status === 'success' ? 'text-[#0f766e]' : 'text-slate-600'}`}
+        >
+          {isConfigured ? state.message : 'The request button prepares a ready-to-send invite email until live login links are enabled.'}
+        </p>
+        <a
+          className="inline-flex justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]"
+          href={`mailto:${INVITE_EMAIL}?subject=${encodeURIComponent('Proppd access request')}&body=${encodeURIComponent(
+            [`Please approve Proppd access for: ${cleanEmail || '[add your work email]'}`, '', 'Agency:', 'Role:', 'Notes:'].join('\n'),
+          )}`}
+        >
+          Email request
+        </a>
+      </div>
     </div>
   );
 }

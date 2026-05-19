@@ -28,7 +28,7 @@ export default function Page() {
             <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Secure access</p>
             <h1 className="mt-4 max-w-2xl text-5xl font-black tracking-[-.07em] sm:text-6xl">Agent and admin login.</h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-              Proppd uses passwordless Supabase magic links so verified agents and admins can access the control room without weak shared passwords.
+              Proppd uses passwordless login links so verified agents and admins can access the control room without weak shared passwords.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
