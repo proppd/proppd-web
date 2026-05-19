@@ -130,6 +130,26 @@ export default function BusinessPage() {
               </article>
             ))}
           </div>
+
+          <div className="mt-8 grid gap-4 lg:grid-cols-[1.15fr_.85fr]">
+            <div className="rounded-[2rem] bg-[#050A30] p-6 text-white shadow-lg shadow-slate-900/10">
+              <p className="text-xs font-black uppercase tracking-[.2em] text-[#12D6C5]">Commercial snapshot</p>
+              <h3 className="mt-3 text-3xl font-black tracking-[-.05em]">Build trust first, then widen the monetisation stack.</h3>
+              <div className="mt-6 grid gap-3 md:grid-cols-3">
+                <Snapshot value="Live now" label="Marketplace, directory, and lead capture" />
+                <Snapshot value="Next" label="AgentOS workflows and richer lead routing" />
+                <Snapshot value="Later" label="AI tooling, partner revenue, and automation" />
+              </div>
+            </div>
+            <div className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-6">
+              <p className="text-xs font-black uppercase tracking-[.2em] text-[#3B49FF]">Commercial guardrails</p>
+              <ul className="mt-4 grid gap-3 text-sm font-bold leading-6 text-slate-700">
+                <li className="rounded-2xl bg-white p-4">No fake CRM promises before the workflows are real.</li>
+                <li className="rounded-2xl bg-white p-4">No exploitative listing fees when verified demand can do the work.</li>
+                <li className="rounded-2xl bg-white p-4">No consumer dead ends: every route should hand off clearly.</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -210,6 +230,15 @@ function Audience({ icon, title, text }: { icon: React.ReactNode; title: string;
         <h3 className="font-black">{title}</h3>
         <p className="mt-1 text-sm leading-6 text-slate-600">{text}</p>
       </div>
+    </div>
+  );
+}
+
+function Snapshot({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="rounded-3xl border border-white/12 bg-white/10 p-4">
+      <div className="text-2xl font-black">{value}</div>
+      <div className="mt-1 text-sm font-bold leading-6 text-white/68">{label}</div>
     </div>
   );
 }
