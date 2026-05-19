@@ -1,4 +1,5 @@
-import type React from 'react';
+import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 import { AlertTriangle, BarChart3, BellRing, CheckCircle2, Home, MessageCircle, ShieldCheck, Sparkles } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
@@ -13,6 +14,16 @@ const priorityStyles: Record<AgentFollowUpAction['priority'], string> = {
   high: 'bg-red-50 text-red-700 border-red-100',
   medium: 'bg-amber-50 text-amber-700 border-amber-100',
   low: 'bg-[#eefcf9] text-[#0f766e] border-[#c8f6ec]',
+};
+
+export const metadata: Metadata = {
+  title: {
+    absolute: 'Agent workspace | Proppd',
+  },
+  description: 'Demo agent workspace for lead follow-up, listing health, and response priorities.',
+  alternates: {
+    canonical: '/dashboard',
+  },
 };
 
 export default function Page() {
@@ -33,17 +44,36 @@ export default function Page() {
                 <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Agent workspace</p>
                 <h1 className="mt-4 max-w-4xl text-5xl font-black tracking-[-.07em] sm:text-6xl">A practical command centre for listings, leads, and seller follow-up.</h1>
                 <p className="mt-5 max-w-2xl text-lg leading-8 text-white/70">
-                  The AgentOS foundation now gives agents a useful demo workspace instead of a placeholder: live-style lead priorities, listing health, and the next action to take.
+                  The AgentOS foundation now gives agents a clear command surface for live-style lead priorities, listing health, and the next action to take.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <a className="rounded-full bg-white px-6 py-3 text-sm font-black !text-[#050A30]" href="/admin">Open admin queue</a>
-                  <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-black text-white" href="mailto:info@proppd.com?subject=Proppd%20AgentOS%20pilot">Request AgentOS pilot</a>
+                  <a className="rounded-full bg-white px-6 py-3 text-sm font-black !text-[#050A30]" href="/admin">
+                    Open admin queue
+                  </a>
+                  <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-black text-white" href="mailto:info@proppd.com?subject=Proppd%20AgentOS%20pilot">
+                    Request AgentOS pilot
+                  </a>
                 </div>
               </div>
+
               <div className="rounded-[2rem] border border-white/10 bg-white/10 p-6 backdrop-blur">
-                <p className="text-sm font-black uppercase tracking-[.18em] text-white/60">Signed-in agent preview</p>
+                <p className="text-sm font-black uppercase tracking-[.18em] text-white/60">Signed-in agent</p>
                 <h2 className="mt-4 text-3xl font-black tracking-[-.05em]">{stats.agentName}</h2>
                 <p className="mt-2 text-sm font-bold text-white/60">{stats.agencyName}</p>
+                <div className="mt-6 grid grid-cols-3 gap-3">
+                  <div className="rounded-2xl bg-white/10 p-3 text-center">
+                    <p className="text-2xl font-black text-white">{stats.activeListings}</p>
+                    <p className="mt-1 text-[11px] font-black uppercase tracking-[.14em] text-white/60">Listings</p>
+                  </div>
+                  <div className="rounded-2xl bg-white/10 p-3 text-center">
+                    <p className="text-2xl font-black text-white">{stats.newLeads}</p>
+                    <p className="mt-1 text-[11px] font-black uppercase tracking-[.14em] text-white/60">New leads</p>
+                  </div>
+                  <div className="rounded-2xl bg-white/10 p-3 text-center">
+                    <p className="text-2xl font-black text-white">{stats.flaggedLeads}</p>
+                    <p className="mt-1 text-[11px] font-black uppercase tracking-[.14em] text-white/60">Flagged</p>
+                  </div>
+                </div>
                 <div className="mt-6 rounded-2xl bg-white p-4 text-[#050A30]">
                   <p className="text-xs font-black uppercase tracking-[.14em] text-slate-500">Response signal</p>
                   <p className="mt-2 font-black">{formatAgentResponseSignal(stats)}</p>
@@ -67,7 +97,7 @@ export default function Page() {
                     <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Follow-up queue</p>
                     <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">Next best actions</h2>
                   </div>
-                  <span className="rounded-full bg-[#eefcf9] px-4 py-2 text-sm font-black text-[#0f766e]">Demo CRM layer</span>
+                  <span className="rounded-full bg-[#eefcf9] px-4 py-2 text-sm font-black text-[#0f766e]">Queue snapshot</span>
                 </div>
 
                 <div className="mt-6 space-y-3">
@@ -111,7 +141,9 @@ export default function Page() {
                 {stats.latestLead ? (
                   <div className="mt-4 text-sm font-bold leading-6 text-slate-600">
                     <p className="font-black text-[#050A30]">{stats.latestLead.name}</p>
-                    <p>{formatLeadIntent(stats.latestLead.intent)} on {stats.latestLead.listingTitle}</p>
+                    <p>
+                      {formatLeadIntent(stats.latestLead.intent)} on {stats.latestLead.listingTitle}
+                    </p>
                     <p className="mt-3 rounded-2xl bg-[#F5F7FA] p-4">“{stats.latestLead.message}”</p>
                   </div>
                 ) : (
@@ -129,7 +161,9 @@ export default function Page() {
                         <p className="font-black">{lead.name}</p>
                         <span className="text-xs font-black capitalize text-slate-500">{lead.quality}</span>
                       </div>
-                      <p className="mt-1 text-sm font-bold text-slate-500">{formatLeadIntent(lead.intent)} · {lead.status}</p>
+                      <p className="mt-1 text-sm font-bold text-slate-500">
+                        {formatLeadIntent(lead.intent)} · {lead.status}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -137,19 +171,19 @@ export default function Page() {
 
               <div className="rounded-[2rem] border border-slate-200 bg-[#eefcf9] p-6">
                 <ShieldCheck className="text-[#0f766e]" size={28} />
-                <h2 className="mt-4 text-2xl font-black tracking-[-.04em] text-[#0f766e]">Honest backend gate</h2>
+                <h2 className="mt-4 text-2xl font-black tracking-[-.04em] text-[#0f766e]">Production gate</h2>
                 <p className="mt-3 text-sm font-bold leading-6 text-[#0f766e]">
-                  This is still a demo workspace. The production gate remains Supabase-backed agent auth, tenant-scoped listings, persisted lead status changes, and notification routing.
+                  Production auth, tenant-scoped listings, persisted lead changes, and notification routing are being connected behind this workspace.
                 </p>
               </div>
 
               <div className="rounded-[2rem] bg-[#050A30] p-6 text-white">
                 <Sparkles className="text-[#12D6C5]" size={28} />
-                <h2 className="mt-4 text-2xl font-black tracking-[-.04em]">AgentOS roadmap</h2>
+                <h2 className="mt-4 text-2xl font-black tracking-[-.04em]">Next release</h2>
                 <ul className="mt-4 space-y-2 text-sm font-bold leading-6 text-white/70">
-                  <li>• Listing status and seller report prompts.</li>
-                  <li>• WhatsApp-first response tracking.</li>
-                  <li>• AI follow-up and listing copy assists.</li>
+                  <li>• Tenant-scoped permissions and audit events.</li>
+                  <li>• Notification routing for new enquiries.</li>
+                  <li>• Agent assist tools for follow-up and copy.</li>
                 </ul>
               </div>
             </aside>
@@ -162,7 +196,7 @@ export default function Page() {
   );
 }
 
-function Metric({ icon, label, value, detail, warning = false }: { icon: React.ReactNode; label: string; value: number; detail: string; warning?: boolean }) {
+function Metric({ icon, label, value, detail, warning = false }: { icon: ReactNode; label: string; value: number; detail: string; warning?: boolean }) {
   return (
     <div className="rounded-[2rem] bg-white p-5 shadow-sm">
       <div className={`inline-flex rounded-2xl p-3 ${warning ? 'bg-red-50 text-red-600' : 'bg-[#eefcf9] text-[#0f766e]'}`}>{icon}</div>

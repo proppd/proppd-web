@@ -29,7 +29,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey }: LoginFormProp
     event.preventDefault();
 
     if (!supabase) {
-      setState({ status: 'error', message: 'Supabase login is not configured yet. Use info@proppd.com while access is being connected.' });
+      setState({ status: 'error', message: 'Invite-only login is still being connected. Email info@proppd.com from your agency inbox for access.' });
       return;
     }
 
@@ -80,7 +80,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey }: LoginFormProp
         </button>
       </form>
       <p className={`mt-4 text-sm font-bold leading-6 ${state.status === 'error' ? 'text-red-600' : state.status === 'success' ? 'text-[#0f766e]' : 'text-slate-600'}`}>
-        {isConfigured ? state.message : 'Supabase public auth config is missing. Login remains in safe contact-only mode.'}
+        {isConfigured ? state.message : 'Invite-only login is still being connected. Email info@proppd.com from your agency inbox for access.'}
       </p>
     </div>
   );
