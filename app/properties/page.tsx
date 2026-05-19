@@ -4,7 +4,7 @@ import { Bell, ChevronLeft, ChevronRight, MapPin, Search, SlidersHorizontal, X }
 import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { listings } from '@/lib/demo-data';
+import { loadPortalListings } from '../../lib/proppd/backend';
 import { applyListingFilters, paginateListings, parseListingFilters } from '@/lib/listings/filters';
 import { buildSavedSearchMailto } from '@/lib/listings/saved-search';
 
@@ -16,10 +16,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/properties' },
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function PropertiesPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const filters = parseListingFilters(toURLSearchParams(params));
-  const filtered = applyListingFilters(listings, filters);
+  const portalListings = (await loadPortalListings()).items;
+  const filtered = applyListingFilters(portalListings, filters);
   const paginated = paginateListings(filtered, filters.page, filters.pageSize);
 
   return (
@@ -191,7 +194,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
   );
 }
 
-function SelectField({ label, name, defaultValue, children, compact = false }: { label: string; name: string; defaultValue?: string; children: React.ReactNode; compact?: boolean }) {
+function SelectField({ label, name, defaultValue, children, compact = false }: { label: string; name: string; defaultValue?: string; children: ReactNode; compact?: boolean }) {
   return (
     <label className={`block text-xs font-black uppercase tracking-[.12em] text-slate-500 ${compact ? 'w-full sm:w-auto' : ''}`}>
       {label}
@@ -206,7 +209,7 @@ function SelectField({ label, name, defaultValue, children, compact = false }: {
   );
 }
 
-function FilterChip({ href, children }: { href: string; children: React.ReactNode }) {
+function FilterChip({ href, children }: { href: string; children: ReactNode }) {
   return (
     <a className="inline-flex items-center gap-2 rounded-full border border-[#3B49FF]/20 bg-[#3B49FF]/8 px-3 py-2 text-[#3B49FF] transition hover:border-[#3B49FF] hover:bg-[#3B49FF]/12" href={href}>
       {children}
@@ -214,7 +217,7 @@ function FilterChip({ href, children }: { href: string; children: React.ReactNod
   );
 }
 
-function PaginationLink({ href, children, active = false, disabled = false }: { href: string; children: React.ReactNode; active?: boolean; disabled?: boolean }) {
+function PaginationLink({ href, children, active = false, disabled = false }: { href: string; children: ReactNode; active?: boolean; disabled?: boolean }) {
   if (disabled) {
     return (
       <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-black text-slate-300">

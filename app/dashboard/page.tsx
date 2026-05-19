@@ -3,9 +3,8 @@ import type { ReactNode } from 'react';
 import { AlertTriangle, BarChart3, BellRing, CheckCircle2, Home, MessageCircle, ShieldCheck, Sparkles } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { listings } from '@/lib/demo-data';
+import { loadPortalLeadQueue, loadPortalListings } from '../../lib/proppd/backend';
 import { getAgentFollowUpActions, getAgentWorkspaceStats, formatAgentResponseSignal, type AgentFollowUpAction } from '@/lib/agent/workspace';
-import { demoLeads } from '@/lib/leads/demo-leads';
 import { formatLeadIntent } from '@/lib/leads/pipeline';
 
 const agentName = 'Lerato Mokoena';
@@ -26,11 +25,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Page() {
-  const stats = getAgentWorkspaceStats(agentName, listings, demoLeads);
-  const actions = getAgentFollowUpActions(agentName, demoLeads);
-  const agentLeads = demoLeads.filter((lead) => lead.agent === agentName);
-  const agentListings = listings.filter((listing) => listing.agent === agentName);
+export const dynamic = 'force-dynamic';
+
+export default async function Page() {
+  const portalListings = (await loadPortalListings()).items;
+  const portalLeads = (await loadPortalLeadQueue(agentName)).items;
+  const stats = getAgentWorkspaceStats(agentName, portalListings, portalLeads);
+  const actions = getAgentFollowUpActions(agentName, portalLeads);
+  const agentLeads = portalLeads.filter((lead) => lead.agent === agentName);
+  const agentListings = portalListings.filter((listing) => listing.agent === agentName);
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -49,6 +52,9 @@ export default function Page() {
                 <div className="mt-8 flex flex-wrap gap-3">
                   <a className="rounded-full bg-white px-6 py-3 text-sm font-black !text-[#050A30]" href="/admin">
                     Open admin queue
+                  </a>
+                  <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-black text-white" href="/dashboard/listings">
+                    Manage listings
                   </a>
                   <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-black text-white" href="mailto:info@proppd.com?subject=Proppd%20AgentOS%20pilot">
                     Request AgentOS pilot

@@ -1,0 +1,930 @@
+import { Pool } from 'pg';
+import { listings as demoListings, type Listing } from '../demo-data';
+import { demoLeads } from '../leads/demo-leads';
+import { getLeadQueue, type LeadRecord, type LeadQuality, type LeadStatus, type LeadIntent } from '../leads/pipeline';
+import { getSupabaseBrowserConfig } from '../supabase/env';
+import { portalPropertyTypeOptions, slugifyListingTitle } from './listing-editor';
+
+export type PortalBackendMode = 'database' | 'demo';
+export type PortalDataSource = 'database' | 'demo' | 'empty' | 'error';
+
+export type PortalBackendDiagnostics = {
+  backendMode: PortalBackendMode;
+  databaseConfigured: boolean;
+  browserSupabaseConfigured: boolean;
+  serviceRoleConfigured: boolean;
+  canReadDatabase: boolean;
+  listingCount: number | null;
+  leadCount: number | null;
+  agentCount: number | null;
+  agencyCount: number | null;
+  error?: string;
+};
+
+export type PortalPayload<T> = {
+  source: PortalDataSource;
+  items: T[];
+  error?: string;
+};
+
+export type PortalUserAccess = {
+  userId: string;
+  profileId: string;
+  role: 'super_admin' | 'agency_admin' | 'agent' | 'user';
+  agentId: string | null;
+  agentName: string | null;
+  agencyId: string | null;
+  agencyName: string | null;
+};
+
+export type PortalListingDraft = {
+  id: string;
+  slug: string;
+  title: string;
+  purpose: 'sale' | 'rent';
+  status: string;
+  price: number;
+  description: string | null;
+  suburb: string | null;
+  city: string | null;
+  province: string | null;
+  bedrooms: number | string | null;
+  bathrooms: number | string | null;
+  parking: number | string | null;
+  propertyTypeSlug: string | null;
+  propertyTypeName: string | null;
+  agencyId: string | null;
+  agencyName: string | null;
+  agentId: string | null;
+  agentName: string | null;
+  isFeatured: boolean;
+  floorSizeSqm: number | string | null;
+  erfSizeSqm: number | string | null;
+  ratesAndTaxes: number | string | null;
+  levies: number | string | null;
+  publishedAt: string | null;
+  createdAt: string;
+};
+
+export type PortalListingWriteInput = {
+  title: string;
+  purpose: 'sale' | 'rent';
+  status: 'draft' | 'pending_review' | 'available' | 'under_offer' | 'sold' | 'rented' | 'archived';
+  price: number;
+  description: string;
+  suburb: string;
+  city: string;
+  province: string;
+  propertyTypeSlug: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  parking?: number;
+  floorSizeSqm?: number;
+  erfSizeSqm?: number;
+  ratesAndTaxes?: number;
+  levies?: number;
+  isFeatured?: boolean;
+};
+
+type PortalEnv = Record<string, string | undefined>;
+
+type ListingRow = {
+  id: string;
+  slug: string;
+  purpose: 'sale' | 'rent';
+  title: string;
+  description: string | null;
+  suburb: string | null;
+  city: string | null;
+  province: string | null;
+  price: string | number;
+  bedrooms: number | string | null;
+  bathrooms: number | string | null;
+  parking: number | string | null;
+  agency_name: string | null;
+  agent_name: string | null;
+  property_type_name: string | null;
+  features: string[] | null;
+  cover_image_url: string | null;
+  cover_image_alt: string | null;
+  image_urls: string[] | null;
+  image_alts: string[] | null;
+  status: string;
+  published_at: string | null;
+  created_at: string;
+  is_featured: boolean | null;
+  floor_size_sqm: number | string | null;
+  erf_size_sqm: number | string | null;
+  rates_and_taxes: number | string | null;
+  levies: number | string | null;
+};
+
+type LeadRow = {
+  id: string;
+  name: string;
+  surname: string;
+  email: string;
+  phone: string;
+  message: string;
+  intent: string;
+  status: string;
+  quality: string;
+  flags: string[] | null;
+  created_at: string;
+  listing_slug: string | null;
+  listing_title: string | null;
+  agent_name: string | null;
+  agency_name: string | null;
+};
+
+const FALLBACK_GRADIENTS = [
+  'from-[#050A30] via-[#1b2cff] to-[#12D6C5]',
+  'from-[#041025] via-[#3B49FF] to-[#12D6C5]',
+  'from-[#050A30] via-[#1167ff] to-[#12D6C5]',
+];
+
+const FALLBACK_PHOTOS = [
+  { src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80', alt: 'Modern suburban house exterior with garden' },
+  { src: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1400&q=80', alt: 'Bright apartment lounge with balcony light' },
+  { src: 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1400&q=80', alt: 'Townhouse exterior with landscaped entrance' },
+];
+
+let poolCache: { connectionString: string; pool: Pool } | undefined;
+
+export function getPortalDatabaseUrl(env: PortalEnv = process.env): string | null {
+  return normaliseEnvValue(env.DATABASE_URL ?? env.POSTGRES_URL ?? env.SUPABASE_DB_URL) ?? null;
+}
+
+export function getPortalBackendMode(env: PortalEnv = process.env): PortalBackendMode {
+  return getPortalDatabaseUrl(env) ? 'database' : 'demo';
+}
+
+export function getPortalBackendDiagnostics(env: PortalEnv = process.env): PortalBackendDiagnostics {
+  const browserConfig = getSupabaseBrowserConfig(env);
+  return {
+    backendMode: getPortalBackendMode(env),
+    databaseConfigured: Boolean(getPortalDatabaseUrl(env)),
+    browserSupabaseConfigured: Boolean(browserConfig),
+    serviceRoleConfigured: Boolean(normaliseEnvValue(env.SUPABASE_SERVICE_ROLE_KEY)),
+    canReadDatabase: Boolean(getPortalDatabaseUrl(env)),
+    listingCount: null,
+    leadCount: null,
+    agentCount: null,
+    agencyCount: null,
+  };
+}
+
+export async function loadPortalListings(env: PortalEnv = process.env): Promise<PortalPayload<Listing>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return { source: 'demo', items: demoListings };
+  }
+
+  try {
+    const rows = await queryListings(databaseUrl);
+    return { source: rows.length > 0 ? 'database' : 'empty', items: rows.map(mapListingRow) };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function loadPortalListingBySlug(slug: string, env: PortalEnv = process.env): Promise<PortalPayload<Listing>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    const item = demoListings.find((listing) => listing.slug === slug);
+    return { source: 'demo', items: item ? [item] : [] };
+  }
+
+  try {
+    const rows = await queryListings(databaseUrl, slug);
+    return { source: rows.length > 0 ? 'database' : 'empty', items: rows.map(mapListingRow) };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function loadPortalLeadQueue(agentName?: string, env: PortalEnv = process.env): Promise<PortalPayload<LeadRecord>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    const items = agentName ? demoLeads.filter((lead) => lead.agent === agentName) : demoLeads;
+    return { source: 'demo', items: getLeadQueue(items) };
+  }
+
+  try {
+    const rows = await queryLeads(databaseUrl, agentName);
+    return { source: rows.length > 0 ? 'database' : 'empty', items: rows.map(mapLeadRow).sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()) };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+function normaliseRole(value: string): PortalUserAccess['role'] {
+  if (value === 'super_admin' || value === 'agency_admin' || value === 'agent' || value === 'user') {
+    return value;
+  }
+  return 'user';
+}
+
+type ManagedListingRow = ListingRow & {
+  property_type_slug: string | null;
+  agency_id: string | null;
+  agent_id: string | null;
+};
+
+async function queryManagedListings(databaseUrl: string, access: PortalUserAccess, slug?: string): Promise<ManagedListingRow[]> {
+  const pool = getPortalPool(databaseUrl);
+  const values: string[] = [];
+  const clauses: string[] = [];
+
+  if (slug) {
+    values.push(slug);
+    clauses.push(`l.slug = $${values.length}`);
+  }
+
+  if (access.role !== 'super_admin') {
+    const ownershipClauses: string[] = [];
+    if (access.agentId) {
+      values.push(access.agentId);
+      ownershipClauses.push(`l.agent_id = $${values.length}`);
+    }
+    if (access.agencyId) {
+      values.push(access.agencyId);
+      ownershipClauses.push(`l.agency_id = $${values.length}`);
+    }
+    if (ownershipClauses.length > 0) {
+      clauses.push(`(${ownershipClauses.join(' or ')})`);
+    }
+  }
+
+  const sql = `
+    select
+      l.id,
+      l.slug,
+      l.purpose,
+      l.title,
+      l.description,
+      l.suburb,
+      l.city,
+      l.province,
+      l.price,
+      l.bedrooms,
+      l.bathrooms,
+      l.parking,
+      ag.id as agency_id,
+      ag.name as agency_name,
+      a.id as agent_id,
+      a.name as agent_name,
+      pt.slug as property_type_slug,
+      pt.name as property_type_name,
+      coalesce(array_agg(distinct f.feature) filter (where f.feature is not null), '{}'::text[]) as features,
+      coalesce(array_agg(distinct i.image_url) filter (where i.image_url is not null), '{}'::text[]) as image_urls,
+      coalesce(array_agg(distinct i.alt_text) filter (where i.alt_text is not null), '{}'::text[]) as image_alts,
+      min(case when i.is_cover then i.image_url end) as cover_image_url,
+      min(case when i.is_cover then i.alt_text end) as cover_image_alt,
+      l.status,
+      l.published_at,
+      l.created_at,
+      l.is_featured,
+      l.floor_size_sqm,
+      l.erf_size_sqm,
+      l.rates_and_taxes,
+      l.levies
+    from public.listings l
+    left join public.agencies ag on ag.id = l.agency_id
+    left join public.agents a on a.id = l.agent_id
+    left join public.property_types pt on pt.id = l.property_type_id
+    left join public.listing_features f on f.listing_id = l.id
+    left join public.listing_images i on i.listing_id = l.id
+    ${clauses.length > 0 ? `where ${clauses.join(' and ')}` : ''}
+    group by l.id, ag.id, ag.name, a.id, a.name, pt.slug, pt.name
+    order by coalesce(l.published_at, l.created_at) desc, l.created_at desc
+  `;
+
+  const result = await pool.query<ManagedListingRow>(sql, values);
+  return result.rows;
+}
+
+function mapListingDraftRow(row: ManagedListingRow): PortalListingDraft {
+  return {
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    purpose: row.purpose,
+    status: row.status,
+    price: toNumber(row.price),
+    description: row.description,
+    suburb: row.suburb,
+    city: row.city,
+    province: row.province,
+    bedrooms: row.bedrooms,
+    bathrooms: row.bathrooms,
+    parking: row.parking,
+    propertyTypeSlug: row.property_type_slug,
+    propertyTypeName: row.property_type_name,
+    agencyId: row.agency_id,
+    agencyName: row.agency_name,
+    agentId: row.agent_id,
+    agentName: row.agent_name,
+    isFeatured: Boolean(row.is_featured),
+    floorSizeSqm: row.floor_size_sqm,
+    erfSizeSqm: row.erf_size_sqm,
+    ratesAndTaxes: row.rates_and_taxes,
+    levies: row.levies,
+    publishedAt: row.published_at,
+    createdAt: row.created_at,
+  };
+}
+
+async function ensurePropertyTypeId(pool: Pool, slug: string): Promise<string> {
+  const option = portalPropertyTypeOptions.find((entry) => entry.slug === slug);
+  if (!option) {
+    throw new Error(`Unknown property type: ${slug}`);
+  }
+
+  const result = await pool.query<{ id: string }>(
+    `insert into public.property_types (name, slug, category, sort_order)
+     values ($1, $2, $3, $4)
+     on conflict (slug) do update set
+       name = excluded.name,
+       category = excluded.category,
+       sort_order = excluded.sort_order,
+       is_active = true
+     returning id`,
+    [option.label, option.slug, option.category, portalPropertyTypeOptions.findIndex((entry) => entry.slug === slug) * 10 + 10],
+  );
+
+  const row = result.rows[0];
+  if (!row) {
+    throw new Error(`Could not ensure property type: ${slug}`);
+  }
+
+  return row.id;
+}
+
+async function generateUniqueListingSlug(pool: Pool, title: string): Promise<string> {
+  const base = slugifyListingTitle(title) || 'listing';
+  let candidate = base;
+  let attempts = 0;
+
+  while (attempts < 5) {
+    const exists = await pool.query<{ slug: string }>('select slug from public.listings where slug = $1 limit 1', [candidate]);
+    if (exists.rowCount === 0) {
+      return candidate;
+    }
+
+    attempts += 1;
+    candidate = `${base}-${Math.random().toString(36).slice(2, 7)}`;
+  }
+
+  return `${base}-${Date.now().toString(36).slice(-5)}`;
+}
+
+export async function loadPortalUserAccess(userId: string, env: PortalEnv = process.env): Promise<PortalUserAccess | null> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return null;
+  }
+
+  const pool = getPortalPool(databaseUrl);
+  const result = await pool.query<{
+    profile_id: string;
+    role: string;
+    agent_id: string | null;
+    agent_name: string | null;
+    agency_id: string | null;
+    agency_name: string | null;
+  }>(
+    `select
+      p.id as profile_id,
+      p.role,
+      a.id as agent_id,
+      a.name as agent_name,
+      ag.id as agency_id,
+      ag.name as agency_name
+    from public.profiles p
+    left join public.agents a on a.profile_id = p.id
+    left join public.agencies ag on ag.id = a.agency_id
+    where p.id = $1
+    limit 1`,
+    [userId],
+  );
+
+  const row = result.rows[0];
+  if (!row) return null;
+
+  return {
+    userId,
+    profileId: row.profile_id,
+    role: normaliseRole(row.role),
+    agentId: row.agent_id,
+    agentName: row.agent_name,
+    agencyId: row.agency_id,
+    agencyName: row.agency_name,
+  };
+}
+
+export async function loadMyPortalListings(access: PortalUserAccess, env: PortalEnv = process.env): Promise<PortalPayload<Listing>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return { source: 'demo', items: demoListings.filter((listing) => listing.agent === access.agentName || access.role === 'super_admin') };
+  }
+
+  try {
+    const rows = await queryManagedListings(databaseUrl, access);
+    return { source: rows.length > 0 ? 'database' : 'empty', items: rows.map(mapListingRow) };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function loadPortalListingDraftBySlug(slug: string, access: PortalUserAccess, env: PortalEnv = process.env): Promise<PortalPayload<PortalListingDraft>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return { source: 'demo', items: [] };
+  }
+
+  try {
+    const rows = await queryManagedListings(databaseUrl, access, slug);
+    return { source: rows.length > 0 ? 'database' : 'empty', items: rows.map(mapListingDraftRow) };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function createPortalListing(access: PortalUserAccess, input: PortalListingWriteInput, env: PortalEnv = process.env): Promise<PortalPayload<PortalListingDraft>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  }
+
+  if (!access.agentId && access.role !== 'super_admin') {
+    return { source: 'error', items: [], error: 'This account is not linked to an agent profile yet.' };
+  }
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const propertyTypeId = await ensurePropertyTypeId(pool, input.propertyTypeSlug);
+    const slug = await generateUniqueListingSlug(pool, input.title);
+    const result = await pool.query<PortalListingDraft>(
+      `insert into public.listings (
+        agency_id, agent_id, property_type_id, title, slug, purpose, status, price, description,
+        suburb, city, province, bedrooms, bathrooms, parking, floor_size_sqm, erf_size_sqm, rates_and_taxes, levies,
+        is_featured, created_by, published_at
+      ) values (
+        $1, $2, $3, $4, $5, $6::public.listing_purpose, $7::public.listing_status, $8, $9,
+        $10, $11, $12, $13, $14, $15, $16, $17, $18, $19,
+        $20, $21, case when $7::public.listing_status = 'available' then now() else null end
+      )
+      returning
+        id, slug, title, purpose, status, price, description, suburb, city, province, bedrooms, bathrooms, parking,
+        (select slug from public.property_types where id = property_type_id) as property_type_slug,
+        (select name from public.property_types where id = property_type_id) as property_type_name,
+        agency_id, (select name from public.agencies where id = agency_id) as agency_name,
+        agent_id, (select name from public.agents where id = agent_id) as agent_name,
+        is_featured, floor_size_sqm, erf_size_sqm, rates_and_taxes, levies, published_at, created_at`,
+      [
+        access.agencyId,
+        access.agentId,
+        propertyTypeId,
+        input.title,
+        slug,
+        input.purpose,
+        input.status,
+        input.price,
+        input.description,
+        input.suburb,
+        input.city,
+        input.province,
+        input.bedrooms ?? null,
+        input.bathrooms ?? null,
+        input.parking ?? null,
+        input.floorSizeSqm ?? null,
+        input.erfSizeSqm ?? null,
+        input.ratesAndTaxes ?? null,
+        input.levies ?? null,
+        Boolean(input.isFeatured),
+        access.profileId,
+      ],
+    );
+
+    const row = result.rows[0];
+    if (!row) {
+      return { source: 'error', items: [], error: 'Listing could not be created.' };
+    }
+
+    return { source: 'database', items: [row] };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function updatePortalListingBySlug(
+  slug: string,
+  access: PortalUserAccess,
+  input: PortalListingWriteInput,
+  env: PortalEnv = process.env,
+): Promise<PortalPayload<PortalListingDraft>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  }
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const owned = await queryManagedListings(databaseUrl, access, slug);
+    if (owned.length === 0 && access.role !== 'super_admin') {
+      return { source: 'error', items: [], error: 'You do not have access to edit this listing.' };
+    }
+
+    const propertyTypeId = await ensurePropertyTypeId(pool, input.propertyTypeSlug);
+    const result = await pool.query<PortalListingDraft>(
+      `update public.listings set
+        property_type_id = $1,
+        title = $2,
+        purpose = $3::public.listing_purpose,
+        status = $4::public.listing_status,
+        price = $5,
+        description = $6,
+        suburb = $7,
+        city = $8,
+        province = $9,
+        bedrooms = $10,
+        bathrooms = $11,
+        parking = $12,
+        floor_size_sqm = $13,
+        erf_size_sqm = $14,
+        rates_and_taxes = $15,
+        levies = $16,
+        is_featured = $17,
+        updated_at = now(),
+        published_at = case when $4::public.listing_status = 'available' and published_at is null then now() else published_at end
+      where slug = $18
+      returning
+        id, slug, title, purpose, status, price, description, suburb, city, province, bedrooms, bathrooms, parking,
+        (select slug from public.property_types where id = property_type_id) as property_type_slug,
+        (select name from public.property_types where id = property_type_id) as property_type_name,
+        agency_id, (select name from public.agencies where id = agency_id) as agency_name,
+        agent_id, (select name from public.agents where id = agent_id) as agent_name,
+        is_featured, floor_size_sqm, erf_size_sqm, rates_and_taxes, levies, published_at, created_at`,
+      [
+        propertyTypeId,
+        input.title,
+        input.purpose,
+        input.status,
+        input.price,
+        input.description,
+        input.suburb,
+        input.city,
+        input.province,
+        input.bedrooms ?? null,
+        input.bathrooms ?? null,
+        input.parking ?? null,
+        input.floorSizeSqm ?? null,
+        input.erfSizeSqm ?? null,
+        input.ratesAndTaxes ?? null,
+        input.levies ?? null,
+        Boolean(input.isFeatured),
+        slug,
+      ],
+    );
+
+    const row = result.rows[0];
+    if (!row) {
+      return { source: 'error', items: [], error: 'Listing could not be updated.' };
+    }
+
+    return { source: 'database', items: [row] };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function loadPortalDiagnostics(env: PortalEnv = process.env): Promise<PortalBackendDiagnostics> {
+  const diagnostics = getPortalBackendDiagnostics(env);
+  const databaseUrl = getPortalDatabaseUrl(env);
+
+  if (!databaseUrl) {
+    return diagnostics;
+  }
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const [listingsCount, leadCount, agentCount, agencyCount] = await Promise.all([
+      queryCount(pool, "select count(*)::int as count from public.listings where status in ('available', 'under_offer', 'sold', 'rented')"),
+      queryCount(pool, 'select count(*)::int as count from public.leads'),
+      queryCount(pool, 'select count(*)::int as count from public.agents where is_active = true'),
+      queryCount(pool, 'select count(*)::int as count from public.agencies where is_active = true'),
+    ]);
+
+    return {
+      ...diagnostics,
+      canReadDatabase: true,
+      listingCount: listingsCount,
+      leadCount,
+      agentCount,
+      agencyCount,
+    };
+  } catch (error) {
+    return {
+      ...diagnostics,
+      canReadDatabase: false,
+      error: errorMessage(error),
+    };
+  }
+}
+
+async function queryListings(databaseUrl: string, slug?: string): Promise<ListingRow[]> {
+  const pool = getPortalPool(databaseUrl);
+  const values: Array<string> = [];
+  const clauses = ["l.status in ('available', 'under_offer', 'sold', 'rented')"];
+
+  if (slug) {
+    values.push(slug);
+    clauses.push(`l.slug = $${values.length}`);
+  }
+
+  const sql = `
+    select
+      l.id,
+      l.slug,
+      l.purpose,
+      l.title,
+      l.description,
+      l.suburb,
+      l.city,
+      l.province,
+      l.price,
+      l.bedrooms,
+      l.bathrooms,
+      l.parking,
+      ag.name as agency_name,
+      a.name as agent_name,
+      pt.name as property_type_name,
+      coalesce(array_agg(distinct f.feature) filter (where f.feature is not null), '{}'::text[]) as features,
+      coalesce(array_agg(distinct i.image_url) filter (where i.image_url is not null), '{}'::text[]) as image_urls,
+      coalesce(array_agg(distinct i.alt_text) filter (where i.alt_text is not null), '{}'::text[]) as image_alts,
+      min(case when i.is_cover then i.image_url end) as cover_image_url,
+      min(case when i.is_cover then i.alt_text end) as cover_image_alt,
+      l.status,
+      l.published_at,
+      l.created_at,
+      l.is_featured,
+      l.floor_size_sqm,
+      l.erf_size_sqm,
+      l.rates_and_taxes,
+      l.levies
+    from public.listings l
+    left join public.agencies ag on ag.id = l.agency_id
+    left join public.agents a on a.id = l.agent_id
+    left join public.property_types pt on pt.id = l.property_type_id
+    left join public.listing_features f on f.listing_id = l.id
+    left join public.listing_images i on i.listing_id = l.id
+    where ${clauses.join(' and ')}
+    group by l.id, ag.name, a.name, pt.name
+    order by coalesce(l.published_at, l.created_at) desc, l.created_at desc
+  `;
+
+  const result = await pool.query<ListingRow>(sql, values);
+  return result.rows;
+}
+
+async function queryLeads(databaseUrl: string, agentName?: string): Promise<LeadRow[]> {
+  const pool = getPortalPool(databaseUrl);
+  const values: Array<string> = [];
+  const clauses: string[] = [];
+
+  if (agentName) {
+    values.push(agentName);
+    clauses.push(`a.name = $${values.length}`);
+  }
+
+  const sql = `
+    select
+      l.id,
+      l.name,
+      l.surname,
+      l.email,
+      l.phone,
+      l.message,
+      l.intent,
+      l.status,
+      l.quality,
+      l.flags,
+      l.created_at,
+      li.slug as listing_slug,
+      li.title as listing_title,
+      a.name as agent_name,
+      ag.name as agency_name
+    from public.leads l
+    left join public.listings li on li.id = l.listing_id
+    left join public.agents a on a.id = l.agent_id
+    left join public.agencies ag on ag.id = l.agency_id
+    ${clauses.length > 0 ? `where ${clauses.join(' and ')}` : ''}
+    order by l.created_at desc
+    limit 250
+  `;
+
+  const result = await pool.query<LeadRow>(sql, values);
+  return result.rows;
+}
+
+async function queryCount(pool: Pool, sql: string): Promise<number> {
+  const result = await pool.query<{ count: number | string }>(sql);
+  const value = result.rows[0]?.count;
+  return Number(value ?? 0);
+}
+
+function getPortalPool(connectionString: string): Pool {
+  if (!poolCache || poolCache.connectionString !== connectionString) {
+    poolCache = {
+      connectionString,
+      pool: new Pool({
+        connectionString,
+        max: 2,
+        ssl: databaseNeedsSsl(connectionString) ? { rejectUnauthorized: false } : undefined,
+      }),
+    };
+  }
+
+  return poolCache.pool;
+}
+
+function mapListingRow(row: ListingRow): Listing {
+  const suburb = normaliseText(row.suburb) ?? 'Unknown suburb';
+  const city = normaliseText(row.city) ?? 'Unknown city';
+  const province = normaliseText(row.province) ?? 'South Africa';
+  const purpose = row.purpose === 'rent' ? 'To rent' : 'For sale';
+  const priceValue = toNumber(row.price);
+  const price = formatListingPrice(priceValue, row.purpose);
+  const photos = buildListingPhotos(row);
+  const gradient = FALLBACK_GRADIENTS[stableIndex(row.slug, FALLBACK_GRADIENTS.length)];
+
+  return {
+    id: row.id,
+    slug: row.slug,
+    purpose,
+    title: row.title,
+    location: `${suburb}, ${city}`,
+    suburb,
+    city,
+    province,
+    price,
+    priceValue,
+    beds: toInteger(row.bedrooms),
+    baths: toInteger(row.bathrooms),
+    parking: toInteger(row.parking),
+    type: row.property_type_name ?? 'Property',
+    agency: row.agency_name ?? 'Unassigned agency',
+    agent: row.agent_name ?? 'Unassigned agent',
+    gradient,
+    photos,
+    description: row.description ?? '',
+    features: normaliseTextArray(row.features),
+    highlights: buildHighlights(row),
+    mandate: buildMandate(row),
+    listedAt: (row.published_at ?? row.created_at).slice(0, 10),
+    floorSize: toOptionalNumber(row.floor_size_sqm),
+    erfSize: toOptionalNumber(row.erf_size_sqm),
+    rates: toMoneyDisplay(row.rates_and_taxes),
+    levies: toMoneyDisplay(row.levies),
+    featured: Boolean(row.is_featured),
+  };
+}
+
+function mapLeadRow(row: LeadRow): LeadRecord {
+  const intent = mapLeadIntent(row.intent);
+  const quality = mapLeadQuality(row.quality);
+  const status = mapLeadStatus(row.status);
+  const name = `${row.name} ${row.surname}`.trim();
+
+  return {
+    id: row.id,
+    name,
+    email: row.email,
+    phone: row.phone,
+    intent,
+    status,
+    quality,
+    listingTitle: row.listing_title ?? 'Unassigned listing',
+    listingSlug: row.listing_slug ?? 'unassigned',
+    agent: row.agent_name ?? 'Unassigned agent',
+    agency: row.agency_name ?? 'Unassigned agency',
+    createdAt: row.created_at,
+    message: row.message,
+    flags: row.flags ?? [],
+  };
+}
+
+function buildListingPhotos(row: ListingRow): Listing['photos'] {
+  const imageUrls = row.image_urls ?? [];
+  const imageAlts = row.image_alts ?? [];
+  const photos = imageUrls.map((src, index) => ({ src, alt: imageAlts[index] ?? row.cover_image_alt ?? row.title }));
+
+  if (row.cover_image_url) {
+    const coverAlt = row.cover_image_alt ?? row.title;
+    if (!photos.some((photo) => photo.src === row.cover_image_url)) {
+      photos.unshift({ src: row.cover_image_url, alt: coverAlt });
+    }
+  }
+
+  if (photos.length > 0) {
+    return photos.slice(0, 3);
+  }
+
+  const fallback = FALLBACK_PHOTOS[stableIndex(row.slug, FALLBACK_PHOTOS.length)];
+  return [fallback, FALLBACK_PHOTOS[(stableIndex(row.slug, FALLBACK_PHOTOS.length) + 1) % FALLBACK_PHOTOS.length], FALLBACK_PHOTOS[(stableIndex(row.slug, FALLBACK_PHOTOS.length) + 2) % FALLBACK_PHOTOS.length]].slice(0, 3);
+}
+
+function buildHighlights(row: ListingRow): Listing['highlights'] {
+  const highlights = [buildMandate(row), row.is_featured ? 'Featured listing' : 'Freshly published'];
+  if (row.status === 'under_offer') highlights.push('Under offer');
+  if (row.status === 'sold' || row.status === 'rented') highlights.push('Recently completed');
+  return highlights.slice(0, 3);
+}
+
+function buildMandate(row: ListingRow): Listing['mandate'] {
+  if (row.is_featured) return 'Verified mandate';
+  if (row.agent_name && row.agency_name) return 'Agency verified';
+  return 'Owner verified';
+}
+
+function mapLeadIntent(value: string): LeadIntent {
+  if (value === 'valuation' || value === 'finance' || value === 'viewing' || value === 'more_info') return value;
+  return 'more_info';
+}
+
+function mapLeadStatus(value: string): LeadStatus {
+  if (value === 'new' || value === 'contacted' || value === 'qualified' || value === 'archived') return value;
+  if (value === 'viewing_booked' || value === 'converted') return 'qualified';
+  return 'archived';
+}
+
+function mapLeadQuality(value: string): LeadQuality {
+  if (value === 'duplicate') return 'duplicate';
+  if (value === 'suspicious' || value === 'spam') return 'flagged';
+  return 'clean';
+}
+
+function formatListingPrice(value: number, purpose: 'sale' | 'rent'): string {
+  const formatted = new Intl.NumberFormat('en-ZA', { maximumFractionDigits: 0 }).format(Math.max(0, value));
+  return `R ${formatted}${purpose === 'rent' ? ' pm' : ''}`;
+}
+
+function normaliseText(value: string | null | undefined): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
+}
+
+function normaliseTextArray(values: string[] | null): string[] {
+  return (values ?? []).map((value) => value.trim()).filter(Boolean);
+}
+
+function toNumber(value: string | number | null): number {
+  if (typeof value === 'number') return value;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function toOptionalNumber(value: string | number | null): number | undefined {
+  if (value === null) return undefined;
+  const parsed = toNumber(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function toInteger(value: string | number | null): number {
+  return Math.max(0, Math.round(toNumber(value)));
+}
+
+function toMoneyDisplay(value: string | number | null): string | undefined {
+  if (value === null) return undefined;
+  const numberValue = toNumber(value);
+  if (!Number.isFinite(numberValue) || numberValue <= 0) return undefined;
+  return `R ${new Intl.NumberFormat('en-ZA', { maximumFractionDigits: 0 }).format(numberValue)}${numberValue < 100000 ? ' pm' : ''}`;
+}
+
+function stableIndex(seed: string, modulus: number): number {
+  let hash = 0;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash = (hash * 31 + seed.charCodeAt(index)) % 2147483647;
+  }
+  return modulus > 0 ? hash % modulus : 0;
+}
+
+function databaseNeedsSsl(connectionString: string): boolean {
+  try {
+    const url = new URL(connectionString);
+    return !['localhost', '127.0.0.1'].includes(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function errorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
+function normaliseEnvValue(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : undefined;
+}

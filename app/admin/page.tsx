@@ -255,6 +255,11 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                   <AdminNote title="Audit trail" text="Record review, status changes, and routing decisions." />
                   <AdminNote title="Notifications" text="Hand off qualified leads to the right inbox fast." />
                 </div>
+                <div className="mt-5">
+                  <a className="inline-flex items-center justify-center rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white transition hover:bg-[#3B49FF]" href="/admin/diagnostics">
+                    Open backend diagnostics
+                  </a>
+                </div>
               </div>
             </aside>
           </section>

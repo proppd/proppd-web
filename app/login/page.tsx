@@ -64,7 +64,7 @@ export default function Page() {
             </div>
 
             <div className="mt-5">
-              <SupabaseLoginForm supabaseUrl={supabase?.url} publishableKey={supabase?.publishableKey} />
+              <SupabaseLoginForm supabaseUrl={supabase?.url} publishableKey={supabase?.publishableKey} nextPath="/dashboard/listings" />
             </div>
 
             <p className="mt-5 text-sm font-bold leading-6 text-slate-500">

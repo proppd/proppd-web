@@ -6,16 +6,17 @@ import { EnquiryForm } from '@/components/property/enquiry-form';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { listings } from '@/lib/demo-data';
+import { loadPortalListingBySlug } from '../../../lib/proppd/backend';
+import { listings as demoListings } from '@/lib/demo-data';
 import { buildListingShareText, getListingBySlug, getListingFacts, getRelatedListings } from '@/lib/listings/details';
 
 export function generateStaticParams() {
-  return listings.map((listing) => ({ slug: listing.slug }));
+  return demoListings.map((listing) => ({ slug: listing.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const listing = getListingBySlug(listings, slug);
+  const listing = getListingBySlug(demoListings, slug);
 
   if (!listing) {
     return { title: 'Property not found' };
@@ -28,13 +29,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function PropertyPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const listing = getListingBySlug(listings, slug);
+  const portalListing = await loadPortalListingBySlug(slug);
+  const listing = portalListing.items[0] ?? getListingBySlug(demoListings, slug);
   if (!listing) notFound();
 
   const facts = getListingFacts(listing);
-  const relatedListings = getRelatedListings(listings, listing, 2);
+  const relatedListings = getRelatedListings(demoListings, listing, 2);
   const shareText = buildListingShareText(listing);
   const agentProfileHref = `/agents/${slugifyName(listing.agent)}`;
 

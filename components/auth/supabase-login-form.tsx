@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react';
 type LoginFormProps = {
   supabaseUrl?: string;
   publishableKey?: string;
+  nextPath?: string;
 };
 
 type SubmitState =
@@ -17,7 +18,7 @@ type SubmitState =
 
 const INVITE_EMAIL = 'info@proppd.com';
 
-export function SupabaseLoginForm({ supabaseUrl, publishableKey }: LoginFormProps) {
+export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/dashboard/listings' }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [state, setState] = useState<SubmitState>({
     status: 'idle',
@@ -56,7 +57,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey }: LoginFormProp
     const { error } = await supabase.auth.signInWithOtp({
       email: cleanEmail,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
         shouldCreateUser: false,
       },
     });
