@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Building2, Mail, MapPin, ShieldCheck, Users } from 'lucide-react';
 import { ListingCard } from '@/components/properties/listing-card';
@@ -8,6 +9,21 @@ import { findAgencyBySlug, formatDirectoryCount, getAgencyAgents, getAgencyListi
 
 export function generateStaticParams() {
   return agencies.map((agency) => ({ slug: slugifyDirectoryName(agency.name) }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const agency = findAgencyBySlug(agencies, slug);
+
+  if (!agency) {
+    return { title: 'Agency not found' };
+  }
+
+  return {
+    title: agency.name,
+    description: `${agency.name} is a verified Proppd agency in ${agency.city} with ${agency.agents} agent${agency.agents === 1 ? '' : 's'} and ${agency.listings} active listing${agency.listings === 1 ? '' : 's'}.`,
+    alternates: { canonical: `/agencies/${slugifyDirectoryName(agency.name)}` },
+  };
 }
 
 export default async function AgencyProfilePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -77,13 +93,19 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
               <p className="text-sm font-black uppercase tracking-[.18em] text-[#12D6C5]">Agency enquiry</p>
               <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">Contact {agency.name}</h2>
               <p className="mt-4 text-sm leading-7 text-white/70">
-                Send a launch enquiry for valuations, mandates, listing corrections, or joining the Proppd rollout.
+                Best for launch onboarding, branch updates, mandate requests, or listing corrections for this agency.
               </p>
               <a
                 className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 font-black text-[#050A30]"
                 href={`mailto:info@proppd.com?subject=Agency enquiry: ${agency.name}`}
               >
                 <Mail size={18} /> Email agency
+              </a>
+              <a
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 px-5 py-3 font-black text-white hover:bg-white/5"
+                href={`/properties?agency=${encodeURIComponent(agency.name)}`}
+              >
+                View agency listings
               </a>
             </aside>
           </div>

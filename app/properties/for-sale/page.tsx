@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Bell, Search } from 'lucide-react';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
@@ -7,6 +8,12 @@ import { applyListingFilters, parseListingFilters } from '@/lib/listings/filters
 import { buildSavedSearchMailto } from '@/lib/listings/saved-search';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export const metadata: Metadata = {
+  title: 'For sale',
+  description: 'Browse verified for-sale homes on Proppd with price-first cards and saved search alerts.',
+  alternates: { canonical: '/properties/for-sale' },
+};
 
 export default async function ForSalePage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;

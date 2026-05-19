@@ -44,6 +44,38 @@ export function getAgencyAgents<T extends DirectoryAgent>(items: T[], agencyName
   return items.filter((agent) => agent.agency === agencyName);
 }
 
+export function filterAgents<T extends DirectoryAgent>(items: T[], query?: string): T[] {
+  const term = normaliseDirectorySearch(query);
+  if (!term) return items;
+
+  return items.filter((agent) => [agent.name, agent.agency, agent.area, String(agent.listings)].some((value) => normaliseDirectorySearch(value).includes(term)));
+}
+
+export function filterAgencies<T extends DirectoryAgency>(items: T[], query?: string): T[] {
+  const term = normaliseDirectorySearch(query);
+  if (!term) return items;
+
+  return items.filter((agency) => [agency.name, agency.city, String(agency.agents), String(agency.listings)].some((value) => normaliseDirectorySearch(value).includes(term)));
+}
+
+export function parseDirectoryQuery(params: URLSearchParams): string | undefined {
+  const query = params.get('q')?.trim();
+  return query || undefined;
+}
+
+export function formatDirectorySearchSummary(count: number, noun: 'agent' | 'agency', query?: string): string {
+  const countLabel = formatDirectoryCount(count, noun, noun === 'agency' ? 'agencies' : `${noun}s`);
+  return query ? `${countLabel} matching “${query}”` : `${countLabel} available`;
+}
+
 export function formatDirectoryCount(count: number, singular: string, plural = `${singular}s`): string {
   return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function normaliseDirectorySearch(value?: string): string {
+  return (value ?? '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
 }

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Bell, ChevronDown, MapPin, Search, SlidersHorizontal } from 'lucide-react';
 import { ListingCard } from '@/components/properties/listing-card';
@@ -8,6 +9,12 @@ import { applyListingFilters, paginateListings, parseListingFilters } from '@/li
 import { buildSavedSearchMailto } from '@/lib/listings/saved-search';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export const metadata: Metadata = {
+  title: 'Properties',
+  description: 'Browse verified Proppd property listings across South Africa with saved search and location-first filters.',
+  alternates: { canonical: '/properties' },
+};
 
 export default async function PropertiesPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { ArrowLeft, Bath, BedDouble, Building2, CalendarDays, Car, CheckCircle2, Heart, Home, MapPin, Share2, ShieldCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
@@ -10,6 +11,21 @@ import { buildListingShareText, getListingBySlug, getListingFacts, getRelatedLis
 
 export function generateStaticParams() {
   return listings.map((listing) => ({ slug: listing.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const listing = getListingBySlug(listings, slug);
+
+  if (!listing) {
+    return { title: 'Property not found' };
+  }
+
+  return {
+    title: listing.title,
+    description: `${listing.title} in ${listing.location} is listed by ${listing.agent} at ${listing.price}. View photos, facts, and verified enquiry details on Proppd.`,
+    alternates: { canonical: `/property/${listing.slug}` },
+  };
 }
 
 export default async function PropertyPage({ params }: { params: Promise<{ slug: string }> }) {

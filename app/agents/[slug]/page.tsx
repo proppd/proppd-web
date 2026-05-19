@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BadgeCheck, Building2, Mail, MapPin } from 'lucide-react';
 import { ListingCard } from '@/components/properties/listing-card';
@@ -8,6 +9,21 @@ import { findAgentBySlug, formatDirectoryCount, getAgentListings, slugifyDirecto
 
 export function generateStaticParams() {
   return agents.map((agent) => ({ slug: slugifyDirectoryName(agent.name) }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const agent = findAgentBySlug(agents, slug);
+
+  if (!agent) {
+    return { title: 'Agent not found' };
+  }
+
+  return {
+    title: agent.name,
+    description: `${agent.name} is a verified Proppd agent in ${agent.area} with ${agent.listings} active listing${agent.listings === 1 ? '' : 's'}.`,
+    alternates: { canonical: `/agents/${slugifyDirectoryName(agent.name)}` },
+  };
 }
 
 export default async function AgentProfilePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -48,13 +64,19 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
               <p className="text-sm font-black uppercase tracking-[.18em] text-[#12D6C5]">Contact agent</p>
               <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">Send a verified enquiry</h2>
               <p className="mt-4 text-sm leading-7 text-white/70">
-                Opens a prefilled email while Supabase lead routing is being connected. POPIA consent and duplicate/spam checks are already in the foundation.
+                Best for viewing requests, valuation follow-ups, and direct questions about this agent&apos;s active listings.
               </p>
               <a
                 className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 font-black text-[#050A30]"
                 href={`mailto:info@proppd.com?subject=Agent enquiry: ${agent.name}`}
               >
                 <Mail size={18} /> Email enquiry
+              </a>
+              <a
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 px-5 py-3 font-black text-white hover:bg-white/5"
+                href={`/properties?agent=${encodeURIComponent(agent.name)}`}
+              >
+                Browse this agent&apos;s listings
               </a>
             </aside>
           </div>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { agencies, agents, listings } from '@/lib/demo-data';
-import { findAgencyBySlug, findAgentBySlug, formatDirectoryCount, getAgencyAgents, getAgencyListings, getAgentListings, slugifyDirectoryName } from '@/lib/directory';
+import { filterAgencies, filterAgents, findAgencyBySlug, findAgentBySlug, formatDirectoryCount, formatDirectorySearchSummary, getAgencyAgents, getAgencyListings, getAgentListings, parseDirectoryQuery, slugifyDirectoryName } from '@/lib/directory';
 
 describe('directory helpers', () => {
   it('creates stable profile slugs from agency and agent names', () => {
@@ -33,5 +33,24 @@ describe('directory helpers', () => {
     expect(formatDirectoryCount(11, 'listing')).toBe('11 listings');
     expect(formatDirectoryCount(1, 'agent')).toBe('1 agent');
     expect(formatDirectoryCount(5, 'agent')).toBe('5 agents');
+  });
+
+  it('filters agent directory results by agent, agency, and area', () => {
+    expect(filterAgents(agents, 'atlantic').map((agent) => agent.name)).toEqual(['Mia Jacobs']);
+    expect(filterAgents(agents, 'Durban North').map((agent) => agent.name)).toEqual(['Aiden Naidoo']);
+    expect(filterAgents(agents, 'missing')).toEqual([]);
+  });
+
+  it('filters agency directory results by agency and city', () => {
+    expect(filterAgencies(agencies, 'cape town').map((agency) => agency.name)).toEqual(['Atlantic Property Co.']);
+    expect(filterAgencies(agencies, 'Coastal').map((agency) => agency.name)).toEqual(['Coastal Living']);
+    expect(filterAgencies(agencies, 'missing')).toEqual([]);
+  });
+
+  it('parses and formats directory search state', () => {
+    expect(parseDirectoryQuery(new URLSearchParams('q= Sandton '))).toBe('Sandton');
+    expect(parseDirectoryQuery(new URLSearchParams('q=   '))).toBeUndefined();
+    expect(formatDirectorySearchSummary(1, 'agency', 'Cape Town')).toBe('1 agency matching “Cape Town”');
+    expect(formatDirectorySearchSummary(3, 'agent')).toBe('3 agents available');
   });
 });
