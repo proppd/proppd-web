@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { demoLeads } from '@/lib/leads/demo-leads';
-import { getLeadPipelineStats, getLeadQueue, groupLeadsByStatus } from '@/lib/leads/pipeline';
+import { filterLeads, getLeadPipelineStats, getLeadQueue, groupLeadsByStatus } from '@/lib/leads/pipeline';
 
 describe('lead pipeline helpers', () => {
   it('summarises new, contacted, qualified, and flagged leads', () => {
@@ -18,6 +18,21 @@ describe('lead pipeline helpers', () => {
 
     expect(queue[0].name).toBe('Aiden Pillay');
     expect(queue.map((lead) => lead.quality)).toContain('flagged');
+  });
+
+  it('filters the queue by status and search text for admin triage', () => {
+    const filtered = filterLeads(demoLeads, { status: 'new', query: 'Sandton' });
+
+    expect(filtered).toHaveLength(2);
+    expect(filtered.every((lead) => lead.status === 'new')).toBe(true);
+    expect(filtered.some((lead) => lead.name === 'Aiden Pillay')).toBe(true);
+  });
+
+  it('can narrow to flagged leads for review', () => {
+    const flagged = filterLeads(demoLeads, { quality: 'flagged' });
+
+    expect(flagged).toHaveLength(1);
+    expect(flagged[0].name).toBe('SEO Partner');
   });
 
   it('groups leads into status buckets for admin dashboards', () => {

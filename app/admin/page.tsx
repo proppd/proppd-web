@@ -1,10 +1,20 @@
 import type React from 'react';
 import type { Metadata } from 'next';
-import { AlertTriangle, CheckCircle2, Clock3, Filter, ShieldCheck, UserCheck } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Clock3, Filter, ShieldCheck, UserCheck, Search, X } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { demoLeads } from '@/lib/leads/demo-leads';
-import { formatLeadIntent, getLeadPipelineStats, getLeadQueue, groupLeadsByStatus, type LeadQuality } from '@/lib/leads/pipeline';
+import {
+  filterLeads,
+  formatLeadIntent,
+  getLeadPipelineStats,
+  getLeadQueue,
+  groupLeadsByStatus,
+  type LeadQuality,
+  type LeadStatus,
+} from '@/lib/leads/pipeline';
+
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export const metadata: Metadata = {
   title: 'Lead operations',
@@ -13,16 +23,43 @@ export const metadata: Metadata = {
   },
 };
 
+export const dynamic = 'force-dynamic';
+
 const qualityStyles: Record<LeadQuality, string> = {
   clean: 'bg-[#eefcf9] text-[#0f766e]',
   duplicate: 'bg-amber-50 text-amber-700',
   flagged: 'bg-red-50 text-red-700',
 };
 
-export default function Page() {
-  const stats = getLeadPipelineStats(demoLeads);
-  const queue = getLeadQueue(demoLeads);
-  const grouped = groupLeadsByStatus(demoLeads);
+const statusOptions: Array<{ value: LeadStatus | 'all'; label: string }> = [
+  { value: 'all', label: 'All leads' },
+  { value: 'new', label: 'New' },
+  { value: 'contacted', label: 'Contacted' },
+  { value: 'qualified', label: 'Qualified' },
+];
+
+const qualityOptions: Array<{ value: LeadQuality | 'all'; label: string }> = [
+  { value: 'all', label: 'All quality' },
+  { value: 'clean', label: 'Clean' },
+  { value: 'duplicate', label: 'Duplicate' },
+  { value: 'flagged', label: 'Flagged' },
+];
+
+export default async function Page({ searchParams }: { searchParams: SearchParams }) {
+  const params = await searchParams;
+  const query = getSingleParam(params.q).trim();
+  const selectedStatus = parseStatus(getSingleParam(params.status));
+  const selectedQuality = parseQuality(getSingleParam(params.quality));
+
+  const filteredLeads = filterLeads(demoLeads, {
+    query,
+    status: selectedStatus,
+    quality: selectedQuality,
+  });
+  const queue = getLeadQueue(filteredLeads);
+  const stats = getLeadPipelineStats(filteredLeads);
+  const grouped = groupLeadsByStatus(filteredLeads);
+  const hasFilters = Boolean(query || selectedStatus !== 'all' || selectedQuality !== 'all');
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -38,6 +75,9 @@ export default function Page() {
                 <p className="mt-5 max-w-2xl text-lg leading-8 text-white/70">
                   Proppd’s operations layer separates real enquiries from duplicates and suspicious traffic before agents waste time.
                 </p>
+                <p className="mt-5 text-sm font-bold uppercase tracking-[.18em] text-white/50">
+                  {hasFilters ? `Showing ${filteredLeads.length} filtered leads` : `Showing all ${stats.total} leads`}
+                </p>
               </div>
               <div className="rounded-[2rem] border border-white/10 bg-white/10 p-6 backdrop-blur">
                 <p className="text-sm font-black uppercase tracking-[.18em] text-white/60">Queue snapshot</p>
@@ -52,7 +92,7 @@ export default function Page() {
                   <div className="mt-3 grid gap-3 text-sm font-bold text-white/78">
                     <div className="flex items-center justify-between gap-4">
                       <span className="text-white/55">Newest</span>
-                      <span className="text-right">{queue[0]?.name ?? 'No leads yet'}</span>
+                      <span className="text-right">{queue[0]?.name ?? 'No matching leads'}</span>
                     </div>
                     <div className="flex items-center justify-between gap-4">
                       <span className="text-white/55">Intent</span>
@@ -87,6 +127,76 @@ export default function Page() {
                 </span>
               </div>
 
+              <form className="mt-6 grid gap-3 rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-4 lg:grid-cols-[minmax(0,1fr)_220px_220px_auto]" method="get">
+                <label className="sr-only" htmlFor="admin-lead-search">
+                  Search leads
+                </label>
+                <div className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-4 py-3">
+                  <Search size={16} className="text-slate-400" />
+                  <input
+                    id="admin-lead-search"
+                    name="q"
+                    defaultValue={query}
+                    className="min-w-0 flex-1 bg-transparent text-sm font-bold text-[#050A30] outline-none placeholder:text-slate-500"
+                    placeholder="Search lead, listing, agent, or agency"
+                    aria-label="Search leads"
+                  />
+                </div>
+
+                <label className="sr-only" htmlFor="admin-lead-status">
+                  Lead status
+                </label>
+                <select
+                  id="admin-lead-status"
+                  name="status"
+                  defaultValue={selectedStatus}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-[#050A30] outline-none"
+                  aria-label="Filter by status"
+                >
+                  {statusOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+
+                <label className="sr-only" htmlFor="admin-lead-quality">
+                  Lead quality
+                </label>
+                <select
+                  id="admin-lead-quality"
+                  name="quality"
+                  defaultValue={selectedQuality}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-[#050A30] outline-none"
+                  aria-label="Filter by quality"
+                >
+                  {qualityOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+
+                <div className="flex gap-3">
+                  <button className="inline-flex flex-1 items-center justify-center rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white transition hover:bg-[#3B49FF]" type="submit">
+                    Apply filters
+                  </button>
+                  {hasFilters ? (
+                    <a className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-600 transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/admin">
+                      <X size={16} className="mr-2" /> Clear
+                    </a>
+                  ) : null}
+                </div>
+              </form>
+
+              {hasFilters ? (
+                <div className="mt-4 flex flex-wrap gap-2 text-sm font-black text-slate-600">
+                  {query ? <span className="rounded-full bg-slate-100 px-3 py-1">Search: “{query}”</span> : null}
+                  {selectedStatus !== 'all' ? <span className="rounded-full bg-slate-100 px-3 py-1">Status: {selectedStatus}</span> : null}
+                  {selectedQuality !== 'all' ? <span className="rounded-full bg-slate-100 px-3 py-1">Quality: {selectedQuality}</span> : null}
+                </div>
+              ) : null}
+
               <div className="mt-6 overflow-hidden rounded-[2rem] border border-slate-200">
                 <div className="hidden grid-cols-[1fr_120px_110px_100px_130px] gap-4 bg-[#F5F7FA] px-5 py-3 text-xs font-black uppercase tracking-[.14em] text-slate-500 md:grid">
                   <span>Lead</span>
@@ -96,23 +206,30 @@ export default function Page() {
                   <span>Action</span>
                 </div>
                 <div className="divide-y divide-slate-200">
-                  {queue.map((lead) => (
-                    <a key={lead.id} className="grid gap-4 px-5 py-5 transition hover:bg-[#F5F7FA] md:grid-cols-[1fr_120px_110px_100px_130px]" href={`/property/${lead.listingSlug}`}>
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-black text-[#050A30]">{lead.name}</p>
-                          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-black uppercase tracking-[.12em] text-slate-500">{lead.id}</span>
+                  {queue.length > 0 ? (
+                    queue.map((lead) => (
+                      <a key={lead.id} className="grid gap-4 px-5 py-5 transition hover:bg-[#F5F7FA] md:grid-cols-[1fr_120px_110px_100px_130px]" href={`/property/${lead.listingSlug}`}>
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-black text-[#050A30]">{lead.name}</p>
+                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-black uppercase tracking-[.12em] text-slate-500">{lead.id}</span>
+                          </div>
+                          <p className="mt-1 text-sm font-bold text-slate-500">{lead.listingTitle}</p>
+                          <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{lead.message}</p>
+                          {lead.flags.length > 0 && <p className="mt-2 text-xs font-black text-red-600">Flags: {lead.flags.join(', ')}</p>}
                         </div>
-                        <p className="mt-1 text-sm font-bold text-slate-500">{lead.listingTitle}</p>
-                        <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{lead.message}</p>
-                        {lead.flags.length > 0 && <p className="mt-2 text-xs font-black text-red-600">Flags: {lead.flags.join(', ')}</p>}
-                      </div>
-                      <p className="text-sm font-black text-[#3B49FF]">{formatLeadIntent(lead.intent)}</p>
-                      <p><span className={`rounded-full px-3 py-1 text-xs font-black ${qualityStyles[lead.quality]}`}>{lead.quality}</span></p>
-                      <p className="text-sm font-black capitalize text-slate-600">{lead.status}</p>
-                      <p><span className="inline-flex whitespace-nowrap rounded-full bg-[#050A30] px-4 py-2 text-xs font-black text-white">Review lead</span></p>
-                    </a>
-                  ))}
+                        <p className="text-sm font-black text-[#3B49FF]">{formatLeadIntent(lead.intent)}</p>
+                        <p><span className={`rounded-full px-3 py-1 text-xs font-black ${qualityStyles[lead.quality]}`}>{lead.quality}</span></p>
+                        <p className="text-sm font-black capitalize text-slate-600">{lead.status}</p>
+                        <p><span className="inline-flex whitespace-nowrap rounded-full bg-[#050A30] px-4 py-2 text-xs font-black text-white">Review lead</span></p>
+                      </a>
+                    ))
+                  ) : (
+                    <div className="px-5 py-10 text-center">
+                      <p className="text-base font-black text-[#050A30]">No leads match the current filters.</p>
+                      <p className="mt-2 text-sm font-bold text-slate-500">Clear the search or switch the filters to bring the queue back.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -147,6 +264,18 @@ export default function Page() {
       <SiteFooter />
     </main>
   );
+}
+
+function getSingleParam(value?: string | string[]): string {
+  return Array.isArray(value) ? value[0] ?? '' : value ?? '';
+}
+
+function parseStatus(value: string): LeadStatus | 'all' {
+  return value === 'new' || value === 'contacted' || value === 'qualified' ? value : 'all';
+}
+
+function parseQuality(value: string): LeadQuality | 'all' {
+  return value === 'clean' || value === 'duplicate' || value === 'flagged' ? value : 'all';
 }
 
 function Metric({ label, value, tone = 'default' }: { label: string; value: number; tone?: 'default' | 'warning' }) {

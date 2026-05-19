@@ -27,6 +27,12 @@ export type LeadPipelineStats = {
   flagged: number;
 };
 
+export type LeadFilters = {
+  query?: string;
+  status?: LeadStatus | 'all';
+  quality?: LeadQuality | 'all';
+};
+
 export function getLeadPipelineStats(leads: LeadRecord[]): LeadPipelineStats {
   return {
     total: leads.length,
@@ -39,6 +45,23 @@ export function getLeadPipelineStats(leads: LeadRecord[]): LeadPipelineStats {
 
 export function getLeadQueue(leads: LeadRecord[]): LeadRecord[] {
   return [...leads].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
+}
+
+export function filterLeads(leads: LeadRecord[], filters: LeadFilters = {}): LeadRecord[] {
+  const query = filters.query?.trim().toLowerCase();
+
+  return leads.filter((lead) => {
+    const statusMatches = !filters.status || filters.status === 'all' || lead.status === filters.status;
+    const qualityMatches = !filters.quality || filters.quality === 'all' || lead.quality === filters.quality;
+    const queryMatches = !query
+      ? true
+      : [lead.name, lead.email, lead.phone, lead.listingTitle, lead.agent, lead.agency, lead.message, lead.id, formatLeadIntent(lead.intent)]
+          .join(' ')
+          .toLowerCase()
+          .includes(query);
+
+    return statusMatches && qualityMatches && queryMatches;
+  });
 }
 
 export function groupLeadsByStatus(leads: LeadRecord[]): Record<LeadStatus, LeadRecord[]> {
