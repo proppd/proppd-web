@@ -24,6 +24,12 @@ const onboardingSteps = [
   'We prepare verified profiles and route enquiries through the pilot workflow.',
 ];
 
+const launchChecklist = [
+  'A main contact who can approve the profile details.',
+  'Your current listing feed or a clean export of active stock.',
+  'A few example enquiry scenarios so the pilot routes feel realistic.',
+];
+
 export default function Page() {
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -70,6 +76,28 @@ export default function Page() {
             <TrustCard icon={<ShieldCheck size={22} />} title="Verified exposure" text="Profiles and listings are positioned around trust, accurate details, and fair marketplace discovery." />
             <TrustCard icon={<UsersRound size={22} />} title="Cleaner lead routing" text="Buyer and tenant enquiries include POPIA-aware handoff context before they reach your team." />
             <TrustCard icon={<CheckCircle2 size={22} />} title="AgentOS path" text="Launch partners help shape the workflow layer for follow-ups, seller reports, and WhatsApp-first operations." />
+          </div>
+
+          <div className="mt-8 grid gap-4 lg:grid-cols-[1fr_.9fr]">
+            <div className="rounded-[2rem] bg-white p-6 shadow-sm">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">What we need from you</p>
+              <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">A clean pilot starts with clean inputs.</h2>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                {launchChecklist.map((item, index) => (
+                  <div key={item} className="rounded-3xl bg-[#F5F7FA] p-4">
+                    <p className="text-2xl font-black text-[#3B49FF]">0{index + 1}</p>
+                    <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-[2rem] border border-slate-200 bg-[#eefcf9] p-6">
+              <Sparkles className="text-[#0f766e]" size={30} />
+              <h2 className="mt-4 text-2xl font-black tracking-[-.04em] text-[#0f766e]">Who should apply?</h2>
+              <p className="mt-3 text-sm font-bold leading-6 text-[#0f766e]">
+                Agencies that already manage real stock, want a clearer enquiry handoff, and are comfortable giving direct feedback during rollout.
+              </p>
+            </div>
           </div>
 
           <section className="mt-8 grid gap-5 lg:grid-cols-3">
