@@ -6,9 +6,9 @@ import { EnquiryForm } from '@/components/property/enquiry-form';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { loadPortalListingBySlug } from '../../../lib/proppd/backend';
+import { loadPortalListingBySlug, loadPortalListings } from '../../../lib/proppd/backend';
 import { listings as demoListings } from '@/lib/demo-data';
-import { buildListingShareText, getListingBySlug, getListingFacts, getRelatedListings } from '@/lib/listings/details';
+import { buildEnquiryMailto, buildListingShareText, getListingBySlug, getListingFacts, getRelatedListings } from '@/lib/listings/details';
 
 export function generateStaticParams() {
   return demoListings.map((listing) => ({ slug: listing.slug }));
@@ -16,7 +16,8 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const listing = getListingBySlug(demoListings, slug);
+  const portalListing = await loadPortalListingBySlug(slug);
+  const listing = portalListing.items[0] ?? getListingBySlug(demoListings, slug);
 
   if (!listing) {
     return { title: 'Property not found' };
@@ -33,14 +34,17 @@ export const dynamic = 'force-dynamic';
 
 export default async function PropertyPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const portalListing = await loadPortalListingBySlug(slug);
+  const [portalListing, portalListings] = await Promise.all([loadPortalListingBySlug(slug), loadPortalListings()]);
   const listing = portalListing.items[0] ?? getListingBySlug(demoListings, slug);
   if (!listing) notFound();
 
   const facts = getListingFacts(listing);
-  const relatedListings = getRelatedListings(demoListings, listing, 2);
+  const relatedSourceListings = portalListings.source === 'database' ? portalListings.items : demoListings;
+  const relatedListings = getRelatedListings(relatedSourceListings, listing, 2);
   const shareText = buildListingShareText(listing);
   const agentProfileHref = `/agents/${slugifyName(listing.agent)}`;
+  const listingSourceLabel = getListingSourceLabel(portalListing.source);
+  const relatedSourceLabel = getRelatedSourceLabel(portalListings.source);
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -75,6 +79,10 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
               <div className="relative mt-48 max-w-3xl">
                 <p className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-black backdrop-blur"><MapPin size={16} /> {listing.location}</p>
                 <h1 className="mt-4 text-4xl font-black tracking-[-.065em] sm:text-6xl">{listing.title}</h1>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <SourceBadge tone="sky">{listingSourceLabel}</SourceBadge>
+                  <SourceBadge tone="emerald">{relatedSourceLabel}</SourceBadge>
+                </div>
               </div>
               <div className="absolute bottom-6 right-6 hidden rounded-full bg-white px-4 py-2 text-sm font-black text-[#050A30] shadow-lg sm:block">
                 View all {listing.photos.length} photos
@@ -170,6 +178,23 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                   <span className="flex items-center gap-2"><CalendarDays size={16} /> Listed {formatDate(listing.listedAt)}</span>
                 </div>
               </div>
+              <div className="mb-4 rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-5 shadow-sm">
+                <p className="text-sm font-black uppercase tracking-[.18em] text-[#3B49FF]">Next steps</p>
+                <h2 className="mt-2 text-xl font-black tracking-[-.04em]">Ready to move fast?</h2>
+                <p className="mt-3 text-sm font-semibold leading-6 text-slate-700">
+                  Share your timeline and budget, then use the form below or the direct email fallback.
+                </p>
+                <div className="mt-4 space-y-2 text-sm font-semibold leading-6 text-slate-700">
+                  <div className="flex gap-3"><span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-black text-[#050A30]">1</span> Save or share the listing with your co-buyer.</div>
+                  <div className="flex gap-3"><span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-black text-[#050A30]">2</span> Open the enquiry form when you’re ready.</div>
+                </div>
+                <a
+                  href={buildEnquiryMailto(listing)}
+                  className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-[#050A30] px-4 py-3 text-sm font-black text-white transition hover:bg-[#0b1246]"
+                >
+                  Email agent directly
+                </a>
+              </div>
               <EnquiryForm
                 agentProfileHref={agentProfileHref}
                 listing={{
@@ -230,4 +255,28 @@ function slugifyName(value: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
+}
+
+function getListingSourceLabel(source: 'database' | 'demo' | 'empty' | 'error') {
+  if (source === 'database') return 'Live listing feed';
+  if (source === 'demo') return 'Demo listing feed';
+  if (source === 'empty') return 'Live feed empty';
+  return 'Feed unavailable';
+}
+
+function getRelatedSourceLabel(source: 'database' | 'demo' | 'empty' | 'error') {
+  if (source === 'database') return 'Live related homes';
+  if (source === 'demo') return 'Demo related homes';
+  if (source === 'empty') return 'Related feed empty';
+  return 'Related feed unavailable';
+}
+
+function SourceBadge({ children, tone }: { children: ReactNode; tone: 'sky' | 'emerald' }) {
+  const toneClasses = tone === 'sky' ? 'bg-[#3B49FF]/10 text-[#3B49FF] ring-[#3B49FF]/15' : 'bg-[#12D6C5]/15 text-[#0a6b62] ring-[#12D6C5]/20';
+
+  return (
+    <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[.12em] ring-1 ${toneClasses}`}>
+      {children}
+    </span>
+  );
 }
