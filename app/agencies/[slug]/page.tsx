@@ -4,16 +4,18 @@ import { Building2, Mail, MapPin, ShieldCheck, Users } from 'lucide-react';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { agencies, agents, listings } from '@/lib/demo-data';
-import { findAgencyBySlug, formatDirectoryCount, getAgencyAgents, getAgencyListings, slugifyDirectoryName } from '@/lib/directory';
+import { loadPortalAgencies, loadPortalListings } from '../../../lib/proppd/backend';
+import { agencies as demoAgencies, agents as demoAgents, listings as demoListings } from '@/lib/demo-data';
+import { formatDirectoryCount, getAgencyAgents, getAgencyListings, slugifyDirectoryName } from '@/lib/directory';
 
 export function generateStaticParams() {
-  return agencies.map((agency) => ({ slug: slugifyDirectoryName(agency.name) }));
+  return demoAgencies.map((agency) => ({ slug: slugifyDirectoryName(agency.name) }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const agency = findAgencyBySlug(agencies, slug);
+  const portalAgency = await loadPortalAgencies();
+  const agency = portalAgency.items[0] ?? demoAgencies.find((entry) => slugifyDirectoryName(entry.name) === slug);
 
   if (!agency) {
     return { title: 'Agency not found' };
@@ -26,13 +28,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function AgencyProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const agency = findAgencyBySlug(agencies, slug);
+  const portalAgency = await loadPortalAgencies();
+  const agency = portalAgency.items[0] ?? demoAgencies.find((entry) => slugifyDirectoryName(entry.name) === slug);
   if (!agency) notFound();
 
-  const team = getAgencyAgents(agents, agency.name);
-  const activeListings = getAgencyListings(listings, agency.name);
+  const portalListings = await loadPortalListings();
+  const team = getAgencyAgents(demoAgents, agency.name);
+  const activeListings = getAgencyListings(portalListings.items.length > 0 ? portalListings.items : demoListings, agency.name);
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">

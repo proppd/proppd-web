@@ -4,16 +4,18 @@ import { BadgeCheck, Building2, Mail, MapPin } from 'lucide-react';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { agents, listings } from '@/lib/demo-data';
-import { findAgentBySlug, formatDirectoryCount, getAgentListings, slugifyDirectoryName } from '@/lib/directory';
+import { loadPortalAgentBySlug, loadPortalListings } from '../../../lib/proppd/backend';
+import { agents as demoAgents, listings as demoListings } from '@/lib/demo-data';
+import { formatDirectoryCount, getAgentListings, slugifyDirectoryName } from '@/lib/directory';
 
 export function generateStaticParams() {
-  return agents.map((agent) => ({ slug: slugifyDirectoryName(agent.name) }));
+  return demoAgents.map((agent) => ({ slug: slugifyDirectoryName(agent.name) }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const agent = findAgentBySlug(agents, slug);
+  const portalAgent = await loadPortalAgentBySlug(slug);
+  const agent = portalAgent.items[0] ?? demoAgents.find((entry) => slugifyDirectoryName(entry.name) === slug);
 
   if (!agent) {
     return { title: 'Agent not found' };
@@ -26,12 +28,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function AgentProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const agent = findAgentBySlug(agents, slug);
+  const portalAgent = await loadPortalAgentBySlug(slug);
+  const agent = portalAgent.items[0] ?? demoAgents.find((entry) => slugifyDirectoryName(entry.name) === slug);
   if (!agent) notFound();
 
-  const activeListings = getAgentListings(listings, agent.name);
+  const portalListings = await loadPortalListings();
+  const activeListings = getAgentListings(portalListings.items.length > 0 ? portalListings.items : demoListings, agent.name);
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -42,7 +48,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
             <div className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm sm:p-12">
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex h-20 w-20 items-center justify-center rounded-[2rem] bg-gradient-to-br from-[#3B49FF] to-[#12D6C5] text-3xl font-black text-white">
-                  {agent.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}
+                  {agent.name.split(' ').map((part: string) => part[0]).join('').slice(0, 2)}
                 </div>
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full bg-[#E9FFFC] px-4 py-2 text-xs font-black uppercase tracking-[.14em] text-[#087d75]">

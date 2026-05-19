@@ -1,4 +1,4 @@
-import type { Listing } from '@/lib/demo-data';
+import type { Listing } from './demo-data';
 
 export type DirectoryAgent = {
   name: string;

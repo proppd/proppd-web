@@ -1,8 +1,9 @@
 import { Pool } from 'pg';
-import { listings as demoListings, type Listing } from '../demo-data';
+import { agencies as demoAgencies, agents as demoAgents, listings as demoListings, type Listing } from '../demo-data';
 import { demoLeads } from '../leads/demo-leads';
 import { getLeadQueue, type LeadRecord, type LeadQuality, type LeadStatus, type LeadIntent } from '../leads/pipeline';
 import { getSupabaseBrowserConfig } from '../supabase/env';
+import type { DirectoryAgency, DirectoryAgent } from '../directory';
 import { portalPropertyTypeOptions, slugifyListingTitle } from './listing-editor';
 
 export type PortalBackendMode = 'database' | 'demo';
@@ -85,6 +86,10 @@ export type PortalListingWriteInput = {
   levies?: number;
   isFeatured?: boolean;
 };
+
+export type PortalDirectoryAgent = DirectoryAgent;
+export type PortalDirectoryAgency = DirectoryAgency;
+
 
 type PortalEnv = Record<string, string | undefined>;
 
@@ -216,6 +221,112 @@ export async function loadPortalLeadQueue(agentName?: string, env: PortalEnv = p
   } catch (error) {
     return { source: 'error', items: [], error: errorMessage(error) };
   }
+}
+
+export async function loadPortalLeadById(leadId: string, env: PortalEnv = process.env): Promise<PortalPayload<LeadRecord>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    const lead = getLeadQueue(demoLeads).find((entry) => entry.id === leadId);
+    return lead ? { source: 'demo', items: [lead] } : { source: 'empty', items: [] };
+  }
+
+  try {
+    const rows = await queryLeads(databaseUrl);
+    const item = rows.map(mapLeadRow).find((lead) => lead.id === leadId);
+    return item ? { source: 'database', items: [item] } : { source: 'empty', items: [] };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export type PortalLeadWorkflowUpdate = {
+  status?: LeadStatus;
+  quality?: 'clean' | 'duplicate' | 'flagged';
+};
+
+export async function updatePortalLeadWorkflow(
+  leadId: string,
+  access: PortalUserAccess,
+  input: PortalLeadWorkflowUpdate,
+  env: PortalEnv = process.env,
+): Promise<PortalPayload<LeadRecord>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  }
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const rows = await queryLeads(databaseUrl);
+    const current = rows.find((entry) => entry.id === leadId);
+    if (!current) {
+      return { source: 'error', items: [], error: 'Lead not found.' };
+    }
+
+    const ownsLead =
+      access.role === 'super_admin' ||
+      (access.agentName !== null && current.agent_name === access.agentName) ||
+      (access.agencyName !== null && current.agency_name === access.agencyName);
+    if (!ownsLead) {
+      return { source: 'error', items: [], error: 'Access denied for this lead.' };
+    }
+
+    const nextStatus = input.status ?? mapLeadStatus(current.status);
+    const nextQuality = input.quality ? mapLeadQualityForDatabase(input.quality) : current.quality;
+
+    await pool.query(
+      `update public.leads
+       set status = $1::public.lead_status,
+           quality = $2::public.lead_quality,
+           updated_at = now()
+       where id = $3`,
+      [nextStatus, nextQuality, leadId],
+    );
+
+    return await loadPortalLeadById(leadId, env);
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function loadPortalAgents(env: PortalEnv = process.env): Promise<PortalPayload<DirectoryAgent>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return { source: 'demo', items: demoAgents };
+  }
+
+  try {
+    const rows = await queryDirectoryAgents(databaseUrl);
+    return { source: rows.length > 0 ? 'database' : 'empty', items: rows };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function loadPortalAgencies(env: PortalEnv = process.env): Promise<PortalPayload<DirectoryAgency>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return { source: 'demo', items: demoAgencies };
+  }
+
+  try {
+    const rows = await queryDirectoryAgencies(databaseUrl);
+    return { source: rows.length > 0 ? 'database' : 'empty', items: rows };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function loadPortalAgentBySlug(slug: string, env: PortalEnv = process.env): Promise<PortalPayload<DirectoryAgent>> {
+  const directory = await loadPortalAgents(env);
+  const item = directory.items.find((agent) => slugifyText(agent.name) === slug);
+  return { ...directory, items: item ? [item] : [] };
+}
+
+export async function loadPortalAgencyBySlug(slug: string, env: PortalEnv = process.env): Promise<PortalPayload<DirectoryAgency>> {
+  const directory = await loadPortalAgencies(env);
+  const item = directory.items.find((agency) => slugifyText(agency.name) === slug);
+  return { ...directory, items: item ? [item] : [] };
 }
 
 function normaliseRole(value: string): PortalUserAccess['role'] {
@@ -728,6 +839,79 @@ async function queryLeads(databaseUrl: string, agentName?: string): Promise<Lead
   return result.rows;
 }
 
+async function queryDirectoryAgents(databaseUrl: string): Promise<DirectoryAgent[]> {
+  const pool = getPortalPool(databaseUrl);
+  const sql = `
+    select
+      a.name,
+      a.slug,
+      coalesce(array_to_string(a.areas_served, ', '), coalesce(ag.city, 'South Africa')) as area,
+      ag.name as agency_name,
+      count(l.id)::int as listings
+    from public.agents a
+    left join public.agencies ag on ag.id = a.agency_id
+    left join public.listings l on l.agent_id = a.id and l.status in ('available', 'under_offer', 'sold', 'rented')
+    where a.is_active = true
+    group by a.name, a.slug, ag.name, ag.city
+    order by a.name asc
+  `;
+
+  const result = await pool.query<{
+    name: string;
+    slug: string;
+    area: string | null;
+    agency_name: string | null;
+    listings: number | string;
+  }>(sql);
+
+  return result.rows.map((row) => ({
+    name: row.name,
+    agency: row.agency_name ?? 'Independent agent',
+    area: row.area ?? 'South Africa',
+    listings: Number(row.listings ?? 0),
+  }));
+}
+
+async function queryDirectoryAgencies(databaseUrl: string): Promise<DirectoryAgency[]> {
+  const pool = getPortalPool(databaseUrl);
+  const sql = `
+    select
+      ag.name,
+      ag.slug,
+      ag.city,
+      count(distinct a.id)::int as agents,
+      count(distinct l.id) filter (where l.status in ('available', 'under_offer', 'sold', 'rented'))::int as listings
+    from public.agencies ag
+    left join public.agents a on a.agency_id = ag.id and a.is_active = true
+    left join public.listings l on l.agency_id = ag.id
+    where ag.is_active = true
+    group by ag.name, ag.slug, ag.city
+    order by ag.name asc
+  `;
+
+  const result = await pool.query<{
+    name: string;
+    slug: string;
+    city: string | null;
+    agents: number | string;
+    listings: number | string;
+  }>(sql);
+
+  return result.rows.map((row) => ({
+    name: row.name,
+    city: row.city ?? 'South Africa',
+    agents: Number(row.agents ?? 0),
+    listings: Number(row.listings ?? 0),
+  }));
+}
+
+function slugifyText(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+}
+
 async function queryCount(pool: Pool, sql: string): Promise<number> {
   const result = await pool.query<{ count: number | string }>(sql);
   const value = result.rows[0]?.count;
@@ -863,6 +1047,12 @@ function mapLeadQuality(value: string): LeadQuality {
   if (value === 'duplicate') return 'duplicate';
   if (value === 'suspicious' || value === 'spam') return 'flagged';
   return 'clean';
+}
+
+function mapLeadQualityForDatabase(value: PortalLeadWorkflowUpdate['quality']): 'valid' | 'duplicate' | 'suspicious' {
+  if (value === 'duplicate') return 'duplicate';
+  if (value === 'flagged') return 'suspicious';
+  return 'valid';
 }
 
 function formatListingPrice(value: number, purpose: 'sale' | 'rent'): string {

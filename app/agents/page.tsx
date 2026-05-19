@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { BadgeCheck, Building2, MapPin, Search } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { agents } from '@/lib/demo-data';
+import { loadPortalAgents } from '../../lib/proppd/backend';
 import { filterAgents, formatDirectorySearchSummary, parseDirectoryQuery, slugifyDirectoryName } from '@/lib/directory';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -13,10 +13,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/agents' },
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function AgentsPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const query = parseDirectoryQuery(toURLSearchParams(params));
-  const filteredAgents = filterAgents(agents, query);
+  const portalAgents = (await loadPortalAgents()).items;
+  const filteredAgents = filterAgents(portalAgents, query);
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
