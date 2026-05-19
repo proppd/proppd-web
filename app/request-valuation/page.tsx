@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { ArrowRight, BarChart3, CheckCircle2, ClipboardCheck, Home, ShieldCheck } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
+import { ValuationRequestForm } from '@/components/valuation/valuation-request-form';
 import { buildValuationRequestMailto, formatValuationReason, valuationReadinessSteps, type ValuationReason } from '@/lib/valuation/request';
 
 export const metadata: Metadata = {
@@ -106,15 +107,26 @@ export default function Page() {
                   </div>
                 ))}
               </div>
+              <div className="mt-5 rounded-[1.5rem] border border-[#eefcf9] bg-[#f8fffd] p-5">
+                <p className="text-xs font-black uppercase tracking-[.14em] text-[#0f766e]">What happens next</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-2xl bg-white p-4 text-sm font-bold text-slate-600">
+                    <p className="font-black text-[#050A30]">1. Draft email</p>
+                    <p className="mt-2 leading-6">A structured summary is built from the details you enter.</p>
+                  </div>
+                  <div className="rounded-2xl bg-white p-4 text-sm font-bold text-slate-600">
+                    <p className="font-black text-[#050A30]">2. Review consent</p>
+                    <p className="mt-2 leading-6">The handoff stays explicit about owner permission and POPIA.</p>
+                  </div>
+                  <div className="rounded-2xl bg-white p-4 text-sm font-bold text-slate-600">
+                    <p className="font-black text-[#050A30]">3. Route to agent</p>
+                    <p className="mt-2 leading-6">The request can be sent to a launch partner or reviewed internally.</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <aside className="rounded-[2rem] border border-slate-200 bg-[#eefcf9] p-6">
-              <CheckCircle2 className="text-[#0f766e]" size={30} />
-              <h2 className="mt-4 text-2xl font-black tracking-[-.04em] text-[#0f766e]">Honest production gate</h2>
-              <p className="mt-3 text-sm font-bold leading-6 text-[#0f766e]">
-                The current flow opens a structured email request. The next backend gate is persisted seller requests, agent assignment, audit history, and notification routing in Supabase.
-              </p>
-            </aside>
+            <ValuationRequestForm reasons={reasons.map((reason) => reason.id)} initialReason="selling" />
           </section>
         </div>
       </section>
