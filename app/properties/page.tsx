@@ -5,6 +5,7 @@ import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { listings } from '@/lib/demo-data';
 import { applyListingFilters, paginateListings, parseListingFilters } from '@/lib/listings/filters';
+import { buildSavedSearchMailto } from '@/lib/listings/saved-search';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -62,7 +63,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                 </div>
                 <div className="flex shrink-0 gap-2">
                   <button className="rounded-full border border-slate-200 px-4 py-2 text-sm font-black text-[#050A30]">Sort: {filters.sort.replace('-', ' ')}</button>
-                  <button className="inline-flex items-center gap-2 rounded-full bg-[#050A30] px-4 py-2 text-sm font-black text-white"><Bell size={15} /> Save search</button>
+                  <a className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[#050A30] px-4 py-2 text-sm font-black text-white" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: filtered.length })} aria-label="Request a saved property search alert"><Bell size={15} /> <span className="text-white">Save search</span></a>
                 </div>
               </div>
             </div>

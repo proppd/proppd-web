@@ -4,6 +4,7 @@ import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { listings } from '@/lib/demo-data';
 import { applyListingFilters, parseListingFilters } from '@/lib/listings/filters';
+import { buildSavedSearchMailto } from '@/lib/listings/saved-search';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -44,7 +45,7 @@ export default async function ForSalePage({ searchParams }: { searchParams: Sear
               <h1 className="mt-2 text-3xl font-black tracking-[-.05em] sm:text-4xl">{saleListings.length} homes for sale {filters.query ? `matching “${filters.query}”` : 'in South Africa'}</h1>
               <p className="mt-2 text-sm font-semibold text-slate-600">{filters.query ? 'Filtered across listing facts, areas, agents, and agencies.' : 'Price-first cards, verified status, and quick facts for buyers.'}</p>
             </div>
-            <button className="inline-flex items-center justify-center gap-2 rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white"><Bell size={15} /> Save search</button>
+            <a className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white" href={buildSavedSearchMailto(filters, { path: '/properties/for-sale', resultCount: saleListings.length })} aria-label="Request a saved for-sale search alert"><Bell size={15} /> <span className="text-white">Save search</span></a>
           </div>
           <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {saleListings.map((listing) => <ListingCard key={listing.slug} listing={listing} />)}
