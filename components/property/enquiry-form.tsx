@@ -227,7 +227,10 @@ export function EnquiryForm({ listing, agentProfileHref, shareText }: EnquiryFor
         View agent profile
       </a>
 
-      <div className="mt-5 rounded-2xl border border-slate-200 p-4 text-xs font-mono leading-5 text-slate-500">{shareText}</div>
+      <div className="mt-5 rounded-2xl border border-slate-200 bg-[#F5F7FA] p-4 text-xs font-bold leading-5 text-slate-600">
+        <div className="flex items-center gap-2 font-black text-[#050A30]"><ShieldCheck size={15} className="text-[#12D6C5]" /> POPIA-aware handoff</div>
+        <p className="mt-2">Your enquiry is saved securely when live storage is available, with email handoff as a fallback.</p>
+      </div>
     </aside>
   );
 }

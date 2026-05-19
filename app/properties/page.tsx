@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+import { Bell, ChevronDown, MapPin, Search, SlidersHorizontal } from 'lucide-react';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
@@ -15,35 +17,92 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
       <SiteHeader />
-      <section className="px-4 py-14 sm:px-6 lg:px-8">
+      <section className="border-b border-slate-200 bg-white px-4 py-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Property search</p>
-          <h1 className="mt-3 max-w-4xl text-5xl font-black tracking-[-.07em] sm:text-6xl">Search property in South Africa</h1>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-            Browse verified sale and rental opportunities while the Proppd MVP data layer comes online.
-          </p>
-          <div className="mt-8 grid gap-3 rounded-[2rem] border border-slate-200 bg-white p-3 shadow-sm md:grid-cols-4">
-            <FilterPill label="Purpose" value={filters.purpose === 'all' ? 'Buy or rent' : filters.purpose === 'sale' ? 'For sale' : 'To rent'} />
-            <FilterPill label="Location" value={filters.location || 'Any location'} />
-            <FilterPill label="Price" value={priceLabel(filters.minPrice, filters.maxPrice)} />
-            <FilterPill label="Bedrooms" value={filters.bedrooms ? `${filters.bedrooms}+ beds` : 'Any beds'} />
-          </div>
-          <div className="mt-6 flex items-center justify-between text-sm font-bold text-slate-500">
-            <span>{filtered.length} matching properties</span>
-            <span>Sort: {filters.sort.replace('-', ' ')}</span>
-          </div>
-          <div className="mt-9 grid gap-6 lg:grid-cols-3">
-            {paginated.items.map((listing) => (
-              <a key={listing.slug} href={`/property/${listing.slug}`} aria-label={`View ${listing.title}`}>
-                <ListingCard listing={listing} />
+          <div className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-center">
+            <label className="flex min-h-14 items-center gap-3 rounded-full border border-slate-300 bg-white px-5 text-sm font-bold text-slate-500 shadow-sm">
+              <Search size={21} className="text-[#3B49FF]" />
+              <span className="truncate">{filters.location || 'South Africa'} · Search suburb, city, school, agent, or listing ID</span>
+            </label>
+            <div className="flex flex-wrap gap-2">
+              <FilterButton active={filters.purpose !== 'all'}>{filters.purpose === 'all' ? 'For sale & rent' : filters.purpose === 'sale' ? 'For sale' : 'To rent'}</FilterButton>
+              <FilterButton>{priceLabel(filters.minPrice, filters.maxPrice)}</FilterButton>
+              <FilterButton>{filters.bedrooms ? `${filters.bedrooms}+ beds` : 'Beds & baths'}</FilterButton>
+              <FilterButton>Home type</FilterButton>
+              <a className="inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-300 bg-white px-4 text-sm font-black shadow-sm transition hover:border-[#3B49FF]" href="/properties">
+                <SlidersHorizontal size={16} /> More
               </a>
-            ))}
-          </div>
-          {paginated.items.length === 0 && (
-            <div className="mt-9 rounded-[2rem] border border-slate-200 bg-white p-8 text-slate-600">
-              No listings match those filters yet. Try a wider location or price range.
+              <a className="inline-flex min-h-11 items-center rounded-full bg-[#3B49FF] px-5 text-sm font-black text-white shadow-lg shadow-[#3B49FF]/20" href="/properties">
+                Search
+              </a>
             </div>
-          )}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-5 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[minmax(0,1fr)_440px]">
+          <div>
+            <div className="rounded-[1.25rem] border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                <div>
+                  <h1 className="text-2xl font-black tracking-[-.04em] sm:text-3xl">
+                    {filtered.length} homes around {filters.location || 'South Africa'}
+                  </h1>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
+                    Price-first verified homes with saved search and agent routing.
+                  </p>
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <button className="rounded-full border border-slate-200 px-4 py-2 text-sm font-black text-[#050A30]">Sort: {filters.sort.replace('-', ' ')}</button>
+                  <button className="inline-flex items-center gap-2 rounded-full bg-[#050A30] px-4 py-2 text-sm font-black text-white"><Bell size={15} /> Save search</button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-5 md:grid-cols-2">
+              {paginated.items.map((listing) => (
+                <ListingCard key={listing.slug} listing={listing} />
+              ))}
+            </div>
+            {paginated.items.length === 0 && (
+              <div className="mt-5 rounded-[2rem] border border-slate-200 bg-white p-8 text-slate-600">
+                No listings match those filters yet. Try a wider location or price range.
+              </div>
+            )}
+          </div>
+
+          <aside className="hidden lg:block">
+            <div className="sticky top-24 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+              <div className="relative min-h-[calc(100vh-7rem)] bg-[radial-gradient(circle_at_30%_20%,rgba(18,214,197,.55),transparent_14rem),radial-gradient(circle_at_72%_35%,rgba(59,73,255,.45),transparent_15rem),linear-gradient(135deg,#edf7ff,#f8fbff_45%,#e7fbf8)] p-5">
+                <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(#050A30_1px,transparent_1px),linear-gradient(90deg,#050A30_1px,transparent_1px)] [background-size:42px_42px]" />
+                <div className="relative rounded-2xl border border-white/70 bg-white/90 p-4 shadow-xl backdrop-blur">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-10 w-10 place-items-center rounded-full bg-[#3B49FF] text-white"><MapPin size={18} /></div>
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Map preview</p>
+                      <p className="font-black">Explore by area</p>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">The live map layer will sit here. For now, quick route users into verified listing cards and locations.</p>
+                </div>
+                {paginated.items.map((listing, index) => (
+                  <a
+                    key={listing.slug}
+                    href={`/property/${listing.slug}`}
+                    className="absolute rounded-full bg-white px-3 py-2 text-sm font-black text-[#050A30] shadow-xl ring-2 ring-[#3B49FF]/15"
+                    style={{ left: `${18 + index * 20}%`, top: `${47 + (index % 2) * 16}%` }}
+                  >
+                    {listing.price.replace(' pm', '')}
+                  </a>
+                ))}
+                <div className="absolute bottom-5 left-5 right-5 rounded-2xl bg-[#050A30] p-4 text-white shadow-2xl">
+                  <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">Proppd map mode</p>
+                  <p className="mt-1 text-sm font-semibold text-white/75">Map/search split prepared for the next data layer.</p>
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
       </section>
       <SiteFooter />
@@ -51,12 +110,11 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
   );
 }
 
-function FilterPill({ label, value }: { label: string; value: string }) {
+function FilterButton({ children, active = false }: { children: ReactNode; active?: boolean }) {
   return (
-    <div className="rounded-full bg-[#F5F7FA] px-5 py-3">
-      <div className="text-[10px] font-black uppercase tracking-[.16em] text-slate-400">{label}</div>
-      <div className="text-sm font-black text-[#050A30]">{value}</div>
-    </div>
+    <button className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-black shadow-sm transition ${active ? 'border-[#3B49FF] bg-[#3B49FF]/10 text-[#3B49FF]' : 'border-slate-300 bg-white text-[#050A30] hover:border-[#3B49FF]'}`}>
+      {children} <ChevronDown size={15} />
+    </button>
   );
 }
 
