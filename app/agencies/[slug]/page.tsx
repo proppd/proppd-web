@@ -4,7 +4,7 @@ import { Building2, Mail, MapPin, ShieldCheck, Users } from 'lucide-react';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { loadPortalAgencies, loadPortalListings } from '../../../lib/proppd/backend';
+import { loadPortalAgencies, loadPortalAgents, loadPortalListings } from '../../../lib/proppd/backend';
 import { agencies as demoAgencies, agents as demoAgents, listings as demoListings } from '@/lib/demo-data';
 import { formatDirectoryCount, getAgencyAgents, getAgencyListings, slugifyDirectoryName } from '@/lib/directory';
 
@@ -36,9 +36,33 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
   const agency = portalAgency.items[0] ?? demoAgencies.find((entry) => slugifyDirectoryName(entry.name) === slug);
   if (!agency) notFound();
 
-  const portalListings = await loadPortalListings();
-  const team = getAgencyAgents(demoAgents, agency.name);
-  const activeListings = getAgencyListings(portalListings.items.length > 0 ? portalListings.items : demoListings, agency.name);
+  const [portalAgents, portalListings] = await Promise.all([loadPortalAgents(), loadPortalListings()]);
+  const team = getAgencyAgents(portalAgents.source === 'demo' ? demoAgents : portalAgents.items, agency.name);
+  const activeListings = getAgencyListings(portalListings.source === 'demo' ? demoListings : portalListings.items, agency.name);
+  const directoryStateLabel =
+    portalAgency.source === 'database'
+      ? 'Live agency directory connected'
+      : portalAgency.source === 'empty'
+        ? 'Live directory connected, branch not yet published'
+        : portalAgency.source === 'demo'
+          ? 'Demo agency profile'
+          : 'Agency profile unavailable';
+  const teamStateLabel =
+    portalAgents.source === 'database'
+      ? 'Live team data connected'
+      : portalAgents.source === 'empty'
+        ? 'Live team directory connected, no agents yet'
+        : portalAgents.source === 'demo'
+          ? 'Demo team'
+          : 'Team data unavailable';
+  const listingStateLabel =
+    portalListings.source === 'database'
+      ? 'Live stock connected'
+      : portalListings.source === 'empty'
+        ? 'Live stock connected, none active'
+        : portalListings.source === 'demo'
+          ? 'Demo stock'
+          : 'Stock unavailable';
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -56,8 +80,15 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
             </div>
             <div className="grid gap-4 p-6 sm:grid-cols-3 sm:p-8">
               <AgencyMetric icon={<Users size={18} />} label="Team" value={formatDirectoryCount(team.length, 'agent')} />
-              <AgencyMetric icon={<ShieldCheck size={18} />} label="Demo stock" value={formatDirectoryCount(activeListings.length, 'listing')} />
+              <AgencyMetric icon={<ShieldCheck size={18} />} label="Active stock" value={formatDirectoryCount(activeListings.length, 'listing')} />
               <AgencyMetric icon={<Building2 size={18} />} label="Status" value="Verified agency" />
+            </div>
+            <div className="px-6 pb-6 sm:px-8">
+              <div className="flex flex-wrap gap-2 text-xs font-black uppercase tracking-[.16em]">
+                <span className="rounded-full bg-[#E9FFFC] px-4 py-2 text-[#087d75]">{directoryStateLabel}</span>
+                <span className="rounded-full bg-[#F5F7FA] px-4 py-2 text-slate-600">{teamStateLabel}</span>
+                <span className="rounded-full bg-[#F5F7FA] px-4 py-2 text-slate-600">{listingStateLabel}</span>
+              </div>
             </div>
           </div>
 
