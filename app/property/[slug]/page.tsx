@@ -23,10 +23,27 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     return { title: 'Property not found' };
   }
 
+  const ogImage = listing.photos[0]?.src;
+  const ogImageAlt = listing.photos[0]?.alt ?? listing.title;
+
   return {
     title: listing.title,
     description: `${listing.title} in ${listing.location} is listed by ${listing.agent} at ${listing.price}. View photos, facts, and verified enquiry details on Proppd.`,
     alternates: { canonical: `/property/${listing.slug}` },
+    openGraph: {
+      title: listing.title,
+      description: `${listing.title} in ${listing.location} · ${listing.price}`,
+      url: `/property/${listing.slug}`,
+      siteName: 'Proppd',
+      type: 'website',
+      images: ogImage ? [{ url: ogImage, alt: ogImageAlt }] : undefined,
+    },
+    twitter: {
+      card: ogImage ? 'summary_large_image' : 'summary',
+      title: listing.title,
+      description: `${listing.title} in ${listing.location} · ${listing.price}`,
+      images: ogImage ? [ogImage] : undefined,
+    },
   };
 }
 
