@@ -19,7 +19,7 @@ type SubmitState =
 const INVITE_EMAIL = 'info@proppd.com';
 
 export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/dashboard/listings' }: LoginFormProps) {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(INVITE_EMAIL);
   const [state, setState] = useState<SubmitState>({
     status: 'idle',
     message: 'Enter the email linked to your Proppd agent or admin profile.',
@@ -33,6 +33,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
 
   const cleanEmail = email.trim().toLowerCase();
   const isValidEmail = cleanEmail.includes('@') && cleanEmail.includes('.');
+  const isAdminEmail = cleanEmail === INVITE_EMAIL;
 
   async function submitMagicLink(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,13 +53,13 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
       return;
     }
 
-    setState({ status: 'loading', message: 'Sending secure login link…' });
+    setState({ status: 'loading', message: isAdminEmail ? 'Sending admin login link…' : 'Sending secure login link…' });
 
     const { error } = await supabase.auth.signInWithOtp({
       email: cleanEmail,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
-        shouldCreateUser: false,
+        shouldCreateUser: isAdminEmail,
       },
     });
 
@@ -67,7 +68,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
       return;
     }
 
-    setState({ status: 'success', message: 'Check your inbox for the secure Proppd login link.' });
+    setState({ status: 'success', message: isAdminEmail ? 'Check info@proppd.com for the admin login link.' : 'Check your inbox for the secure Proppd login link.' });
   }
 
   return (
@@ -80,7 +81,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
           id="login-email"
           className="rounded-full border border-slate-200 bg-white px-5 py-4 text-sm font-bold text-[#050A30] outline-none transition placeholder:text-slate-400 focus:border-[#3B49FF] focus:ring-4 focus:ring-[#3B49FF]/10"
           type="email"
-          placeholder="you@agency.co.za"
+          placeholder="info@proppd.com"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           inputMode="email"
@@ -94,7 +95,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
           type="submit"
           disabled={state.status === 'loading'}
         >
-          {state.status === 'loading' ? 'Sending…' : isConfigured ? 'Send login link' : 'Request invite'}
+          {state.status === 'loading' ? 'Sending…' : isConfigured ? (isAdminEmail ? 'Send admin link' : 'Send login link') : 'Request invite'}
         </button>
       </form>
 

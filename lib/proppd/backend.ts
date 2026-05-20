@@ -38,6 +38,8 @@ export type PortalUserAccess = {
   agencyName: string | null;
 };
 
+const ADMIN_EMAIL = 'info@proppd.com';
+
 export type PortalListingDraft = {
   id: string;
   slug: string;
@@ -490,10 +492,21 @@ async function generateUniqueListingSlug(pool: Pool, title: string): Promise<str
   return `${base}-${Date.now().toString(36).slice(-5)}`;
 }
 
-export async function loadPortalUserAccess(userId: string, env: PortalEnv = process.env): Promise<PortalUserAccess | null> {
+export async function loadPortalUserAccess(userId: string, userEmail?: string | null, env: PortalEnv = process.env): Promise<PortalUserAccess | null> {
+  const isAdminEmail = userEmail?.trim().toLowerCase() === ADMIN_EMAIL;
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
-    return null;
+    return isAdminEmail
+      ? {
+          userId,
+          profileId: 'demo-admin',
+          role: 'super_admin',
+          agentId: null,
+          agentName: null,
+          agencyId: null,
+          agencyName: 'Proppd',
+        }
+      : null;
   }
 
   const pool = getPortalPool(databaseUrl);
@@ -521,12 +534,24 @@ export async function loadPortalUserAccess(userId: string, env: PortalEnv = proc
   );
 
   const row = result.rows[0];
-  if (!row) return null;
+  if (!row) {
+    return isAdminEmail
+      ? {
+          userId,
+          profileId: 'admin-email',
+          role: 'super_admin',
+          agentId: null,
+          agentName: null,
+          agencyId: null,
+          agencyName: 'Proppd',
+        }
+      : null;
+  }
 
   return {
     userId,
     profileId: row.profile_id,
-    role: normaliseRole(row.role),
+    role: isAdminEmail ? 'super_admin' : normaliseRole(row.role),
     agentId: row.agent_id,
     agentName: row.agent_name,
     agencyId: row.agency_id,

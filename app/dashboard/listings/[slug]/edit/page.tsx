@@ -34,7 +34,7 @@ export default async function Page({ params }: PageProps) {
     redirect('/login?next=%2Fdashboard%2Flistings');
   }
 
-  const access = await loadPortalUserAccess(user.id);
+  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
   if (!access) {
     redirect('/login?next=%2Fdashboard%2Flistings');
   }

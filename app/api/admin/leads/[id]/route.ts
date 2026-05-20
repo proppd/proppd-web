@@ -13,7 +13,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const user = await getPortalServerUser();
   if (!user) return jsonError('Unauthorized', 401);
 
-  const access = await loadPortalUserAccess(user.id);
+  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
   if (!access) return jsonError('Access profile not found', 403);
 
   const result = await loadPortalLeadById(id);
@@ -28,7 +28,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const user = await getPortalServerUser();
   if (!user) return jsonError('Unauthorized', 401);
 
-  const access = await loadPortalUserAccess(user.id);
+  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
   if (!access) return jsonError('Access profile not found', 403);
 
   const body = await request.json().catch(() => null);

@@ -30,6 +30,7 @@ export default function Page() {
             <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
               Proppd uses passwordless login links so verified agents and admins can access the control room without weak shared passwords.
             </p>
+            <p className="mt-3 inline-flex rounded-full bg-[#eefcf9] px-4 py-2 text-sm font-black text-[#0f766e]">Admin bootstrap: info@proppd.com</p>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <span className="rounded-full bg-[#eefcf9] px-4 py-2 text-sm font-black text-[#0f766e]">Invite-only access</span>

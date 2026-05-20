@@ -23,7 +23,7 @@ export async function GET(_request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const access = await loadPortalUserAccess(user.id);
+  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
   if (!access) {
     return NextResponse.json({ error: 'Your account is not linked to a Proppd profile yet.' }, { status: 403 });
   }
@@ -51,7 +51,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const access = await loadPortalUserAccess(user.id);
+  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
   if (!access) {
     return NextResponse.json({ error: 'Your account is not linked to a Proppd profile yet.' }, { status: 403 });
   }
