@@ -9,6 +9,8 @@ type EnquiryFormProps = {
   listing: ListingLeadContext;
   agentProfileHref: string;
   shareText: string;
+  routingLabel: string;
+  routingDetail: string;
 };
 
 type LeadFormState = LeadInput;
@@ -23,7 +25,7 @@ const initialState: LeadFormState = {
   popiaConsent: false,
 };
 
-export function EnquiryForm({ listing, agentProfileHref, shareText }: EnquiryFormProps) {
+export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel, routingDetail }: EnquiryFormProps) {
   const [form, setForm] = useState<LeadFormState>({
     ...initialState,
     message: `I am interested in ${listing.title}. Please contact me with the next steps.`,
@@ -112,6 +114,13 @@ export function EnquiryForm({ listing, agentProfileHref, shareText }: EnquiryFor
       <p className="mt-3 text-sm leading-6 text-slate-600">
         Capture your details once. Proppd saves configured enquiries securely, keeps POPIA consent explicit, and falls back to email handoff if storage is unavailable.
       </p>
+
+      <div className="mt-5 rounded-[1.5rem] border border-slate-200 bg-white p-4 text-xs font-bold leading-5 text-slate-600 shadow-sm">
+        <div className="flex items-center gap-2 font-black text-[#050A30]">
+          <ShieldCheck size={15} className="text-[#12D6C5]" /> {routingLabel}
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">{routingDetail}</p>
+      </div>
 
       <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">

@@ -6,7 +6,7 @@ import { EnquiryForm } from '@/components/property/enquiry-form';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { loadPortalListingBySlug, loadPortalListings } from '../../../lib/proppd/backend';
+import { loadPortalDiagnostics, loadPortalListingBySlug, loadPortalListings } from '../../../lib/proppd/backend';
 import { listings as demoListings } from '@/lib/demo-data';
 import { buildEnquiryMailto, buildListingShareText, getListingBySlug, getListingFacts, getRelatedListings } from '@/lib/listings/details';
 
@@ -34,7 +34,11 @@ export const dynamic = 'force-dynamic';
 
 export default async function PropertyPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [portalListing, portalListings] = await Promise.all([loadPortalListingBySlug(slug), loadPortalListings()]);
+  const [portalListing, portalListings, diagnostics] = await Promise.all([
+    loadPortalListingBySlug(slug),
+    loadPortalListings(),
+    loadPortalDiagnostics(),
+  ]);
   const listing = portalListing.items[0] ?? getListingBySlug(demoListings, slug);
   if (!listing) notFound();
 
@@ -45,6 +49,11 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
   const agentProfileHref = `/agents/${slugifyName(listing.agent)}`;
   const listingSourceLabel = getListingSourceLabel(portalListing.source);
   const relatedSourceLabel = getRelatedSourceLabel(portalListings.source);
+  const leadRoutingLive = diagnostics.databaseConfigured && diagnostics.canReadDatabase;
+  const leadRoutingLabel = leadRoutingLive ? 'Live lead storage' : 'Email handoff fallback';
+  const leadRoutingDetail = leadRoutingLive
+    ? 'Your enquiry is saved in the database before the agent receives it.'
+    : 'Your enquiry opens in email if live storage is not ready yet.';
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -206,6 +215,8 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                   agency: listing.agency,
                 }}
                 shareText={shareText}
+                routingLabel={leadRoutingLabel}
+                routingDetail={leadRoutingDetail}
               />
             </aside>
           </div>
