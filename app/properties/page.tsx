@@ -24,6 +24,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
   const portalListings = (await loadPortalListings()).items;
   const filtered = applyListingFilters(portalListings, filters);
   const paginated = paginateListings(filtered, filters.page, filters.pageSize);
+  const areaWatchlist = buildAreaWatchlist(filtered);
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -157,35 +158,97 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
 
           <aside className="hidden lg:block">
             <div className="sticky top-24 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-              <div className="relative min-h-[calc(100vh-7rem)] bg-[radial-gradient(circle_at_30%_20%,rgba(18,214,197,.55),transparent_14rem),radial-gradient(circle_at_72%_35%,rgba(59,73,255,.45),transparent_15rem),linear-gradient(135deg,#edf7ff,#f8fbff_45%,#e7fbf8)] p-5">
+              <div className="bg-[radial-gradient(circle_at_30%_20%,rgba(18,214,197,.55),transparent_14rem),radial-gradient(circle_at_72%_35%,rgba(59,73,255,.45),transparent_15rem),linear-gradient(135deg,#edf7ff,#f8fbff_45%,#e7fbf8)] p-5">
                 <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(#050A30_1px,transparent_1px),linear-gradient(90deg,#050A30_1px,transparent_1px)] [background-size:42px_42px]" />
-                <div className="relative rounded-2xl border border-white/70 bg-white/90 p-4 shadow-xl backdrop-blur">
-                  <div className="flex items-center gap-3">
-                    <div className="grid h-10 w-10 place-items-center rounded-full bg-[#3B49FF] text-white"><MapPin size={18} /></div>
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Map preview</p>
-                      <p className="font-black">Explore by area</p>
+                <div className="relative grid gap-4">
+                  <div className="rounded-2xl border border-white/70 bg-white/90 p-4 shadow-xl backdrop-blur">
+                    <div className="flex items-center gap-3">
+                      <div className="grid h-10 w-10 place-items-center rounded-full bg-[#3B49FF] text-white"><MapPin size={18} /></div>
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Area watch</p>
+                        <p className="font-black">{filtered.length} live homes across South Africa</p>
+                      </div>
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-slate-600">Use the filters above to narrow the market, then tap a listing to open the full enquiry flow.</p>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/70 bg-white/88 p-4 shadow-xl backdrop-blur">
+                    <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Top areas</p>
+                    <div className="mt-3 grid gap-3">
+                      {areaWatchlist.length > 0 ? (
+                        areaWatchlist.map((area) => (
+                          <a
+                            key={area.label}
+                            href={buildPropertiesHref(params, { q: area.label })}
+                            className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]"
+                          >
+                            <span>{area.label}</span>
+                            <span className="rounded-full bg-[#3B49FF]/10 px-2.5 py-1 text-xs font-black text-[#3B49FF]">{area.count} match{area.count === 1 ? '' : 'es'}</span>
+                          </a>
+                        ))
+                      ) : (
+                        <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600">
+                          Tight filters yielded no area summary yet.
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">The live map layer will sit here. For now, quick route users into verified listing cards and locations.</p>
-                </div>
-                {paginated.items.map((listing, index) => (
-                  <a
-                    key={listing.slug}
-                    href={`/property/${listing.slug}`}
-                    className="absolute rounded-full bg-white px-3 py-2 text-sm font-black text-[#050A30] shadow-xl ring-2 ring-[#3B49FF]/15"
-                    style={{ left: `${18 + index * 20}%`, top: `${47 + (index % 2) * 16}%` }}
-                  >
-                    {listing.price.replace(' pm', '')}
-                  </a>
-                ))}
-                <div className="absolute bottom-5 left-5 right-5 rounded-2xl bg-[#050A30] p-4 text-white shadow-2xl">
-                  <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">Proppd map mode</p>
-                  <p className="mt-1 text-sm font-semibold text-white/75">Map/search split prepared for the next data layer.</p>
+
+                  <div className="rounded-2xl bg-[#050A30] p-4 text-white shadow-2xl">
+                    <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">Search shortcut</p>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-white/72">Save this search or switch to a purpose filter if you want the list to read smaller and cleaner.</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <a className="rounded-full bg-white px-4 py-2 text-xs font-black text-[#050A30]" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: filtered.length })}>Save search</a>
+                      <a className="rounded-full border border-white/15 px-4 py-2 text-xs font-black text-white" href="/request-valuation">Request valuation</a>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </aside>
+        </div>
+      </section>
+
+      <section className="px-4 pb-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-5 lg:grid-cols-3">
+            <section className="rounded-[2rem] bg-white p-6 shadow-sm">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Area watchlist</p>
+              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">Most active suburbs in this result set.</h2>
+              <div className="mt-5 grid gap-3">
+                {areaWatchlist.length > 0 ? areaWatchlist.map((area) => (
+                  <a key={area.label} href={buildPropertiesHref(params, { q: area.label })} className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]">
+                    <span>{area.label}</span>
+                    <span className="text-xs font-black text-slate-500">{area.count} listing{area.count === 1 ? '' : 's'}</span>
+                  </a>
+                )) : (
+                  <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-semibold text-slate-600">
+                    No area summary yet for these filters.
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <section className="rounded-[2rem] bg-[#050A30] p-6 text-white shadow-sm lg:col-span-1">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Search playbook</p>
+              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">Refine without losing the good leads.</h2>
+              <ul className="mt-5 space-y-3 text-sm font-semibold leading-6 text-white/72">
+                <li className="rounded-2xl border border-white/10 bg-white/5 p-4">Search by suburb, city, agent, school, or listing ID.</li>
+                <li className="rounded-2xl border border-white/10 bg-white/5 p-4">Use purpose, type, and beds to keep the shortlist honest.</li>
+                <li className="rounded-2xl border border-white/10 bg-white/5 p-4">Saved search emails make it easy to hand off serious matches.</li>
+              </ul>
+            </section>
+
+            <section className="rounded-[2rem] border border-slate-200 bg-[#eefcf9] p-6 shadow-sm">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#0f766e]">Need a shorter list?</p>
+              <h2 className="mt-2 text-2xl font-black tracking-[-.04em] text-[#0f766e]">Turn the current result set into a clean handoff.</h2>
+              <p className="mt-4 text-sm font-bold leading-6 text-[#0f766e]">Save the search, then send it to a buyer, tenant, or agent contact with a ready-to-send email summary.</p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <a className="rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: filtered.length })}>Save search</a>
+                <a className="rounded-full border border-[#0f766e]/20 px-5 py-3 text-sm font-black text-[#0f766e]" href="/agents">Browse agents</a>
+              </div>
+            </section>
+          </div>
         </div>
       </section>
 
@@ -247,6 +310,25 @@ function searchScopeLabel(filters: { query?: string; location?: string }) {
   if (filters.query && filters.location) return `matching “${filters.query}” around ${filters.location}`;
   if (filters.query) return `matching “${filters.query}”`;
   return `around ${filters.location || 'South Africa'}`;
+}
+
+function buildAreaWatchlist(listings: Array<{ location: string; price: string }>) {
+  const areas = new Map<string, { count: number; price: string }>();
+
+  for (const listing of listings) {
+    const area = listing.location.split(',')[0]?.trim() || listing.location;
+    const current = areas.get(area);
+    if (current) {
+      current.count += 1;
+    } else {
+      areas.set(area, { count: 1, price: listing.price });
+    }
+  }
+
+  return [...areas.entries()]
+    .map(([label, details]) => ({ label, ...details }))
+    .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label))
+    .slice(0, 3);
 }
 
 function toURLSearchParams(params: Record<string, string | string[] | undefined>) {
