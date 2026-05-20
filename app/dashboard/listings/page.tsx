@@ -5,7 +5,7 @@ import { ListingEditorForm } from '@/components/listings/listing-editor-form';
 import { SupabaseLoginForm } from '@/components/auth/supabase-login-form';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { loadMyPortalListings, loadPortalUserAccess } from '@/lib/proppd/backend';
+import { loadMyPortalListings, loadPortalDiagnostics, loadPortalUserAccess } from '@/lib/proppd/backend';
 import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
 
@@ -22,23 +22,38 @@ export const dynamic = 'force-dynamic';
 export default async function Page() {
   const supabase = await createPortalSupabaseServerClient();
   const config = getSupabaseBrowserConfig();
+  const diagnostics = await loadPortalDiagnostics();
 
   if (!supabase || !config) {
+    const readiness = [
+      { label: 'Live mode', value: diagnostics.backendMode === 'database' ? 'Database connected' : 'Demo fallback' },
+      { label: 'Agent login', value: diagnostics.databaseConfigured ? 'Configured' : 'Missing' },
+      { label: 'Listing sync', value: diagnostics.canReadDatabase ? 'Healthy' : 'Blocked' },
+    ];
+
     return (
       <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
         <SiteHeader />
         <section className="px-4 py-16 sm:px-6 lg:px-8">
           <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.05fr_.95fr]">
             <div className="rounded-[2.5rem] bg-white p-8 shadow-sm sm:p-10">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Listings backend</p>
-              <h1 className="mt-4 text-4xl font-black tracking-[-.06em]">Set up Supabase to unlock listing management.</h1>
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Listing backend readiness</p>
+              <h1 className="mt-4 text-4xl font-black tracking-[-.06em]">Get the listing system ready for live agents.</h1>
               <p className="mt-4 text-lg leading-8 text-slate-600">
-                The backend is wired for authenticated listing creation and editing, but this deployment still needs the Supabase URL and publishable key.
+                Proppd already has the listing editor and database-backed workflow. This deployment still needs the Supabase browser config before agents can sign in from the live site.
               </p>
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
                 <BackendCard title="Connect env" text="Provide the public Supabase URL and publishable key." />
                 <BackendCard title="Enable auth" text="Signed-in agents can create drafts, publish changes, and keep stock current." />
                 <BackendCard title="Persist records" text="Once connected, drafts save to the database instead of staying in demo mode." />
+              </div>
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                {readiness.map((item) => (
+                  <div key={item.label} className="rounded-3xl border border-slate-200 bg-[#F5F7FA] p-4">
+                    <p className="text-xs font-black uppercase tracking-[.14em] text-[#3B49FF]">{item.label}</p>
+                    <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{item.value}</p>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -111,7 +126,7 @@ export default async function Page() {
 
   const listings = await loadMyPortalListings(access);
   const items = listings.items;
-
+  const liveReady = diagnostics.backendMode === 'database' && diagnostics.canReadDatabase && diagnostics.databaseConfigured && diagnostics.browserSupabaseConfigured && diagnostics.serviceRoleConfigured;
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
       <SiteHeader />
@@ -131,6 +146,12 @@ export default async function Page() {
                 <PlusCircle size={18} /> New listing
               </a>
             </div>
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <ReadyCard title="Live mode" value={diagnostics.backendMode === 'database' ? 'Database connected' : 'Demo fallback'} detail={diagnostics.backendMode === 'database' ? 'Live reads and writes are available.' : 'Database config still needs to land.'} tone={diagnostics.backendMode === 'database' ? 'good' : 'warn'} />
+            <ReadyCard title="Listing sync" value={diagnostics.canReadDatabase ? 'Healthy' : 'Blocked'} detail={diagnostics.listingCount !== null ? `${diagnostics.listingCount} live listings visible` : 'Read access is not confirmed yet.'} tone={diagnostics.canReadDatabase ? 'good' : 'warn'} />
+            <ReadyCard title="Agent account" value={access.agentName ? 'Linked agent' : 'Unlinked account'} detail={access.agencyName ?? 'No agency linked yet.'} tone={access.agentName ? 'good' : 'warn'} />
           </div>
 
           <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_420px]">
@@ -213,6 +234,16 @@ function BackendCard({ title, text }: { title: string; text: string }) {
     <div className="rounded-3xl border border-slate-200 bg-[#F5F7FA] p-4">
       <p className="text-xs font-black uppercase tracking-[.14em] text-[#3B49FF]">{title}</p>
       <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{text}</p>
+    </div>
+  );
+}
+
+function ReadyCard({ title, value, detail, tone }: { title: string; value: string; detail: string; tone: 'good' | 'warn' }) {
+  return (
+    <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+      <p className="text-xs font-black uppercase tracking-[.14em] text-[#3B49FF]">{title}</p>
+      <p className={`mt-2 text-xl font-black ${tone === 'good' ? 'text-[#0f766e]' : 'text-amber-700'}`}>{value}</p>
+      <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{detail}</p>
     </div>
   );
 }
