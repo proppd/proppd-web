@@ -38,6 +38,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
 
   const portalListings = await loadPortalListings();
   const activeListings = getAgentListings(portalListings.source === 'demo' ? demoListings : portalListings.items, agent.name);
+  const agentMarketSummary = buildAgentMarketSummary(activeListings);
   const directoryStateLabel =
     portalAgent.source === 'database'
       ? 'Live agent profile connected'
@@ -133,18 +134,31 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
                 <ProfilePill title="Shortlist" text="Open listing details and compare verified options." />
                 <ProfilePill title="Reach out" text="Send a structured enquiry or viewing request." />
               </div>
+              <div className="mt-5 rounded-3xl bg-[#F5F7FA] p-4">
+                <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Current market snapshot</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                  <SnapshotPill label="Active stock" value={formatDirectoryCount(activeListings.length, 'listing')} />
+                  <SnapshotPill label="Top suburb" value={agentMarketSummary.topSuburb} />
+                  <SnapshotPill label="Top type" value={agentMarketSummary.topType} />
+                </div>
+              </div>
             </div>
-            <div className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-6">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Next step</p>
-              <p className="mt-2 text-2xl font-black tracking-[-.04em]">Need help in {agent.area}?</p>
-              <p className="mt-3 text-sm font-bold leading-6 text-slate-600">
-                Browse the current stock, open a property page, or send a direct enquiry to {agent.name} through Proppd.
+            <div className="rounded-[2rem] bg-[#050A30] p-6 text-white shadow-sm">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Need a shortlist?</p>
+              <p className="mt-2 text-2xl font-black tracking-[-.04em]">Focus on the right local stock.</p>
+              <p className="mt-3 text-sm font-bold leading-6 text-white/70">
+                {activeListings.length} verified listing{activeListings.length === 1 ? '' : 's'} are currently tied to {agent.name}. Save the agent, compare the cards, and send a structured enquiry when you are ready.
               </p>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                <SnapshotPill label="Agency" value={agent.agency} dark />
+                <SnapshotPill label="Area" value={agent.area} dark />
+                <SnapshotPill label="Listings" value={String(activeListings.length)} dark />
+              </div>
               <div className="mt-5 flex flex-wrap gap-3">
-                <a className="rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white" href={`/properties?agent=${encodeURIComponent(agent.name)}`}>
+                <a className="rounded-full bg-white px-5 py-3 text-sm font-black text-[#050A30] shadow-sm" href={`/properties?agent=${encodeURIComponent(agent.name)}`}>
                   Browse listings
                 </a>
-                <a className="rounded-full bg-white px-5 py-3 text-sm font-black text-[#050A30] shadow-sm" href={`mailto:info@proppd.com?subject=Agent enquiry: ${agent.name}`}>
+                <a className="rounded-full border border-white/15 px-5 py-3 text-sm font-black text-white hover:bg-white/5" href={`mailto:info@proppd.com?subject=Agent enquiry: ${agent.name}`}>
                   Email agent
                 </a>
               </div>
@@ -164,6 +178,30 @@ function ProfileStat({ label, value, icon }: { label: string; value: string; ico
       <div className="mt-2 text-lg font-black text-[#050A30]">{value}</div>
     </div>
   );
+}
+
+function SnapshotPill({ label, value, dark = false }: { label: string; value: string; dark?: boolean }) {
+  return (
+    <div className={`rounded-3xl p-4 ${dark ? 'bg-white/8' : 'bg-white'}`}>
+      <div className={`text-xs font-black uppercase tracking-[.14em] ${dark ? 'text-[#12D6C5]' : 'text-slate-400'}`}>{label}</div>
+      <div className={`mt-2 text-sm font-black leading-6 ${dark ? 'text-white' : 'text-[#050A30]'}`}>{value}</div>
+    </div>
+  );
+}
+
+function buildAgentMarketSummary(listings: Array<{ suburb?: string; type: string }>) {
+  const bySuburb = new Map<string, number>();
+  const byType = new Map<string, number>();
+
+  for (const listing of listings) {
+    if (listing.suburb) bySuburb.set(listing.suburb, (bySuburb.get(listing.suburb) ?? 0) + 1);
+    byType.set(listing.type, (byType.get(listing.type) ?? 0) + 1);
+  }
+
+  const topSuburb = Array.from(bySuburb.entries()).sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))[0]?.[0] ?? 'Mixed areas';
+  const topType = Array.from(byType.entries()).sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))[0]?.[0] ?? 'Mixed';
+
+  return { topSuburb, topType };
 }
 
 function ProfilePill({ title, text }: { title: string; text: string }) {

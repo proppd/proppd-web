@@ -39,6 +39,7 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
   const [portalAgents, portalListings] = await Promise.all([loadPortalAgents(), loadPortalListings()]);
   const team = getAgencyAgents(portalAgents.source === 'demo' ? demoAgents : portalAgents.items, agency.name);
   const activeListings = getAgencyListings(portalListings.source === 'demo' ? demoListings : portalListings.items, agency.name);
+  const agencyMarketSummary = buildAgencyMarketSummary(activeListings);
   const directoryStateLabel =
     portalAgency.source === 'database'
       ? 'Live agency directory connected'
@@ -156,18 +157,31 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
                 <AgencyPill title="Choose" text="Open a listing and compare the verified details." />
                 <AgencyPill title="Enquire" text="Use the agency handoff to start the conversation." />
               </div>
+              <div className="mt-5 rounded-3xl bg-[#F5F7FA] p-4">
+                <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Portfolio snapshot</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                  <AgencySnapshotPill label="Team" value={formatDirectoryCount(team.length, 'agent')} />
+                  <AgencySnapshotPill label="Stock" value={formatDirectoryCount(activeListings.length, 'listing')} />
+                  <AgencySnapshotPill label="Top suburb" value={agencyMarketSummary.topSuburb} />
+                </div>
+              </div>
             </div>
-            <div className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-6">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Need a shortlist?</p>
-              <p className="mt-2 text-2xl font-black tracking-[-.04em]">Search more in {agency.city}.</p>
-              <p className="mt-3 text-sm font-bold leading-6 text-slate-600">
-                Keep browsing across agents and agencies, or send a direct enquiry to this branch when you are ready.
+            <div className="rounded-[2rem] bg-[#050A30] p-6 text-white shadow-sm">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Need a shortlist?</p>
+              <p className="mt-2 text-2xl font-black tracking-[-.04em]">Keep browsing in {agency.city}.</p>
+              <p className="mt-3 text-sm font-bold leading-6 text-white/70">
+                {team.length} verified agent{team.length === 1 ? '' : 's'} and {activeListings.length} active listing{activeListings.length === 1 ? '' : 's'} are currently tied to {agency.name}.
               </p>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                <AgencySnapshotPill label="City" value={agency.city} dark />
+                <AgencySnapshotPill label="Agents" value={String(team.length)} dark />
+                <AgencySnapshotPill label="Stock" value={String(activeListings.length)} dark />
+              </div>
               <div className="mt-5 flex flex-wrap gap-3">
-                <a className="rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white" href={`/properties?agency=${encodeURIComponent(agency.name)}`}>
+                <a className="rounded-full bg-white px-5 py-3 text-sm font-black text-[#050A30] shadow-sm" href={`/properties?agency=${encodeURIComponent(agency.name)}`}>
                   View listings
                 </a>
-                <a className="rounded-full bg-white px-5 py-3 text-sm font-black text-[#050A30] shadow-sm" href={`/agents?agency=${encodeURIComponent(agency.name)}`}>
+                <a className="rounded-full border border-white/15 px-5 py-3 text-sm font-black text-white hover:bg-white/5" href={`/agents?agency=${encodeURIComponent(agency.name)}`}>
                   Browse agents
                 </a>
               </div>
@@ -187,6 +201,30 @@ function AgencyMetric({ icon, label, value }: { icon: React.ReactNode; label: st
       <div className="mt-2 text-xl font-black text-[#050A30]">{value}</div>
     </div>
   );
+}
+
+function AgencySnapshotPill({ label, value, dark = false }: { label: string; value: string; dark?: boolean }) {
+  return (
+    <div className={`rounded-3xl p-4 ${dark ? 'bg-white/8' : 'bg-white'}`}>
+      <div className={`text-xs font-black uppercase tracking-[.14em] ${dark ? 'text-[#12D6C5]' : 'text-slate-400'}`}>{label}</div>
+      <div className={`mt-2 text-sm font-black leading-6 ${dark ? 'text-white' : 'text-[#050A30]'}`}>{value}</div>
+    </div>
+  );
+}
+
+function buildAgencyMarketSummary(listings: Array<{ suburb?: string; type: string }>) {
+  const bySuburb = new Map<string, number>();
+  const byType = new Map<string, number>();
+
+  for (const listing of listings) {
+    if (listing.suburb) bySuburb.set(listing.suburb, (bySuburb.get(listing.suburb) ?? 0) + 1);
+    byType.set(listing.type, (byType.get(listing.type) ?? 0) + 1);
+  }
+
+  const topSuburb = Array.from(bySuburb.entries()).sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))[0]?.[0] ?? 'Mixed areas';
+  const topType = Array.from(byType.entries()).sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))[0]?.[0] ?? 'Mixed';
+
+  return { topSuburb, topType };
 }
 
 function AgencyPill({ title, text }: { title: string; text: string }) {
