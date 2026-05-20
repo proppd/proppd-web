@@ -63,6 +63,15 @@ export default function Page() {
               </p>
             </div>
 
+            <div className="mt-5 rounded-[1.75rem] border border-slate-200 bg-[#F5F7FA] p-5">
+              <p className="text-xs font-black uppercase tracking-[.18em] text-[#3B49FF]">Invite flow</p>
+              <div className="mt-4 space-y-3 text-sm font-bold leading-6 text-slate-600">
+                <div className="flex gap-3"><span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-black text-[#050A30]">1</span> Request the link from your agency inbox.</div>
+                <div className="flex gap-3"><span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-black text-[#050A30]">2</span> We manually review new access before activation.</div>
+                <div className="flex gap-3"><span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-black text-[#050A30]">3</span> Use the link to open your dashboard or listings workspace.</div>
+              </div>
+            </div>
+
             <div className="mt-5">
               <SupabaseLoginForm supabaseUrl={supabase?.url} publishableKey={supabase?.publishableKey} nextPath="/dashboard/listings" />
             </div>
