@@ -25,6 +25,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: agency.name,
     description: `${agency.name} is a verified Proppd agency in ${agency.city} with ${agency.agents} agent${agency.agents === 1 ? '' : 's'} and ${agency.listings} active listing${agency.listings === 1 ? '' : 's'}.`,
     alternates: { canonical: `/agencies/${slugifyDirectoryName(agency.name)}` },
+    openGraph: {
+      title: `${agency.name} | Proppd`,
+      description: `${agency.name} is a verified Proppd agency in ${agency.city} with ${agency.agents} agent${agency.agents === 1 ? '' : 's'} and ${agency.listings} active listing${agency.listings === 1 ? '' : 's'}.`,
+      url: `/agencies/${slugifyDirectoryName(agency.name)}`,
+      siteName: 'Proppd',
+      type: 'website',
+      images: [{ url: '/proppd-logo-horizontal.png', width: 1200, height: 315, alt: 'Proppd logo' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${agency.name} | Proppd`,
+      description: `${agency.name} is a verified Proppd agency in ${agency.city} with ${agency.agents} agent${agency.agents === 1 ? '' : 's'} and ${agency.listings} active listing${agency.listings === 1 ? '' : 's'}.`,
+      images: ['/proppd-logo-horizontal.png'],
+    },
   };
 }
 
