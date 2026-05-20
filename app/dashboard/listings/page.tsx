@@ -28,12 +28,39 @@ export default async function Page() {
       <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
         <SiteHeader />
         <section className="px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl rounded-[2.5rem] bg-white p-8 shadow-sm sm:p-10">
-            <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Listings backend</p>
-            <h1 className="mt-4 text-4xl font-black tracking-[-.06em]">Set up Supabase to unlock listing management.</h1>
-            <p className="mt-4 text-lg leading-8 text-slate-600">
-              The backend is wired for authenticated listing creation and editing, but this deployment still needs the Supabase URL and publishable key.
-            </p>
+          <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.05fr_.95fr]">
+            <div className="rounded-[2.5rem] bg-white p-8 shadow-sm sm:p-10">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Listings backend</p>
+              <h1 className="mt-4 text-4xl font-black tracking-[-.06em]">Set up Supabase to unlock listing management.</h1>
+              <p className="mt-4 text-lg leading-8 text-slate-600">
+                The backend is wired for authenticated listing creation and editing, but this deployment still needs the Supabase URL and publishable key.
+              </p>
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                <BackendCard title="Connect env" text="Provide the public Supabase URL and publishable key." />
+                <BackendCard title="Enable auth" text="Signed-in agents can create drafts, publish changes, and keep stock current." />
+                <BackendCard title="Persist records" text="Once connected, drafts save to the database instead of staying in demo mode." />
+              </div>
+            </div>
+
+            <aside className="rounded-[2.5rem] bg-[#050A30] p-6 text-white shadow-sm sm:p-8">
+              <ShieldCheck className="text-[#12D6C5]" size={30} />
+              <h2 className="mt-4 text-3xl font-black tracking-[-.05em]">What unlocks next</h2>
+              <div className="mt-5 space-y-3 text-sm font-bold leading-6 text-white/72">
+                <p className="rounded-2xl border border-white/10 bg-white/8 p-4">Create a real listing draft with title, location, price, and property type.</p>
+                <p className="rounded-2xl border border-white/10 bg-white/8 p-4">Edit the draft directly in the workspace and push updates to the live record.</p>
+                <p className="rounded-2xl border border-white/10 bg-white/8 p-4">Keep the agent and agency relationship tied to the signed-in account.</p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section className="px-4 pb-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-6xl">
+            <div className="grid gap-4 md:grid-cols-3">
+              <FallbackCard title="No data lost" text="Once the backend is connected, draft records persist immediately and remain editable." />
+              <FallbackCard title="What the workspace does" text="Agents can create, update, and publish listings without leaving the dashboard." />
+              <FallbackCard title="Need a hand?" text="If you are setting this up for a live agency, Proppd can wire the first pass with you." />
+            </div>
           </div>
         </section>
         <SiteFooter />
@@ -178,5 +205,23 @@ export default async function Page() {
 
       <SiteFooter />
     </main>
+  );
+}
+
+function BackendCard({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-3xl border border-slate-200 bg-[#F5F7FA] p-4">
+      <p className="text-xs font-black uppercase tracking-[.14em] text-[#3B49FF]">{title}</p>
+      <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{text}</p>
+    </div>
+  );
+}
+
+function FallbackCard({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+      <p className="text-xs font-black uppercase tracking-[.14em] text-[#3B49FF]">{title}</p>
+      <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{text}</p>
+    </div>
   );
 }

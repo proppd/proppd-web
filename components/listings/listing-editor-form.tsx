@@ -221,5 +221,14 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+function BackendCard({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-3xl border border-slate-200 bg-[#F5F7FA] p-4">
+      <p className="text-xs font-black uppercase tracking-[.14em] text-[#3B49FF]">{title}</p>
+      <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{text}</p>
+    </div>
+  );
+}
+
 const inputClass =
   'rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-[#050A30] outline-none transition placeholder:text-slate-400 focus:border-[#3B49FF] focus:ring-4 focus:ring-[#3B49FF]/10';
