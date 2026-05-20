@@ -112,3 +112,27 @@ function Metric({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+function SupportCard({
+  title,
+  body,
+  actionHref,
+  actionLabel,
+}: {
+  title: string;
+  body: string;
+  actionHref?: string;
+  actionLabel?: string;
+}) {
+  return (
+    <article className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-5">
+      <h3 className="text-xl font-black tracking-[-.03em]">{title}</h3>
+      <p className="mt-3 text-sm font-bold leading-6 text-slate-600">{body}</p>
+      {actionHref && actionLabel && (
+        <a className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#3B49FF]" href={actionHref}>
+          {actionLabel} →
+        </a>
+      )}
+    </article>
+  );
+}

@@ -65,7 +65,66 @@ export default function HomeLoansPage() {
         </div>
       </section>
 
+      <section className="px-4 pb-20 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
+          <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+            <div>
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Finance handoff</p>
+              <h2 className="mt-3 text-4xl font-black tracking-[-.06em]">3 document-ready steps before you apply</h2>
+              <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-600">
+                Keep the buyer journey moving by preparing the right documents early, then let Proppd route the finance request with clean context.
+              </p>
+            </div>
+            <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="mailto:info@proppd.com?subject=Home%20loan%20readiness">
+              Register finance interest →
+            </a>
+          </div>
+          <div className="mt-8 grid gap-5 lg:grid-cols-3">
+            <SupportCard
+              title="What to prepare"
+              body="Recent payslips, bank statements, ID copies, proof of address, and a realistic deposit picture all help the handoff move faster."
+            />
+            <SupportCard
+              title="How the handoff works"
+              body="Use the calculator, register interest, then Proppd can connect the finance request to the property search and enquiry trail."
+              actionHref="/properties/for-sale"
+              actionLabel="Browse properties"
+            />
+            <SupportCard
+              title="Need a quick intro?"
+              body="If you are already looking at a home, send the listing context with your finance request so the partner sees the right budget band."
+              actionHref="mailto:info@proppd.com?subject=Home%20loan%20readiness"
+              actionLabel="Email Proppd"
+            />
+          </div>
+        </div>
+      </section>
+
       <SiteFooter />
     </main>
+  );
+}
+
+function SupportCard({
+  title,
+  body,
+  actionHref,
+  actionLabel,
+}: {
+  title: string;
+  body: string;
+  actionHref?: string;
+  actionLabel?: string;
+}) {
+  return (
+    <article className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-5">
+      <h3 className="text-xl font-black tracking-[-.03em]">{title}</h3>
+      <p className="mt-3 text-sm font-bold leading-6 text-slate-600">{body}</p>
+      {actionHref && actionLabel && (
+        <a className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#3B49FF]" href={actionHref}>
+          {actionLabel} →
+        </a>
+      )}
+    </article>
   );
 }
