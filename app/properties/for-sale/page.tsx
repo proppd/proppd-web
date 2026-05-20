@@ -20,6 +20,7 @@ export default async function ForSalePage({ searchParams }: { searchParams: Sear
   const params = await searchParams;
   const filters = parseListingFilters(toURLSearchParams({ ...params, purpose: 'sale' }));
   const saleListings = applyListingFilters(listings, filters);
+  const areaWatchlist = buildAreaWatchlist(saleListings);
   const resultLabel = saleListings.length === 1 ? 'home for sale' : 'homes for sale';
   const headline = `${saleListings.length} ${resultLabel} ${filters.query ? `matching “${filters.query}”` : 'in South Africa'}`;
 
@@ -131,6 +132,50 @@ export default async function ForSalePage({ searchParams }: { searchParams: Sear
         </div>
       </section>
 
+      <section className="px-4 pb-10 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-5 lg:grid-cols-3">
+            <section className="rounded-[2rem] bg-white p-6 shadow-sm">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Top sale areas</p>
+              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">{areaWatchlist.length} active sale pockets</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">Current results are concentrated in a few buyer-friendly suburbs, so we surface the strongest pockets first.</p>
+              <div className="mt-5 grid gap-3">
+                {areaWatchlist.length > 0 ? areaWatchlist.map((area) => (
+                  <a key={area.label} href={buildForSaleHref(params, { q: area.label })} className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]">
+                    <span>{area.label}</span>
+                    <span className="text-xs font-black text-slate-500">{area.count} listing{area.count === 1 ? '' : 's'}</span>
+                  </a>
+                )) : (
+                  <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-semibold text-slate-600">
+                    No area summary yet for these filters.
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <section className="rounded-[2rem] bg-[#050A30] p-6 text-white shadow-sm lg:col-span-1">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Search playbook</p>
+              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">Refine without losing the good homes.</h2>
+              <ul className="mt-5 space-y-3 text-sm font-semibold leading-6 text-white/72">
+                <li className="rounded-2xl border border-white/10 bg-white/5 p-4">Search by suburb, city, agent, school, or listing ID.</li>
+                <li className="rounded-2xl border border-white/10 bg-white/5 p-4">Use beds, type, and sort to keep the shortlist honest.</li>
+                <li className="rounded-2xl border border-white/10 bg-white/5 p-4">Save the search to turn strong matches into an email handoff.</li>
+              </ul>
+            </section>
+
+            <section className="rounded-[2rem] border border-slate-200 bg-[#eefcf9] p-6 shadow-sm">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#0f766e]">Need a shortlist?</p>
+              <h2 className="mt-2 text-2xl font-black tracking-[-.04em] text-[#0f766e]">Turn the current for-sale set into a clean handoff.</h2>
+              <p className="mt-4 text-sm font-bold leading-6 text-[#0f766e]">Save the search, then email it to a buyer or co-buyer with the filters already captured.</p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <a className="rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white" href={buildSavedSearchMailto(filters, { path: '/properties/for-sale', resultCount: saleListings.length })}>Save search email</a>
+                <a className="rounded-full border border-[#0f766e]/20 px-5 py-3 text-sm font-black text-[#0f766e]" href="/request-valuation">Request valuation</a>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
       <SiteFooter />
     </main>
   );
@@ -193,4 +238,18 @@ function toURLSearchParams(params: Record<string, string | string[] | undefined>
     }
   }
   return searchParams;
+}
+
+function buildAreaWatchlist(listings: Array<{ location: string }>) {
+  const areas = new Map<string, number>();
+
+  for (const listing of listings) {
+    const area = listing.location.split(',')[0]?.trim() || listing.location;
+    areas.set(area, (areas.get(area) ?? 0) + 1);
+  }
+
+  return [...areas.entries()]
+    .map(([label, count]) => ({ label, count }))
+    .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label))
+    .slice(0, 3);
 }
