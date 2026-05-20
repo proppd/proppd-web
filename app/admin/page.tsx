@@ -71,6 +71,11 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
         : leadPayload.source === 'demo'
           ? 'Demo preview queue'
           : 'Queue unavailable';
+  const moderationDigest = queue.slice(0, 3).map((lead) => ({
+    name: lead.name,
+    detail: `${formatLeadIntent(lead.intent)} · ${lead.quality}`,
+    action: lead.flags.length > 0 ? `Review ${lead.flags[0]}` : lead.status === 'new' ? 'Reply by email' : 'Open listing',
+  }));
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -276,17 +281,47 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                   <li>• Agent follow-up can move leads to contacted or qualified.</li>
                 </ul>
               </div>
+              <div className="rounded-[2rem] bg-[#050A30] p-6 text-white">
+                <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">Moderation digest</p>
+                <div className="mt-4 space-y-3">
+                  {moderationDigest.length > 0 ? (
+                    moderationDigest.map((item) => (
+                      <div key={item.name} className="rounded-2xl border border-white/10 bg-white/8 p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-black text-white">{item.name}</p>
+                            <p className="mt-1 text-xs font-bold uppercase tracking-[.12em] text-white/55">{item.detail}</p>
+                          </div>
+                          <span className="rounded-full bg-white/12 px-3 py-1 text-xs font-black text-white/80">{item.action}</span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm font-bold leading-6 text-white/70">No leads are currently visible in the queue.</p>
+                  )}
+                </div>
+              </div>
+
               <div className="rounded-[2rem] border border-slate-200 bg-[#eefcf9] p-6">
-                <p className="text-sm font-black uppercase tracking-[.16em] text-[#0f766e]">Next backend gate</p>
+                <p className="text-sm font-black uppercase tracking-[.16em] text-[#0f766e]">Queue health</p>
                 <p className="mt-3 text-sm font-bold leading-6 text-[#0f766e]">
                   {diagnostics.databaseConfigured
                     ? `Supabase is wired for backend reads${diagnostics.canReadDatabase ? ' and the live queue is reachable.' : ', but the database check is currently failing.'}`
                     : 'Supabase is not connected yet, so the admin queue is running on demo data.'}
                 </p>
-                <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                  <AdminNote title="Live writes" text="Persist new enquiries to the operational queue." />
-                  <AdminNote title="Audit trail" text="Record review, status changes, and routing decisions." />
-                  <AdminNote title="Notifications" text="Hand off qualified leads to the right inbox fast." />
+                <div className="mt-4 grid gap-3">
+                  <div className="rounded-2xl bg-white/75 p-4 text-[#0f766e]">
+                    <p className="text-xs font-black uppercase tracking-[.14em]">Moderation loop</p>
+                    <p className="mt-2 text-sm font-bold leading-6">Review the newest lead, open the property, reply by email, then update the status once the handoff is complete.</p>
+                  </div>
+                  <div className="rounded-2xl bg-white/75 p-4 text-[#0f766e]">
+                    <p className="text-xs font-black uppercase tracking-[.14em]">What stays visible</p>
+                    <p className="mt-2 text-sm font-bold leading-6">Duplicates, spam, and flagged enquiries remain in the queue so the team can see why a lead needs attention.</p>
+                  </div>
+                  <div className="rounded-2xl bg-white/75 p-4 text-[#0f766e]">
+                    <p className="text-xs font-black uppercase tracking-[.14em]">Next backend gate</p>
+                    <p className="mt-2 text-sm font-bold leading-6">Persist moderation actions, route notifications, and expose audit events in the diagnostics view.</p>
+                  </div>
                 </div>
                 <div className="mt-5">
                   <a className="inline-flex items-center justify-center rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white transition hover:bg-[#3B49FF]" href="/admin/diagnostics">
