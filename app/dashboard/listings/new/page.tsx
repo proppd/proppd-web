@@ -45,12 +45,38 @@ export default async function Page() {
             </p>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-8 grid gap-6 lg:grid-cols-[1.1fr_.9fr] lg:items-start">
             <ListingEditorForm mode="create" submitUrl="/api/dashboard/listings" submitLabel="Create listing" />
+
+            <aside className="rounded-[2rem] bg-white p-6 shadow-sm">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Draft checklist</p>
+              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">Have these ready before you save.</h2>
+              <div className="mt-5 space-y-3">
+                <SupportStep title="Listing basics" text="Title, suburb, city, price, and property type are the minimum useful inputs." />
+                <SupportStep title="Live stock context" text="Mark whether the listing is draft, pending review, available, or already under offer." />
+                <SupportStep title="Trust signals" text="Add bedrooms, bathrooms, parking, and a clear description so the portal card reads properly." />
+              </div>
+
+              <div className="mt-6 rounded-[1.5rem] bg-[#F5F7FA] p-4">
+                <p className="text-xs font-black uppercase tracking-[.16em] text-[#050A30]">After you save</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Proppd saves the draft first, then routes you to the edit view so the listing can be refined before it is exposed more widely.
+                </p>
+              </div>
+            </aside>
           </div>
         </div>
       </section>
       <SiteFooter />
     </main>
+  );
+}
+
+function SupportStep({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-[1.25rem] border border-slate-200 bg-[#F5F7FA] p-4">
+      <p className="text-xs font-black uppercase tracking-[.16em] text-[#3B49FF]">{title}</p>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{text}</p>
+    </div>
   );
 }
