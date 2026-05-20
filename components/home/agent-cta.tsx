@@ -8,6 +8,10 @@ export function AgentCta() {
           <p className="mt-5 max-w-2xl text-lg leading-8 text-white/70">Join the early rollout for a cleaner portal foundation, quality lead capture, and future Proppd AgentOS tools.</p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+          <div className="rounded-2xl border border-white/10 bg-white/8 p-4 text-left">
+            <p className="text-xs font-black uppercase tracking-[.18em] text-[#12D6C5]">Start here</p>
+            <p className="mt-2 text-sm leading-6 text-white/70">Choose the route that fits your next step.</p>
+          </div>
           <a className="rounded-full bg-white px-6 py-3 text-center font-black text-[#050A30]" href="/list-with-us">List With Proppd</a>
           <a className="rounded-full border border-white/20 px-6 py-3 text-center font-black text-white" href="/request-valuation">Request Valuation</a>
         </div>
