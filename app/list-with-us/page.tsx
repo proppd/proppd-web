@@ -30,6 +30,24 @@ const launchChecklist = [
   'A few example enquiry scenarios so the pilot routes feel realistic.',
 ];
 
+const launchFlow = [
+  {
+    step: '01',
+    title: 'Submit the basics',
+    text: 'Agency name, main contact, and service areas.',
+  },
+  {
+    step: '02',
+    title: 'We review the feed',
+    text: 'We check stock freshness, routing, and profile details.',
+  },
+  {
+    step: '03',
+    title: 'Pilot starts',
+    text: 'Live enquiries move through email handoff and feedback.',
+  },
+];
+
 export default function Page() {
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -139,7 +157,49 @@ export default function Page() {
               <p className="mt-3 text-sm font-bold leading-6 text-[#0f766e]">
                 Agency launch requests use an email handoff for now. Production onboarding still needs Supabase-backed agency applications, tenant-scoped agent invites, audit events, and notification routing.
               </p>
+              <div className="mt-5 space-y-3">
+                <div className="rounded-2xl bg-white/80 p-4 text-sm font-bold leading-6 text-[#0f766e]">
+                  <span className="block text-xs font-black uppercase tracking-[.14em] text-[#0f766e]/70">Launch rule</span>
+                  Real stock and a reachable decision-maker only.
+                </div>
+                <div className="rounded-2xl bg-white/80 p-4 text-sm font-bold leading-6 text-[#0f766e]">
+                  <span className="block text-xs font-black uppercase tracking-[.14em] text-[#0f766e]/70">Routing</span>
+                  Enquiries need a clear fallback while the full automation layer is still being wired.
+                </div>
+              </div>
             </aside>
+          </section>
+
+          <section className="mt-8 grid gap-4 lg:grid-cols-[1.05fr_.95fr]">
+            <div className="rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Launch readiness</p>
+              <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">What a clean pilot needs to look real.</h2>
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                {launchChecklist.map((item, index) => (
+                  <div key={item} className="rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-4">
+                    <p className="text-2xl font-black text-[#3B49FF]">0{index + 1}</p>
+                    <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[2.5rem] bg-[#050A30] p-6 text-white shadow-sm sm:p-8">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Handoff path</p>
+              <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">Three steps from enquiry to approved pilot.</h2>
+              <div className="mt-6 space-y-3">
+                {launchFlow.map((item) => (
+                  <div key={item.step} className="rounded-[1.5rem] border border-white/10 bg-white/8 p-4">
+                    <p className="text-xs font-black uppercase tracking-[.18em] text-[#12D6C5]">{item.step}</p>
+                    <p className="mt-2 text-lg font-black">{item.title}</p>
+                    <p className="mt-1 text-sm font-bold leading-6 text-white/68">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+              <a className="mt-5 inline-flex rounded-full bg-white px-5 py-3 text-sm font-black text-[#050A30]" href={buildAgencyApplicationMailto({ packageName: 'Agency Growth' })}>
+                Send launch details
+              </a>
+            </div>
           </section>
         </div>
       </section>
