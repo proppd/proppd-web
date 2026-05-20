@@ -21,6 +21,7 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
   const query = parseDirectoryQuery(toURLSearchParams(params));
   const portalAgencies = (await loadPortalAgencies()).items;
   const filteredAgencies = filterAgencies(portalAgencies, query);
+  const agencyWatchlist = buildAgencyWatchlist(filteredAgencies);
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -84,6 +85,41 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
               <a className="mt-5 inline-flex rounded-full bg-[#050A30] px-5 py-3 text-sm font-black !text-white" href="mailto:info@proppd.com?subject=Agency directory request">Request an agency</a>
             </div>
           )}
+
+          <section className="mt-10">
+            <div className="rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
+              <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+                <div>
+                  <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Directory support</p>
+                  <h2 className="mt-3 text-4xl font-black tracking-[-.06em]">{agencyWatchlist.length ? `${agencyWatchlist.length} active agency pockets` : 'Directory support for launch partners'}</h2>
+                  <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-600">
+                    {agencyWatchlist.length
+                      ? 'See where the early agency network is concentrated, then move into the right branch or team profile.'
+                      : 'When a market is still thin, Proppd keeps the page useful with launch guidance and a clear path to get listed.'}
+                  </p>
+                </div>
+                <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="mailto:info@proppd.com?subject=Agency directory request">
+                  Add your branch →
+                </a>
+              </div>
+              <div className="mt-8 grid gap-5 lg:grid-cols-3">
+                <WatchlistCard
+                  title="Top cities"
+                  body={agencyWatchlist.length ? agencyWatchlist.map(({ label, count }) => `${label} (${count})`).join(' • ') : 'No live cities yet — we will surface them here as launch partners come online.'}
+                />
+                <WatchlistCard
+                  title="Search playbook"
+                  body="Search by agency, city, or operating area. Then compare team size, listing depth, and portfolio strength before you enquire."
+                />
+                <WatchlistCard
+                  title="Need a branch listed?"
+                  body="Tell Proppd which market is missing and we can prioritise an agency onboarding review for that region."
+                  actionHref="mailto:info@proppd.com?subject=Agency directory request"
+                  actionLabel="Request a branch"
+                />
+              </div>
+            </div>
+          </section>
         </div>
       </section>
       <SiteFooter />
@@ -97,6 +133,43 @@ function AgencyStat({ icon, value, label }: { icon: React.ReactNode; value: numb
       <div className="flex items-center gap-2 text-[#3B49FF]">{icon}<span className="text-2xl font-black text-[#050A30]">{value}</span></div>
       <div className="mt-1 text-xs font-black uppercase tracking-[.16em] text-slate-400">{label}</div>
     </div>
+  );
+}
+
+function buildAgencyWatchlist(agencies: Array<{ city: string }>): Array<{ label: string; count: number }> {
+  const counts = new Map<string, number>();
+  agencies.forEach((agency) => {
+    const label = agency.city.split(',')[0]?.trim() || agency.city;
+    counts.set(label, (counts.get(label) ?? 0) + 1);
+  });
+
+  return Array.from(counts.entries())
+    .map(([label, count]) => ({ label, count }))
+    .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label))
+    .slice(0, 3);
+}
+
+function WatchlistCard({
+  title,
+  body,
+  actionHref,
+  actionLabel,
+}: {
+  title: string;
+  body: string;
+  actionHref?: string;
+  actionLabel?: string;
+}) {
+  return (
+    <article className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-5">
+      <h3 className="text-xl font-black tracking-[-.03em]">{title}</h3>
+      <p className="mt-3 text-sm font-bold leading-6 text-slate-600">{body}</p>
+      {actionHref && actionLabel && (
+        <a className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#3B49FF]" href={actionHref}>
+          {actionLabel} →
+        </a>
+      )}
+    </article>
   );
 }
 
