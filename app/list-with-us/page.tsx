@@ -62,6 +62,12 @@ const launchFlow = [
   },
 ];
 
+const applicationReview = [
+  'Real stock that is still actively marketable.',
+  'A reachable decision-maker for launch feedback.',
+  'A clean handoff path for buyer and tenant enquiries.',
+];
+
 export default function Page() {
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -186,12 +192,12 @@ export default function Page() {
 
           <section className="mt-8 grid gap-4 lg:grid-cols-[1.05fr_.95fr]">
             <div className="rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Launch readiness</p>
-              <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">What a clean pilot needs to look real.</h2>
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Application review</p>
+              <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">What Proppd checks before a pilot starts.</h2>
               <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                {launchChecklist.map((item, index) => (
+                {applicationReview.map((item, index) => (
                   <div key={item} className="rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-4">
-                    <p className="text-2xl font-black text-[#3B49FF]">0{index + 1}</p>
+                    <p className="text-xs font-black uppercase tracking-[.18em] text-[#3B49FF]">Check 0{index + 1}</p>
                     <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{item}</p>
                   </div>
                 ))}
