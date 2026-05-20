@@ -26,7 +26,7 @@ export function HeroSearch() {
               <a
                 key={tab}
                 href={index === 1 ? '/properties/to-rent' : index === 3 ? '/agents' : index === 4 ? '/request-valuation' : '/properties'}
-                className={`rounded-full px-5 py-2.5 transition ${index === 0 ? 'bg-[#050A30] text-white shadow-lg shadow-[#050A30]/15' : 'hover:bg-[#F5F7FA] hover:text-[#050A30]'}`}
+                className={`rounded-full px-5 py-2.5 transition ${index === 0 ? 'border border-[#3B49FF] bg-white text-[#3B49FF] shadow-sm' : 'hover:bg-[#F5F7FA] hover:text-[#050A30]'}`}
               >
                 {tab}
               </a>
