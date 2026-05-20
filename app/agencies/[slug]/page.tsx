@@ -134,9 +134,7 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
               </div>
               <div className="mt-6 grid gap-6 lg:grid-cols-2">
                 {activeListings.map((listing) => (
-                  <a key={listing.slug} href={`/property/${listing.slug}`} aria-label={`View ${listing.title}`}>
-                    <ListingCard listing={listing} />
-                  </a>
+                  <ListingCard key={listing.slug} listing={listing} />
                 ))}
               </div>
             </div>

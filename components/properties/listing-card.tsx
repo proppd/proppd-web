@@ -15,9 +15,9 @@ export function ListingCard({ listing }: { listing: Listing }) {
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,48,.18)_0%,rgba(5,10,48,.08)_38%,rgba(5,10,48,.82)_100%)]" />
           <div className="relative flex items-center justify-between">
             <span className="rounded-md bg-white px-3 py-1 text-xs font-black uppercase tracking-[.08em] text-[#050A30] shadow-sm">{listing.purpose}</span>
-            <button aria-label="Save property" className="grid h-10 w-10 place-items-center rounded-full bg-white/95 text-[#050A30] shadow-sm transition group-hover:text-[#3B49FF]">
+            <span aria-hidden="true" className="grid h-10 w-10 place-items-center rounded-full bg-white/95 text-[#050A30] shadow-sm transition group-hover:text-[#3B49FF]">
               <Heart size={19} />
-            </button>
+            </span>
           </div>
           <div className="relative mt-24 flex items-end justify-between gap-4">
             <div>
