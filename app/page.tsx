@@ -1,4 +1,5 @@
 import { AgentCta } from '@/components/home/agent-cta';
+import { FeaturedAgents } from '@/components/home/featured-agents';
 import { FeaturedListings } from '@/components/home/featured-listings';
 import { HeroSearch } from '@/components/home/hero-search';
 import { MarketPulse } from '@/components/home/market-pulse';
@@ -14,6 +15,7 @@ export default function Home() {
       <HeroSearch />
       <MarketPulse />
       <FeaturedListings />
+      <FeaturedAgents />
       <SupportStrip />
       <ValueProps />
       <AgentCta />
