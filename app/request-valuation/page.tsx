@@ -128,11 +128,80 @@ export default function Page() {
 
             <ValuationRequestForm reasons={reasons.map((reason) => reason.id)} initialReason="selling" />
           </section>
+
+          <section className="mt-8 rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
+            <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Valuation handoff</p>
+                <h2 className="mt-3 text-4xl font-black tracking-[-.06em]">Three small checks before you hit send</h2>
+                <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-600">
+                  The goal is a clean request that an agent can action quickly, without making the form feel like a dead end.
+                </p>
+              </div>
+              <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href={buildValuationRequestMailto({ reason: 'selling' })}>
+                Start valuation request →
+              </a>
+            </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              <MiniFact title="What agents receive" body="A concise owner brief with property basics, reason, and consent status." />
+              <MiniFact title="Typical turnaround" body="The first response should route quickly once the right launch partner is chosen." />
+              <MiniFact title="Best for" body="Owners who want a sensible market opinion before they list, rent, or hold." />
+            </div>
+            <div className="mt-8 grid gap-5 lg:grid-cols-3">
+              <SupportCard
+                title="Have the basics ready"
+                body="Suburb, property type, owner contact, and a realistic timeline are the minimum context needed for a useful handoff."
+              />
+              <SupportCard
+                title="Choose the right reason"
+                body="Seller readiness, rental check, market pulse, or agent handoff each shape the request summary and routing path."
+              />
+              <SupportCard
+                title="Need a faster route?"
+                body="If you already know the market or agent you want, send the request with that context and Proppd can prioritise the right partner."
+                actionHref="mailto:info@proppd.com?subject=Valuation%20request"
+                actionLabel="Email Proppd"
+              />
+            </div>
+          </section>
         </div>
       </section>
 
       <SiteFooter />
     </main>
+  );
+}
+
+function SupportCard({
+  title,
+  body,
+  actionHref,
+  actionLabel,
+}: {
+  title: string;
+  body: string;
+  actionHref?: string;
+  actionLabel?: string;
+}) {
+  return (
+    <article className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-5">
+      <h3 className="text-xl font-black tracking-[-.03em]">{title}</h3>
+      <p className="mt-3 text-sm font-bold leading-6 text-slate-600">{body}</p>
+      {actionHref && actionLabel && (
+        <a className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#3B49FF]" href={actionHref}>
+          {actionLabel} →
+        </a>
+      )}
+    </article>
+  );
+}
+
+function MiniFact({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-4">
+      <p className="text-xs font-black uppercase tracking-[.14em] text-[#3B49FF]">{title}</p>
+      <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{body}</p>
+    </div>
   );
 }
 
