@@ -25,6 +25,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
   const filtered = applyListingFilters(portalListings, filters);
   const paginated = paginateListings(filtered, filters.page, filters.pageSize);
   const areaWatchlist = buildAreaWatchlist(filtered);
+  const resultMix = buildResultMix(filtered);
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -209,17 +210,18 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
         </div>
       </section>
 
-      <section className="px-4 pb-16 sm:px-6 lg:px-8">
+      <section className="px-4 pb-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-5 lg:grid-cols-3">
             <section className="rounded-[2rem] bg-white p-6 shadow-sm">
               <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Area watchlist</p>
               <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">Most active suburbs in this result set.</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">The current search is concentrated in a few pockets, so we surface those areas first and keep the rest easy to reach.</p>
               <div className="mt-5 grid gap-3">
                 {areaWatchlist.length > 0 ? areaWatchlist.map((area) => (
                   <a key={area.label} href={buildPropertiesHref(params, { q: area.label })} className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]">
                     <span>{area.label}</span>
-                    <span className="text-xs font-black text-slate-500">{area.count} listing{area.count === 1 ? '' : 's'}</span>
+                    <span className="rounded-full bg-white px-2.5 py-1 text-xs font-black text-slate-500">{area.count} listing{area.count === 1 ? '' : 's'}</span>
                   </a>
                 )) : (
                   <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-semibold text-slate-600">
@@ -230,22 +232,38 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
             </section>
 
             <section className="rounded-[2rem] bg-[#050A30] p-6 text-white shadow-sm lg:col-span-1">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Search playbook</p>
-              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">Refine without losing the good leads.</h2>
-              <ul className="mt-5 space-y-3 text-sm font-semibold leading-6 text-white/72">
-                <li className="rounded-2xl border border-white/10 bg-white/5 p-4">Search by suburb, city, agent, school, or listing ID.</li>
-                <li className="rounded-2xl border border-white/10 bg-white/5 p-4">Use purpose, type, and beds to keep the shortlist honest.</li>
-                <li className="rounded-2xl border border-white/10 bg-white/5 p-4">Saved search emails make it easy to hand off serious matches.</li>
-              </ul>
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Result mix</p>
+              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">What this shortlist is made of.</h2>
+              <p className="mt-2 text-sm font-semibold leading-6 text-white/72">A quick read on the current market split helps you decide whether to tighten by purpose, type, or location.</p>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">For sale</p>
+                  <p className="mt-2 text-3xl font-black">{resultMix.saleCount}</p>
+                  <p className="mt-1 text-sm font-semibold text-white/65">Homes in the current set</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">To rent</p>
+                  <p className="mt-2 text-3xl font-black">{resultMix.rentCount}</p>
+                  <p className="mt-1 text-sm font-semibold text-white/65">Rental homes in the current set</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">Top type</p>
+                  <p className="mt-2 text-2xl font-black">{resultMix.topType}</p>
+                  <p className="mt-1 text-sm font-semibold text-white/65">Most common property type</p>
+                </div>
+              </div>
             </section>
 
             <section className="rounded-[2rem] border border-slate-200 bg-[#eefcf9] p-6 shadow-sm">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#0f766e]">Need a shorter list?</p>
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#0f766e]">Need a shortlist?</p>
               <h2 className="mt-2 text-2xl font-black tracking-[-.04em] text-[#0f766e]">Turn the current result set into a clean handoff.</h2>
-              <p className="mt-4 text-sm font-bold leading-6 text-[#0f766e]">Save the search, then send it to a buyer, tenant, or agent contact with a ready-to-send email summary.</p>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <a className="rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: filtered.length })}>Save search</a>
-                <a className="rounded-full border border-[#0f766e]/20 px-5 py-3 text-sm font-black text-[#0f766e]" href="/agents">Browse agents</a>
+              <p className="mt-4 text-sm font-bold leading-6 text-[#0f766e]">Save the search email, then send it to a buyer, tenant, or co-buyer with the filters already captured.</p>
+              <div className="mt-4 rounded-2xl border border-[#0f766e]/15 bg-white/75 p-4 text-xs font-black uppercase tracking-[.14em] text-[#0f766e]/70">
+                Includes the search path, result count, and active filters.
+              </div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <a className="inline-flex items-center justify-center rounded-full border border-[#0f766e]/20 bg-white px-5 py-3 text-sm font-black text-[#0f766e] shadow-sm" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: filtered.length })}>Save search email</a>
+                <a className="inline-flex items-center justify-center rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white shadow-sm" href="/agents">Browse agents</a>
               </div>
             </section>
           </div>
@@ -312,23 +330,32 @@ function searchScopeLabel(filters: { query?: string; location?: string }) {
   return `around ${filters.location || 'South Africa'}`;
 }
 
-function buildAreaWatchlist(listings: Array<{ location: string; price: string }>) {
-  const areas = new Map<string, { count: number; price: string }>();
+function buildAreaWatchlist(listings: Array<{ location: string }>) {
+  const areas = new Map<string, number>();
 
   for (const listing of listings) {
     const area = listing.location.split(',')[0]?.trim() || listing.location;
-    const current = areas.get(area);
-    if (current) {
-      current.count += 1;
-    } else {
-      areas.set(area, { count: 1, price: listing.price });
-    }
+    areas.set(area, (areas.get(area) ?? 0) + 1);
   }
 
   return [...areas.entries()]
-    .map(([label, details]) => ({ label, ...details }))
+    .map(([label, count]) => ({ label, count }))
     .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label))
     .slice(0, 3);
+}
+
+function buildResultMix(listings: Array<{ purpose: string; type: string }>) {
+  const saleCount = listings.filter((listing) => listing.purpose === 'For sale').length;
+  const rentCount = listings.filter((listing) => listing.purpose === 'To rent').length;
+  const typeCounts = new Map<string, number>();
+
+  for (const listing of listings) {
+    typeCounts.set(listing.type, (typeCounts.get(listing.type) ?? 0) + 1);
+  }
+
+  const topType = Array.from(typeCounts.entries()).sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))[0]?.[0] ?? 'Mixed';
+
+  return { saleCount, rentCount, topType };
 }
 
 function toURLSearchParams(params: Record<string, string | string[] | undefined>) {

@@ -5,9 +5,9 @@ const quickLinks = ['Sandton', 'Sea Point', 'Umhlanga', 'Pretoria', 'Cape Town']
 export function HeroSearch() {
   return (
     <section className="relative isolate overflow-hidden bg-white">
-      <div className="absolute inset-x-0 top-0 -z-10 h-[34rem] bg-[linear-gradient(180deg,rgba(5,10,48,.52),rgba(5,10,48,.18)_45%,rgba(255,255,255,0)_100%),radial-gradient(circle_at_24%_20%,rgba(18,214,197,.68),transparent_18rem),radial-gradient(circle_at_72%_12%,rgba(59,73,255,.58),transparent_22rem),linear-gradient(135deg,#eef6ff_0%,#f8fbff_42%,#dff8f4_100%)]" />
-      <div className="absolute left-1/2 top-28 -z-10 hidden h-72 w-[62rem] -translate-x-1/2 rounded-[4rem] border border-white/60 bg-white/20 shadow-2xl shadow-[#050A30]/20 backdrop-blur-sm lg:block" />
-      <div className="mx-auto max-w-7xl px-4 pb-10 pt-10 sm:px-6 lg:px-8 lg:pb-14 lg:pt-14">
+      <div className="absolute inset-x-0 top-0 -z-10 h-[30rem] bg-[linear-gradient(180deg,rgba(5,10,48,.52),rgba(5,10,48,.18)_45%,rgba(255,255,255,0)_100%),radial-gradient(circle_at_24%_20%,rgba(18,214,197,.68),transparent_18rem),radial-gradient(circle_at_72%_12%,rgba(59,73,255,.58),transparent_22rem),linear-gradient(135deg,#eef6ff_0%,#f8fbff_42%,#dff8f4_100%)]" />
+      <div className="absolute left-1/2 top-24 -z-10 hidden h-72 w-[62rem] -translate-x-1/2 rounded-[4rem] border border-white/60 bg-white/20 shadow-2xl shadow-[#050A30]/20 backdrop-blur-sm lg:block" />
+      <div className="mx-auto max-w-7xl px-4 pb-8 pt-8 sm:px-6 lg:px-8 lg:pb-12 lg:pt-12">
         <div className="mx-auto max-w-4xl text-center text-white">
           <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/20 px-4 py-2 text-sm font-black shadow-lg backdrop-blur">
             <ShieldCheck size={16} className="text-[#12D6C5]" /> Verified South African property portal
