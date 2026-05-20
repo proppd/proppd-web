@@ -87,11 +87,19 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
 
           <div className="mt-4 flex flex-wrap gap-2 text-sm font-black text-[#050A30]">
             {filters.query ? <FilterChip href={buildPropertiesHref(params, { q: null })}>Search: “{filters.query}” <X size={14} /></FilterChip> : null}
+            {filters.location ? <FilterChip href={buildPropertiesHref(params, { location: null })}>Location: {filters.location} <X size={14} /></FilterChip> : null}
+            {filters.agency ? <FilterChip href={buildPropertiesHref(params, { agency: null })}>Agency: {filters.agency} <X size={14} /></FilterChip> : null}
+            {filters.agent ? <FilterChip href={buildPropertiesHref(params, { agent: null })}>Agent: {filters.agent} <X size={14} /></FilterChip> : null}
             {filters.purpose !== 'all' ? <FilterChip href={buildPropertiesHref(params, { purpose: 'all' })}>Purpose: {filters.purpose === 'sale' ? 'For sale' : 'To rent'} <X size={14} /></FilterChip> : null}
             {filters.propertyType ? <FilterChip href={buildPropertiesHref(params, { propertyType: null })}>Type: {filters.propertyType} <X size={14} /></FilterChip> : null}
+            {filters.minPrice !== undefined ? <FilterChip href={buildPropertiesHref(params, { minPrice: null })}>Min: R{filters.minPrice.toLocaleString('en-ZA')} <X size={14} /></FilterChip> : null}
+            {filters.maxPrice !== undefined ? <FilterChip href={buildPropertiesHref(params, { maxPrice: null })}>Max: R{filters.maxPrice.toLocaleString('en-ZA')} <X size={14} /></FilterChip> : null}
             {filters.bedrooms ? <FilterChip href={buildPropertiesHref(params, { bedrooms: null })}>Beds: {filters.bedrooms}+ <X size={14} /></FilterChip> : null}
+            {filters.bathrooms ? <FilterChip href={buildPropertiesHref(params, { bathrooms: null })}>Baths: {filters.bathrooms}+ <X size={14} /></FilterChip> : null}
+            {filters.parking ? <FilterChip href={buildPropertiesHref(params, { parking: null })}>Parking: {filters.parking}+ <X size={14} /></FilterChip> : null}
+            {filters.status ? <FilterChip href={buildPropertiesHref(params, { status: null })}>Status: {filters.status} <X size={14} /></FilterChip> : null}
             {filters.sort !== 'featured' ? <FilterChip href={buildPropertiesHref(params, { sort: 'featured' })}>Sort: {filters.sort.replace('-', ' ')} <X size={14} /></FilterChip> : null}
-            {(filters.query || filters.purpose !== 'all' || filters.propertyType || filters.bedrooms || filters.sort !== 'featured') ? (
+            {(filters.query || filters.location || filters.agency || filters.agent || filters.purpose !== 'all' || filters.propertyType || filters.minPrice !== undefined || filters.maxPrice !== undefined || filters.bedrooms || filters.bathrooms || filters.parking || filters.status || filters.sort !== 'featured') ? (
               <a className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-2 text-slate-500 transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties">
                 Clear all
               </a>
@@ -107,7 +115,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                 <div>
                   <h1 className="text-2xl font-black tracking-[-.04em] sm:text-3xl">
-                    {filtered.length} homes {searchScopeLabel(filters)}
+                    {`${filtered.length} ${filtered.length === 1 ? 'home' : 'homes'} ${searchScopeLabel(filters)}`}
                   </h1>
                   <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
                     {filters.query ? `Matching “${filters.query}” across listing facts, areas, agents, and agencies.` : 'Price-first verified homes with saved search and agent routing.'}
@@ -324,10 +332,12 @@ function visiblePages(current: number, total: number) {
   return [...pages].filter((page) => page >= 1 && page <= total).sort((a, b) => a - b);
 }
 
-function searchScopeLabel(filters: { query?: string; location?: string }) {
+function searchScopeLabel(filters: { query?: string; location?: string; agency?: string; agent?: string }) {
   if (filters.query && filters.location) return `matching “${filters.query}” around ${filters.location}`;
   if (filters.query) return `matching “${filters.query}”`;
-  return `around ${filters.location || 'South Africa'}`;
+  if (filters.location) return `around ${filters.location}`;
+  if (filters.agency || filters.agent) return 'matching the active route filters';
+  return 'around South Africa';
 }
 
 function buildAreaWatchlist(listings: Array<{ location: string }>) {
