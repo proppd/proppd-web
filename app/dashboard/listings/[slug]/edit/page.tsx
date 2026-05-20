@@ -27,7 +27,9 @@ export default async function Page({ params }: PageProps) {
     redirect('/login?next=%2Fdashboard%2Flistings');
   }
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
     redirect('/login?next=%2Fdashboard%2Flistings');
   }
@@ -57,12 +59,98 @@ export default async function Page({ params }: PageProps) {
             </p>
           </div>
 
-          <div className="mt-8">
-            <ListingEditorForm mode="edit" initialListing={current} submitUrl={`/api/dashboard/listings/${slug}`} submitLabel="Save changes" />
+          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(280px,0.8fr)] lg:items-start">
+            <div>
+              <ListingEditorForm mode="edit" initialListing={current} submitUrl={`/api/dashboard/listings/${slug}`} submitLabel="Save changes" />
+            </div>
+
+            <aside className="grid gap-4">
+              <SupportCard
+                title="Edit status"
+                text={`This record is ${current.status === 'draft' ? 'still being prepared' : 'already in circulation'} and belongs to ${current.agencyName ?? current.agentName ?? 'your account'}.`}
+              >
+                <StatusPill tone={current.status === 'available' ? 'live' : current.status === 'draft' ? 'draft' : 'neutral'}>
+                  {formatListingStatus(current.status)}
+                </StatusPill>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                  <MiniStat label="Purpose" value={current.purpose === 'sale' ? 'For sale' : 'To rent'} />
+                  <MiniStat label="Featured" value={current.isFeatured ? 'Yes' : 'No'} />
+                  <MiniStat label="Agency" value={current.agencyName ?? 'Unassigned'} />
+                  <MiniStat label="Agent" value={current.agentName ?? 'Unassigned'} />
+                </div>
+              </SupportCard>
+
+              <SupportCard title="What to do next" text="Use this page to keep the record ready for buyers, tenants, and internal review.">
+                <ul className="mt-4 space-y-3 text-sm font-bold leading-6 text-slate-600">
+                  <li>• Confirm the price, status, and featured flag before publishing.</li>
+                  <li>• Keep the suburb and city clean so search results stay trustworthy.</li>
+                  <li>• Add enough description detail that a lead can enquire without guessing.</li>
+                </ul>
+              </SupportCard>
+
+              <SupportCard title="Publishing signal" text={getPublishingSignal(current)}>
+                <div className="mt-4 rounded-2xl bg-white px-4 py-3 text-sm font-bold text-slate-600 shadow-sm ring-1 ring-slate-200">
+                  {current.publishedAt
+                    ? `Published at ${new Date(current.publishedAt).toLocaleDateString('en-ZA', { month: 'short', day: 'numeric', year: 'numeric' })}.`
+                    : 'This listing is not live yet.'}
+                </div>
+              </SupportCard>
+            </aside>
           </div>
         </div>
       </section>
       <SiteFooter />
     </main>
+  );
+}
+
+function formatListingStatus(status: string) {
+  const map: Record<string, string> = {
+    draft: 'Draft',
+    pending_review: 'Pending review',
+    available: 'Live',
+    under_offer: 'Under offer',
+    sold: 'Sold',
+    rented: 'Rented',
+    archived: 'Archived',
+  };
+
+  return map[status] ?? status;
+}
+
+function getPublishingSignal(listing: { status: string; publishedAt: string | null }) {
+  if (listing.status === 'draft') return 'Draft listings stay internal until they are marked ready for review or made live.';
+  if (listing.status === 'pending_review') return 'Pending review listings are prepared for launch, but not yet presented as live inventory.';
+  if (listing.status === 'available') return 'Available listings are treated as live inventory and should stay accurate for lead capture.';
+  return 'Keep this record current so the portal and lead routing stay aligned with the real-world listing state.';
+}
+
+function SupportCard({ title, text, children }: { title: string; text: string; children?: React.ReactNode }) {
+  return (
+    <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
+      <p className="text-xs font-black uppercase tracking-[.18em] text-[#3B49FF]">{title}</p>
+      <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{text}</p>
+      {children}
+    </div>
+  );
+}
+
+function StatusPill({ tone, children }: { tone: 'live' | 'draft' | 'neutral'; children: React.ReactNode }) {
+  const toneClass =
+    tone === 'live'
+      ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
+      : tone === 'draft'
+        ? 'bg-amber-50 text-amber-700 ring-amber-200'
+        : 'bg-slate-50 text-slate-700 ring-slate-200';
+
+  return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-[.18em] ring-1 ${toneClass}`}>{children}</span>;
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl bg-[#F5F7FA] px-4 py-3">
+      <p className="text-[11px] font-black uppercase tracking-[.18em] text-slate-400">{label}</p>
+      <p className="mt-1 text-sm font-black text-[#050A30]">{value}</p>
+    </div>
   );
 }
