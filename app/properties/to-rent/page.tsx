@@ -14,6 +14,20 @@ export const metadata: Metadata = {
   title: 'To rent',
   description: 'Browse verified rental homes on Proppd with monthly pricing, filters, and saved-search alerts.',
   alternates: { canonical: '/properties/to-rent' },
+  openGraph: {
+    title: 'To rent | Proppd',
+    description: 'Browse verified rental homes on Proppd with monthly pricing, filters, and saved-search alerts.',
+    url: '/properties/to-rent',
+    siteName: 'Proppd',
+    type: 'website',
+    images: [{ url: '/proppd-logo-horizontal.png', width: 1200, height: 315, alt: 'Proppd logo' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'To rent | Proppd',
+    description: 'Browse verified rental homes on Proppd with monthly pricing, filters, and saved-search alerts.',
+    images: ['/proppd-logo-horizontal.png'],
+  },
 };
 
 export default async function ToRentPage({ searchParams }: { searchParams: SearchParams }) {

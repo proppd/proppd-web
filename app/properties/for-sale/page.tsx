@@ -14,6 +14,20 @@ export const metadata: Metadata = {
   title: 'For sale',
   description: 'Browse verified for-sale homes on Proppd with price-first cards, filters, and saved-search alerts.',
   alternates: { canonical: '/properties/for-sale' },
+  openGraph: {
+    title: 'For sale | Proppd',
+    description: 'Browse verified for-sale homes on Proppd with price-first cards, filters, and saved-search alerts.',
+    url: '/properties/for-sale',
+    siteName: 'Proppd',
+    type: 'website',
+    images: [{ url: '/proppd-logo-horizontal.png', width: 1200, height: 315, alt: 'Proppd logo' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'For sale | Proppd',
+    description: 'Browse verified for-sale homes on Proppd with price-first cards, filters, and saved-search alerts.',
+    images: ['/proppd-logo-horizontal.png'],
+  },
 };
 
 export default async function ForSalePage({ searchParams }: { searchParams: SearchParams }) {

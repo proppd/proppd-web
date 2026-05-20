@@ -10,6 +10,20 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/list-with-us',
   },
+  openGraph: {
+    title: 'List with Proppd | Proppd',
+    description: 'Join the Proppd launch rollout with verified profiles, cleaner enquiry handoff, and early AgentOS workflows.',
+    url: '/list-with-us',
+    siteName: 'Proppd',
+    type: 'website',
+    images: [{ url: '/proppd-logo-horizontal.png', width: 1200, height: 315, alt: 'Proppd logo' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'List with Proppd | Proppd',
+    description: 'Join the Proppd launch rollout with verified profiles, cleaner enquiry handoff, and early AgentOS workflows.',
+    images: ['/proppd-logo-horizontal.png'],
+  },
 };
 
 const launchSignals = [

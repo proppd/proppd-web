@@ -12,6 +12,20 @@ export const metadata: Metadata = {
   title: 'Agencies',
   description: 'Browse Proppd agencies by city, team size, and active portfolio stock.',
   alternates: { canonical: '/agencies' },
+  openGraph: {
+    title: 'Agencies | Proppd',
+    description: 'Browse Proppd agencies by city, team size, and active portfolio stock.',
+    url: '/agencies',
+    siteName: 'Proppd',
+    type: 'website',
+    images: [{ url: '/proppd-logo-horizontal.png', width: 1200, height: 315, alt: 'Proppd logo' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Agencies | Proppd',
+    description: 'Browse Proppd agencies by city, team size, and active portfolio stock.',
+    images: ['/proppd-logo-horizontal.png'],
+  },
 };
 
 export const dynamic = 'force-dynamic';

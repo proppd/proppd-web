@@ -11,6 +11,20 @@ export const metadata: Metadata = {
   title: 'Agents',
   description: 'Browse verified Proppd agents by area, agency, and active listing count.',
   alternates: { canonical: '/agents' },
+  openGraph: {
+    title: 'Agents | Proppd',
+    description: 'Browse verified Proppd agents by area, agency, and active listing count.',
+    url: '/agents',
+    siteName: 'Proppd',
+    type: 'website',
+    images: [{ url: '/proppd-logo-horizontal.png', width: 1200, height: 315, alt: 'Proppd logo' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Agents | Proppd',
+    description: 'Browse verified Proppd agents by area, agency, and active listing count.',
+    images: ['/proppd-logo-horizontal.png'],
+  },
 };
 
 export const dynamic = 'force-dynamic';

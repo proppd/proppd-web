@@ -14,6 +14,20 @@ export const metadata: Metadata = {
   title: 'Properties',
   description: 'Browse verified Proppd property listings across South Africa with saved search and location-first filters.',
   alternates: { canonical: '/properties' },
+  openGraph: {
+    title: 'Properties | Proppd',
+    description: 'Browse verified Proppd property listings across South Africa with saved search and location-first filters.',
+    url: '/properties',
+    siteName: 'Proppd',
+    type: 'website',
+    images: [{ url: '/proppd-logo-horizontal.png', width: 1200, height: 315, alt: 'Proppd logo' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Properties | Proppd',
+    description: 'Browse verified Proppd property listings across South Africa with saved search and location-first filters.',
+    images: ['/proppd-logo-horizontal.png'],
+  },
 };
 
 export const dynamic = 'force-dynamic';
