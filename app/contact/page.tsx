@@ -46,11 +46,10 @@ const contactReasons = [
   ['Best email / phone', 'Use a reachable contact so the handoff can move quickly once it is reviewed.'],
 ];
 
-const quickLinks = [
-  ['Agents', '/agents'],
-  ['Agencies', '/agencies'],
-  ['Home loans', '/home-loans'],
-  ['Business model', '/business'],
+const responseGuide = [
+  ['Support', 'Use info@proppd.com for route questions, page fixes, or general help.'],
+  ['Launch access', 'Agencies can ask about onboarding, profiles, and listing exposure.'],
+  ['Valuation', 'Sellers and landlords should start with the valuation flow.'],
 ];
 
 export default function ContactPage() {
@@ -142,25 +141,24 @@ export default function ContactPage() {
 
             <aside className="rounded-[2.5rem] bg-[#050A30] p-6 text-white shadow-sm sm:p-8">
               <UsersRound className="text-[#12D6C5]" size={30} />
-              <h2 className="mt-4 text-2xl font-black tracking-[-.04em]">Quick routes</h2>
+              <h2 className="mt-4 text-2xl font-black tracking-[-.04em]">Response guide</h2>
               <p className="mt-3 text-sm font-bold leading-6 text-white/68">
-                Jump straight to the page that matches your request instead of waiting in a general inbox.
+                Pick the right route first, then send a short note so the team can respond without extra back-and-forth.
               </p>
-              <div className="mt-6 grid gap-3">
-                {quickLinks.map(([label, href]) => (
-                  <a key={label} href={href} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-black text-white transition hover:bg-white/10">
-                    {label}
-                  </a>
+              <div className="mt-6 space-y-3">
+                {responseGuide.map(([label, text]) => (
+                  <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs font-black uppercase tracking-[.14em] text-[#12D6C5]">{label}</p>
+                    <p className="mt-2 text-sm font-bold leading-6 text-white/78">{text}</p>
+                  </div>
                 ))}
               </div>
-              <div className="mt-6 rounded-2xl bg-white p-4 text-[#050A30]">
-                <p className="text-xs font-black uppercase tracking-[.14em] text-slate-500">Direct support</p>
-                <p className="mt-2 text-sm font-black">info@proppd.com</p>
-                <div className="mt-4 flex items-center gap-2 text-sm font-bold text-slate-600">
-                  <PhoneCall size={16} className="text-[#3B49FF]" />
-                  Response via email until a richer helpdesk workflow lands.
-                </div>
-              </div>
+              <a className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 font-black text-[#050A30]" href="mailto:info@proppd.com?subject=Contact%20Proppd">
+                <Mail size={18} /> Email info@proppd.com
+              </a>
+              <p className="mt-4 flex items-center gap-2 text-sm font-bold leading-6 text-white/60">
+                <PhoneCall size={16} className="text-[#12D6C5]" /> Response via email until a richer helpdesk workflow lands.
+              </p>
             </aside>
           </section>
 
