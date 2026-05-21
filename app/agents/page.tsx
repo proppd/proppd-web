@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { BadgeCheck, Building2, MapPin, Search } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { loadPortalAgents } from '../../lib/proppd/backend';
+import { loadPortalAgencies, loadPortalAgents, loadPortalListings } from '../../lib/proppd/backend';
 import { filterAgents, formatDirectorySearchSummary, parseDirectoryQuery, slugifyDirectoryName } from '@/lib/directory';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -32,9 +32,14 @@ export const dynamic = 'force-dynamic';
 export default async function AgentsPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const query = parseDirectoryQuery(toURLSearchParams(params));
-  const portalAgents = (await loadPortalAgents()).items;
-  const filteredAgents = filterAgents(portalAgents, query);
+  const [portalAgents, portalAgencies, portalListings] = await Promise.all([
+    loadPortalAgents(),
+    loadPortalAgencies(),
+    loadPortalListings(),
+  ]);
+  const filteredAgents = filterAgents(portalAgents.items, query);
   const agentWatchlist = buildAgentWatchlist(filteredAgents);
+  const directoryPulse = buildDirectoryPulse(filteredAgents, portalAgencies.items, portalListings.items);
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -101,6 +106,27 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
             </div>
           )}
 
+          <section className="mt-8 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Directory pulse</p>
+                <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">{directoryPulse.totalAgents} agents, {directoryPulse.totalAgencies} agencies, one cleaner search path.</h2>
+                <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-600">
+                  This quick snapshot gives buyers and launch partners a more concrete read on the current directory than the listing cards alone.
+                </p>
+              </div>
+              <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="mailto:info@proppd.com?subject=Agent directory request">
+                Add a profile →
+              </a>
+            </div>
+            <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <PulseCard label="Verified agents" value={directoryPulse.totalAgents} detail="Profiles currently visible" />
+              <PulseCard label="Agencies" value={directoryPulse.totalAgencies} detail="Partner firms in the network" />
+              <PulseCard label="Portfolio listings" value={directoryPulse.totalListings} detail="Visible stock linked to agents" />
+              <PulseCard label="Top area" value={directoryPulse.topArea} detail="Most common service pocket" />
+            </div>
+          </section>
+
           <section className="mt-10">
             <div className="rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -153,6 +179,30 @@ function buildAgentWatchlist(agents: Array<{ area: string }>): Array<{ label: st
     .map(([label, count]) => ({ label, count }))
     .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label))
     .slice(0, 3);
+}
+
+function buildDirectoryPulse(
+  agents: Array<{ area: string; agency: string; listings: number }>,
+  agencies: Array<{ name: string }>,
+  listings: Array<unknown>,
+) {
+  const topArea = buildAgentWatchlist(agents)[0]?.label ?? 'Mixed';
+  return {
+    totalAgents: agents.length,
+    totalAgencies: agencies.length,
+    totalListings: listings.length,
+    topArea,
+  };
+}
+
+function PulseCard({ label, value, detail }: { label: string; value: number | string; detail: string }) {
+  return (
+    <div className="rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-4">
+      <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">{label}</p>
+      <p className="mt-2 text-3xl font-black tracking-[-.04em] text-[#050A30]">{value}</p>
+      <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{detail}</p>
+    </div>
+  );
 }
 
 function WatchlistCard({
