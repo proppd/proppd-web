@@ -17,6 +17,12 @@ const steps = [
   ['Route with consent', 'Finance enquiries must keep POPIA consent, buyer context, and handoff history clear for the agency and finance partner.'],
 ];
 
+const readinessFacts = [
+  ['Fast estimate', 'Use the calculator first, then move into a clearer next step.'],
+  ['Document-ready', 'Keep payslips, statements, and deposit context close to the enquiry.'],
+  ['Clear handoff', 'Finance interest should route with consent and property context.'],
+];
+
 export default function HomeLoansPage() {
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -42,6 +48,14 @@ export default function HomeLoansPage() {
               <a className="inline-flex rounded-full border border-slate-300 bg-white px-6 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties/for-sale">
                 Browse homes for sale
               </a>
+            </div>
+            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              {readinessFacts.map(([title, body]) => (
+                <div key={title} className="rounded-[1.5rem] border border-white/12 bg-white/8 p-4 text-white/90 backdrop-blur">
+                  <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">{title}</p>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-white/72">{body}</p>
+                </div>
+              ))}
             </div>
           </div>
 
