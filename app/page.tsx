@@ -1,4 +1,5 @@
 import { FeaturedListings } from '@/components/home/featured-listings';
+import { HomeTrustStrip } from '@/components/home/home-trust-strip';
 import { HeroSearch } from '@/components/home/hero-search';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
@@ -9,6 +10,7 @@ export default function Home() {
       <SiteHeader />
       <HeroSearch />
       <FeaturedListings />
+      <HomeTrustStrip />
       <SiteFooter />
     </main>
   );
