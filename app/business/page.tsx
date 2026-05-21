@@ -76,6 +76,11 @@ export default function BusinessPage() {
               <a className="rounded-full bg-white px-6 py-3 text-sm font-black text-[#050A30]" href="/properties"><span className="text-[#050A30]">Browse marketplace</span></a>
               <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-black text-white" href="/list-with-us"><span className="text-white">Partner with Proppd</span></a>
             </div>
+            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              <MiniSignal title="Launch focus" text="Start with a trusted marketplace and verified enquiry flow." />
+              <MiniSignal title="Commercial model" text="Build revenue from quality exposure, not noisy volume." />
+              <MiniSignal title="Product cadence" text="Marketplace first, then AgentOS, then AI workflows." />
+            </div>
           </div>
 
           <div className="rounded-[2.5rem] border border-white/12 bg-white/8 p-6 shadow-2xl shadow-black/20 backdrop-blur">
@@ -108,6 +113,21 @@ export default function BusinessPage() {
                 <p className="mt-4 text-sm font-bold leading-6 text-slate-700">{problem}</p>
               </div>
             ))}
+          </div>
+        </div>
+        <div className="mx-auto mt-6 max-w-7xl rounded-[2rem] border border-[#eefcf9] bg-[#f8fffd] p-5 shadow-sm">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[.2em] text-[#0f766e]">Why it matters</p>
+              <p className="mt-2 max-w-3xl text-sm font-bold leading-6 text-slate-700">
+                Less spam, faster responses, clearer routing, and a better consumer experience across listings, agents, and agency workflows.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Pill>Verified lead quality</Pill>
+              <Pill>Mobile-first experience</Pill>
+              <Pill>Lower wasted time</Pill>
+            </div>
           </div>
         </div>
       </section>
@@ -201,6 +221,11 @@ export default function BusinessPage() {
               Proppd combines listings, leads, communication, transactions, automation, AI infrastructure, agent productivity, and property intelligence into one modern ecosystem.
             </p>
           </div>
+          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+            <BannerSignal title="Marketplace" text="One trusted front door for property discovery and verified enquiries." />
+            <BannerSignal title="AgentOS" text="One workflow layer for lead routing, follow-ups, and reporting." />
+            <BannerSignal title="AI roadmap" text="One native path to matching, qualification, and automation." />
+          </div>
           <div className="mt-8 flex flex-wrap gap-3">
             <a className="rounded-full bg-white px-6 py-3 text-sm font-black text-[#050A30]" href="/agents"><span className="text-[#050A30]">Explore agents</span></a>
             <a className="rounded-full border border-white/25 px-6 py-3 text-sm font-black text-white" href="mailto:info@proppd.com"><span className="text-white">Contact Proppd</span></a>
@@ -248,6 +273,28 @@ function GuardrailCard({ title, text }: { title: string; text: string }) {
     <div className="rounded-2xl bg-white p-4 shadow-sm">
       <p className="text-sm font-black text-[#050A30]">{title}</p>
       <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{text}</p>
+    </div>
+  );
+}
+
+function MiniSignal({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-3xl border border-white/12 bg-white/10 p-4">
+      <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">{title}</p>
+      <p className="mt-2 text-sm font-bold leading-6 text-white/72">{text}</p>
+    </div>
+  );
+}
+
+function Pill({ children }: { children: React.ReactNode }) {
+  return <span className="rounded-full bg-white px-4 py-2 text-xs font-black uppercase tracking-[.14em] text-[#0f766e]">{children}</span>;
+}
+
+function BannerSignal({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-3xl border border-white/12 bg-white/10 p-4">
+      <p className="text-xs font-black uppercase tracking-[.16em] text-white/68">{title}</p>
+      <p className="mt-2 text-sm font-bold leading-6 text-white/78">{text}</p>
     </div>
   );
 }
