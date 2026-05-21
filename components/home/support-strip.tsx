@@ -44,6 +44,19 @@ export function SupportStrip() {
               Contact Proppd
             </a>
           </div>
+          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+            {[
+              ['01', 'Search the market', 'Start with suburb, city, or agent.'],
+              ['02', 'Shortlist the fit', 'Compare listings by price, area, and stock quality.'],
+              ['03', 'Open the route', 'Jump into enquiry, listing, or support without dead ends.'],
+            ].map(([step, title, text]) => (
+              <div key={title} className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4">
+                <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#12D6C5]/15 text-xs font-black text-[#12D6C5]">{step}</div>
+                <h3 className="mt-3 text-sm font-black tracking-[-.02em] text-white">{title}</h3>
+                <p className="mt-2 text-sm font-semibold leading-6 text-white/65">{text}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">

@@ -72,6 +72,11 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
                 </a>
               </div>
             </form>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              <DirectoryMetric label="Agencies visible" value={filteredAgencies.length} detail="Profiles shown in this directory" />
+              <DirectoryMetric label="Active agents" value={portalAgents.items.length} detail="Agents tied to the network" />
+              <DirectoryMetric label="Portfolio listings" value={portalListings.items.length} detail="Visible stock linked to branches" />
+            </div>
             <p className="mt-5 text-sm font-black text-slate-500">{formatDirectorySearchSummary(filteredAgencies.length, 'agency', query)}</p>
           </div>
 
@@ -172,6 +177,16 @@ function AgencyStat({ icon, value, label }: { icon: React.ReactNode; value: numb
     <div className="rounded-3xl bg-[#F5F7FA] p-4">
       <div className="flex items-center gap-2 text-[#3B49FF]">{icon}<span className="text-2xl font-black text-[#050A30]">{value}</span></div>
       <div className="mt-1 text-xs font-black uppercase tracking-[.16em] text-slate-400">{label}</div>
+    </div>
+  );
+}
+
+function DirectoryMetric({ label, value, detail }: { label: string; value: number; detail: string }) {
+  return (
+    <div className="rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm">
+      <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">{label}</p>
+      <p className="mt-2 text-3xl font-black tracking-[-.04em] text-[#050A30]">{value}</p>
+      <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{detail}</p>
     </div>
   );
 }

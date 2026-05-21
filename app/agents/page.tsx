@@ -71,6 +71,11 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                 </a>
               </div>
             </form>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              <DirectoryMetric label="Verified agents" value={filteredAgents.length} detail="Profiles visible in this view" />
+              <DirectoryMetric label="Agencies represented" value={portalAgencies.items.length} detail="Launch partners in network" />
+              <DirectoryMetric label="Portfolio listings" value={portalListings.items.length} detail="Live stock connected to agents" />
+            </div>
             <p className="mt-5 text-sm font-black text-slate-500">{formatDirectorySearchSummary(filteredAgents.length, 'agent', query)}</p>
           </div>
 
@@ -198,6 +203,16 @@ function buildDirectoryPulse(
 function PulseCard({ label, value, detail }: { label: string; value: number | string; detail: string }) {
   return (
     <div className="rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-4">
+      <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">{label}</p>
+      <p className="mt-2 text-3xl font-black tracking-[-.04em] text-[#050A30]">{value}</p>
+      <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{detail}</p>
+    </div>
+  );
+}
+
+function DirectoryMetric({ label, value, detail }: { label: string; value: number; detail: string }) {
+  return (
+    <div className="rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm">
       <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">{label}</p>
       <p className="mt-2 text-3xl font-black tracking-[-.04em] text-[#050A30]">{value}</p>
       <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{detail}</p>
