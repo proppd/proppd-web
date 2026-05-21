@@ -135,6 +135,17 @@ export default async function Page() {
   const listings = await loadMyPortalListings(access);
   const items = listings.items;
   const liveReady = diagnostics.backendMode === 'database' && diagnostics.canReadDatabase && diagnostics.databaseConfigured && diagnostics.browserSupabaseConfigured && diagnostics.serviceRoleConfigured;
+  const localAdminSession = !config && user.email?.trim().toLowerCase() === 'info@proppd.com';
+  const listingSourceLabel =
+    listings.source === 'database'
+      ? 'Live database'
+      : listings.source === 'demo'
+        ? localAdminSession
+          ? 'Demo-backed admin session'
+          : 'Demo mode'
+        : listings.source === 'empty'
+          ? 'Empty database'
+          : 'Data error';
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
       <SiteHeader />
@@ -149,6 +160,16 @@ export default async function Page() {
                 <p className="mt-4 max-w-2xl text-lg leading-8 text-white/70">
                   {access.agencyName ?? 'Your agency'} · {access.agentName ?? 'Linked account'} · {items.length} managed listing{items.length === 1 ? '' : 's'}
                 </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {localAdminSession ? (
+                    <span className="rounded-full bg-[#eefcf9] px-4 py-2 text-xs font-black uppercase tracking-[.16em] text-[#0f766e]">
+                      Local admin session · info@proppd.com
+                    </span>
+                  ) : null}
+                  <span className="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[.16em] text-white/70">
+                    {liveReady ? 'Live backend ready' : 'Demo-backed workspace'}
+                  </span>
+                </div>
               </div>
               <a className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-black !text-[#050A30]" href="/dashboard/listings/new">
                 <PlusCircle size={18} /> New listing
@@ -170,7 +191,7 @@ export default async function Page() {
                   <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">Managed listings</h2>
                 </div>
                 <div className="rounded-full bg-[#eefcf9] px-4 py-2 text-sm font-black text-[#0f766e]">
-                  {listings.source === 'database' ? 'Live database' : listings.source}
+                  {listingSourceLabel}
                 </div>
               </div>
 
