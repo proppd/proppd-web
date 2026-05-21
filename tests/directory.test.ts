@@ -21,6 +21,17 @@ describe('directory helpers', () => {
     expect(getAgencyListings(listings, agency!.name).map((listing) => listing.slug)).toEqual(['sea-point-apartment-with-parking-20401']);
   });
 
+  it('ships Sakstons as a three-agent active launch agency with source stock', () => {
+    const agency = findAgencyBySlug(agencies, 'sakstons');
+    const team = getAgencyAgents(agents, 'Sakstons');
+    const stock = getAgencyListings(listings, 'Sakstons');
+
+    expect(agency).toEqual({ name: 'Sakstons', city: 'Sandton', agents: 3, listings: 38 });
+    expect(team.map((agent) => agent.name)).toEqual(['Graham Donald', 'Liz Marx', 'Mark Chait']);
+    expect(stock).toHaveLength(38);
+    expect(stock.some((listing) => listing.slug === 'sakstons-villa-lane-292-bryanston-drive')).toBe(true);
+  });
+
   it('connects agent profiles to active listings', () => {
     const agent = findAgentBySlug(agents, 'aiden-naidoo');
 

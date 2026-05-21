@@ -8,18 +8,25 @@ describe('listing detail helpers', () => {
     expect(listing?.agent).toBe('Mia Jacobs');
   });
 
-  it('keeps listing IDs aligned with Supabase seed UUIDs for lead writes', () => {
-    expect(listings.map((listing) => listing.id)).toEqual([
+  it('keeps original seed listing IDs aligned with Supabase seed UUIDs for lead writes', () => {
+    expect(listings.slice(0, 3).map((listing) => listing.id)).toEqual([
       'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
       'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
       'ffffffff-ffff-4fff-8fff-ffffffffffff',
     ]);
+    expect(listings.filter((listing) => listing.agency === 'Sakstons').every((listing) => listing.id.startsWith('sakstons-'))).toBe(true);
   });
 
   it('keeps demo listings backed by accessible gallery photos', () => {
-    for (const listing of listings) {
+    for (const listing of listings.slice(0, 3)) {
       expect(listing.photos.length).toBeGreaterThanOrEqual(3);
       expect(listing.photos[0]?.src).toContain('images.unsplash.com');
+      expect(listing.photos.every((photo) => photo.alt.length > 12)).toBe(true);
+    }
+
+    for (const listing of listings.filter((item) => item.agency === 'Sakstons')) {
+      expect(listing.photos.length).toBeGreaterThanOrEqual(1);
+      expect(listing.photos[0]?.src).toMatch(/^https:\/\//);
       expect(listing.photos.every((photo) => photo.alt.length > 12)).toBe(true);
     }
   });

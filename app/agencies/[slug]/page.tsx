@@ -15,7 +15,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const portalAgency = await loadPortalAgencies();
-  const agency = portalAgency.items[0] ?? demoAgencies.find((entry) => slugifyDirectoryName(entry.name) === slug);
+  const agency = portalAgency.items.find((entry) => slugifyDirectoryName(entry.name) === slug) ?? demoAgencies.find((entry) => slugifyDirectoryName(entry.name) === slug);
 
   if (!agency) {
     return { title: 'Agency not found' };
@@ -47,7 +47,7 @@ export const dynamic = 'force-dynamic';
 export default async function AgencyProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const portalAgency = await loadPortalAgencies();
-  const agency = portalAgency.items[0] ?? demoAgencies.find((entry) => slugifyDirectoryName(entry.name) === slug);
+  const agency = portalAgency.items.find((entry) => slugifyDirectoryName(entry.name) === slug) ?? demoAgencies.find((entry) => slugifyDirectoryName(entry.name) === slug);
   if (!agency) notFound();
 
   const [portalAgents, portalListings] = await Promise.all([loadPortalAgents(), loadPortalListings()]);

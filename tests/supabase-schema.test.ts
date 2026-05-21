@@ -6,6 +6,7 @@ const repoRoot = process.cwd();
 const schemaSql = readFileSync(join(repoRoot, 'supabase/migrations/001_initial_schema.sql'), 'utf8');
 const rlsSql = readFileSync(join(repoRoot, 'supabase/migrations/002_rls_policies.sql'), 'utf8');
 const seedSql = readFileSync(join(repoRoot, 'supabase/seed.sql'), 'utf8');
+const sakstonsSeedSql = readFileSync(join(repoRoot, 'supabase/sakstons_seed.sql'), 'utf8');
 
 const expectedTables = [
   'profiles',
@@ -56,5 +57,14 @@ describe('Supabase portal foundation', () => {
     expect(seedSql).toContain("'Sea Point', 'Cape Town'");
     expect(seedSql).toContain("'Umhlanga', 'Durban'");
     expect(seedSql).toContain('Proppd Verified Realty');
+  });
+
+  it('adds Sakstons as a repeatable live-agency starter seed', () => {
+    expect(sakstonsSeedSql).toContain("'Sakstons', 'sakstons'");
+    expect(sakstonsSeedSql).toContain('Graham Donald');
+    expect(sakstonsSeedSql).toContain('Liz Marx');
+    expect(sakstonsSeedSql).toContain('Mark Chait');
+    expect(sakstonsSeedSql.match(/insert into public\.listings/g)?.length).toBe(38);
+    expect(sakstonsSeedSql).toContain('sakstons-villa-lane-292-bryanston-drive');
   });
 });

@@ -60,8 +60,10 @@ describe('applyListingFilters', () => {
   it('sorts matching listings by price descending', () => {
     const filters = parseListingFilters(new URLSearchParams({ purpose: 'sale', sort: 'price-desc' }));
     const results = applyListingFilters(listings, filters);
+    const prices = results.map((listing) => listing.priceValue);
 
-    expect(results.map((listing) => listing.priceValue)).toEqual([3250000, 2150000]);
+    expect(prices).toEqual([...prices].sort((left, right) => right - left));
+    expect(results.some((listing) => listing.agency === 'Sakstons')).toBe(true);
   });
 
   it('searches listing text beyond the location field', () => {
