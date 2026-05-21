@@ -56,7 +56,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                 type="search"
                 defaultValue={filters.query ?? ''}
                 className="min-w-0 flex-1 bg-transparent font-bold text-[#050A30] outline-none placeholder:text-slate-500"
-                placeholder="Search suburb, city, school, agent, or listing ID"
+                placeholder="Search suburb, city, agent, or ID"
                 aria-label="Search properties"
               />
             </label>
@@ -137,9 +137,11 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-wrap gap-2">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-black text-[#050A30]">
-                    {paginated.page} / {paginated.totalPages}
-                  </div>
+                  {paginated.totalPages > 1 ? (
+                    <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-black text-[#050A30]">
+                      Page {paginated.page} of {paginated.totalPages}
+                    </div>
+                  ) : null}
                   <a className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[#050A30] px-4 py-2 text-sm font-black text-white" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: filtered.length })} aria-label="Request a saved property search alert">
                     <Bell size={15} /> <span className="text-white">Save search</span>
                   </a>
@@ -190,10 +192,10 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                       <div className="grid h-10 w-10 place-items-center rounded-full bg-[#3B49FF] text-white"><MapPin size={18} /></div>
                       <div>
                         <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Area watch</p>
-                        <p className="font-black">{filtered.length} live homes across South Africa</p>
+                        <p className="font-black">{filtered.length} live {filtered.length === 1 ? 'home' : 'homes'} {searchScopeLabel(filters)}</p>
                       </div>
                     </div>
-                    <p className="mt-3 text-sm leading-6 text-slate-600">Use the filters above to narrow the market, then tap a listing to open the full enquiry flow.</p>
+                    <p className="mt-3 text-sm leading-6 text-slate-600">Use the filters above to narrow the market, then open a listing to start the enquiry flow.</p>
                   </div>
 
                   <div className="rounded-2xl border border-white/70 bg-white/88 p-4 shadow-xl backdrop-blur">
@@ -203,11 +205,12 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                         areaWatchlist.map((area) => (
                           <a
                             key={area.label}
-                            href={buildPropertiesHref(params, { q: area.label })}
-                            className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]"
+                            href={buildPropertiesHref(params, { location: area.label, q: null, page: null })}
+                            className="group flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]"
+                            aria-label={`View ${area.label} homes`}
                           >
-                            <span>{area.label}</span>
-                            <span className="rounded-full bg-[#3B49FF]/10 px-2.5 py-1 text-xs font-black text-[#3B49FF]">{area.count} match{area.count === 1 ? '' : 'es'}</span>
+                            <span>View {area.label} homes</span>
+                            <span className="rounded-full bg-[#3B49FF]/10 px-2.5 py-1 text-xs font-black text-[#3B49FF] transition group-hover:bg-[#3B49FF] group-hover:text-white">{area.count} match{area.count === 1 ? '' : 'es'} ›</span>
                           </a>
                         ))
                       ) : (
@@ -220,7 +223,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
 
                   <div className="rounded-2xl bg-[#050A30] p-4 text-white shadow-2xl">
                     <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">Search shortcut</p>
-                    <p className="mt-2 text-sm font-semibold leading-6 text-white/72">Save this search or switch to a purpose filter if you want the list to read smaller and cleaner.</p>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-white/72">Save this search, or narrow by purpose to make the result list more focused.</p>
                     <div className="mt-4 flex flex-wrap gap-2">
                       <a className="rounded-full bg-white px-4 py-2 text-xs font-black text-[#050A30]" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: filtered.length })}>Save search</a>
                       <a className="rounded-full border border-white/15 px-4 py-2 text-xs font-black text-white" href="/request-valuation">Request valuation</a>
@@ -253,7 +256,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                 </div>
                 <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
                   <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Geography</p>
-                  <p className="mt-1 text-sm font-black text-[#050A30]">{marketSnapshot.cities} cities · {marketSnapshot.provinces} provinces</p>
+                  <p className="mt-1 text-sm font-black text-[#050A30]">{marketSnapshot.cityLabel} · {marketSnapshot.provinceLabel}</p>
                   <p className="mt-1 text-sm font-semibold text-slate-600">A quick sense of how broad the set is</p>
                 </div>
               </div>
@@ -383,7 +386,13 @@ function buildMarketSnapshot(listings: Array<{ priceValue: number; city: string;
   const cities = new Set(listings.map((listing) => listing.city)).size;
   const provinces = new Set(listings.map((listing) => listing.province)).size;
 
-  return { average, low, high, cities, provinces };
+  return {
+    average,
+    low,
+    high,
+    cityLabel: `${cities} ${cities === 1 ? 'city' : 'cities'}`,
+    provinceLabel: `${provinces} ${provinces === 1 ? 'province' : 'provinces'}`,
+  };
 }
 
 function buildResultMix(listings: Array<{ purpose: string; type: string }>) {
