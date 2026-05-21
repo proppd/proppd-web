@@ -41,6 +41,7 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
   const filteredAgencies = filterAgencies(portalAgencies.items, query);
   const agencyWatchlist = buildAgencyWatchlist(filteredAgencies);
   const agencyPulse = buildAgencyPulse(filteredAgencies, portalAgents.items, portalListings.items);
+  const branchLeaders = buildBranchLeaders(filteredAgencies);
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -114,20 +115,20 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
               <div>
                 <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Directory pulse</p>
-                <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">{agencyPulse.totalAgencies} agencies, {agencyPulse.totalAgents} agents, one clearer market view.</h2>
+                <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">Market snapshot for the current agency network.</h2>
                 <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-600">
-                  This quick snapshot gives sellers and partners a more concrete read on the current agency network than the cards alone.
+                  See the current pockets, then jump to the right branch or team without repeating the same directory counts again.
                 </p>
               </div>
-              <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="mailto:info@proppd.com?subject=Agency directory request">
-                List your branch →
+              <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="mailto:info@proppd.com?subject=Agency directory updates">
+                Save search email →
               </a>
             </div>
             <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <PulseCard label="Agencies" value={agencyPulse.totalAgencies} detail="Partner firms visible" />
-              <PulseCard label="Active agents" value={agencyPulse.totalAgents} detail="Agents in the network" />
-              <PulseCard label="Portfolio listings" value={agencyPulse.totalListings} detail="Visible linked stock" />
               <PulseCard label="Top city" value={agencyPulse.topCity} detail="Primary agency city" />
+              <PulseCard label="Leading branch" value={branchLeaders[0]?.label ?? 'Mixed'} detail={branchLeaders[0]?.detail ?? 'The most visible branch by current search results.'} />
+              <PulseCard label="Search angle" value="City + team size" detail="Use both to shortlist faster." />
+              <PulseCard label="Missing branch" value="Request one" detail="Tell Proppd which city is still thin." />
             </div>
           </section>
 
@@ -143,8 +144,8 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
                       : 'When a market is still thin, Proppd keeps the page useful with launch guidance and a clear path to get listed.'}
                   </p>
                 </div>
-                <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="mailto:info@proppd.com?subject=Agency directory request">
-                  List your branch →
+                <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/agents">
+                  Browse related agents →
                 </a>
               </div>
               <div className="mt-8 grid gap-5 lg:grid-cols-3">
@@ -216,6 +217,17 @@ function buildAgencyPulse(
     totalListings: listings.length,
     topCity,
   };
+}
+
+function buildBranchLeaders(agencies: Array<{ name: string; agents: number; listings: number }>): Array<{ label: string; count: number; detail: string }> {
+  return agencies
+    .map((agency) => ({
+      label: agency.name.trim(),
+      count: agency.agents,
+      detail: `${agency.agents} visible ${agency.agents === 1 ? 'agent' : 'agents'} and ${agency.listings} ${agency.listings === 1 ? 'listing' : 'listings'} in the current results.`,
+    }))
+    .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label))
+    .slice(0, 3);
 }
 
 function PulseCard({ label, value, detail }: { label: string; value: number | string; detail: string }) {
