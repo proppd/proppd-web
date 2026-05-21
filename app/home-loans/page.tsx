@@ -51,9 +51,9 @@ export default function HomeLoansPage() {
             </div>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {readinessFacts.map(([title, body]) => (
-                <div key={title} className="rounded-[1.5rem] border border-white/12 bg-white/8 p-4 text-white/90 backdrop-blur">
-                  <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">{title}</p>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-white/72">{body}</p>
+                <div key={title} className="rounded-[1.5rem] border border-slate-200 bg-white/85 p-4 shadow-sm backdrop-blur">
+                  <p className="text-xs font-black uppercase tracking-[.16em] text-[#3B49FF]">{title}</p>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">{body}</p>
                 </div>
               ))}
             </div>
