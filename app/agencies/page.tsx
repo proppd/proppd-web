@@ -3,7 +3,7 @@ import type React from 'react';
 import { Building2, MapPin, Search, ShieldCheck, Users } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { loadPortalAgencies } from '../../lib/proppd/backend';
+import { loadPortalAgencies, loadPortalAgents, loadPortalListings } from '../../lib/proppd/backend';
 import { filterAgencies, formatDirectorySearchSummary, parseDirectoryQuery, slugifyDirectoryName } from '@/lib/directory';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -33,9 +33,14 @@ export const dynamic = 'force-dynamic';
 export default async function AgenciesPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const query = parseDirectoryQuery(toURLSearchParams(params));
-  const portalAgencies = (await loadPortalAgencies()).items;
-  const filteredAgencies = filterAgencies(portalAgencies, query);
+  const [portalAgencies, portalAgents, portalListings] = await Promise.all([
+    loadPortalAgencies(),
+    loadPortalAgents(),
+    loadPortalListings(),
+  ]);
+  const filteredAgencies = filterAgencies(portalAgencies.items, query);
   const agencyWatchlist = buildAgencyWatchlist(filteredAgencies);
+  const agencyPulse = buildAgencyPulse(filteredAgencies, portalAgents.items, portalListings.items);
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -100,6 +105,27 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
             </div>
           )}
 
+          <section className="mt-8 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Directory pulse</p>
+                <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">{agencyPulse.totalAgencies} agencies, {agencyPulse.totalAgents} agents, one clearer market view.</h2>
+                <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-600">
+                  This quick snapshot gives sellers and partners a more concrete read on the current agency network than the cards alone.
+                </p>
+              </div>
+              <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="mailto:info@proppd.com?subject=Agency directory request">
+                List your branch →
+              </a>
+            </div>
+            <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <PulseCard label="Agencies" value={agencyPulse.totalAgencies} detail="Partner firms visible" />
+              <PulseCard label="Active agents" value={agencyPulse.totalAgents} detail="Agents in the network" />
+              <PulseCard label="Portfolio listings" value={agencyPulse.totalListings} detail="Visible linked stock" />
+              <PulseCard label="Top city" value={agencyPulse.topCity} detail="Primary agency city" />
+            </div>
+          </section>
+
           <section className="mt-10">
             <div className="rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -113,7 +139,7 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
                   </p>
                 </div>
                 <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="mailto:info@proppd.com?subject=Agency directory request">
-                  Add your branch →
+                  List your branch →
                 </a>
               </div>
               <div className="mt-8 grid gap-5 lg:grid-cols-3">
@@ -161,6 +187,30 @@ function buildAgencyWatchlist(agencies: Array<{ city: string }>): Array<{ label:
     .map(([label, count]) => ({ label, count }))
     .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label))
     .slice(0, 3);
+}
+
+function buildAgencyPulse(
+  agencies: Array<{ city: string }>,
+  agents: Array<unknown>,
+  listings: Array<unknown>,
+) {
+  const topCity = buildAgencyWatchlist(agencies)[0]?.label ?? 'Mixed';
+  return {
+    totalAgencies: agencies.length,
+    totalAgents: agents.length,
+    totalListings: listings.length,
+    topCity,
+  };
+}
+
+function PulseCard({ label, value, detail }: { label: string; value: number | string; detail: string }) {
+  return (
+    <div className="rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-4">
+      <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">{label}</p>
+      <p className="mt-2 text-3xl font-black tracking-[-.04em] text-[#050A30]">{value}</p>
+      <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{detail}</p>
+    </div>
+  );
 }
 
 function WatchlistCard({
