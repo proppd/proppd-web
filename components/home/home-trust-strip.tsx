@@ -14,9 +14,9 @@ export function HomeTrustStrip() {
             <p className="text-xs font-black uppercase tracking-[.24em] text-[#3B49FF]">Why Proppd feels trustworthy</p>
             <h2 className="mt-2 text-2xl font-black tracking-[-.05em] text-[#050A30] sm:text-3xl">A quieter portal with enough proof to make the next click feel safe.</h2>
             <div className="mt-5 grid gap-4 sm:grid-cols-3">
-              <StatCard icon={<BadgeCheck size={18} />} label="Featured listings" value={`${featuredCount}`} detail="Verified for home search" />
-              <StatCard icon={<MapPinned size={18} />} label="Metro coverage" value={`${metroCount}`} detail="Johannesburg, Cape Town, Durban" />
-              <StatCard icon={<Building2 size={18} />} label="Partner agencies" value={`${agencies.length}`} detail="Agency-led stock on portal" />
+              <StatCard icon={<BadgeCheck size={18} />} label="Featured listings live" value={`${featuredCount}`} detail="Verified for home search" />
+              <StatCard icon={<MapPinned size={18} />} label="Launch metros covered" value={`${metroCount}`} detail="Johannesburg, Cape Town, Durban" />
+              <StatCard icon={<Building2 size={18} />} label="Verified partner agencies" value={`${agencies.length}`} detail="Agency-led stock on portal" />
             </div>
           </div>
 
