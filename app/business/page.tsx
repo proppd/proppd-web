@@ -143,11 +143,11 @@ export default function BusinessPage() {
             </div>
             <div className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-6">
               <p className="text-xs font-black uppercase tracking-[.2em] text-[#3B49FF]">Commercial guardrails</p>
-              <ul className="mt-4 grid gap-3 text-sm font-bold leading-6 text-slate-700">
-                <li className="rounded-2xl bg-white p-4">No fake CRM promises before the workflows are real.</li>
-                <li className="rounded-2xl bg-white p-4">No exploitative listing fees when verified demand can do the work.</li>
-                <li className="rounded-2xl bg-white p-4">No consumer dead ends: every route should hand off clearly.</li>
-              </ul>
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <GuardrailCard title="No fake CRM promises" text="Only describe workflows once they are genuinely available." />
+                <GuardrailCard title="No exploitative fees" text="Verified demand should do the heavy lifting, not pressure pricing." />
+                <GuardrailCard title="No dead-end journeys" text="Every public route should end in a clear next step." />
+              </div>
             </div>
           </div>
         </div>
@@ -239,6 +239,15 @@ function Snapshot({ value, label }: { value: string; label: string }) {
     <div className="rounded-3xl border border-white/12 bg-white/10 p-4">
       <div className="text-2xl font-black">{value}</div>
       <div className="mt-1 text-sm font-bold leading-6 text-white/68">{label}</div>
+    </div>
+  );
+}
+
+function GuardrailCard({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-2xl bg-white p-4 shadow-sm">
+      <p className="text-sm font-black text-[#050A30]">{title}</p>
+      <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{text}</p>
     </div>
   );
 }
