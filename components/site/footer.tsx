@@ -14,6 +14,7 @@ export function SiteFooter() {
         <FooterGroup title="Browse" links={[["Properties","/properties"], ["For sale","/properties/for-sale"], ["To rent","/properties/to-rent"], ["Home loans","/home-loans"]]} />
         <FooterGroup title="Professionals" links={[["Agents","/agents"], ["Agencies","/agencies"], ["List with us","/list-with-us"]]} />
         <FooterGroup title="Company" links={[["Business model","/business"], ["Contact","/contact"], ["Log in","/login"]]} />
+        <FooterGroup title="Ops" links={[["Admin", "/admin"], ["Diagnostics", "/admin/diagnostics"]]} />
         <FooterGroup title="Trust" links={[["Privacy","/privacy"], ["Terms","/terms"], ["Cookies","/cookies"]]} />
       </div>
     </footer>

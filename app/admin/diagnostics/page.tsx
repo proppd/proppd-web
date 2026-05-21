@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { AlertTriangle, Database, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import { DiagnosticsClient } from '@/components/admin/diagnostics-client';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { loadPortalDiagnostics } from '../../../lib/proppd/backend';
@@ -62,18 +63,7 @@ export default async function Page() {
             </div>
           ) : null}
 
-          <section className="mt-8 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Raw status JSON</p>
-                <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">What support can copy into a ticket</h2>
-              </div>
-              <a className="rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white transition hover:bg-[#3B49FF]" href="/api/backend/status">
-                Open JSON endpoint
-              </a>
-            </div>
-            <pre className="mt-6 overflow-auto rounded-[1.5rem] bg-[#F5F7FA] p-5 text-xs leading-6 text-slate-700">{JSON.stringify(diagnostics, null, 2)}</pre>
-          </section>
+          <DiagnosticsClient diagnostics={diagnostics} />
         </div>
       </section>
 
