@@ -56,7 +56,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                 type="search"
                 defaultValue={filters.query ?? ''}
                 className="min-w-0 flex-1 bg-transparent font-bold text-[#050A30] outline-none placeholder:text-slate-500"
-                placeholder="Search suburb, city, agent, or ID"
+                placeholder="Search suburb or city"
                 aria-label="Search properties"
               />
             </label>
@@ -154,11 +154,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                 <ListingCard key={listing.slug} listing={listing} />
               ))}
             </div>
-            {paginated.items.length === 0 && (
-              <div className="mt-5 rounded-[2rem] border border-slate-200 bg-white p-8 text-slate-600">
-                No listings match those filters yet. Try a wider location or price range.
-              </div>
-            )}
+            {paginated.items.length === 0 && <EmptyResults filters={filters} params={params} />}
 
             {paginated.totalPages > 1 && (
               <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm">
@@ -215,7 +211,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                         ))
                       ) : (
                         <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600">
-                          Tight filters yielded no area summary yet.
+                          No area summary yet. Clear the location filter or browse all homes to reopen the market.
                         </div>
                       )}
                     </div>
@@ -241,8 +237,8 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
           <div className="grid gap-5 lg:grid-cols-3">
             <section className="rounded-[2rem] bg-white p-6 shadow-sm">
               <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Market snapshot</p>
-              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">Price range in this result set.</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">This view gives a faster read than the suburb list by showing the average asking price and the overall market spread.</p>
+              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">{marketSnapshot.hasListings ? 'Price range in this result set.' : 'No price data to summarize yet.'}</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{marketSnapshot.hasListings ? 'This view gives a faster read than the suburb list by showing the average asking price and the overall market spread.' : 'Once matching homes are live, this panel will show the average asking price, price band, and market spread for the filtered search.'}</p>
               <div className="mt-5 grid gap-3">
                 <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
                   <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Average asking</p>
@@ -251,20 +247,20 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                 </div>
                 <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
                   <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Price band</p>
-                  <p className="mt-1 text-sm font-black text-[#050A30]">{marketSnapshot.low} → {marketSnapshot.high}</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-600">From the lowest to the highest asking price</p>
+                  <p className="mt-1 text-sm font-black text-[#050A30]">{marketSnapshot.hasListings ? `${marketSnapshot.low} → ${marketSnapshot.high}` : 'No active price band yet'}</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-600">{marketSnapshot.hasListings ? 'From the lowest to the highest asking price' : 'Widen the search or save it for the next matching listing'}</p>
                 </div>
                 <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
                   <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Geography</p>
                   <p className="mt-1 text-sm font-black text-[#050A30]">{marketSnapshot.cityLabel} · {marketSnapshot.provinceLabel}</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-600">A quick sense of how broad the set is</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-600">{marketSnapshot.hasListings ? 'A quick sense of how broad the set is' : 'No geographic spread in the current filtered set'}</p>
                 </div>
               </div>
             </section>
 
             <section className="rounded-[2rem] bg-[#050A30] p-6 text-white shadow-sm lg:col-span-1">
               <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Result mix</p>
-              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">What this shortlist is made of.</h2>
+              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">What this result set is made of.</h2>
               <p className="mt-2 text-sm font-semibold leading-6 text-white/72">A quick read on the current market split helps you decide whether to tighten by purpose, type, or location.</p>
               <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
@@ -326,6 +322,58 @@ function FilterChip({ href, children }: { href: string; children: ReactNode }) {
     <a className="inline-flex items-center gap-2 rounded-full border border-[#3B49FF]/20 bg-[#3B49FF]/8 px-3 py-2 text-[#3B49FF] transition hover:border-[#3B49FF] hover:bg-[#3B49FF]/12" href={href}>
       {children}
     </a>
+  );
+}
+
+function EmptyResults({ filters, params }: { filters: ReturnType<typeof parseListingFilters>; params: Record<string, string | string[] | undefined> }) {
+  const hasActiveFilters = Boolean(filters.query || filters.location || filters.agency || filters.agent || filters.purpose !== 'all' || filters.propertyType || filters.minPrice !== undefined || filters.maxPrice !== undefined || filters.bedrooms || filters.bathrooms || filters.parking || filters.status || filters.sort !== 'featured');
+  const scope = filters.location || filters.query || 'this search';
+
+  return (
+    <section className="mt-5 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+      <div className="grid gap-0 lg:grid-cols-[1.15fr_.85fr]">
+        <div className="p-6 sm:p-8">
+          <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">No matching homes yet</p>
+          <h2 className="mt-3 text-3xl font-black tracking-[-.05em] text-[#050A30]">
+            Keep the search useful while stock catches up.
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 text-slate-600">
+            There are no active listings for {scope} right now. Save the search for a handoff, widen the filters, or route the enquiry to the Proppd team so the next matching home can be picked up cleanly.
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a className="inline-flex items-center justify-center rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white shadow-lg" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: 0 })}>
+              Save this search
+            </a>
+            {hasActiveFilters ? (
+              <a className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties">
+                Clear filters
+              </a>
+            ) : null}
+            <a className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/list-with-us">
+              List a property
+            </a>
+          </div>
+        </div>
+
+        <div className="border-t border-slate-200 bg-[#F5F7FA] p-6 sm:p-8 lg:border-l lg:border-t-0">
+          <p className="text-sm font-black uppercase tracking-[.2em] text-slate-400">Try next</p>
+          <div className="mt-4 grid gap-3">
+            {[
+              ['Browse all homes', '/properties'],
+              ['For-sale homes', buildPropertiesHref(params, { purpose: 'sale', location: null, q: null, page: null })],
+              ['Rental homes', buildPropertiesHref(params, { purpose: 'rent', location: null, q: null, page: null })],
+              ['Talk to Proppd', '/contact'],
+            ].map(([label, href]) => (
+              <a key={label} className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href={href}>
+                <span>{label}</span>
+                <span className="text-[#3B49FF]">›</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -392,6 +440,7 @@ function buildMarketSnapshot(listings: Array<{ priceValue: number; city: string;
     high,
     cityLabel: `${cities} ${cities === 1 ? 'city' : 'cities'}`,
     provinceLabel: `${provinces} ${provinces === 1 ? 'province' : 'provinces'}`,
+    hasListings: values.length > 0,
   };
 }
 
@@ -404,7 +453,7 @@ function buildResultMix(listings: Array<{ purpose: string; type: string }>) {
     typeCounts.set(listing.type, (typeCounts.get(listing.type) ?? 0) + 1);
   }
 
-  const topType = Array.from(typeCounts.entries()).sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))[0]?.[0] ?? 'Mixed';
+  const topType = Array.from(typeCounts.entries()).sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))[0]?.[0] ?? 'No active listings';
 
   return { saleCount, rentCount, topType };
 }
