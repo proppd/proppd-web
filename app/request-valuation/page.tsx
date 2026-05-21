@@ -70,6 +70,16 @@ export default function Page() {
                   <p className="text-xs font-black uppercase tracking-[.14em] text-slate-500">Owner consent first</p>
                   <p className="mt-2 font-black">Requests are sent by email handoff until Supabase-backed seller workflows are live.</p>
                 </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs font-black uppercase tracking-[.14em] text-[#12D6C5]">Handoff style</p>
+                    <p className="mt-2 text-sm font-bold leading-6 text-white/78">Email first, then route to a launch partner or internal review.</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs font-black uppercase tracking-[.14em] text-[#12D6C5]">Best for</p>
+                    <p className="mt-2 text-sm font-bold leading-6 text-white/78">Owners who want a realistic starting point before listing or holding.</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -110,17 +120,34 @@ export default function Page() {
               <div className="mt-5 rounded-[1.5rem] border border-[#eefcf9] bg-[#f8fffd] p-5">
                 <p className="text-xs font-black uppercase tracking-[.14em] text-[#0f766e]">What happens next</p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-2xl bg-white p-4 text-sm font-bold text-slate-600">
+                  <div className="rounded-2xl bg-white p-4 text-sm font-bold text-slate-600 shadow-sm">
                     <p className="font-black text-[#050A30]">1. Draft email</p>
                     <p className="mt-2 leading-6">A structured summary is built from the details you enter.</p>
                   </div>
-                  <div className="rounded-2xl bg-white p-4 text-sm font-bold text-slate-600">
+                  <div className="rounded-2xl bg-white p-4 text-sm font-bold text-slate-600 shadow-sm">
                     <p className="font-black text-[#050A30]">2. Review consent</p>
                     <p className="mt-2 leading-6">The handoff stays explicit about owner permission and POPIA.</p>
                   </div>
-                  <div className="rounded-2xl bg-white p-4 text-sm font-bold text-slate-600">
+                  <div className="rounded-2xl bg-white p-4 text-sm font-bold text-slate-600 shadow-sm">
                     <p className="font-black text-[#050A30]">3. Route to agent</p>
                     <p className="mt-2 leading-6">The request can be sent to a launch partner or reviewed internally.</p>
+                  </div>
+                </div>
+                <p className="mt-4 text-sm font-bold leading-6 text-[#0f766e]">
+                  If the timing is urgent, mention it in the note so the right partner can prioritise the response.
+                </p>
+              </div>
+              <div className="mt-4 rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
+                <p className="text-xs font-black uppercase tracking-[.14em] text-[#3B49FF]">Good to include</p>
+                <div className="mt-3 grid gap-3 md:grid-cols-3">
+                  <div className="rounded-2xl bg-[#F5F7FA] p-4 text-sm font-bold leading-6 text-slate-600">
+                    The exact property address or listing slug.
+                  </div>
+                  <div className="rounded-2xl bg-[#F5F7FA] p-4 text-sm font-bold leading-6 text-slate-600">
+                    A realistic timing window if you plan to sell or rent soon.
+                  </div>
+                  <div className="rounded-2xl bg-[#F5F7FA] p-4 text-sm font-bold leading-6 text-slate-600">
+                    One reachable owner contact so the handoff can move quickly.
                   </div>
                 </div>
               </div>
