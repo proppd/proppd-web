@@ -64,6 +64,18 @@ export default function Page() {
               </p>
             </div>
 
+            {!supabase && (
+              <div className="mt-5 rounded-[1.75rem] border border-[#c8f6ec] bg-[#eefcf9] p-5">
+                <p className="text-xs font-black uppercase tracking-[.18em] text-[#0f766e]">Local dev session</p>
+                <p className="mt-2 text-sm font-bold leading-6 text-[#0f766e]">
+                  On localhost without Supabase config, open a temporary admin session for <span className="font-black">info@proppd.com</span>.
+                </p>
+                <a className="mt-4 inline-flex rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white transition hover:bg-[#3B49FF]" href="/auth/dev-admin?next=%2Fdashboard%2Flistings">
+                  Open local admin session
+                </a>
+              </div>
+            )}
+
             <div className="mt-5 rounded-[1.75rem] border border-slate-200 bg-[#F5F7FA] p-5">
               <p className="text-xs font-black uppercase tracking-[.18em] text-[#3B49FF]">Invite flow</p>
               <div className="mt-4 space-y-3 text-sm font-bold leading-6 text-slate-600">
