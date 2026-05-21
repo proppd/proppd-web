@@ -62,12 +62,6 @@ const launchFlow = [
   },
 ];
 
-const applicationReview = [
-  'Real stock that is still actively marketable.',
-  'A reachable decision-maker for launch feedback.',
-  'A clean handoff path for buyer and tenant enquiries.',
-];
-
 export default function Page() {
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -190,35 +184,27 @@ export default function Page() {
             </aside>
           </section>
 
-          <section className="mt-8 grid gap-4 lg:grid-cols-[1.05fr_.95fr]">
-            <div className="rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Application review</p>
-              <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">What Proppd checks before a pilot starts.</h2>
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                {applicationReview.map((item, index) => (
-                  <div key={item} className="rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-4">
-                    <p className="text-xs font-black uppercase tracking-[.18em] text-[#3B49FF]">Check 0{index + 1}</p>
-                    <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{item}</p>
-                  </div>
-                ))}
+          <section className="mt-8 rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
+            <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Pilot review</p>
+                <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">What Proppd checks before a launch partner gets approved.</h2>
+                <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-600">
+                  We keep the final step short: check the feed, confirm the contact, and route the pilot through a clean handoff.
+                </p>
               </div>
-            </div>
-
-            <div className="rounded-[2.5rem] bg-[#050A30] p-6 text-white shadow-sm sm:p-8">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Handoff path</p>
-              <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">Three steps from enquiry to approved pilot.</h2>
-              <div className="mt-6 space-y-3">
-                {launchFlow.map((item) => (
-                  <div key={item.step} className="rounded-[1.5rem] border border-white/10 bg-white/8 p-4">
-                    <p className="text-xs font-black uppercase tracking-[.18em] text-[#12D6C5]">{item.step}</p>
-                    <p className="mt-2 text-lg font-black">{item.title}</p>
-                    <p className="mt-1 text-sm font-bold leading-6 text-white/68">{item.text}</p>
-                  </div>
-                ))}
-              </div>
-              <a className="mt-5 inline-flex rounded-full bg-white px-5 py-3 text-sm font-black text-[#050A30]" href={buildAgencyApplicationMailto({ packageName: 'Agency Growth' })}>
-                Send launch details
+              <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href={buildAgencyApplicationMailto({ packageName: 'Agency Growth' })}>
+                Send launch details →
               </a>
+            </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {launchFlow.map((item) => (
+                <div key={item.step} className="rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-4">
+                  <p className="text-xs font-black uppercase tracking-[.18em] text-[#3B49FF]">{item.step}</p>
+                  <p className="mt-2 text-lg font-black tracking-[-.04em]">{item.title}</p>
+                  <p className="mt-1 text-sm font-bold leading-6 text-slate-600">{item.text}</p>
+                </div>
+              ))}
             </div>
           </section>
         </div>
