@@ -191,7 +191,7 @@ export async function loadPortalListings(env: PortalEnv = process.env): Promise<
     const rows = await queryListings(databaseUrl);
     return { source: rows.length > 0 ? 'database' : 'empty', items: rows.map(mapListingRow) };
   } catch (error) {
-    return { source: 'error', items: [], error: errorMessage(error) };
+    return fallbackToDemoOnDatabaseConnectivityError(error, demoListings);
   }
 }
 
@@ -206,7 +206,8 @@ export async function loadPortalListingBySlug(slug: string, env: PortalEnv = pro
     const rows = await queryListings(databaseUrl, slug);
     return { source: rows.length > 0 ? 'database' : 'empty', items: rows.map(mapListingRow) };
   } catch (error) {
-    return { source: 'error', items: [], error: errorMessage(error) };
+    const fallback = demoListings.find((listing) => listing.slug === slug);
+    return fallbackToDemoOnDatabaseConnectivityError(error, fallback ? [fallback] : []);
   }
 }
 
@@ -221,7 +222,7 @@ export async function loadPortalLeadQueue(agentName?: string, env: PortalEnv = p
     const rows = await queryLeads(databaseUrl, agentName);
     return { source: rows.length > 0 ? 'database' : 'empty', items: rows.map(mapLeadRow).sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()) };
   } catch (error) {
-    return { source: 'error', items: [], error: errorMessage(error) };
+    return fallbackToDemoOnDatabaseConnectivityError(error, agentName ? getLeadQueue(demoLeads.filter((lead) => lead.agent === agentName)) : getLeadQueue(demoLeads));
   }
 }
 
@@ -237,7 +238,8 @@ export async function loadPortalLeadById(leadId: string, env: PortalEnv = proces
     const item = rows.map(mapLeadRow).find((lead) => lead.id === leadId);
     return item ? { source: 'database', items: [item] } : { source: 'empty', items: [] };
   } catch (error) {
-    return { source: 'error', items: [], error: errorMessage(error) };
+    const fallback = getLeadQueue(demoLeads).find((entry) => entry.id === leadId);
+    return fallbackToDemoOnDatabaseConnectivityError(error, fallback ? [fallback] : []);
   }
 }
 
@@ -301,7 +303,7 @@ export async function loadPortalAgents(env: PortalEnv = process.env): Promise<Po
     const rows = await queryDirectoryAgents(databaseUrl);
     return { source: rows.length > 0 ? 'database' : 'empty', items: rows };
   } catch (error) {
-    return { source: 'error', items: [], error: errorMessage(error) };
+    return fallbackToDemoOnDatabaseConnectivityError(error, demoAgents);
   }
 }
 
@@ -315,7 +317,7 @@ export async function loadPortalAgencies(env: PortalEnv = process.env): Promise<
     const rows = await queryDirectoryAgencies(databaseUrl);
     return { source: rows.length > 0 ? 'database' : 'empty', items: rows };
   } catch (error) {
-    return { source: 'error', items: [], error: errorMessage(error) };
+    return fallbackToDemoOnDatabaseConnectivityError(error, demoAgencies);
   }
 }
 
@@ -1132,6 +1134,32 @@ function databaseNeedsSsl(connectionString: string): boolean {
   } catch {
     return false;
   }
+}
+
+function fallbackToDemoOnDatabaseConnectivityError<T>(error: unknown, items: T[]): PortalPayload<T> {
+  const message = errorMessage(error);
+  if (!isDatabaseConnectivityError(message)) {
+    return { source: 'error', items: [], error: message };
+  }
+
+  return {
+    source: 'demo',
+    items,
+    error: `Database connection failed, using verified launch fallback: ${message}`,
+  };
+}
+
+function isDatabaseConnectivityError(message: string): boolean {
+  return [
+    'ENOTFOUND',
+    'ETIMEDOUT',
+    'ECONNREFUSED',
+    'ECONNRESET',
+    'EHOSTUNREACH',
+    'ENETUNREACH',
+    'Connection terminated unexpectedly',
+    'timeout expired',
+  ].some((token) => message.includes(token));
 }
 
 function errorMessage(error: unknown): string {
