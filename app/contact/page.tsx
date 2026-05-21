@@ -44,12 +44,14 @@ const contactReasons = [
   ['Property ID or slug', 'If you already have a listing in mind, include the exact page so Proppd can route the request faster.'],
   ['Area and intent', 'Tell us whether you are buying, renting, selling, or checking a launch partner fit.'],
   ['Best email / phone', 'Use a reachable contact so the handoff can move quickly once it is reviewed.'],
+  ['Request timing', 'If the note is urgent or tied to a launch date, say so up front.'],
 ];
 
 const responseGuide = [
   ['Support', 'Use info@proppd.com for route questions, page fixes, or general help.'],
   ['Launch access', 'Agencies can ask about onboarding, profiles, and listing exposure.'],
   ['Valuation', 'Sellers and landlords should start with the valuation flow.'],
+  ['Live page link', 'Paste the exact property or profile URL so the team can jump straight to it.'],
 ];
 
 export default function ContactPage() {
@@ -123,7 +125,7 @@ export default function ContactPage() {
             <div className="rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
               <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">What to include</p>
               <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">A good contact note saves everyone time.</h2>
-              <div className="mt-6 grid gap-4 md:grid-cols-3">
+              <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 {contactReasons.map(([title, text]) => (
                   <article key={title} className="rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-5">
                     <p className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-black uppercase tracking-[.14em] text-[#3B49FF]">{title}</p>
@@ -135,6 +137,12 @@ export default function ContactPage() {
                 <p className="text-xs font-black uppercase tracking-[.14em] text-[#0f766e]">Quick handoff hint</p>
                 <p className="mt-2 text-sm font-bold leading-6 text-[#0f766e]">
                   If you are enquiring about a specific property, include the address or slug and we can route it to the listing or directory profile without extra back-and-forth.
+                </p>
+              </div>
+              <div className="mt-4 rounded-[1.5rem] border border-slate-200 bg-[#050A30] p-5 text-white">
+                <p className="text-xs font-black uppercase tracking-[.14em] text-[#12D6C5]">Example note</p>
+                <p className="mt-2 text-sm font-bold leading-6 text-white/78">
+                  “I’m enquiring about 12 Example Road, Sandton. We are planning to launch within 30 days and need the right route for a seller appraisal.”
                 </p>
               </div>
             </div>
