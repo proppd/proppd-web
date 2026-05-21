@@ -39,6 +39,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
   const filtered = applyListingFilters(portalListings, filters);
   const paginated = paginateListings(filtered, filters.page, filters.pageSize);
   const areaWatchlist = buildAreaWatchlist(filtered);
+  const marketSnapshot = buildMarketSnapshot(filtered);
   const resultMix = buildResultMix(filtered);
 
   return (
@@ -236,20 +237,25 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-5 lg:grid-cols-3">
             <section className="rounded-[2rem] bg-white p-6 shadow-sm">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Area watchlist</p>
-              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">Most active suburbs in this result set.</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">The current search is concentrated in a few pockets, so we surface those areas first and keep the rest easy to reach.</p>
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Market snapshot</p>
+              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">Price range in this result set.</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">This view gives a faster read than the suburb list by showing the average asking price and the overall market spread.</p>
               <div className="mt-5 grid gap-3">
-                {areaWatchlist.length > 0 ? areaWatchlist.map((area) => (
-                  <a key={area.label} href={buildPropertiesHref(params, { q: area.label })} className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]">
-                    <span>{area.label}</span>
-                    <span className="rounded-full bg-white px-2.5 py-1 text-xs font-black text-slate-500">{area.count} listing{area.count === 1 ? '' : 's'}</span>
-                  </a>
-                )) : (
-                  <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-semibold text-slate-600">
-                    No area summary yet for these filters.
-                  </div>
-                )}
+                <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
+                  <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Average asking</p>
+                  <p className="mt-1 text-2xl font-black tracking-[-.04em] text-[#050A30]">{marketSnapshot.average}</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-600">Across the current filtered listings</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
+                  <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Price band</p>
+                  <p className="mt-1 text-sm font-black text-[#050A30]">{marketSnapshot.low} → {marketSnapshot.high}</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-600">From the lowest to the highest asking price</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
+                  <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Geography</p>
+                  <p className="mt-1 text-sm font-black text-[#050A30]">{marketSnapshot.cities} cities · {marketSnapshot.provinces} provinces</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-600">A quick sense of how broad the set is</p>
+                </div>
               </div>
             </section>
 
@@ -366,6 +372,18 @@ function buildAreaWatchlist(listings: Array<{ location: string }>) {
     .map(([label, count]) => ({ label, count }))
     .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label))
     .slice(0, 3);
+}
+
+function buildMarketSnapshot(listings: Array<{ priceValue: number; city: string; province: string }>) {
+  const values = listings.map((listing) => listing.priceValue).sort((left, right) => left - right);
+  const total = values.reduce((sum, value) => sum + value, 0);
+  const average = values.length > 0 ? `R ${Math.round(total / values.length).toLocaleString('en-ZA')}` : 'No active listings';
+  const low = values.length > 0 ? `R ${values[0].toLocaleString('en-ZA')}` : '—';
+  const high = values.length > 0 ? `R ${values[values.length - 1].toLocaleString('en-ZA')}` : '—';
+  const cities = new Set(listings.map((listing) => listing.city)).size;
+  const provinces = new Set(listings.map((listing) => listing.province)).size;
+
+  return { average, low, high, cities, provinces };
 }
 
 function buildResultMix(listings: Array<{ purpose: string; type: string }>) {
