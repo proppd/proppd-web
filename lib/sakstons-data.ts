@@ -4,13 +4,13 @@ export const sakstonsAgents = [
   { name: 'Graham Donald', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 6 },
   { name: 'Liz Marx', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 12 },
   { name: 'Mark Chait', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 20 },
-];
+].map((agent) => ({ ...agent, isActive: true }));
 
 export const sakstonsAgencies = [
   { name: 'Sakstons', city: 'Sandton', agents: 3, listings: 38 },
-];
+].map((agency) => ({ ...agency, isActive: true }));
 
-export const sakstonsListings: Listing[] = [
+const sakstonsListingSeed = [
   {
     id: 'sakstons-22450',
     slug: "sakstons-villa-lane-292-bryanston-drive",
@@ -1075,4 +1075,6 @@ export const sakstonsListings: Listing[] = [
     erfSize: undefined,
     featured: false,
   }
-];
+] satisfies Listing[];
+
+export const sakstonsListings: Listing[] = sakstonsListingSeed.map((listing) => ({ ...listing, isActive: true }));

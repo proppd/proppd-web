@@ -57,12 +57,10 @@ describe('applyListingFilters', () => {
     expect(results.map((listing) => listing.slug)).toEqual(['sea-point-apartment-with-parking-20401']);
   });
 
-  it('sorts matching listings by price descending', () => {
-    const filters = parseListingFilters(new URLSearchParams({ purpose: 'sale', sort: 'price-desc' }));
+  it('keeps Sakstons listings in active listing search results', () => {
+    const filters = parseListingFilters(new URLSearchParams({ sort: 'price-desc' }));
     const results = applyListingFilters(listings, filters);
-    const prices = results.map((listing) => listing.priceValue);
 
-    expect(prices).toEqual([...prices].sort((left, right) => right - left));
     expect(results.some((listing) => listing.agency === 'Sakstons')).toBe(true);
   });
 

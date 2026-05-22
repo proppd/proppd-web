@@ -23,7 +23,7 @@ export type AgentFollowUpAction = {
 };
 
 export function getAgentWorkspaceStats(agentName: string, listings: Listing[], leads: LeadRecord[]): AgentWorkspaceStats {
-  const agentListings = listings.filter((listing) => listing.agent === agentName);
+  const agentListings = listings.filter((listing) => listing.agent === agentName && listing.isActive !== false);
   const agentLeads = leads.filter((lead) => lead.agent === agentName);
   const queue = getLeadQueue(agentLeads);
 

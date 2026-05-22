@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { demoLeads } from '@/lib/leads/demo-leads';
-import { filterLeads, getLeadPipelineStats, getLeadQueue, groupLeadsByStatus } from '@/lib/leads/pipeline';
+import { filterLeads, getLeadPipelineStats, getLeadQueue, getLeadSourceGroup, getLeadSourceLabel, getLeadSourceStats, groupLeadsByStatus } from '@/lib/leads/pipeline';
 
 describe('lead pipeline helpers', () => {
   it('summarises new, contacted, qualified, and flagged leads', () => {
@@ -42,5 +42,55 @@ describe('lead pipeline helpers', () => {
     expect(grouped.contacted).toHaveLength(1);
     expect(grouped.qualified).toHaveLength(1);
     expect(grouped.archived).toHaveLength(0);
+  });
+
+  it('labels agency launch requests and property enquiries from their source pages', () => {
+    expect(getLeadSourceLabel('/list-with-us')).toBe('Launch application');
+    expect(getLeadSourceLabel('/property/modern-3-bedroom-house-in-sandton-12345')).toBe('Property enquiry');
+    expect(getLeadSourceLabel('/valuation')).toBe('Valuation request');
+    expect(getLeadSourceLabel()).toBe('General enquiry');
+  });
+
+  it('groups lead sources so admins can filter launch applications from property enquiries', () => {
+    const launchApplications = filterLeads(demoLeads, { source: 'launch' });
+
+    expect(launchApplications).toHaveLength(1);
+    expect(launchApplications[0].sourcePage).toBe('/list-with-us');
+    expect(getLeadSourceGroup('/list-with-us')).toBe('launch');
+    expect(getLeadSourceGroup('/property/modern-3-bedroom-house-in-sandton-12345')).toBe('property');
+    expect(getLeadSourceGroup('/agents')).toBe('agent');
+  });
+
+  it('counts lead sources for the admin queue snapshot', () => {
+    const sourceStats = getLeadSourceStats([
+      ...demoLeads,
+      {
+        ...demoLeads[0],
+        id: 'lead-extra-valuation',
+        sourcePage: '/valuation',
+      },
+      {
+        ...demoLeads[0],
+        id: 'lead-extra-agent',
+        sourcePage: '/agents',
+      },
+      {
+        ...demoLeads[0],
+        id: 'lead-extra-general',
+        sourcePage: undefined,
+      },
+      {
+        ...demoLeads[0],
+        id: 'lead-extra-portal',
+        sourcePage: '/something-else',
+      },
+    ]);
+
+    expect(sourceStats.launch).toBe(1);
+    expect(sourceStats.property).toBe(3);
+    expect(sourceStats.valuation).toBe(1);
+    expect(sourceStats.agent).toBe(1);
+    expect(sourceStats.general).toBe(1);
+    expect(sourceStats.portal).toBe(1);
   });
 });

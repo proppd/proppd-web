@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 import { AlertTriangle, BarChart3, BellRing, CheckCircle2, Home, MessageCircle, ShieldCheck, Sparkles } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { loadPortalLeadQueue, loadPortalListings } from '../../lib/proppd/backend';
+import { getPortalServerUser } from '@/lib/supabase/server';
+import { loadMyPortalListings, loadPortalLeadQueue, loadPortalListings, loadPortalUserAccess } from '../../lib/proppd/backend';
 import { getAgentFollowUpActions, getAgentWorkspaceStats, formatAgentResponseSignal, type AgentFollowUpAction } from '@/lib/agent/workspace';
 import { formatLeadIntent } from '@/lib/leads/pipeline';
 
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
   title: {
     absolute: 'Agent workspace | Proppd',
   },
-  description: 'Demo agent workspace for lead follow-up, listing health, and response priorities.',
+  description: 'Agent workspace for lead follow-up, listing health, and response priorities.',
   alternates: {
     canonical: '/dashboard',
   },
@@ -28,12 +29,41 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  const portalListings = (await loadPortalListings()).items;
-  const portalLeads = (await loadPortalLeadQueue(agentName)).items;
-  const stats = getAgentWorkspaceStats(agentName, portalListings, portalLeads);
-  const actions = getAgentFollowUpActions(agentName, portalLeads);
-  const agentLeads = portalLeads.filter((lead) => lead.agent === agentName);
-  const agentListings = portalListings.filter((listing) => listing.agent === agentName);
+  const user = await getPortalServerUser();
+  const access = user ? await loadPortalUserAccess(user.id, user.email) : null;
+  if (user && !access) {
+    return (
+      <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
+        <SiteHeader />
+        <section className="px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm sm:p-12">
+            <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Workspace access</p>
+            <h1 className="mt-4 text-4xl font-black tracking-[-.06em]">Your account is not linked to an agent profile yet.</h1>
+            <p className="mt-4 text-base font-semibold leading-7 text-slate-600">
+              Sign-in worked, but Proppd does not have a live agent or agency profile mapped to this user yet. Use the onboarding flow to request access and we will wire the gateway to your profile.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a className="rounded-full bg-[#050A30] px-6 py-3 text-sm font-black !text-white" href="/list-with-us#launch-application">
+                Request access
+              </a>
+              <a className="rounded-full border border-slate-200 px-6 py-3 text-sm font-black text-[#050A30]" href="/agents">
+                Browse agents
+              </a>
+            </div>
+          </div>
+        </section>
+        <SiteFooter />
+      </main>
+    );
+  }
+
+  const portalListings = access ? (await loadMyPortalListings(access)).items : (await loadPortalListings()).items;
+  const portalLeads = (await loadPortalLeadQueue(access?.agentName ?? undefined)).items;
+  const workspaceAgentName = access?.agentName ?? portalListings[0]?.agent ?? portalLeads[0]?.agent ?? agentName;
+  const stats = getAgentWorkspaceStats(workspaceAgentName, portalListings, portalLeads);
+  const actions = getAgentFollowUpActions(workspaceAgentName, portalLeads);
+  const agentLeads = portalLeads.filter((lead) => lead.agent === workspaceAgentName);
+  const agentListings = portalListings.filter((listing) => listing.agent === workspaceAgentName);
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -56,7 +86,7 @@ export default async function Page() {
                   <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-black text-white" href="/dashboard/listings">
                     Manage listings
                   </a>
-                  <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-black text-white" href="mailto:info@proppd.com?subject=Proppd%20AgentOS%20pilot">
+                  <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-black text-white" href="/list-with-us#launch-application">
                     Request AgentOS pilot
                   </a>
                 </div>

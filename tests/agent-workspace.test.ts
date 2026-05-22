@@ -16,6 +16,20 @@ describe('agent workspace helpers', () => {
     expect(stats.featuredListing?.slug).toBe('modern-3-bedroom-house-in-sandton-12345');
   });
 
+  it('ignores inactive listings when summarising workspace stock', () => {
+    const stats = getAgentWorkspaceStats('Lerato Mokoena', [
+      ...listings,
+      {
+        ...listings[0],
+        slug: 'inactive-copy',
+        isActive: false,
+      },
+    ], demoLeads);
+
+    expect(stats.activeListings).toBe(1);
+    expect(stats.featuredListing?.slug).toBe('modern-3-bedroom-house-in-sandton-12345');
+  });
+
   it('turns lead quality into agent follow-up actions', () => {
     const actions = getAgentFollowUpActions('Lerato Mokoena', demoLeads);
 

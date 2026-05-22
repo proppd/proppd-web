@@ -141,6 +141,7 @@ type LeadRow = {
   quality: string;
   flags: string[] | null;
   created_at: string;
+  source_page: string | null;
   listing_slug: string | null;
   listing_title: string | null;
   agent_name: string | null;
@@ -832,7 +833,7 @@ export async function loadPortalDiagnostics(env: PortalEnv = process.env): Promi
 async function queryListings(databaseUrl: string, slug?: string): Promise<ListingRow[]> {
   const pool = getPortalPool(databaseUrl);
   const values: Array<string> = [];
-  const clauses = ["l.status in ('available', 'under_offer', 'sold', 'rented')"];
+  const clauses = ["l.status in ('available', 'under_offer', 'sold', 'rented')", "coalesce(ag.is_active, true) = true", "coalesce(a.is_active, true) = true"];
 
   if (slug) {
     values.push(slug);
@@ -907,6 +908,7 @@ async function queryLeads(databaseUrl: string, agentName?: string): Promise<Lead
       l.quality,
       l.flags,
       l.created_at,
+      l.source_page,
       li.slug as listing_slug,
       li.title as listing_title,
       a.name as agent_name,
@@ -1078,6 +1080,7 @@ function mapLeadRow(row: LeadRow): LeadRecord {
     listingSlug: row.listing_slug ?? 'unassigned',
     agent: row.agent_name ?? 'Unassigned agent',
     agency: row.agency_name ?? 'Unassigned agency',
+    sourcePage: row.source_page ?? undefined,
     createdAt: row.created_at,
     message: row.message,
     flags: row.flags ?? [],

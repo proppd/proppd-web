@@ -49,6 +49,8 @@ export function parseListingFilters(searchParams: URLSearchParams): ListingFilte
 
 export function applyListingFilters(items: Listing[], filters: ListingFilters): Listing[] {
   const filtered = items.filter((listing) => {
+    if (listing.isActive === false) return false;
+
     if (filters.purpose !== 'all') {
       const expectedPurpose = filters.purpose === 'sale' ? 'For sale' : 'To rent';
       if (listing.purpose !== expectedPurpose) return false;

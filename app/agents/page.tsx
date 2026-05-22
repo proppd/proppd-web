@@ -67,7 +67,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
               </label>
               <div className="flex flex-wrap gap-2">
                 <button className="inline-flex justify-center rounded-full bg-[#3B49FF] px-6 py-4 text-sm font-black text-white shadow-lg shadow-[#3B49FF]/20" type="submit">Search</button>
-                <a className="inline-flex justify-center rounded-full bg-[#050A30] px-6 py-4 text-sm font-black !text-white" href="mailto:info@proppd.com?subject=Join Proppd agents">
+                <a className="inline-flex justify-center rounded-full bg-[#050A30] px-6 py-4 text-sm font-black !text-white" href="/list-with-us#launch-application">
                   Join directory
                 </a>
               </div>
@@ -139,7 +139,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                     ))}
                   </div>
                   <div className="mt-6 flex flex-wrap gap-3">
-                    <a className="inline-flex rounded-full bg-[#050A30] px-5 py-3 text-sm font-black !text-white shadow-lg" href="mailto:info@proppd.com?subject=Agent directory request">
+                    <a className="inline-flex rounded-full bg-[#050A30] px-5 py-3 text-sm font-black !text-white shadow-lg" href="/list-with-us#launch-application">
                       Request an agent
                     </a>
                     <a className="inline-flex rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/agencies">
@@ -223,7 +223,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                 <WatchlistCard
                   title="Need a launch partner?"
                   body="Tell Proppd which market is missing and we can prioritise a verified agent or branch for onboarding review."
-                  actionHref="mailto:info@proppd.com?subject=Agent directory request"
+                  actionHref="/list-with-us#launch-application"
                   actionLabel="Request a profile"
                 />
               </div>

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { ArrowRight, CheckCircle2, ShieldCheck, Sparkles, UsersRound } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
+import { AgencyApplicationForm } from '@/components/agency-application-form';
 import { buildAgencyApplicationMailto, launchPackages } from '@/lib/agents/onboarding';
 
 export const metadata: Metadata = {
@@ -88,7 +89,7 @@ export default function Page() {
                   Join the Proppd launch rollout with verified profiles, cleaner enquiry handoff, and early access to AgentOS workflows without pretending the full backend is already automated.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <a className="rounded-full bg-white px-6 py-3 text-sm font-black !text-[#050A30]" href={buildAgencyApplicationMailto({ packageName: 'Agency Growth' })}>Apply for launch access</a>
+                  <a className="rounded-full bg-white px-6 py-3 text-sm font-black !text-[#050A30]" href="#launch-application">Open launch application</a>
                   <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-black text-white" href="/dashboard">See the AgentOS workspace</a>
                 </div>
                 <div className="mt-8 rounded-[1.5rem] border border-white/10 bg-white/6 p-4">
@@ -161,6 +162,8 @@ export default function Page() {
               </p>
             </div>
           </div>
+
+          <AgencyApplicationForm />
 
           <section className="mt-8 grid gap-5 lg:grid-cols-3">
             {launchPackages.map((item) => (

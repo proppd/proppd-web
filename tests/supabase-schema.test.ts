@@ -59,12 +59,10 @@ describe('Supabase portal foundation', () => {
     expect(seedSql).toContain('Proppd Verified Realty');
   });
 
-  it('adds Sakstons as a repeatable live-agency starter seed', () => {
+  it('keeps Sakstons seed as live onboarding data', () => {
     expect(sakstonsSeedSql).toContain("'Sakstons', 'sakstons'");
-    expect(sakstonsSeedSql).toContain('Graham Donald');
-    expect(sakstonsSeedSql).toContain('Liz Marx');
-    expect(sakstonsSeedSql).toContain('Mark Chait');
+    expect(sakstonsSeedSql).toContain('Live agency import from sakstons.com stock');
+    expect(sakstonsSeedSql).toContain('is_active = true');
     expect(sakstonsSeedSql.match(/insert into public\.listings/g)?.length).toBe(38);
-    expect(sakstonsSeedSql).toContain('sakstons-villa-lane-292-bryanston-drive');
   });
 });

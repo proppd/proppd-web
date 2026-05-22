@@ -29,6 +29,7 @@ export type Listing = {
   rates?: string;
   levies?: string;
   featured?: boolean;
+  isActive?: boolean;
 };
 
 export const listings: Listing[] = [

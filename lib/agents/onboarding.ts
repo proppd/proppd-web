@@ -11,9 +11,22 @@ export type AgencyApplicationInput = {
   packageName: string;
   agencyName?: string;
   contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
   city?: string;
   listingCount?: string;
+  notes?: string;
 };
+
+export function splitContactName(value?: string): { name: string; surname: string } {
+  const trimmed = value?.trim() ?? '';
+  if (!trimmed) return { name: '[please add]', surname: '[please add]' };
+
+  const parts = trimmed.split(/\s+/).filter(Boolean);
+  if (parts.length === 1) return { name: parts[0], surname: 'Team' };
+
+  return { name: parts[0], surname: parts.slice(1).join(' ') };
+}
 
 export const launchPackages: AgencyLaunchPackage[] = [
   {
@@ -22,7 +35,7 @@ export const launchPackages: AgencyLaunchPackage[] = [
     price: 'R 0 during pilot',
     summary: 'Test Proppd exposure with verified enquiries.',
     bestFor: 'Independent agents and small teams',
-    features: ['Verified agent profile', 'Initial listing upload support', 'POPIA-aware enquiry handoff'],
+    features: ['Verified agent profile', 'Initial listing upload support', 'POPIA-aware enquiry handoff', 'Launch check-in call'],
   },
   {
     id: 'growth',
@@ -30,7 +43,7 @@ export const launchPackages: AgencyLaunchPackage[] = [
     price: 'Pilot pricing by area',
     summary: 'For agencies that need multiple agents and cleaner lead routing.',
     bestFor: 'Boutique and regional agencies',
-    features: ['Agency directory profile', 'Multiple agent profiles', 'Priority listing onboarding'],
+    features: ['Agency directory profile', 'Multiple agent profiles', 'Priority listing onboarding', 'Routing setup support'],
   },
   {
     id: 'pilot',
@@ -38,7 +51,7 @@ export const launchPackages: AgencyLaunchPackage[] = [
     price: 'Invite-only setup',
     summary: 'Invite-only access to the agent workspace and workflow layer.',
     bestFor: 'Teams ready to co-design AgentOS',
-    features: ['Agent workspace preview', 'Follow-up action design', 'WhatsApp-first workflow planning'],
+    features: ['Agent workspace preview', 'Follow-up action design', 'WhatsApp-first workflow planning', 'Pilot roadmap workshop'],
   },
 ];
 
@@ -49,8 +62,11 @@ export function buildAgencyApplicationSummary(input: AgencyApplicationInput): st
     'Agency details',
     `Agency name: ${input.agencyName?.trim() || '[please add]'}`,
     `Contact name: ${input.contactName?.trim() || '[please add]'}`,
+    `Contact email: ${input.contactEmail?.trim() || '[please add]'}`,
+    `Contact phone: ${input.contactPhone?.trim() || '[please add]'}`,
     `Primary city/area: ${input.city?.trim() || '[please add]'}`,
     `Approximate active listings: ${input.listingCount?.trim() || '[please add]'}`,
+    input.notes?.trim() ? `Notes: ${input.notes.trim()}` : null,
     '',
     'Launch questions',
     '1. Which suburbs or towns do you want to prioritise?',
@@ -60,7 +76,7 @@ export function buildAgencyApplicationSummary(input: AgencyApplicationInput): st
     '',
     'POPIA acknowledgement',
     'I understand Proppd may use these details to respond to this agency launch request and coordinate onboarding.',
-  ].join('\n');
+  ].filter((line) => line !== null).join('\n');
 }
 
 export function buildAgencyApplicationMailto(input: AgencyApplicationInput): string {

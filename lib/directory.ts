@@ -5,6 +5,7 @@ export type DirectoryAgent = {
   agency: string;
   area: string;
   listings: number;
+  isActive?: boolean;
 };
 
 export type DirectoryAgency = {
@@ -12,6 +13,7 @@ export type DirectoryAgency = {
   city: string;
   agents: number;
   listings: number;
+  isActive?: boolean;
 };
 
 export function slugifyDirectoryName(value: string): string {
@@ -33,29 +35,29 @@ export function findAgencyBySlug<T extends DirectoryAgency>(items: T[], slug: st
 }
 
 export function getAgentListings(items: Listing[], agentName: string): Listing[] {
-  return items.filter((listing) => listing.agent === agentName);
+  return items.filter((listing) => listing.agent === agentName && listing.isActive !== false);
 }
 
 export function getAgencyListings(items: Listing[], agencyName: string): Listing[] {
-  return items.filter((listing) => listing.agency === agencyName);
+  return items.filter((listing) => listing.agency === agencyName && listing.isActive !== false);
 }
 
 export function getAgencyAgents<T extends DirectoryAgent>(items: T[], agencyName: string): T[] {
-  return items.filter((agent) => agent.agency === agencyName);
+  return items.filter((agent) => agent.agency === agencyName && agent.isActive !== false);
 }
 
 export function filterAgents<T extends DirectoryAgent>(items: T[], query?: string): T[] {
   const term = normaliseDirectorySearch(query);
-  if (!term) return items;
+  if (!term) return items.filter((agent) => agent.isActive !== false);
 
-  return items.filter((agent) => [agent.name, agent.agency, agent.area, String(agent.listings)].some((value) => normaliseDirectorySearch(value).includes(term)));
+  return items.filter((agent) => agent.isActive !== false && [agent.name, agent.agency, agent.area, String(agent.listings)].some((value) => normaliseDirectorySearch(value).includes(term)));
 }
 
 export function filterAgencies<T extends DirectoryAgency>(items: T[], query?: string): T[] {
   const term = normaliseDirectorySearch(query);
-  if (!term) return items;
+  if (!term) return items.filter((agency) => agency.isActive !== false);
 
-  return items.filter((agency) => [agency.name, agency.city, String(agency.agents), String(agency.listings)].some((value) => normaliseDirectorySearch(value).includes(term)));
+  return items.filter((agency) => agency.isActive !== false && [agency.name, agency.city, String(agency.agents), String(agency.listings)].some((value) => normaliseDirectorySearch(value).includes(term)));
 }
 
 export function parseDirectoryQuery(params: URLSearchParams): string | undefined {

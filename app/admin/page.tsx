@@ -10,8 +10,11 @@ import {
   formatLeadIntent,
   getLeadPipelineStats,
   getLeadQueue,
+  getLeadSourceLabel,
+  getLeadSourceStats,
   groupLeadsByStatus,
   type LeadQuality,
+  type LeadSourceGroup,
   type LeadStatus,
 } from '@/lib/leads/pipeline';
 
@@ -46,20 +49,33 @@ const qualityOptions: Array<{ value: LeadQuality | 'all'; label: string }> = [
   { value: 'flagged', label: 'Flagged' },
 ];
 
+const sourceOptions: Array<{ value: LeadSourceGroup | 'all'; label: string }> = [
+  { value: 'all', label: 'All sources' },
+  { value: 'launch', label: 'Launch applications' },
+  { value: 'property', label: 'Property enquiries' },
+  { value: 'valuation', label: 'Valuation requests' },
+  { value: 'agent', label: 'Agent directory' },
+  { value: 'general', label: 'General enquiries' },
+  { value: 'portal', label: 'Portal enquiries' },
+];
+
 export default async function Page({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const query = getSingleParam(params.q).trim();
   const selectedStatus = parseStatus(getSingleParam(params.status));
   const selectedQuality = parseQuality(getSingleParam(params.quality));
+  const selectedSource = parseSource(getSingleParam(params.source));
 
   const [leadPayload, diagnostics] = await Promise.all([loadPortalLeadQueue(), loadPortalDiagnostics()]);
   const filteredLeads = filterLeads(leadPayload.items, {
     query,
     status: selectedStatus,
     quality: selectedQuality,
+    source: selectedSource,
   });
   const queue = getLeadQueue(filteredLeads);
   const stats = getLeadPipelineStats(filteredLeads);
+  const sourceStats = getLeadSourceStats(filteredLeads);
   const grouped = groupLeadsByStatus(filteredLeads);
   const hasFilters = Boolean(query || selectedStatus !== 'all' || selectedQuality !== 'all');
   const moderationEnabled = leadPayload.source !== 'demo' && leadPayload.source !== 'error';
@@ -107,6 +123,17 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                   <Metric label="Flagged" value={stats.flagged} tone="warning" />
                 </div>
                 <div className="mt-5 rounded-[1.5rem] bg-white/10 p-4">
+                  <p className="text-xs font-black uppercase tracking-[.18em] text-white/50">Source mix</p>
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-sm font-bold text-white/80 sm:grid-cols-3">
+                    <SourceChip label="Launch" value={sourceStats.launch} />
+                    <SourceChip label="Property" value={sourceStats.property} />
+                    <SourceChip label="Valuation" value={sourceStats.valuation} />
+                    <SourceChip label="Agent" value={sourceStats.agent} />
+                    <SourceChip label="Portal" value={sourceStats.portal} />
+                    <SourceChip label="General" value={sourceStats.general} />
+                  </div>
+                </div>
+                <div className="mt-5 rounded-[1.5rem] bg-white/10 p-4">
                   <p className="text-xs font-black uppercase tracking-[.18em] text-white/50">Top of queue</p>
                   <div className="mt-3 grid gap-3 text-sm font-bold text-white/78">
                     <div className="flex items-center justify-between gap-4">
@@ -150,7 +177,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                 </span>
               </div>
 
-              <form className="mt-6 grid gap-3 rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-4 lg:grid-cols-[minmax(0,1fr)_220px_220px_auto]" method="get">
+              <form className="mt-6 grid gap-3 rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-4 lg:grid-cols-[minmax(0,1fr)_180px_220px_220px_auto]" method="get">
                 <label className="sr-only" htmlFor="admin-lead-search">
                   Search leads
                 </label>
@@ -165,6 +192,23 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                     aria-label="Search leads"
                   />
                 </div>
+
+                <label className="sr-only" htmlFor="admin-lead-source">
+                  Lead source
+                </label>
+                <select
+                  id="admin-lead-source"
+                  name="source"
+                  defaultValue={selectedSource}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-[#050A30] outline-none"
+                  aria-label="Filter by source"
+                >
+                  {sourceOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
 
                 <label className="sr-only" htmlFor="admin-lead-status">
                   Lead status
@@ -217,6 +261,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                   {query ? <span className="rounded-full bg-slate-100 px-3 py-1">Search: “{query}”</span> : null}
                   {selectedStatus !== 'all' ? <span className="rounded-full bg-slate-100 px-3 py-1">Status: {selectedStatus}</span> : null}
                   {selectedQuality !== 'all' ? <span className="rounded-full bg-slate-100 px-3 py-1">Quality: {selectedQuality}</span> : null}
+                  {selectedSource !== 'all' ? <span className="rounded-full bg-slate-100 px-3 py-1">Source: {selectedSource}</span> : null}
                 </div>
               ) : null}
 
@@ -238,6 +283,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-black uppercase tracking-[.12em] text-slate-500">{lead.id}</span>
                           </div>
                           <p className="mt-1 text-sm font-bold text-slate-500">{lead.listingTitle}</p>
+                          <p className="mt-1 text-xs font-black uppercase tracking-[.14em] text-[#3B49FF]">{getLeadSourceLabel(lead.sourcePage)}</p>
                           <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{lead.message}</p>
                           <div className="mt-3 flex flex-wrap items-center gap-2">
                             <a className="inline-flex rounded-full bg-white px-3 py-2 text-xs font-black text-[#3B49FF] ring-1 ring-slate-200 transition hover:ring-[#3B49FF]" href={`/property/${lead.listingSlug}`}>
@@ -351,11 +397,24 @@ function parseQuality(value: string): LeadQuality | 'all' {
   return value === 'clean' || value === 'duplicate' || value === 'flagged' ? value : 'all';
 }
 
+function parseSource(value: string): LeadSourceGroup | 'all' {
+  return value === 'launch' || value === 'property' || value === 'valuation' || value === 'agent' || value === 'portal' || value === 'general' ? value : 'all';
+}
+
 function Metric({ label, value, tone = 'default' }: { label: string; value: number; tone?: 'default' | 'warning' }) {
   return (
     <div className="rounded-2xl bg-white p-4 text-[#050A30]">
       <p className={`text-3xl font-black ${tone === 'warning' ? 'text-red-600' : ''}`}>{value}</p>
       <p className="mt-1 text-xs font-black uppercase tracking-[.14em] text-slate-500">{label}</p>
+    </div>
+  );
+}
+
+function SourceChip({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/8 px-3 py-3">
+      <p className="text-[11px] font-black uppercase tracking-[.14em] text-white/50">{label}</p>
+      <p className="mt-1 text-lg font-black text-white">{value}</p>
     </div>
   );
 }

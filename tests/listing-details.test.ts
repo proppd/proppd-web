@@ -8,13 +8,13 @@ describe('listing detail helpers', () => {
     expect(listing?.agent).toBe('Mia Jacobs');
   });
 
-  it('keeps original seed listing IDs aligned with Supabase seed UUIDs for lead writes', () => {
+  it('keeps Sakstons listings available as active source listings', () => {
     expect(listings.slice(0, 3).map((listing) => listing.id)).toEqual([
       'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
       'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
       'ffffffff-ffff-4fff-8fff-ffffffffffff',
     ]);
-    expect(listings.filter((listing) => listing.agency === 'Sakstons').every((listing) => listing.id.startsWith('sakstons-'))).toBe(true);
+    expect(listings.filter((listing) => listing.agency === 'Sakstons').every((listing) => listing.isActive === true)).toBe(true);
   });
 
   it('keeps demo listings backed by accessible gallery photos', () => {

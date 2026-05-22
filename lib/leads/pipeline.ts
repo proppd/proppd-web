@@ -1,6 +1,7 @@
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'archived';
 export type LeadQuality = 'clean' | 'duplicate' | 'flagged';
 export type LeadIntent = 'viewing' | 'more_info' | 'valuation' | 'finance';
+export type LeadSourceGroup = 'all' | 'launch' | 'property' | 'valuation' | 'agent' | 'portal' | 'general';
 
 export type LeadRecord = {
   id: string;
@@ -14,6 +15,7 @@ export type LeadRecord = {
   listingSlug: string;
   agent: string;
   agency: string;
+  sourcePage?: string;
   createdAt: string;
   message: string;
   flags: string[];
@@ -27,10 +29,20 @@ export type LeadPipelineStats = {
   flagged: number;
 };
 
+export type LeadSourceStats = {
+  launch: number;
+  property: number;
+  valuation: number;
+  agent: number;
+  portal: number;
+  general: number;
+};
+
 export type LeadFilters = {
   query?: string;
   status?: LeadStatus | 'all';
   quality?: LeadQuality | 'all';
+  source?: LeadSourceGroup | 'all';
 };
 
 export function getLeadPipelineStats(leads: LeadRecord[]): LeadPipelineStats {
@@ -43,6 +55,17 @@ export function getLeadPipelineStats(leads: LeadRecord[]): LeadPipelineStats {
   };
 }
 
+export function getLeadSourceStats(leads: LeadRecord[]): LeadSourceStats {
+  return leads.reduce<LeadSourceStats>(
+    (stats, lead) => {
+      const source = getLeadSourceGroup(lead.sourcePage);
+      stats[source] += 1;
+      return stats;
+    },
+    { launch: 0, property: 0, valuation: 0, agent: 0, portal: 0, general: 0 },
+  );
+}
+
 export function getLeadQueue(leads: LeadRecord[]): LeadRecord[] {
   return [...leads].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
 }
@@ -53,14 +76,15 @@ export function filterLeads(leads: LeadRecord[], filters: LeadFilters = {}): Lea
   return leads.filter((lead) => {
     const statusMatches = !filters.status || filters.status === 'all' || lead.status === filters.status;
     const qualityMatches = !filters.quality || filters.quality === 'all' || lead.quality === filters.quality;
+    const sourceMatches = !filters.source || filters.source === 'all' || getLeadSourceGroup(lead.sourcePage) === filters.source;
     const queryMatches = !query
       ? true
-      : [lead.name, lead.email, lead.phone, lead.listingTitle, lead.agent, lead.agency, lead.message, lead.id, formatLeadIntent(lead.intent)]
+      : [lead.name, lead.email, lead.phone, lead.listingTitle, lead.agent, lead.agency, lead.message, lead.id, formatLeadIntent(lead.intent), lead.sourcePage ?? '']
           .join(' ')
           .toLowerCase()
           .includes(query);
 
-    return statusMatches && qualityMatches && queryMatches;
+    return statusMatches && qualityMatches && sourceMatches && queryMatches;
   });
 }
 
@@ -81,4 +105,50 @@ export function formatLeadIntent(intent: LeadIntent): string {
     finance: 'Finance',
   };
   return labels[intent];
+}
+
+export function getLeadSourceLabel(sourcePage?: string): string {
+  const page = sourcePage?.trim();
+  if (!page) return 'General enquiry';
+
+  if (page === '/list-with-us' || page.startsWith('/list-with-us#')) {
+    return 'Launch application';
+  }
+
+  if (page.startsWith('/property/')) {
+    return 'Property enquiry';
+  }
+
+  if (page.startsWith('/valuation')) {
+    return 'Valuation request';
+  }
+
+  if (page.startsWith('/agents')) {
+    return 'Agent directory';
+  }
+
+  return 'Portal enquiry';
+}
+
+export function getLeadSourceGroup(sourcePage?: string): Exclude<LeadSourceGroup, 'all'> {
+  const page = sourcePage?.trim();
+  if (!page) return 'general';
+
+  if (page === '/list-with-us' || page.startsWith('/list-with-us#')) {
+    return 'launch';
+  }
+
+  if (page.startsWith('/property/')) {
+    return 'property';
+  }
+
+  if (page.startsWith('/valuation')) {
+    return 'valuation';
+  }
+
+  if (page.startsWith('/agents')) {
+    return 'agent';
+  }
+
+  return 'portal';
 }
