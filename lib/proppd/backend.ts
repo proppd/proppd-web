@@ -12,6 +12,9 @@ export type PortalDataSource = 'database' | 'demo' | 'empty' | 'error';
 export type PortalBackendDiagnostics = {
   backendMode: PortalBackendMode;
   databaseConfigured: boolean;
+  databaseUrlSource: string | null;
+  databaseUrlHost: string | null;
+  databaseUrlIsPooler: boolean;
   browserSupabaseConfigured: boolean;
   serviceRoleConfigured: boolean;
   canReadDatabase: boolean;
@@ -158,8 +161,59 @@ const FALLBACK_PHOTOS = [
 
 let poolCache: { connectionString: string; pool: Pool } | undefined;
 
+type PortalDatabaseUrlInfo = {
+  url: string | null;
+  source: string | null;
+  host: string | null;
+  isPooler: boolean;
+};
+
+type PortalDatabaseEnvKey = (typeof PORTAL_DATABASE_ENV_KEYS)[number];
+
+const PORTAL_DATABASE_ENV_KEYS = [
+  'POSTGRES_PRISMA_URL',
+  'SUPABASE_POOLER_URL',
+  'POSTGRES_POOLER_URL',
+  'POSTGRES_URL',
+  'DATABASE_URL',
+  'SUPABASE_DB_URL',
+  'POSTGRES_URL_NON_POOLING',
+] as const;
+
 export function getPortalDatabaseUrl(env: PortalEnv = process.env): string | null {
-  return normaliseEnvValue(env.DATABASE_URL ?? env.POSTGRES_URL ?? env.SUPABASE_DB_URL) ?? null;
+  return getPortalDatabaseUrlInfo(env).url;
+}
+
+export function getPortalDatabaseUrlInfo(env: PortalEnv = process.env): PortalDatabaseUrlInfo {
+  const candidates: Array<{ key: PortalDatabaseEnvKey; value: string }> = [];
+
+  for (const key of PORTAL_DATABASE_ENV_KEYS) {
+    const value = normaliseEnvValue(env[key]);
+    if (value) {
+      candidates.push({ key, value });
+    }
+  }
+
+  if (candidates.length === 0) {
+    return { url: null, source: null, host: null, isPooler: false };
+  }
+
+  const enriched = candidates.map((candidate) => {
+    const host = getHostname(candidate.value);
+    return {
+      ...candidate,
+      host,
+      isPooler: isPoolerDatabaseHost(host),
+    };
+  });
+
+  const preferred = enriched.find((candidate) => candidate.isPooler) ?? enriched[0];
+  return {
+    url: preferred.value,
+    source: preferred.key,
+    host: preferred.host,
+    isPooler: preferred.isPooler,
+  };
 }
 
 export function getPortalBackendMode(env: PortalEnv = process.env): PortalBackendMode {
@@ -168,12 +222,16 @@ export function getPortalBackendMode(env: PortalEnv = process.env): PortalBacken
 
 export function getPortalBackendDiagnostics(env: PortalEnv = process.env): PortalBackendDiagnostics {
   const browserConfig = getSupabaseBrowserConfig(env);
+  const databaseUrl = getPortalDatabaseUrlInfo(env);
   return {
     backendMode: getPortalBackendMode(env),
-    databaseConfigured: Boolean(getPortalDatabaseUrl(env)),
+    databaseConfigured: Boolean(databaseUrl.url),
+    databaseUrlSource: databaseUrl.source,
+    databaseUrlHost: databaseUrl.host,
+    databaseUrlIsPooler: databaseUrl.isPooler,
     browserSupabaseConfigured: Boolean(browserConfig),
     serviceRoleConfigured: Boolean(normaliseEnvValue(env.SUPABASE_SERVICE_ROLE_KEY)),
-    canReadDatabase: Boolean(getPortalDatabaseUrl(env)),
+    canReadDatabase: Boolean(databaseUrl.url),
     listingCount: null,
     leadCount: null,
     agentCount: null,
@@ -1165,6 +1223,18 @@ function isDatabaseConnectivityError(message: string): boolean {
 function errorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
   return String(error);
+}
+
+function getHostname(connectionString: string): string | null {
+  try {
+    return new URL(connectionString).hostname;
+  } catch {
+    return null;
+  }
+}
+
+function isPoolerDatabaseHost(host: string | null): boolean {
+  return Boolean(host && host.includes('pooler') && host.includes('supabase.com'));
 }
 
 function normaliseEnvValue(value: string | undefined): string | undefined {

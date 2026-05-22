@@ -7,6 +7,7 @@ import {
   type LeadPersistenceContext,
   type PreparedLeadInsert,
 } from '@/lib/leads/persistence';
+import { getPortalDatabaseUrl } from '@/lib/proppd/backend';
 import type { ExistingLeadFingerprint, LeadInput } from '@/lib/leads/validation';
 
 export const runtime = 'nodejs';
@@ -19,7 +20,7 @@ let postgresPool: Pool | undefined;
 export async function POST(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const databaseUrl = process.env.DATABASE_URL ?? process.env.POSTGRES_URL ?? process.env.SUPABASE_DB_URL;
+  const databaseUrl = getPortalDatabaseUrl();
 
   if ((!supabaseUrl || !serviceRoleKey) && !databaseUrl) {
     return NextResponse.json(

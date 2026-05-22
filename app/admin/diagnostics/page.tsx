@@ -53,6 +53,12 @@ export default async function Page() {
             <CheckCard icon={<Users size={20} />} label="Read access" value={diagnostics.canReadDatabase ? 'Healthy' : 'Blocked'} tone={diagnostics.canReadDatabase ? 'good' : 'warn'} />
           </div>
 
+          <p className="mt-4 text-sm font-bold text-white/70">
+            {diagnostics.databaseUrlSource
+              ? `Selected connection: ${diagnostics.databaseUrlSource}${diagnostics.databaseUrlHost ? ` (${diagnostics.databaseUrlHost})` : ''}${diagnostics.databaseUrlIsPooler ? ' · pooler' : ''}`
+              : 'No database connection string is configured yet.'}
+          </p>
+
           {diagnostics.error ? (
             <div className="mt-8 rounded-[2rem] border border-red-200 bg-red-50 p-6 text-red-700 shadow-sm">
               <div className="flex items-center gap-3">
