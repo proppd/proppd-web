@@ -14,7 +14,7 @@ export function FeaturedAgents() {
             <p className="proppd-kicker">Verified network</p>
             <h2 className="mt-3 text-3xl font-black tracking-[-.055em] text-[#050A30] sm:text-4xl">Agents and agencies that make listings feel real.</h2>
             <p className="mt-4 max-w-2xl text-base font-semibold leading-7 text-slate-600">
-              Keep the network visible without turning the homepage into another dashboard. Users should see people, stock, and locations at a glance.
+              Keep the network visible and useful without turning the homepage into a dashboard.
             </p>
           </div>
           <div className="flex flex-wrap gap-3 lg:justify-end">

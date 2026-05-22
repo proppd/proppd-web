@@ -44,13 +44,11 @@ const contactReasons = [
   ['Property ID or slug', 'If you already have a listing in mind, include the exact page so Proppd can route the request faster.'],
   ['Area and intent', 'Tell us whether you are buying, renting, selling, or checking a launch partner fit.'],
   ['Best email / phone', 'Use a reachable contact so the handoff can move quickly once it is reviewed.'],
-  ['Request timing', 'If the note is urgent or tied to a launch date, say so up front.'],
 ];
 
 const responseGuide = [
   ['Support', 'Use info@proppd.com for route questions, page fixes, or general help.'],
   ['Launch access', 'Agencies can ask about onboarding, profiles, and listing exposure.'],
-  ['Valuation', 'Sellers and landlords should start with the valuation flow.'],
   ['Live page link', 'Paste the exact property or profile URL so the team can jump straight to it.'],
 ];
 

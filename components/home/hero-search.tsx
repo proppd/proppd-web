@@ -1,6 +1,6 @@
 import { ArrowRight, Home, MapPin, Search, ShieldCheck, SlidersHorizontal } from 'lucide-react';
 
-const quickLinks = ['Sandton', 'Sea Point', 'Umhlanga', 'Pretoria', 'Cape Town'];
+const quickLinks = ['Sandton', 'Sea Point', 'Umhlanga'];
 
 export function HeroSearch() {
   return (
@@ -19,34 +19,34 @@ export function HeroSearch() {
           </p>
         </div>
 
-        <div className="mx-auto mt-7 max-w-5xl rounded-[1.5rem] border border-white/70 bg-white p-2.5 shadow-2xl shadow-[#050A30]/18 sm:p-3">
-          <div className="flex items-center gap-1 overflow-x-auto border-b border-slate-100 px-1 pb-2 text-sm font-black text-slate-600 sm:flex-wrap sm:justify-center sm:gap-2">
+        <div className="mx-auto mt-7 max-w-5xl rounded-[1.35rem] border border-white/70 bg-white p-2 shadow-2xl shadow-[#050A30]/18 sm:p-2.5">
+          <div className="flex items-center gap-1 overflow-x-auto border-b border-slate-100 px-1 pb-1.5 text-xs font-black text-slate-600 sm:flex-wrap sm:justify-center sm:gap-2 sm:text-sm">
             {['Buy', 'Rent', 'Sell', 'Agents', 'Valuations'].map((tab, index) => (
               <a
                 key={tab}
                 href={index === 1 ? '/properties/to-rent' : index === 2 ? '/list-with-us' : index === 3 ? '/agents' : index === 4 ? '/request-valuation' : '/properties/for-sale'}
-                className={`shrink-0 rounded-full px-4 py-2 transition sm:px-5 ${index === 0 ? 'border border-[#3B49FF] bg-white text-[#3B49FF] shadow-sm' : 'hover:bg-[#F5F7FA] hover:text-[#050A30]'}`}
+                className={`shrink-0 rounded-full px-3 py-1.5 transition sm:px-4 sm:py-2 ${index === 0 ? 'border border-[#3B49FF] bg-white text-[#3B49FF] shadow-sm' : 'hover:bg-[#F5F7FA] hover:text-[#050A30]'}`}
               >
                 {tab}
               </a>
             ))}
           </div>
-          <form action="/properties" className="grid gap-2 pt-3 sm:gap-3 lg:grid-cols-[1fr_auto_auto]">
-            <label className="flex min-h-14 items-center gap-3 rounded-2xl border border-slate-200 bg-[#F8FAFC] px-4 text-left text-base font-bold text-slate-500 shadow-inner shadow-slate-100 focus-within:border-[#3B49FF] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#3B49FF]/10 sm:min-h-15 sm:px-5">
-              <Search size={22} className="shrink-0 text-[#3B49FF]" />
+          <form action="/properties" className="grid gap-2 pt-2.5 sm:gap-2.5 lg:grid-cols-[1fr_auto_auto]">
+            <label className="flex min-h-13 items-center gap-3 rounded-2xl border border-slate-200 bg-[#F8FAFC] px-4 text-left text-sm font-bold text-slate-500 shadow-inner shadow-slate-100 focus-within:border-[#3B49FF] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#3B49FF]/10 sm:min-h-14 sm:px-5 sm:text-base">
+              <Search size={20} className="shrink-0 text-[#3B49FF]" />
               <input
                 name="q"
                 type="search"
-                className="min-w-0 flex-1 bg-transparent text-base font-bold text-[#050A30] outline-none placeholder:text-slate-500"
+                className="min-w-0 flex-1 bg-transparent text-sm font-bold text-[#050A30] outline-none placeholder:text-slate-500 sm:text-base"
                 placeholder="Search suburb, city, agent, or listing ID"
                 aria-label="Search properties"
               />
             </label>
-            <a className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border border-slate-200 px-5 font-black text-[#050A30] hover:bg-[#F5F7FA] sm:min-h-15" href="/properties">
-              <SlidersHorizontal size={19} /> Filters
+            <a className="inline-flex min-h-13 items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 font-black text-[#050A30] hover:bg-[#F5F7FA] sm:min-h-14 sm:px-5" href="/properties">
+              <SlidersHorizontal size={18} /> Filters
             </a>
-            <button className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#3B49FF] px-7 font-black text-white shadow-xl shadow-[#3B49FF]/25 transition hover:bg-[#050A30] sm:min-h-15" type="submit">
-              Search <ArrowRight size={19} />
+            <button className="inline-flex min-h-13 items-center justify-center gap-2 rounded-2xl bg-[#3B49FF] px-6 font-black text-white shadow-xl shadow-[#3B49FF]/25 transition hover:bg-[#050A30] sm:min-h-14 sm:px-7" type="submit">
+              Search <ArrowRight size={18} />
             </button>
           </form>
         </div>
@@ -58,23 +58,26 @@ export function HeroSearch() {
               {link}
             </a>
           ))}
+          <a className="inline-flex rounded-full bg-white/85 px-3.5 py-2 text-[#050A30] ring-1 ring-slate-200/80 transition hover:text-[#3B49FF] hover:ring-[#3B49FF]/40" href="/properties">
+            More areas
+          </a>
         </div>
 
-        <div className="mt-7 grid gap-3 md:grid-cols-3">
+        <div className="mt-6 grid gap-2 md:grid-cols-3">
           {[
-            ['Buy verified homes', 'For-sale properties with clear facts and direct enquiry routing.', '/properties/for-sale'],
-            ['Find rentals', 'Rental stock with cleaner handoff and mobile-first viewing requests.', '/properties/to-rent'],
-            ['List agency stock', 'Bring verified inventory into a portal built for lead quality.', '/list-with-us'],
+            ['Buy verified homes', 'Clear facts and direct enquiry routing.', '/properties/for-sale'],
+            ['Find rentals', 'Mobile-first requests with cleaner handoff.', '/properties/to-rent'],
+            ['List agency stock', 'Verified inventory and better lead quality.', '/list-with-us'],
           ].map(([title, body, href], index) => (
-            <a key={title} href={href} className="group flex items-center gap-4 rounded-[1.35rem] border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-200/70 sm:p-5">
-              <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${index === 2 ? 'bg-[#12D6C5]/15 text-[#057a70]' : 'bg-[#3B49FF]/10 text-[#3B49FF]'}`}>
-                <Home size={21} />
+            <a key={title} href={href} className="group flex items-center gap-3 rounded-[1.2rem] border border-slate-200 bg-white p-3.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/60 sm:p-4">
+              <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl ${index === 2 ? 'bg-[#12D6C5]/15 text-[#057a70]' : 'bg-[#3B49FF]/10 text-[#3B49FF]'}`}>
+                <Home size={19} />
               </div>
               <div className="min-w-0">
-                <h2 className="text-lg font-black tracking-[-.035em] text-[#050A30] sm:text-xl">{title}</h2>
-                <p className="mt-1 text-sm leading-6 text-slate-600">{body}</p>
+                <h2 className="text-base font-black tracking-[-.03em] text-[#050A30] sm:text-lg">{title}</h2>
+                <p className="mt-0.5 text-xs leading-5 text-slate-600 sm:text-sm">{body}</p>
               </div>
-              <ArrowRight size={17} className="ml-auto hidden shrink-0 text-[#3B49FF] transition group-hover:translate-x-1 group-hover:text-[#050A30] sm:block" />
+              <ArrowRight size={16} className="ml-auto hidden shrink-0 text-[#3B49FF] transition group-hover:translate-x-1 group-hover:text-[#050A30] sm:block" />
             </a>
           ))}
         </div>

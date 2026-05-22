@@ -3,26 +3,29 @@ import { ArrowRight, BadgeCheck, Home, Mail, Search, ShieldCheck } from 'lucide-
 const routes = [
   {
     title: 'Buying or renting',
-    text: 'Start with the search bar, then narrow by suburb, purpose, beds, and price before opening an enquiry.',
+    text: 'Start with search, then narrow by suburb, purpose, beds, and price.',
     href: '/properties',
     cta: 'Search homes',
     icon: Search,
   },
   {
     title: 'Listing property',
-    text: 'Agencies and owners can move into a verified listing route instead of a generic contact form.',
+    text: 'Move into a verified listing route instead of a generic contact form.',
     href: '/list-with-us',
     cta: 'List with us',
     icon: BadgeCheck,
   },
   {
     title: 'Need support',
-    text: 'Route valuation, finance, partnership, and support questions to the right Proppd inbox.',
+    text: 'Send valuation, finance, partnership, and support questions to the right inbox.',
     href: '/contact',
     cta: 'Contact Proppd',
     icon: Mail,
   },
 ];
+
+const quickSteps = ['Search', 'Shortlist', 'Enquire'];
+
 
 export function SupportStrip() {
   return (
@@ -41,7 +44,7 @@ export function SupportStrip() {
                 Move from a suburb search into verified listings, agent profiles, valuations, or support without landing on a dead-end page.
               </p>
               <div className="mt-6 grid gap-3 sm:grid-cols-3 lg:max-w-xl">
-                {['Search', 'Shortlist', 'Enquire'].map((step, index) => (
+                {quickSteps.map((step, index) => (
                   <div key={step} className="rounded-2xl border border-slate-200/80 bg-white/68 px-4 py-3">
                     <p className="text-xs font-black text-[#3344f5]">0{index + 1}</p>
                     <p className="mt-1 text-sm font-black text-[#050A30]">{step}</p>

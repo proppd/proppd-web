@@ -45,15 +45,13 @@ const launchSignals = [
 ];
 
 const onboardingSteps = [
-  'Send your agency details and priority areas.',
-  'Proppd confirms listing volume, agent profiles, and data handoff format.',
-  'We prepare verified profiles and route enquiries through the pilot workflow.',
+  'Share agency details, priority areas, and a clean listing feed.',
+  'Proppd reviews the stock, confirms the contact, and opens the pilot handoff.',
 ];
 
 const launchChecklist = [
   'A main contact who can approve the profile details.',
-  'Your current listing feed or a clean export of active stock.',
-  'A few example enquiry scenarios so the pilot routes feel realistic.',
+  'A current listing feed or clean export of active stock, plus a few enquiry examples.',
 ];
 
 const launchFlow = [
@@ -190,7 +188,7 @@ export default function Page() {
 
           <section className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
             <div className="rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Onboarding flow</p>
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Launch review</p>
               <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">A controlled launch path, not a loose sign-up form.</h2>
               <div className="mt-6 grid gap-4 md:grid-cols-3">
                 {onboardingSteps.map((step, index) => (
@@ -200,49 +198,32 @@ export default function Page() {
                   </div>
                 ))}
               </div>
+              <div className="mt-5 flex flex-wrap items-center gap-3 rounded-[1.25rem] border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold text-slate-600">
+                <span className="rounded-full bg-white px-3 py-1 text-xs font-black uppercase tracking-[.14em] text-[#3B49FF]">Launch rule</span>
+                Real stock and a reachable decision-maker only.
+              </div>
             </div>
 
             <aside className="rounded-[2rem] border border-slate-200 bg-[#eefcf9] p-6">
               <ShieldCheck className="text-[#0f766e]" size={30} />
-              <h2 className="mt-4 text-2xl font-black tracking-[-.04em] text-[#0f766e]">Data and consent gate</h2>
+              <h2 className="mt-4 text-2xl font-black tracking-[-.04em] text-[#0f766e]">Who gets approved?</h2>
               <p className="mt-3 text-sm font-bold leading-6 text-[#0f766e]">
-                Agency launch requests use an email handoff for now. Production onboarding still needs Supabase-backed agency applications, tenant-scoped agent invites, audit events, and notification routing.
+                Agencies with live stock, a reachable contact, and enough feedback to shape the pilot workflow.
               </p>
               <div className="mt-5 space-y-3">
-                <div className="rounded-2xl bg-white/80 p-4 text-sm font-bold leading-6 text-[#0f766e]">
-                  <span className="block text-xs font-black uppercase tracking-[.14em] text-[#0f766e]/70">Launch rule</span>
-                  Real stock and a reachable decision-maker only.
-                </div>
                 <div className="rounded-2xl bg-white/80 p-4 text-sm font-bold leading-6 text-[#0f766e]">
                   <span className="block text-xs font-black uppercase tracking-[.14em] text-[#0f766e]/70">Routing</span>
                   Enquiries need a clear fallback while the full automation layer is still being wired.
                 </div>
+                <div className="rounded-2xl bg-white/80 p-4 text-sm font-bold leading-6 text-[#0f766e]">
+                  <span className="block text-xs font-black uppercase tracking-[.14em] text-[#0f766e]/70">Next step</span>
+                  Send launch details so the team can review the feed and confirm the pilot fit.
+                </div>
               </div>
-            </aside>
-          </section>
-
-          <section className="mt-8 rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
-            <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-              <div>
-                <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Pilot review</p>
-                <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">What Proppd checks before a launch partner gets approved.</h2>
-                <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-600">
-                  We keep the final step short: check the feed, confirm the contact, and route the pilot through a clean handoff.
-                </p>
-              </div>
-              <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href={buildAgencyApplicationMailto({ packageName: 'Agency Growth' })}>
+              <a className="mt-5 inline-flex items-center justify-center rounded-full border border-[#0f766e]/20 bg-white px-5 py-3 text-sm font-black text-[#0f766e] shadow-sm transition hover:border-[#0f766e]" href={buildAgencyApplicationMailto({ packageName: 'Agency Growth' })}>
                 Send launch details →
               </a>
-            </div>
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
-              {launchFlow.map((item) => (
-                <div key={item.step} className="rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-4">
-                  <p className="text-xs font-black uppercase tracking-[.18em] text-[#3B49FF]">{item.step}</p>
-                  <p className="mt-2 text-lg font-black tracking-[-.04em]">{item.title}</p>
-                  <p className="mt-1 text-sm font-bold leading-6 text-slate-600">{item.text}</p>
-                </div>
-              ))}
-            </div>
+            </aside>
           </section>
         </div>
       </section>

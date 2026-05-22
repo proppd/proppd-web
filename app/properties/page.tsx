@@ -41,6 +41,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
   const areaWatchlist = buildAreaWatchlist(filtered);
   const marketSnapshot = buildMarketSnapshot(filtered);
   const resultMix = buildResultMix(filtered);
+  const hasListings = filtered.length > 0;
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -232,70 +233,72 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
         </div>
       </section>
 
-      <section className="px-4 pb-10 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid gap-5 lg:grid-cols-3">
-            <section className="rounded-[2rem] bg-white p-6 shadow-sm">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Market snapshot</p>
-              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">{marketSnapshot.hasListings ? 'Price range in this result set.' : 'No price data to summarize yet.'}</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{marketSnapshot.hasListings ? 'This view gives a faster read than the suburb list by showing the average asking price and the overall market spread.' : 'Once matching homes are live, this panel will show the average asking price, price band, and market spread for the filtered search.'}</p>
-              <div className="mt-5 grid gap-3">
-                <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
-                  <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Average asking</p>
-                  <p className="mt-1 text-2xl font-black tracking-[-.04em] text-[#050A30]">{marketSnapshot.average}</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-600">Across the current filtered listings</p>
+      {hasListings ? (
+        <section className="px-4 pb-10 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid gap-5 lg:grid-cols-3">
+              <section className="rounded-[2rem] bg-white p-6 shadow-sm">
+                <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Market snapshot</p>
+                <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">{marketSnapshot.hasListings ? 'Price range in this result set.' : 'No price data to summarize yet.'}</h2>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{marketSnapshot.hasListings ? 'This view gives a faster read than the suburb list by showing the average asking price and the overall market spread.' : 'Once matching homes are live, this panel will show the average asking price, price band, and market spread for the filtered search.'}</p>
+                <div className="mt-5 grid gap-3">
+                  <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
+                    <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Average asking</p>
+                    <p className="mt-1 text-2xl font-black tracking-[-.04em] text-[#050A30]">{marketSnapshot.average}</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-600">Across the current filtered listings</p>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
+                    <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Price band</p>
+                    <p className="mt-1 text-sm font-black text-[#050A30]">{marketSnapshot.hasListings ? `${marketSnapshot.low} → ${marketSnapshot.high}` : 'No active price band yet'}</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-600">{marketSnapshot.hasListings ? 'From the lowest to the highest asking price' : 'Widen the search or save it for the next matching listing'}</p>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
+                    <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Geography</p>
+                    <p className="mt-1 text-sm font-black text-[#050A30]">{marketSnapshot.cityLabel} · {marketSnapshot.provinceLabel}</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-600">{marketSnapshot.hasListings ? 'A quick sense of how broad the set is' : 'No geographic spread in the current filtered set'}</p>
+                  </div>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
-                  <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Price band</p>
-                  <p className="mt-1 text-sm font-black text-[#050A30]">{marketSnapshot.hasListings ? `${marketSnapshot.low} → ${marketSnapshot.high}` : 'No active price band yet'}</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-600">{marketSnapshot.hasListings ? 'From the lowest to the highest asking price' : 'Widen the search or save it for the next matching listing'}</p>
-                </div>
-                <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
-                  <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Geography</p>
-                  <p className="mt-1 text-sm font-black text-[#050A30]">{marketSnapshot.cityLabel} · {marketSnapshot.provinceLabel}</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-600">{marketSnapshot.hasListings ? 'A quick sense of how broad the set is' : 'No geographic spread in the current filtered set'}</p>
-                </div>
-              </div>
-            </section>
+              </section>
 
-            <section className="rounded-[2rem] bg-[#050A30] p-6 text-white shadow-sm lg:col-span-1">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Result mix</p>
-              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">What this result set is made of.</h2>
-              <p className="mt-2 text-sm font-semibold leading-6 text-white/72">A quick read on the current market split helps you decide whether to tighten by purpose, type, or location.</p>
-              <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">For sale</p>
-                  <p className="mt-2 text-3xl font-black">{resultMix.saleCount}</p>
-                  <p className="mt-1 text-sm font-semibold text-white/65">Homes in the current set</p>
+              <section className="rounded-[2rem] bg-[#050A30] p-6 text-white shadow-sm lg:col-span-1">
+                <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Result mix</p>
+                <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">What this result set is made of.</h2>
+                <p className="mt-2 text-sm font-semibold leading-6 text-white/72">A quick read on the current market split helps you decide whether to tighten by purpose, type, or location.</p>
+                <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">For sale</p>
+                    <p className="mt-2 text-3xl font-black">{resultMix.saleCount}</p>
+                    <p className="mt-1 text-sm font-semibold text-white/65">Homes in the current set</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">To rent</p>
+                    <p className="mt-2 text-3xl font-black">{resultMix.rentCount}</p>
+                    <p className="mt-1 text-sm font-semibold text-white/65">Rental homes in the current set</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">Top type</p>
+                    <p className="mt-2 text-2xl font-black">{resultMix.topType}</p>
+                    <p className="mt-1 text-sm font-semibold text-white/65">Most common property type</p>
+                  </div>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">To rent</p>
-                  <p className="mt-2 text-3xl font-black">{resultMix.rentCount}</p>
-                  <p className="mt-1 text-sm font-semibold text-white/65">Rental homes in the current set</p>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">Top type</p>
-                  <p className="mt-2 text-2xl font-black">{resultMix.topType}</p>
-                  <p className="mt-1 text-sm font-semibold text-white/65">Most common property type</p>
-                </div>
-              </div>
-            </section>
+              </section>
 
-            <section className="rounded-[2rem] border border-slate-200 bg-[#eefcf9] p-6 shadow-sm">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#0f766e]">Need a shortlist?</p>
-              <h2 className="mt-2 text-2xl font-black tracking-[-.04em] text-[#0f766e]">Turn the current result set into a clean handoff.</h2>
-              <p className="mt-4 text-sm font-bold leading-6 text-[#0f766e]">Save the search email, then send it to a buyer, tenant, or co-buyer with the filters already captured.</p>
-              <div className="mt-4 rounded-2xl border border-[#0f766e]/15 bg-white/75 p-4 text-xs font-black uppercase tracking-[.14em] text-[#0f766e]/70">
-                Includes the search path, result count, and active filters.
-              </div>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <a className="inline-flex items-center justify-center rounded-full border border-[#0f766e]/20 bg-white px-5 py-3 text-sm font-black text-[#0f766e] shadow-sm" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: filtered.length })}>Save search email</a>
-                <a className="inline-flex items-center justify-center rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white shadow-sm" href="/agents">Browse agents</a>
-              </div>
-            </section>
+              <section className="rounded-[2rem] border border-slate-200 bg-[#eefcf9] p-6 shadow-sm">
+                <p className="text-sm font-black uppercase tracking-[.2em] text-[#0f766e]">Need a shortlist?</p>
+                <h2 className="mt-2 text-2xl font-black tracking-[-.04em] text-[#0f766e]">Turn the current result set into a clean handoff.</h2>
+                <p className="mt-4 text-sm font-bold leading-6 text-[#0f766e]">Save the search email, then send it to a buyer, tenant, or co-buyer with the filters already captured.</p>
+                <div className="mt-4 rounded-2xl border border-[#0f766e]/15 bg-white/75 p-4 text-xs font-black uppercase tracking-[.14em] text-[#0f766e]/70">
+                  Includes the search path, result count, and active filters.
+                </div>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <a className="inline-flex items-center justify-center rounded-full border border-[#0f766e]/20 bg-white px-5 py-3 text-sm font-black text-[#0f766e] shadow-sm" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: filtered.length })}>Save search email</a>
+                  <a className="inline-flex items-center justify-center rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white shadow-sm" href="/agents">Browse agents</a>
+                </div>
+              </section>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       <SiteFooter />
     </main>
@@ -341,6 +344,27 @@ function EmptyResults({ filters, params }: { filters: ReturnType<typeof parseLis
             There are no active listings for {scope} right now. Save the search for a handoff, widen the filters, or route the enquiry to the Proppd team so the next matching home can be picked up cleanly.
           </p>
 
+          <div className="mt-6 rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-4">
+            <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Suggested next searches</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <a className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties?location=Sandton">
+                Sandton homes
+              </a>
+              <a className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties?location=Sea%20Point">
+                Sea Point rentals
+              </a>
+              <a className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties?location=Umhlanga">
+                Umhlanga homes
+              </a>
+              <a className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties?purpose=sale">
+                For-sale homes
+              </a>
+              <a className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties?purpose=rent">
+                Rental homes
+              </a>
+            </div>
+          </div>
+
           <div className="mt-6 flex flex-wrap gap-3">
             <a className="inline-flex items-center justify-center rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white shadow-lg" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: 0 })}>
               Save this search
@@ -361,8 +385,8 @@ function EmptyResults({ filters, params }: { filters: ReturnType<typeof parseLis
           <div className="mt-4 grid gap-3">
             {[
               ['Browse all homes', '/properties'],
-              ['For-sale homes', buildPropertiesHref(params, { purpose: 'sale', location: null, q: null, page: null })],
-              ['Rental homes', buildPropertiesHref(params, { purpose: 'rent', location: null, q: null, page: null })],
+              ['For-sale homes', '/properties?purpose=sale'],
+              ['Rental homes', '/properties?purpose=rent'],
               ['Talk to Proppd', '/contact'],
             ].map(([label, href]) => (
               <a key={label} className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href={href}>

@@ -2,6 +2,8 @@ import { Bath, BedDouble, Car, Heart, MapPin, ShieldCheck } from 'lucide-react';
 import type { Listing } from '@/lib/demo-data';
 
 export function ListingCard({ listing }: { listing: Listing }) {
+  const photoCountLabel = listing.photos.length > 1 ? `${listing.photos.length} photos` : '1 photo';
+
   return (
     <article className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-200/80">
       <a href={`/property/${listing.slug}`} className="block">
@@ -24,7 +26,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
               <div className="inline-flex items-center gap-1 rounded-full bg-[#12D6C5] px-3 py-1 text-xs font-black text-[#050A30]"><ShieldCheck size={13} /> Verified</div>
               <div className="mt-2 text-3xl font-black tracking-[-.04em] drop-shadow-sm">{listing.price}</div>
             </div>
-            <span className="rounded-lg border border-white/30 bg-white/15 px-3 py-2 text-xs font-black backdrop-blur">1 / {listing.photos.length}</span>
+            <span className="rounded-lg border border-white/30 bg-white/15 px-3 py-2 text-xs font-black uppercase tracking-[.12em] backdrop-blur">{photoCountLabel}</span>
           </div>
         </div>
         <div className="p-5">
