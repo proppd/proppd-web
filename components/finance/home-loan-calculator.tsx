@@ -25,8 +25,8 @@ export function HomeLoanCalculator() {
   const estimate = useMemo(() => estimateAffordability(input), [input]);
 
   return (
-    <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-2xl shadow-slate-200/70">
-      <div className="flex items-center gap-3 rounded-[1.5rem] bg-[#050A30] p-5 text-white">
+    <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-2xl shadow-slate-200/70">
+      <div className="flex items-center gap-3 rounded-[1.5rem] bg-[#050A30] p-6 text-white">
         <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#12D6C5]/20 text-[#12D6C5]">
           <Calculator size={22} />
         </div>
@@ -36,7 +36,7 @@ export function HomeLoanCalculator() {
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-5 flex flex-wrap gap-2">
         {presets.map((preset) => (
           <button
             key={preset.label}
@@ -52,7 +52,7 @@ export function HomeLoanCalculator() {
         ))}
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <Field label="Gross monthly income" value={input.grossMonthlyIncome} onChange={(value) => setInput((current) => ({ ...current, grossMonthlyIncome: value }))} />
         <Field label="Monthly debt" value={input.monthlyDebt} onChange={(value) => setInput((current) => ({ ...current, monthlyDebt: value }))} />
         <Field label="Deposit" value={input.deposit} onChange={(value) => setInput((current) => ({ ...current, deposit: value }))} />
@@ -60,13 +60,13 @@ export function HomeLoanCalculator() {
         <Field label="Term years" value={input.termYears} onChange={(value) => setInput((current) => ({ ...current, termYears: value }))} />
       </div>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
+      <div className="mt-5 grid gap-4 md:grid-cols-3">
         <Metric label="Monthly guide" value={formatRand(estimate.maxMonthlyRepayment)} />
         <Metric label="Purchase range" value={formatRand(estimate.estimatedPurchasePrice)} />
         <Metric label="Income buffer" value={formatRand(estimate.requiredIncomeBuffer)} />
       </div>
 
-      <div className="mt-4 rounded-[1.5rem] bg-[#F5F7FA] p-4">
+      <div className="mt-5 rounded-[1.5rem] bg-[#F5F7FA] p-5">
         <div className="flex items-center gap-2 text-sm font-black text-[#050A30]">
           <ShieldCheck size={16} className="text-[#3B49FF]" /> Indicative only
         </div>
@@ -75,7 +75,7 @@ export function HomeLoanCalculator() {
         </p>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-3">
+      <div className="mt-5 flex flex-wrap gap-3">
         <a className="inline-flex items-center justify-center gap-2 rounded-full bg-[#3B49FF] px-5 py-3 text-sm font-black text-white shadow-lg shadow-[#3B49FF]/20 transition hover:bg-[#050A30]" href="mailto:info@proppd.com?subject=Home%20loan%20readiness">
           <Mail size={15} /> Register finance interest
         </a>

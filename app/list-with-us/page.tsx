@@ -37,11 +37,6 @@ const launchSignals = [
     text: 'Enquiries carry the context your team needs to respond faster.',
     icon: <UsersRound size={16} />,
   },
-  {
-    title: 'Pilot review',
-    text: 'Every request is assessed before onboarding is approved.',
-    icon: <CheckCircle2 size={16} />,
-  },
 ];
 
 const onboardingSteps = [
@@ -101,7 +96,7 @@ export default function Page() {
                     <ShieldCheck size={14} className="text-[#12D6C5]" />
                     Launch trust
                   </div>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     {launchSignals.map(({ title, text, icon }) => (
                       <div key={title} className="rounded-2xl border border-white/10 bg-[#050A30]/65 p-5 shadow-[0_20px_50px_rgba(5,10,48,.18)]">
                         <div className="inline-flex rounded-2xl bg-white/8 p-2 text-[#12D6C5]">
@@ -210,15 +205,9 @@ export default function Page() {
               <p className="mt-3 text-sm font-bold leading-6 text-[#0f766e]">
                 Agencies with live stock, a reachable contact, and enough feedback to shape the pilot workflow.
               </p>
-              <div className="mt-5 space-y-3">
-                <div className="rounded-2xl bg-white/80 p-4 text-sm font-bold leading-6 text-[#0f766e]">
-                  <span className="block text-xs font-black uppercase tracking-[.14em] text-[#0f766e]/70">Routing</span>
-                  Enquiries need a clear fallback while the full automation layer is still being wired.
-                </div>
-                <div className="rounded-2xl bg-white/80 p-4 text-sm font-bold leading-6 text-[#0f766e]">
-                  <span className="block text-xs font-black uppercase tracking-[.14em] text-[#0f766e]/70">Next step</span>
-                  Send launch details so the team can review the feed and confirm the pilot fit.
-                </div>
+              <div className="mt-5 rounded-2xl bg-white/80 p-4 text-sm font-bold leading-6 text-[#0f766e]">
+                <span className="block text-xs font-black uppercase tracking-[.14em] text-[#0f766e]/70">Approval criteria</span>
+                Enquiries need a clear fallback, and launch details should confirm the feed is real before the pilot is opened.
               </div>
               <a className="mt-5 inline-flex items-center justify-center rounded-full border border-[#0f766e]/20 bg-white px-5 py-3 text-sm font-black text-[#0f766e] shadow-sm transition hover:border-[#0f766e]" href={buildAgencyApplicationMailto({ packageName: 'Agency Growth' })}>
                 Send launch details →

@@ -30,7 +30,7 @@ export default function HomeLoansPage() {
 
       <section className="relative isolate overflow-hidden bg-white px-4 py-20 sm:px-6 lg:px-8">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_18%,rgba(59,73,255,.18),transparent_22rem),radial-gradient(circle_at_80%_10%,rgba(18,214,197,.22),transparent_20rem)]" />
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_.8fr] lg:items-center">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-12">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#3B49FF]/20 bg-[#3B49FF]/10 px-4 py-2 text-sm font-black text-[#3B49FF]">
               <ShieldCheck size={16} /> Home loan readiness
