@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 import { agencies as demoAgencies, agents as demoAgents, listings as demoListings, type Listing } from '../demo-data';
 import { demoLeads } from '../leads/demo-leads';
-import { getLeadQueue, type LeadRecord, type LeadQuality, type LeadStatus, type LeadIntent } from '../leads/pipeline';
+import { getLeadQueue, getLeadActivityLabel, getLeadSourceLabel, type LeadRecord, type LeadQuality, type LeadStatus, type LeadIntent } from '../leads/pipeline';
 import { getSupabaseBrowserConfig } from '../supabase/env';
 import type { DirectoryAgency, DirectoryAgent } from '../directory';
 import { portalPropertyTypeOptions, slugifyListingTitle } from './listing-editor';
@@ -146,6 +146,37 @@ type LeadRow = {
   listing_title: string | null;
   agent_name: string | null;
   agency_name: string | null;
+  latest_event_type: string | null;
+  latest_event_at: string | null;
+  latest_event_note: string | null;
+  latest_event_count: number | string | null;
+};
+
+type LeadEventRow = {
+  id: string;
+  event_type: string;
+  notes: string | null;
+  created_at: string;
+  actor_name: string | null;
+  actor_role: string | null;
+  metadata: Record<string, unknown> | null;
+};
+
+export type LeadEventRecord = {
+  id: string;
+  type: string;
+  label: string;
+  note: string | null;
+  createdAt: string;
+  actorName: string | null;
+  actorRole: string | null;
+  metadata: Record<string, unknown>;
+};
+
+export type LeadTimeline = {
+  source: PortalDataSource;
+  lead: LeadRecord;
+  events: LeadEventRecord[];
 };
 
 const FALLBACK_GRADIENTS = [
@@ -302,6 +333,44 @@ export async function loadPortalLeadById(leadId: string, env: PortalEnv = proces
   }
 }
 
+export async function loadPortalLeadTimeline(leadId: string, env: PortalEnv = process.env): Promise<LeadTimeline | null> {
+  const leadPayload = await loadPortalLeadById(leadId, env);
+  const lead = leadPayload.items[0];
+  if (!lead) return null;
+
+  if (leadPayload.source !== 'database') {
+    return {
+      source: leadPayload.source,
+      lead,
+      events: buildDemoLeadTimeline(lead),
+    };
+  }
+
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return {
+      source: leadPayload.source,
+      lead,
+      events: buildDemoLeadTimeline(lead),
+    };
+  }
+
+  try {
+    const events = await queryLeadEvents(databaseUrl, leadId);
+    return {
+      source: leadPayload.source,
+      lead,
+      events: events.length > 0 ? events.map(mapLeadEventRow) : buildDemoLeadTimeline(lead),
+    };
+  } catch {
+    return {
+      source: leadPayload.source,
+      lead,
+      events: buildDemoLeadTimeline(lead),
+    };
+  }
+}
+
 export type PortalLeadWorkflowUpdate = {
   status?: LeadStatus;
   quality?: 'clean' | 'duplicate' | 'flagged';
@@ -346,10 +415,46 @@ export async function updatePortalLeadWorkflow(
       [nextStatus, nextQuality, leadId],
     );
 
+    await pool.query(
+      `insert into public.lead_events (lead_id, actor_id, event_type, notes, metadata)
+       values ($1, $2, $3, $4, $5)`,
+      [
+        leadId,
+        access.profileId,
+        'workflow_updated',
+        buildLeadWorkflowEventNotes(mapLeadStatus(current.status), nextStatus, mapLeadQuality(current.quality), input.quality ? mapLeadQuality(input.quality) : mapLeadQuality(current.quality)),
+        JSON.stringify({
+          previous_status: current.status,
+          next_status: nextStatus,
+          previous_quality: current.quality,
+          next_quality: nextQuality,
+          actor_role: access.role,
+        }),
+      ],
+    );
+
     return await loadPortalLeadById(leadId, env);
   } catch (error) {
     return { source: 'error', items: [], error: errorMessage(error) };
   }
+}
+
+export function buildLeadWorkflowEventNotes(previousStatus: LeadStatus, nextStatus: LeadStatus, previousQuality: LeadQuality, nextQuality: LeadQuality): string {
+  const changes: string[] = [];
+
+  if (previousStatus !== nextStatus) {
+    changes.push(`status ${previousStatus} → ${nextStatus}`);
+  }
+
+  if (previousQuality !== nextQuality) {
+    changes.push(`quality ${previousQuality} → ${nextQuality}`);
+  }
+
+  if (changes.length === 0) {
+    return 'Lead workflow reviewed without status or quality changes.';
+  }
+
+  return `Updated ${changes.join(' and ')}.`;
 }
 
 export async function loadPortalAgents(env: PortalEnv = process.env): Promise<PortalPayload<DirectoryAgent>> {
@@ -912,11 +1017,22 @@ async function queryLeads(databaseUrl: string, agentName?: string): Promise<Lead
       li.slug as listing_slug,
       li.title as listing_title,
       a.name as agent_name,
-      ag.name as agency_name
+      ag.name as agency_name,
+      le.event_type as latest_event_type,
+      le.created_at as latest_event_at,
+      le.notes as latest_event_note,
+      le.event_count as latest_event_count
     from public.leads l
     left join public.listings li on li.id = l.listing_id
     left join public.agents a on a.id = l.agent_id
     left join public.agencies ag on ag.id = l.agency_id
+    left join lateral (
+      select le.event_type, le.created_at, le.notes, count(*) over () as event_count
+      from public.lead_events le
+      where le.lead_id = l.id
+      order by le.created_at desc
+      limit 1
+    ) le on true
     ${clauses.length > 0 ? `where ${clauses.join(' and ')}` : ''}
     order by l.created_at desc
     limit 250
@@ -924,6 +1040,73 @@ async function queryLeads(databaseUrl: string, agentName?: string): Promise<Lead
 
   const result = await pool.query<LeadRow>(sql, values);
   return result.rows;
+}
+
+async function queryLeadEvents(databaseUrl: string, leadId: string): Promise<LeadEventRow[]> {
+  const pool = getPortalPool(databaseUrl);
+  const result = await pool.query<LeadEventRow>(
+    `select
+       le.id,
+       le.event_type,
+       le.notes,
+       le.created_at,
+       p.full_name as actor_name,
+       p.role as actor_role,
+       le.metadata
+     from public.lead_events le
+     left join public.profiles p on p.id = le.actor_id
+     where le.lead_id = $1
+     order by le.created_at desc
+     limit 25`,
+    [leadId],
+  );
+
+  return result.rows;
+}
+
+function mapLeadEventRow(row: LeadEventRow): LeadEventRecord {
+  return {
+    id: row.id,
+    type: row.event_type,
+    label: getLeadActivityLabel(row.event_type),
+    note: row.notes,
+    createdAt: row.created_at,
+    actorName: row.actor_name,
+    actorRole: row.actor_role,
+    metadata: row.metadata ?? {},
+  };
+}
+
+function buildDemoLeadTimeline(lead: LeadRecord): LeadEventRecord[] {
+  const events: LeadEventRecord[] = [];
+  const sourceLabel = getLeadSourceLabel(lead.sourcePage);
+  const createdAt = lead.createdAt;
+
+  events.push({
+    id: `${lead.id}-created`,
+    type: 'lead_created',
+    label: getLeadActivityLabel('lead_created'),
+    note: `Lead captured from ${sourceLabel.toLowerCase()}.`,
+    createdAt,
+    actorName: null,
+    actorRole: null,
+    metadata: {},
+  });
+
+  if (lead.latestEventType && lead.latestEventType !== 'lead_created') {
+    events.unshift({
+      id: `${lead.id}-latest`,
+      type: lead.latestEventType,
+      label: getLeadActivityLabel(lead.latestEventType),
+      note: lead.latestEventNote ?? null,
+      createdAt: lead.latestEventAt ?? lead.createdAt,
+      actorName: null,
+      actorRole: null,
+      metadata: { count: lead.latestEventCount ?? 1 },
+    });
+  }
+
+  return events.sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
 }
 
 async function queryDirectoryAgents(databaseUrl: string): Promise<DirectoryAgent[]> {
@@ -1081,6 +1264,10 @@ function mapLeadRow(row: LeadRow): LeadRecord {
     agent: row.agent_name ?? 'Unassigned agent',
     agency: row.agency_name ?? 'Unassigned agency',
     sourcePage: row.source_page ?? undefined,
+    latestEventType: row.latest_event_type ?? undefined,
+    latestEventAt: row.latest_event_at ?? undefined,
+    latestEventNote: row.latest_event_note ?? undefined,
+    latestEventCount: row.latest_event_count === null ? undefined : Number(row.latest_event_count),
     createdAt: row.created_at,
     message: row.message,
     flags: row.flags ?? [],

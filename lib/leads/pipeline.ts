@@ -16,6 +16,10 @@ export type LeadRecord = {
   agent: string;
   agency: string;
   sourcePage?: string;
+  latestEventType?: string;
+  latestEventAt?: string;
+  latestEventNote?: string;
+  latestEventCount?: number;
   createdAt: string;
   message: string;
   flags: string[];
@@ -128,6 +132,21 @@ export function getLeadSourceLabel(sourcePage?: string): string {
   }
 
   return 'Portal enquiry';
+}
+
+export function getLeadActivityLabel(eventType?: string): string {
+  const type = eventType?.trim();
+  if (!type) return 'No recent activity';
+
+  const labels: Record<string, string> = {
+    lead_created: 'Lead created',
+    workflow_updated: 'Workflow updated',
+    status_updated: 'Status updated',
+    quality_updated: 'Quality updated',
+    note_added: 'Note added',
+  };
+
+  return labels[type] ?? 'Activity recorded';
 }
 
 export function getLeadSourceGroup(sourcePage?: string): Exclude<LeadSourceGroup, 'all'> {

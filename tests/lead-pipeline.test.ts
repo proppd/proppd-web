@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { demoLeads } from '@/lib/leads/demo-leads';
-import { filterLeads, getLeadPipelineStats, getLeadQueue, getLeadSourceGroup, getLeadSourceLabel, getLeadSourceStats, groupLeadsByStatus } from '@/lib/leads/pipeline';
+import { filterLeads, getLeadActivityLabel, getLeadPipelineStats, getLeadQueue, getLeadSourceGroup, getLeadSourceLabel, getLeadSourceStats, groupLeadsByStatus } from '@/lib/leads/pipeline';
 
 describe('lead pipeline helpers', () => {
   it('summarises new, contacted, qualified, and flagged leads', () => {
@@ -92,5 +92,12 @@ describe('lead pipeline helpers', () => {
     expect(sourceStats.agent).toBe(1);
     expect(sourceStats.general).toBe(1);
     expect(sourceStats.portal).toBe(1);
+  });
+
+  it('labels recent lead activity for queue rows and follow-up tracking', () => {
+    expect(getLeadActivityLabel('lead_created')).toBe('Lead created');
+    expect(getLeadActivityLabel('workflow_updated')).toBe('Workflow updated');
+    expect(getLeadActivityLabel('status_updated')).toBe('Status updated');
+    expect(getLeadActivityLabel()).toBe('No recent activity');
   });
 });
