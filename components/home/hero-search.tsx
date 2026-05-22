@@ -51,39 +51,40 @@ export function HeroSearch() {
           </form>
         </div>
 
-        <div className="mx-auto mt-3 flex max-w-5xl flex-wrap items-center justify-center gap-1.5 text-xs font-bold text-[#050A30] lg:justify-start sm:gap-2 sm:text-sm">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/75 px-2.5 py-1.5 text-slate-500 ring-1 ring-slate-200/80 sm:gap-2 sm:px-3.5"><MapPin size={14} className="text-[#3B49FF]" /> Popular</span>
-          {quickLinks.map((link, index) => (
-            <a key={link} className={`${index > 2 ? 'hidden sm:inline-flex' : 'inline-flex'} rounded-full bg-white/80 px-2.5 py-1.5 text-[#050A30] ring-1 ring-slate-200/80 transition hover:text-[#3B49FF] hover:ring-[#3B49FF]/40 sm:px-3.5`} href={`/properties?location=${encodeURIComponent(link)}`}>
-              {link}
+        <div className="mx-auto mt-3 max-w-5xl space-y-2">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 text-xs font-bold text-[#050A30] lg:justify-start sm:gap-2 sm:text-sm">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/75 px-2.5 py-1.5 text-slate-500 ring-1 ring-slate-200/80 sm:gap-2 sm:px-3.5"><MapPin size={14} className="text-[#3B49FF]" /> Popular</span>
+            {quickLinks.map((link, index) => (
+              <a key={link} className={`${index > 2 ? 'hidden sm:inline-flex' : 'inline-flex'} rounded-full bg-white/80 px-2.5 py-1.5 text-[#050A30] ring-1 ring-slate-200/80 transition hover:text-[#3B49FF] hover:ring-[#3B49FF]/40 sm:px-3.5`} href={`/properties?location=${encodeURIComponent(link)}`}>
+                {link}
+              </a>
+            ))}
+            <a className="inline-flex rounded-full bg-white/80 px-2.5 py-1.5 text-[#050A30] ring-1 ring-slate-200/80 transition hover:text-[#3B49FF] hover:ring-[#3B49FF]/40 sm:px-3.5" href="/properties">
+              More areas
             </a>
-          ))}
-          <a className="inline-flex rounded-full bg-white/80 px-2.5 py-1.5 text-[#050A30] ring-1 ring-slate-200/80 transition hover:text-[#3B49FF] hover:ring-[#3B49FF]/40 sm:px-3.5" href="/properties">
-            More areas
-          </a>
-        </div>
+          </div>
 
-        <div className="mt-5 grid gap-2 md:grid-cols-3">
-          {[
-            ['Buy verified homes', 'Clear facts and direct enquiry routing.', '/properties/for-sale'],
-            ['Find rentals', 'Mobile-first requests with cleaner handoff.', '/properties/to-rent'],
-            ['List agency stock', 'Verified inventory and better lead quality.', '/list-with-us'],
-          ].map(([title, body, href], index) => (
-            <a
-              key={title}
-              href={href}
-              className="group flex items-center gap-3 rounded-[1rem] border border-slate-200/80 bg-[#F8FAFC] px-3 py-2.5 text-left shadow-none transition hover:border-[#3B49FF]/25 hover:bg-white hover:shadow-sm sm:px-3.5 sm:py-3"
-            >
-              <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl ${index === 2 ? 'bg-[#12D6C5]/12 text-[#057a70]' : 'bg-[#3B49FF]/10 text-[#3B49FF]'}`}>
-                <Home size={16} />
-              </div>
-              <div className="min-w-0">
-                <h2 className="text-sm font-black tracking-[-.03em] text-[#050A30] sm:text-[15px]">{title}</h2>
-                <p className="mt-0.5 text-[11px] leading-4 text-slate-600 sm:text-xs">{body}</p>
-              </div>
-              <ArrowRight size={14} className="ml-auto hidden shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-[#3B49FF] sm:block" />
-            </a>
-          ))}
+          <div className="grid gap-2 md:grid-cols-3">
+            {[
+              ['Buy verified homes', '/properties/for-sale'],
+              ['Find rentals', '/properties/to-rent'],
+              ['List agency stock', '/list-with-us'],
+            ].map(([title, href], index) => (
+              <a
+                key={title}
+                href={href}
+                className="group flex items-center gap-2.5 rounded-[.95rem] border border-slate-200/70 bg-white/85 px-2.5 py-2 text-left shadow-none transition hover:border-[#3B49FF]/25 hover:bg-white hover:shadow-sm sm:px-3 sm:py-2.5"
+              >
+                <div className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg ${index === 2 ? 'bg-[#12D6C5]/10 text-[#057a70]' : 'bg-[#3B49FF]/10 text-[#3B49FF]'}`}>
+                  <Home size={15} />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-[13px] font-black tracking-[-.03em] text-[#050A30] sm:text-sm">{title}</h2>
+                </div>
+                <ArrowRight size={13} className="ml-auto hidden shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-[#3B49FF] sm:block" />
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </section>
