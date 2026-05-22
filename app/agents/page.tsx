@@ -72,6 +72,18 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                 </a>
               </div>
             </form>
+            <div className="mt-5 flex flex-wrap items-center gap-2 text-sm font-black text-[#3B49FF]">
+              <span className="mr-1 text-xs font-black uppercase tracking-[.18em] text-slate-400">Popular searches</span>
+              {['Sandton', 'Cape Town', 'Durban', 'Johannesburg North'].map((area) => (
+                <a
+                  key={area}
+                  href={`/agents?q=${encodeURIComponent(area)}`}
+                  className="inline-flex items-center rounded-full border border-[#3B49FF]/15 bg-white px-4 py-2 shadow-sm transition hover:border-[#3B49FF] hover:text-[#050A30]"
+                >
+                  {area}
+                </a>
+              ))}
+            </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               <DirectoryMetric label="Verified agents" value={filteredAgents.length} detail="Profiles visible in this view" />
               <DirectoryMetric label="Agencies represented" value={portalAgencies.items.length} detail="Launch partners in network" />
@@ -115,6 +127,17 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                   <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 text-slate-600">
                     Try a wider agency, city, or area search — or ask Proppd to add a launch partner in that market.
                   </p>
+                  <div className="mt-5 flex flex-wrap gap-2 text-sm font-black text-[#3B49FF]">
+                    {['Sandton', 'Cape Town', 'Durban', 'Pretoria'].map((area) => (
+                      <a
+                        key={area}
+                        href={`/agents?q=${encodeURIComponent(area)}`}
+                        className="inline-flex items-center rounded-full border border-[#3B49FF]/15 bg-[#3B49FF]/6 px-4 py-2 transition hover:border-[#3B49FF] hover:bg-white"
+                      >
+                        {area}
+                      </a>
+                    ))}
+                  </div>
                   <div className="mt-6 flex flex-wrap gap-3">
                     <a className="inline-flex rounded-full bg-[#050A30] px-5 py-3 text-sm font-black !text-white shadow-lg" href="mailto:info@proppd.com?subject=Agent directory request">
                       Request an agent
