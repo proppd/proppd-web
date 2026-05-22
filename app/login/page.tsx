@@ -31,6 +31,9 @@ export default function Page() {
               Proppd uses passwordless login links so verified agents and admins can access the control room without weak shared passwords.
             </p>
             <p className="mt-3 inline-flex rounded-full bg-[#eefcf9] px-4 py-2 text-sm font-black text-[#0f766e]">Admin bootstrap: info@proppd.com</p>
+            <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-slate-500">
+              First admins use the bootstrap inbox above; everyone else signs in with the invited agency email that received the magic link.
+            </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <span className="rounded-full bg-[#eefcf9] px-4 py-2 text-sm font-black text-[#0f766e]">Invite-only access</span>
