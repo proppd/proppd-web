@@ -92,6 +92,21 @@ export default function Page() {
               <SupabaseLoginForm supabaseUrl={supabase?.url} publishableKey={supabase?.publishableKey} nextPath="/dashboard/listings" />
             </div>
 
+            <div className="mt-5 rounded-[1.75rem] border border-slate-200 bg-[#F5F7FA] p-5">
+              <p className="text-xs font-black uppercase tracking-[.18em] text-slate-500">Need access approved?</p>
+              <p className="mt-2 max-w-xl text-sm font-bold leading-6 text-slate-600">
+                Ask from your agency email and include the company name. If you were already sent a login link, check spam and promotions first.
+              </p>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <a className="inline-flex rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white transition hover:bg-[#3B49FF]" href="mailto:info@proppd.com?subject=Proppd%20access%20request">
+                  Email info@proppd.com
+                </a>
+                <a className="inline-flex text-sm font-black text-[#3B49FF]" href="/admin/diagnostics">
+                  Open backend diagnostics
+                </a>
+              </div>
+            </div>
+
             <p className="mt-5 text-sm font-bold leading-6 text-slate-500">
               Need an invite? Contact <a className="text-[#3B49FF]" href="mailto:info@proppd.com">info@proppd.com</a> from your agency email.
             </p>
