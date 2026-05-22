@@ -18,6 +18,30 @@ export function HomeTrustStrip() {
               <StatCard icon={<MapPinned size={18} />} label="Launch metros covered" value={`${metroCount}`} detail="Johannesburg, Cape Town, Durban" />
               <StatCard icon={<Building2 size={18} />} label="Verified partner agencies" value={`${agencies.length}`} detail="Agency-led stock on portal" />
             </div>
+
+            <div className="mt-4 rounded-[1.5rem] border border-[#d7defa] bg-white p-4 shadow-sm">
+              <div className="flex items-center gap-2 text-[#3344f5]">
+                <BadgeCheck size={16} />
+                <p className="text-xs font-black uppercase tracking-[.2em]">Proof at a glance</p>
+              </div>
+              <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 text-slate-600">
+                Search starts clean, the listings stay verified, and every enquiry has a clear route. That keeps the page useful without turning it into a dashboard.
+              </p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl bg-[#F5F7FA] p-3">
+                  <p className="text-xs font-black uppercase tracking-[.18em] text-[#3344f5]">Verified stock</p>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Listings sit in a cleaner browse path with the facts visible up front.</p>
+                </div>
+                <div className="rounded-2xl bg-[#F5F7FA] p-3">
+                  <p className="text-xs font-black uppercase tracking-[.18em] text-[#3344f5]">Local experts</p>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Agents and agencies appear with identity, area, and active stock.</p>
+                </div>
+                <div className="rounded-2xl bg-[#eefcf9] p-3">
+                  <p className="text-xs font-black uppercase tracking-[.18em] text-[#0f766e]">Direct handoff</p>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Each route goes somewhere useful instead of dropping users into a dead end.</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <aside className="rounded-[1.75rem] bg-[#050A30] p-6 text-white shadow-xl shadow-[#050A30]/10">
