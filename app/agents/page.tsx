@@ -105,10 +105,49 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
           </div>
 
           {filteredAgents.length === 0 && (
-            <div className="mt-8 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
-              <h2 className="text-2xl font-black tracking-[-.04em]">No agents match that search yet.</h2>
-              <p className="mt-2 text-sm font-bold leading-6 text-slate-600">Try a wider agency, city, or area search — or ask Proppd to add a launch partner in that market.</p>
-              <a className="mt-5 inline-flex rounded-full bg-[#050A30] px-5 py-3 text-sm font-black !text-white" href="mailto:info@proppd.com?subject=Agent directory request">Request an agent</a>
+            <div className="mt-8 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+              <div className="grid gap-0 lg:grid-cols-[1.1fr_.9fr]">
+                <div className="p-8 sm:p-10">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#3B49FF]/10 text-[#3B49FF]">
+                    <BadgeCheck size={24} />
+                  </div>
+                  <h2 className="mt-5 text-2xl font-black tracking-[-.04em] sm:text-3xl">No agents match that search yet.</h2>
+                  <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 text-slate-600">
+                    Try a wider agency, city, or area search — or ask Proppd to add a launch partner in that market.
+                  </p>
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <a className="inline-flex rounded-full bg-[#050A30] px-5 py-3 text-sm font-black !text-white shadow-lg" href="mailto:info@proppd.com?subject=Agent directory request">
+                      Request an agent
+                    </a>
+                    <a className="inline-flex rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/agencies">
+                      Browse related agencies
+                    </a>
+                  </div>
+                </div>
+
+                <div className="border-t border-slate-200 bg-[#F5F7FA] p-8 sm:p-10 lg:border-l lg:border-t-0">
+                  <p className="text-xs font-black uppercase tracking-[.2em] text-slate-400">Try next</p>
+                  <div className="mt-4 grid gap-3">
+                    {[
+                      ['Search by city', 'Use area names like Sandton, Cape Town, or Durban.'],
+                      ['Search by agency', 'Jump straight to a branch or launch partner.'],
+                      ['Request a profile', 'Tell Proppd which market is still thin.'],
+                    ].map(([title, body]) => (
+                      <div key={title} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[#12D6C5]/12 text-[#057a70]">
+                            <Search size={16} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-black text-[#050A30]">{title}</p>
+                            <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{body}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

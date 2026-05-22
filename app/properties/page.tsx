@@ -365,7 +365,7 @@ function EmptyResults({ filters, params }: { filters: ReturnType<typeof parseLis
             </div>
           </div>
 
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap items-center gap-3">
             <a className="inline-flex items-center justify-center rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white shadow-lg" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: 0 })}>
               Save this search
             </a>
@@ -382,12 +382,11 @@ function EmptyResults({ filters, params }: { filters: ReturnType<typeof parseLis
 
         <div className="border-t border-slate-200 bg-[#F5F7FA] p-6 sm:p-8 lg:border-l lg:border-t-0">
           <p className="text-sm font-black uppercase tracking-[.2em] text-slate-400">Try next</p>
-          <div className="mt-4 grid gap-3">
+          <div className="mt-4 grid gap-2">
             {[
               ['Browse all homes', '/properties'],
               ['For-sale homes', '/properties?purpose=sale'],
               ['Rental homes', '/properties?purpose=rent'],
-              ['Talk to Proppd', '/contact'],
             ].map(([label, href]) => (
               <a key={label} className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href={href}>
                 <span>{label}</span>
