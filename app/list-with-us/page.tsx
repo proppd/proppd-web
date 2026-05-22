@@ -27,9 +27,21 @@ export const metadata: Metadata = {
 };
 
 const launchSignals = [
-  ['Verified profiles', 'Agency details, areas, and listings are checked before exposure.'],
-  ['Cleaner handoff', 'Enquiries carry the context your team needs to respond faster.'],
-  ['Pilot review', 'Every request is assessed before onboarding is approved.'],
+  {
+    title: 'Verified profiles',
+    text: 'Agency details, areas, and listings are checked before exposure.',
+    icon: <ShieldCheck size={16} />,
+  },
+  {
+    title: 'Cleaner handoff',
+    text: 'Enquiries carry the context your team needs to respond faster.',
+    icon: <UsersRound size={16} />,
+  },
+  {
+    title: 'Pilot review',
+    text: 'Every request is assessed before onboarding is approved.',
+    icon: <CheckCircle2 size={16} />,
+  },
 ];
 
 const onboardingSteps = [
@@ -62,6 +74,11 @@ const launchFlow = [
   },
 ];
 
+const launchPromiseNotes = [
+  { icon: ShieldCheck, title: 'Manual review', text: 'A real person checks the launch request before approval.' },
+  { icon: CheckCircle2, title: 'Real stock only', text: 'We want live inventory and a reachable decision-maker.' },
+];
+
 export default function Page() {
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -81,21 +98,41 @@ export default function Page() {
                   <a className="rounded-full bg-white px-6 py-3 text-sm font-black !text-[#050A30]" href={buildAgencyApplicationMailto({ packageName: 'Agency Growth' })}>Apply for launch access</a>
                   <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-black text-white" href="/dashboard">See the AgentOS workspace</a>
                 </div>
-                <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                  {launchSignals.map(([title, text]) => (
-                    <div key={title} className="rounded-2xl border border-white/10 bg-white/6 p-4">
-                      <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">{title}</p>
-                      <p className="mt-2 text-sm font-bold leading-6 text-white/72">{text}</p>
-                    </div>
-                  ))}
+                <div className="mt-8 rounded-[1.5rem] border border-white/10 bg-white/6 p-4">
+                  <div className="flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[.16em] text-white/45">
+                    <ShieldCheck size={14} className="text-[#12D6C5]" />
+                    Launch trust
+                  </div>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    {launchSignals.map(({ title, text, icon }) => (
+                      <div key={title} className="rounded-2xl border border-white/10 bg-[#050A30]/65 p-5 shadow-[0_20px_50px_rgba(5,10,48,.18)]">
+                        <div className="inline-flex rounded-2xl bg-white/8 p-2 text-[#12D6C5]">
+                          {icon}
+                        </div>
+                        <p className="mt-3 text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">{title}</p>
+                        <p className="mt-2 text-sm font-bold leading-6 text-white/75">{text}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
               <div className="rounded-[2rem] border border-white/10 bg-white/10 p-6 backdrop-blur">
                 <Sparkles className="text-[#12D6C5]" size={32} />
                 <h2 className="mt-5 text-3xl font-black tracking-[-.05em]">Launch partners first</h2>
                 <p className="mt-3 text-sm font-bold leading-6 text-white/65">
-                  Proppd is prioritising agencies that can provide accurate listing data, fast lead response, and practical feedback on the AgentOS workflow.
+                  Proppd prioritises agencies with clean stock, fast lead response, and real feedback on the workflow.
                 </p>
+                <div className="mt-6 space-y-3">
+                  {launchPromiseNotes.map(({ icon: Icon, title, text }) => (
+                    <div key={title} className="rounded-2xl border border-white/10 bg-white/6 p-4">
+                      <div className="flex items-center gap-2 text-[#12D6C5]">
+                        <Icon size={16} />
+                        <p className="text-xs font-black uppercase tracking-[.14em]">{title}</p>
+                      </div>
+                      <p className="mt-2 text-sm font-bold leading-6 text-white/70">{text}</p>
+                    </div>
+                  ))}
+                </div>
                 <div className="mt-6 rounded-2xl bg-white p-4 text-[#050A30]">
                   <p className="text-xs font-black uppercase tracking-[.14em] text-slate-500">Pilot promise</p>
                   <p className="mt-2 font-black">Measured launch, real review, and no fake “instant CRM” claim.</p>
