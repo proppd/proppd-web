@@ -57,6 +57,15 @@ export default async function Page() {
                     Open local admin session
                   </a>
                 </div>
+                <div className="mt-5 rounded-[1.75rem] border border-slate-200 bg-[#F5F7FA] p-5">
+                  <p className="text-xs font-black uppercase tracking-[.18em] text-slate-500">Need the live backend check?</p>
+                  <p className="mt-2 text-sm font-bold leading-6 text-slate-600">
+                    Open diagnostics to confirm auth, database connectivity, and the current readiness signals.
+                  </p>
+                  <a className="mt-4 inline-flex rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white transition hover:bg-[#3B49FF]" href="/admin/diagnostics">
+                    Open backend diagnostics
+                  </a>
+                </div>
                 <div className="mt-8 grid gap-3 sm:grid-cols-3">
                   {readiness.map((item) => (
                     <div key={item.label} className="rounded-3xl border border-slate-200 bg-[#F5F7FA] p-4">
@@ -65,6 +74,7 @@ export default async function Page() {
                     </div>
                   ))}
                 </div>
+
               </div>
 
               <aside className="rounded-[2.5rem] bg-[#050A30] p-6 text-white shadow-sm sm:p-8">
@@ -110,6 +120,15 @@ export default async function Page() {
                 </a>
                 <a className="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-black text-[#050A30]" href="mailto:info@proppd.com?subject=Proppd%20listing%20access">
                   Request access
+                </a>
+              </div>
+              <div className="mt-6 rounded-[1.75rem] border border-slate-200 bg-[#F5F7FA] p-5">
+                <p className="text-xs font-black uppercase tracking-[.18em] text-slate-500">Didn’t get the login link?</p>
+                <p className="mt-2 text-sm font-bold leading-6 text-slate-600">
+                  Check spam and promotions first, then open backend diagnostics if the invite still does not land.
+                </p>
+                <a className="mt-4 inline-flex rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white transition hover:bg-[#3B49FF]" href="/admin/diagnostics">
+                  Open backend diagnostics
                 </a>
               </div>
             </div>
