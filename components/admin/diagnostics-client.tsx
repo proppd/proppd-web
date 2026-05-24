@@ -142,7 +142,7 @@ export function DiagnosticsClient({ diagnostics }: { diagnostics: PortalBackendD
           </div>
         </div>
 
-        <div className="rounded-[2rem] bg-[#eefcf9] p-6 text-[#0f766e] shadow-sm">
+        <div id="login-delivery-checklist" className="rounded-[2rem] bg-[#eefcf9] p-6 text-[#0f766e] shadow-sm">
           <p className="text-sm font-black uppercase tracking-[.2em]">Login delivery checklist</p>
           <ul className="mt-4 space-y-3 text-sm font-bold leading-6">
             <li>• Use the agency inbox that was invited for Proppd access.</li>

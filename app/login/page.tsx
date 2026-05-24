@@ -103,8 +103,8 @@ export default async function Page() {
                 <StatusPill label="Auth" value={diagnostics.browserSupabaseConfigured ? 'Configured' : 'Missing'} tone={diagnostics.browserSupabaseConfigured ? 'good' : 'warn'} />
                 <StatusPill label="Service role" value={diagnostics.serviceRoleConfigured ? 'Configured' : 'Missing'} tone={diagnostics.serviceRoleConfigured ? 'good' : 'warn'} />
               </div>
-              <a className="mt-3 inline-flex text-sm font-black text-[#3B49FF]" href="/admin/diagnostics">
-                Open backend diagnostics
+              <a className="mt-3 inline-flex text-sm font-black text-[#3B49FF]" href="/admin/diagnostics#login-delivery-checklist">
+                Open login delivery checklist
               </a>
             </div>
 
