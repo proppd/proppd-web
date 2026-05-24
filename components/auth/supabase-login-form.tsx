@@ -115,6 +115,13 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
           Email request
         </a>
       </div>
+
+      {state.status === 'success' ? (
+        <div className="mt-4 rounded-[1.5rem] border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold leading-6 text-emerald-800">
+          <p className="font-black uppercase tracking-[.14em]">What to check next</p>
+          <p className="mt-2">Look for the message from Proppd or Supabase, then check spam and promotions if it does not land quickly.</p>
+        </div>
+      ) : null}
     </div>
   );
 }
