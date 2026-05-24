@@ -142,6 +142,18 @@ export function DiagnosticsClient({ diagnostics }: { diagnostics: PortalBackendD
           </div>
         </div>
 
+        <div className="rounded-[2rem] bg-[#eefcf9] p-6 text-[#0f766e] shadow-sm">
+          <p className="text-sm font-black uppercase tracking-[.2em]">Login delivery checklist</p>
+          <ul className="mt-4 space-y-3 text-sm font-bold leading-6">
+            <li>• Use the agency inbox that was invited for Proppd access.</li>
+            <li>• Search spam, promotions, and other filtered folders.</li>
+            <li>• If the link still does not arrive, copy the diagnostics JSON and send it with the inbox name.</li>
+          </ul>
+          <a className="mt-4 inline-flex text-sm font-black text-[#050A30]" href="mailto:info@proppd.com?subject=Proppd%20login%20delivery%20issue">
+            Email login support
+          </a>
+        </div>
+
         <div className="rounded-[2rem] bg-[#050A30] p-6 text-white">
           <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Export shape</p>
           <ul className="mt-4 space-y-2 text-sm font-bold leading-6 text-white/70">
