@@ -4,6 +4,7 @@ import { Mail, ShieldCheck, UserCheck } from 'lucide-react';
 import { SupabaseLoginForm } from '@/components/auth/supabase-login-form';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
+import { loadPortalDiagnostics } from '@/lib/proppd/backend';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
 
 export const metadata: Metadata = {
@@ -16,8 +17,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Page() {
+export const dynamic = 'force-dynamic';
+
+export default async function Page() {
   const supabase = getSupabaseBrowserConfig();
+  const diagnostics = await loadPortalDiagnostics();
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -92,19 +96,16 @@ export default function Page() {
               <SupabaseLoginForm supabaseUrl={supabase?.url} publishableKey={supabase?.publishableKey} nextPath="/dashboard/listings" />
             </div>
 
-            <div className="mt-5 rounded-[1.75rem] border border-slate-200 bg-[#F5F7FA] p-5">
-              <p className="text-xs font-black uppercase tracking-[.18em] text-slate-500">Need access approved?</p>
-              <p className="mt-2 max-w-xl text-sm font-bold leading-6 text-slate-600">
-                Ask from your agency email and include the company name. If you were already sent a login link, check spam and promotions first.
-              </p>
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <a className="inline-flex rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white transition hover:bg-[#3B49FF]" href="mailto:info@proppd.com?subject=Proppd%20access%20request">
-                  Email info@proppd.com
-                </a>
-                <a className="inline-flex text-sm font-black text-[#3B49FF]" href="/admin/diagnostics">
-                  Open backend diagnostics
-                </a>
+            <div className="mt-5 rounded-[1.5rem] border border-slate-200 bg-white p-4">
+              <p className="text-xs font-black uppercase tracking-[.18em] text-slate-500">Live backend check</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <StatusPill label="Backend" value={diagnostics.backendMode === 'database' ? 'Connected' : 'Demo fallback'} tone={diagnostics.backendMode === 'database' ? 'good' : 'warn'} />
+                <StatusPill label="Auth" value={diagnostics.browserSupabaseConfigured ? 'Configured' : 'Missing'} tone={diagnostics.browserSupabaseConfigured ? 'good' : 'warn'} />
+                <StatusPill label="Service role" value={diagnostics.serviceRoleConfigured ? 'Configured' : 'Missing'} tone={diagnostics.serviceRoleConfigured ? 'good' : 'warn'} />
               </div>
+              <a className="mt-3 inline-flex text-sm font-black text-[#3B49FF]" href="/admin/diagnostics">
+                Open backend diagnostics
+              </a>
             </div>
 
             <p className="mt-5 text-sm font-bold leading-6 text-slate-500">
@@ -124,6 +125,15 @@ function AccessCard({ icon, label, detail }: { icon: ReactNode; label: string; d
       <div className="inline-flex rounded-2xl bg-[#eefcf9] p-3 text-[#0f766e]">{icon}</div>
       <h2 className="mt-4 font-black">{label}</h2>
       <p className="mt-1 text-sm font-bold text-slate-500">{detail}</p>
+    </div>
+  );
+}
+
+function StatusPill({ label, value, tone }: { label: string; value: string; tone: 'good' | 'warn' }) {
+  return (
+    <div className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-black uppercase tracking-[.12em] ${tone === 'good' ? 'bg-[#eefcf9] text-[#0f766e]' : 'bg-amber-50 text-amber-700'}`}>
+      <span className="text-[10px] font-black opacity-70">{label}</span>
+      <span className="text-[10px] font-black">{value}</span>
     </div>
   );
 }
