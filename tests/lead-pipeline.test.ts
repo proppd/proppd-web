@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { demoLeads } from '@/lib/leads/demo-leads';
-import { filterLeads, getLeadActivityLabel, getLeadPipelineStats, getLeadQueue, getLeadSourceGroup, getLeadSourceLabel, getLeadSourceStats, groupLeadsByStatus, hasLeadFilters } from '@/lib/leads/pipeline';
+import { buildLeadFilterHref, filterLeads, getLeadActivityLabel, getLeadPipelineStats, getLeadQueue, getLeadSourceGroup, getLeadSourceLabel, getLeadSourceStats, groupLeadsByStatus, hasLeadFilters } from '@/lib/leads/pipeline';
 
 describe('lead pipeline helpers', () => {
   it('summarises new, contacted, qualified, and flagged leads', () => {
@@ -98,6 +98,12 @@ describe('lead pipeline helpers', () => {
     expect(hasLeadFilters({ source: 'launch' })).toBe(true);
     expect(hasLeadFilters({ source: 'all' })).toBe(false);
     expect(hasLeadFilters({ query: 'sandton' })).toBe(true);
+  });
+
+  it('builds admin filter hrefs without losing current search controls', () => {
+    expect(buildLeadFilterHref({ source: 'launch' })).toBe('/admin?source=launch');
+    expect(buildLeadFilterHref({ query: 'sandton', status: 'new', quality: 'flagged', source: 'property' })).toBe('/admin?q=sandton&status=new&quality=flagged&source=property');
+    expect(buildLeadFilterHref({ source: 'all' })).toBe('/admin');
   });
 
   it('labels recent lead activity for queue rows and follow-up tracking', () => {

@@ -6,6 +6,7 @@ import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { loadPortalDiagnostics, loadPortalLeadQueue } from '@/lib/proppd/backend';
 import {
+  buildLeadFilterHref,
   filterLeads,
   getLeadActivityLabel,
   formatLeadIntent,
@@ -78,6 +79,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   const queue = getLeadQueue(filteredLeads);
   const stats = getLeadPipelineStats(filteredLeads);
   const sourceStats = getLeadSourceStats(filteredLeads);
+  const queueSourceStats = getLeadSourceStats(leadPayload.items);
   const grouped = groupLeadsByStatus(filteredLeads);
   const hasFilters = hasLeadFilters({ query, status: selectedStatus, quality: selectedQuality, source: selectedSource });
   const moderationEnabled = leadPayload.source !== 'demo' && leadPayload.source !== 'error';
@@ -114,6 +116,41 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                 </p>
                 <div className={`mt-6 inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[.18em] ${moderationEnabled ? 'bg-white/10 text-white' : 'bg-amber-100 text-amber-900'}`}>
                   {sourceLabel}
+                </div>
+                <div className="mt-6">
+                  <p className="text-xs font-black uppercase tracking-[.18em] text-white/45">Source lanes</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {sourceOptions.map((option) => {
+                      const isActive = selectedSource === option.value;
+                      const count =
+                        option.value === 'launch'
+                          ? queueSourceStats.launch
+                          : option.value === 'property'
+                            ? queueSourceStats.property
+                            : option.value === 'valuation'
+                              ? queueSourceStats.valuation
+                              : option.value === 'agent'
+                                ? queueSourceStats.agent
+                                : option.value === 'portal'
+                                  ? queueSourceStats.portal
+                                  : option.value === 'general'
+                                    ? queueSourceStats.general
+                                    : leadPayload.items.length;
+
+                      return (
+                        <a
+                          key={option.value}
+                          className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[.16em] transition ${isActive ? 'border-white/40 bg-white text-[#050A30]' : 'border-white/10 bg-white/8 text-white/75 hover:border-white/30 hover:text-white'}`}
+                          href={buildLeadFilterHref({ query, status: selectedStatus, quality: selectedQuality, source: option.value })}
+                        >
+                          <span>{option.label}</span>
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] ${isActive ? 'bg-[#050A30] text-white' : 'bg-white/10 text-white/70'}`}>
+                            {count}
+                          </span>
+                        </a>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
               <div className="rounded-[2rem] border border-white/10 bg-white/10 p-6 backdrop-blur">

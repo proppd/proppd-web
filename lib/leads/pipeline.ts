@@ -74,6 +74,19 @@ export function getLeadQueue(leads: LeadRecord[]): LeadRecord[] {
   return [...leads].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
 }
 
+export function buildLeadFilterHref(filters: LeadFilters = {}): string {
+  const params = new URLSearchParams();
+
+  const query = filters.query?.trim();
+  if (query) params.set('q', query);
+  if (filters.status && filters.status !== 'all') params.set('status', filters.status);
+  if (filters.quality && filters.quality !== 'all') params.set('quality', filters.quality);
+  if (filters.source && filters.source !== 'all') params.set('source', filters.source);
+
+  const search = params.toString();
+  return search ? `/admin?${search}` : '/admin';
+}
+
 export function hasLeadFilters(filters: LeadFilters = {}): boolean {
   return Boolean(filters.query?.trim() || (filters.status && filters.status !== 'all') || (filters.quality && filters.quality !== 'all') || (filters.source && filters.source !== 'all'));
 }
