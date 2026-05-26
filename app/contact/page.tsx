@@ -168,20 +168,46 @@ export default function ContactPage() {
             </aside>
           </section>
 
-          <section className="mt-8 rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
-            <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-              <div>
-                <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Need a faster route?</p>
-                <h2 className="mt-3 text-4xl font-black tracking-[-.06em]">Go directly to the most relevant page.</h2>
+          <section className="mt-8 grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
+            <div className="rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">What happens after you send it</p>
+              <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">A routed request reads better than a blank inbox.</h2>
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+                <div className="rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-5">
+                  <p className="text-xs font-black uppercase tracking-[.14em] text-[#3B49FF]">1. Submitted</p>
+                  <p className="mt-3 text-sm font-bold leading-6 text-slate-600">Your note and route choice are captured together so the request has context from the start.</p>
+                </div>
+                <div className="rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-5">
+                  <p className="text-xs font-black uppercase tracking-[.14em] text-[#3B49FF]">2. Reviewed</p>
+                  <p className="mt-3 text-sm font-bold leading-6 text-slate-600">The team checks the page link, suburb, and intent before routing it to the best surface.</p>
+                </div>
+                <div className="rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-5">
+                  <p className="text-xs font-black uppercase tracking-[.14em] text-[#3B49FF]">3. Routed</p>
+                  <p className="mt-3 text-sm font-bold leading-6 text-slate-600">The right route gets the request, and the user gets a clearer next step instead of a dead end.</p>
+                </div>
               </div>
-              <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="mailto:info@proppd.com?subject=Proppd%20contact%20request">
+              <div className="mt-6 rounded-[1.5rem] border border-[#eefcf9] bg-[#f8fffd] p-5">
+                <p className="text-xs font-black uppercase tracking-[.14em] text-[#0f766e]">Sample routed note</p>
+                <p className="mt-2 text-sm font-bold leading-6 text-[#0f766e]">
+                  “General support for /property/sandton-modern-house-123: the listing needs a quick route check and I want the enquiry sent to the right contact without extra steps.”
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-[2.5rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Need a faster route?</p>
+              <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">Go directly to the most relevant page.</h2>
+              <div className="mt-6 grid gap-4">
+                <RoutePill title="Properties" href="/properties" icon={Search} text="Browse the live marketplace and use search-first filters." />
+                <RoutePill title="List with us" href="/list-with-us" icon={BadgeCheck} text="Apply for launch access or agency onboarding." />
+                <RoutePill title="Valuation" href="/request-valuation" icon={MapPin} text="Send a seller or landlord request through the right flow." />
+              </div>
+              <a className="mt-6 inline-flex w-full items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="mailto:info@proppd.com?subject=Proppd%20contact%20request">
                 Email Proppd →
               </a>
-            </div>
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
-              <RoutePill title="Properties" href="/properties" icon={Search} text="Browse the live marketplace and use search-first filters." />
-              <RoutePill title="List with us" href="/list-with-us" icon={BadgeCheck} text="Apply for launch access or agency onboarding." />
-              <RoutePill title="Valuation" href="/request-valuation" icon={MapPin} text="Send a seller or landlord request through the right flow." />
+              <p className="mt-3 text-sm font-bold leading-6 text-slate-500">
+                Still unsure? Email info@proppd.com with your property link and we’ll route it.
+              </p>
             </div>
           </section>
         </div>
