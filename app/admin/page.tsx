@@ -14,6 +14,7 @@ import {
   getLeadSourceLabel,
   getLeadSourceStats,
   groupLeadsByStatus,
+  hasLeadFilters,
   type LeadQuality,
   type LeadSourceGroup,
   type LeadStatus,
@@ -78,7 +79,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   const stats = getLeadPipelineStats(filteredLeads);
   const sourceStats = getLeadSourceStats(filteredLeads);
   const grouped = groupLeadsByStatus(filteredLeads);
-  const hasFilters = Boolean(query || selectedStatus !== 'all' || selectedQuality !== 'all');
+  const hasFilters = hasLeadFilters({ query, status: selectedStatus, quality: selectedQuality, source: selectedSource });
   const moderationEnabled = leadPayload.source !== 'demo' && leadPayload.source !== 'error';
   const sourceLabel =
     leadPayload.source === 'database'

@@ -74,6 +74,10 @@ export function getLeadQueue(leads: LeadRecord[]): LeadRecord[] {
   return [...leads].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
 }
 
+export function hasLeadFilters(filters: LeadFilters = {}): boolean {
+  return Boolean(filters.query?.trim() || (filters.status && filters.status !== 'all') || (filters.quality && filters.quality !== 'all') || (filters.source && filters.source !== 'all'));
+}
+
 export function filterLeads(leads: LeadRecord[], filters: LeadFilters = {}): LeadRecord[] {
   const query = filters.query?.trim().toLowerCase();
 
