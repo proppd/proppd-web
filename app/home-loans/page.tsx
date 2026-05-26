@@ -23,6 +23,19 @@ const readinessFacts = [
   ['Clear handoff', 'Finance interest should route with consent and property context.'],
 ];
 
+const handoffSteps = [
+  ['Register interest', 'Send a finance-ready enquiry with your budget and property context.'],
+  ['Share the essentials', 'Attach the right documents so the request does not stall at the first reply.'],
+  ['Route with consent', 'Proppd keeps the handoff tied to the property journey and buyer permission.'],
+  ['Continue the search', 'If the buyer is still deciding, the flow should bring them back to live homes.'],
+];
+
+const trustPoints = [
+  'Consent stays attached to the request instead of disappearing into a generic inbox thread.',
+  'Property context should travel with the finance enquiry so the follow-up feels relevant.',
+  'The handoff should feel like a next step, not a dead end or an opaque form submit.',
+];
+
 export default function HomeLoansPage() {
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -30,8 +43,8 @@ export default function HomeLoansPage() {
 
       <section className="relative isolate overflow-hidden bg-white px-4 py-20 sm:px-6 lg:px-8">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_18%,rgba(59,73,255,.18),transparent_22rem),radial-gradient(circle_at_80%_10%,rgba(18,214,197,.22),transparent_20rem)]" />
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-12">
-          <div>
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1fr] lg:items-start lg:gap-12">
+          <div className="rounded-[2.5rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur sm:p-8">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#3B49FF]/20 bg-[#3B49FF]/10 px-4 py-2 text-sm font-black text-[#3B49FF]">
               <ShieldCheck size={16} /> Home loan readiness
             </div>
@@ -110,6 +123,58 @@ export default function HomeLoansPage() {
               actionHref="mailto:info@proppd.com?subject=Home%20loan%20readiness"
               actionLabel="Email Proppd"
             />
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 pb-20 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.1fr_.9fr]">
+          <div className="rounded-[2.5rem] bg-[#050A30] p-6 text-white shadow-[0_30px_80px_rgba(5,10,48,.16)] sm:p-8">
+            <p className="text-sm font-black uppercase tracking-[.2em] text-cyan-300">What happens next</p>
+            <h2 className="mt-3 max-w-2xl text-4xl font-black tracking-[-.06em]">A clear handoff after the calculator.</h2>
+            <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-white/70">
+              Buyers should be able to move from affordability to action without losing the context that makes a finance request useful.
+            </p>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {handoffSteps.map(([title, body], index) => (
+                <div key={title} className="rounded-[1.5rem] border border-white/10 bg-white/6 p-4 backdrop-blur">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-300/15 text-sm font-black text-cyan-200">
+                    {index + 1}
+                  </div>
+                  <h3 className="mt-4 text-lg font-black tracking-[-.03em]">{title}</h3>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-white/70">{body}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <a className="inline-flex rounded-full bg-white px-5 py-3 font-black text-[#050A30] transition hover:bg-cyan-100" href="mailto:info@proppd.com?subject=Home%20loan%20readiness">
+                Register finance interest
+              </a>
+              <a className="inline-flex rounded-full border border-white/20 px-5 py-3 font-black text-white transition hover:border-cyan-200 hover:text-cyan-200" href="/properties/for-sale">
+                Browse homes for sale
+              </a>
+            </div>
+          </div>
+
+          <div className="rounded-[2.5rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Response guide</p>
+            <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">Why the handoff feels safe.</h2>
+            <ul className="mt-6 space-y-4">
+              {trustPoints.map((point) => (
+                <li key={point} className="flex gap-3 rounded-[1.25rem] bg-[#F5F7FA] p-4">
+                  <div className="mt-1 flex h-7 w-7 flex-none items-center justify-center rounded-full bg-[#12D6C5]/20 text-[#057a70]">
+                    <ShieldCheck size={16} />
+                  </div>
+                  <p className="text-sm font-semibold leading-6 text-slate-600">{point}</p>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6 rounded-[1.5rem] border border-[#3B49FF]/10 bg-[#3B49FF]/6 p-4">
+              <p className="text-xs font-black uppercase tracking-[.18em] text-[#3B49FF]">Good fit when</p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+                the buyer is still comparing homes, wants a realistic budget check, or needs a clearer next step before a full application.
+              </p>
+            </div>
           </div>
         </div>
       </section>
