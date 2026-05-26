@@ -13,7 +13,9 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   return {
-    title: `Lead ${id} | Proppd`,
+    title: {
+      absolute: `Lead ${id}`,
+    },
     alternates: {
       canonical: `/admin/leads/${id}`,
     },
@@ -29,6 +31,8 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   const lead = timeline.lead;
   const moderationEnabled = timeline.source === 'database';
   const latestEvent = timeline.events[0];
+  const sourceHref = lead.sourcePage?.trim().startsWith('/') ? lead.sourcePage.trim() : `/property/${lead.listingSlug}`;
+  const emailHref = `mailto:${lead.email}?subject=${encodeURIComponent(`Proppd follow-up for ${lead.listingTitle}`)}`;
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -123,6 +127,53 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                 <Sparkles className="text-[#12D6C5]" size={28} />
                 <h2 className="mt-4 text-2xl font-black tracking-[-.04em]">Context</h2>
                 <p className="mt-3 text-sm leading-6 text-white/70">{lead.message}</p>
+              </div>
+
+              <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+                <p className="text-sm font-black uppercase tracking-[.16em] text-[#3B49FF]">Next steps</p>
+                <h2 className="mt-3 text-2xl font-black tracking-[-.04em]">Keep the lead moving</h2>
+                <p className="mt-3 text-sm font-bold leading-6 text-slate-600">
+                  Open the source page, reply by email, and keep the listing context close by while the handoff is active.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <a className="inline-flex items-center justify-center rounded-full bg-[#050A30] px-4 py-2 text-xs font-black text-white transition hover:bg-[#3B49FF]" href={emailHref}>
+                    Reply by email
+                  </a>
+                  <a className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-600 transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href={sourceHref}>
+                    Open source page
+                  </a>
+                  <a className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-600 transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href={`/property/${lead.listingSlug}`}>
+                    Open listing
+                  </a>
+                  <a className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-600 transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/admin">
+                    Back to queue
+                  </a>
+                </div>
+                <div className="mt-5 rounded-[1.25rem] bg-[#F5F7FA] p-4">
+                  <p className="text-xs font-black uppercase tracking-[.14em] text-slate-500">Routing snapshot</p>
+                  <div className="mt-3 grid gap-3 text-sm font-bold text-slate-600">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-slate-500">Source</span>
+                      <span className="text-right">{getLeadSourceLabel(lead.sourcePage)}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-slate-500">Status</span>
+                      <span className="text-right capitalize">{lead.status}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-slate-500">Quality</span>
+                      <span className="text-right capitalize">{lead.quality}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-slate-500">Created</span>
+                      <span className="text-right">{new Date(lead.createdAt).toLocaleString('en-ZA', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-slate-500">Latest activity</span>
+                      <span className="text-right">{latestEvent ? getLeadActivityLabel(latestEvent.type) : 'No activity yet'}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </aside>
           </section>
