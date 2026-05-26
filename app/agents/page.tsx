@@ -41,6 +41,8 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
   const agentWatchlist = buildAgentWatchlist(filteredAgents);
   const directoryPulse = buildDirectoryPulse(filteredAgents, portalAgencies.items, portalListings.items);
   const agencyLeaders = buildAgencyLeaders(filteredAgents);
+  const featuredAgency = agencyLeaders[0];
+  const featuredProfiles = buildFeaturedProfiles(filteredAgents, portalListings.items);
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -195,6 +197,54 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
             </div>
           </section>
 
+          <section className="mt-8 rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Featured profiles</p>
+                <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">Agents with live stock tied to them.</h2>
+                <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-600">
+                  These profiles give the lower half something concrete to explore: real names, real areas, and the listings that make each pocket worth browsing.
+                </p>
+              </div>
+              <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties">
+                Browse all listings →
+              </a>
+            </div>
+            <div className="mt-8 grid gap-5 lg:grid-cols-3">
+              {featuredProfiles.map((profile) => (
+                <article key={profile.agentName} className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">Live stock</p>
+                      <h3 className="mt-2 text-2xl font-black tracking-[-.04em] text-[#050A30]">{profile.agentName}</h3>
+                    </div>
+                    <div className="rounded-full bg-white px-3 py-1 text-xs font-black text-[#3B49FF] shadow-sm">
+                      {profile.listingCount} {profile.listingCount === 1 ? 'listing' : 'listings'}
+                    </div>
+                  </div>
+
+                  <p className="mt-3 text-sm font-bold text-slate-600">{profile.agencyName}</p>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">{profile.area}</p>
+
+                  <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Featured listing</p>
+                    <p className="mt-2 text-lg font-black tracking-[-.03em] text-[#050A30]">{profile.featuredListingTitle}</p>
+                    <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{profile.featuredListingMeta}</p>
+                  </div>
+
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    <a href={profile.agentHref} className="inline-flex items-center rounded-full bg-[#050A30] px-4 py-2 text-sm font-black !text-white shadow-sm">
+                      Open profile
+                    </a>
+                    <a href={profile.listingsHref} className="inline-flex items-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]">
+                      View listings
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
           <section className="mt-10">
             <div className="rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -211,7 +261,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                   Browse related agencies →
                 </a>
               </div>
-              <div className="mt-8 grid gap-5 lg:grid-cols-3">
+              <div className="mt-8 grid gap-5 lg:grid-cols-4">
                 <WatchlistCard
                   title="Top areas"
                   body={agentWatchlist.length ? agentWatchlist.map(({ label, count }) => `${label} (${count})`).join(' • ') : 'No live pockets yet — we will surface them here as launch partners come online.'}
@@ -219,6 +269,12 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                 <WatchlistCard
                   title="Search playbook"
                   body="Search by agent, agency, or service area. Then compare listing count, profile quality, and response readiness before you enquire."
+                />
+                <WatchlistCard
+                  title="Featured agency"
+                  body={featuredAgency ? `${featuredAgency.label} currently has ${featuredAgency.count} visible ${featuredAgency.count === 1 ? 'profile' : 'profiles'} in this search.` : 'Browse agencies to find a leading branch in this market.'}
+                  actionHref={featuredAgency ? `/agencies?q=${encodeURIComponent(featuredAgency.label)}` : '/agencies'}
+                  actionLabel={featuredAgency ? 'Open agency' : 'Browse agencies'}
                 />
                 <WatchlistCard
                   title="Need a launch partner?"
@@ -279,6 +335,29 @@ function buildAgencyLeaders(agents: Array<{ agency: string }>): Array<{ label: s
     .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label))
     .slice(0, 3);
 }
+function buildFeaturedProfiles(
+  agents: Array<{ name: string; agency: string; area: string; listings: number }>,
+  listings: Array<{ title: string; suburb: string; city: string; price: string; agent: string; slug: string }>,
+): Array<{ agentName: string; agencyName: string; area: string; listingCount: number; featuredListingTitle: string; featuredListingMeta: string; agentHref: string; listingsHref: string }> {
+  return agents
+    .map((agent) => {
+      const agentListings = listings.filter((listing) => listing.agent === agent.name);
+      const featuredListing = agentListings[0];
+      return {
+        agentName: agent.name,
+        agencyName: agent.agency,
+        area: agent.area,
+        listingCount: agent.listings,
+        featuredListingTitle: featuredListing?.title ?? 'View their current listings',
+        featuredListingMeta: featuredListing ? `${featuredListing.suburb}, ${featuredListing.city} · ${featuredListing.price}` : 'Use the stock filter to see this profile’s live inventory.',
+        agentHref: `/agents/${slugifyDirectoryName(agent.name)}`,
+        listingsHref: `/properties?agent=${encodeURIComponent(agent.name)}`,
+      };
+    })
+    .sort((left, right) => right.listingCount - left.listingCount || left.agentName.localeCompare(right.agentName))
+    .slice(0, 3);
+}
+
 
 function PulseCard({ label, value, detail }: { label: string; value: number | string; detail: string }) {
   return (
