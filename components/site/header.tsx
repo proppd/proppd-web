@@ -1,4 +1,5 @@
 import { ProppdLogo } from './logo';
+import { SavedHomesLink } from './saved-homes-link';
 
 const nav = [
   ['Buy', '/properties/for-sale'],
@@ -27,12 +28,14 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-2 lg:hidden">
+          <SavedHomesLink className="whitespace-nowrap rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-black text-[#050A30] transition hover:border-[#0f766e] hover:text-[#0f766e]" />
           <a className="rounded-full bg-[#3B49FF] px-4 py-2 text-sm font-black text-white shadow-lg shadow-[#3B49FF]/20" href="/properties">
             Search
           </a>
         </div>
         <div className="hidden items-center gap-2 lg:flex">
           <a className="rounded-full px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100" href="/login">Sign in</a>
+          <SavedHomesLink className="whitespace-nowrap rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-black text-[#050A30] transition hover:border-[#0f766e] hover:text-[#0f766e]" />
           <a className="whitespace-nowrap rounded-full bg-[#3B49FF] px-4 py-2 text-sm font-black text-white shadow-lg shadow-[#3B49FF]/20 transition hover:bg-[#050A30]" href="/properties">
             Search
           </a>
