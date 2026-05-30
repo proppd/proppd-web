@@ -346,8 +346,11 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                 </div>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   <a className="inline-flex items-center justify-center rounded-full border border-[#0f766e]/20 bg-white px-5 py-3 text-sm font-black text-[#0f766e] shadow-sm" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })}>Save search email</a>
-                  <a className="inline-flex items-center justify-center rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white shadow-sm" href="/agents">Browse agents</a>
+                  <a className="inline-flex items-center justify-center rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white shadow-sm" href="/saved">Open saved homes</a>
                 </div>
+                <p className="mt-3 text-xs font-semibold leading-6 text-[#0f766e]/80">
+                  Saved homes stay on this device until you sign in. <a className="font-black text-[#0f766e] underline decoration-[#0f766e]/30 underline-offset-2" href="/login?next=%2Fsaved">Sync across devices</a> when you’re ready.
+                </p>
               </section>
             </div>
           </div>

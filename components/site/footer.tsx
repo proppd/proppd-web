@@ -34,7 +34,7 @@ export function SiteFooter() {
               info@proppd.com
             </a>
           </div>
-          <FooterGroup title="Browse" links={[["Properties", "/properties"], ["For sale", "/properties/for-sale"], ["To rent", "/properties/to-rent"], ["Home loans", "/home-loans"]]} />
+          <FooterGroup title="Browse" links={[["Properties", "/properties"], ["Saved homes", "/saved"], ["For sale", "/properties/for-sale"], ["To rent", "/properties/to-rent"], ["Home loans", "/home-loans"]]} />
           <FooterGroup title="Professionals" links={[["Agents", "/agents"], ["Agencies", "/agencies"], ["List with us", "/list-with-us"]]} />
           <FooterGroup title="Company" links={[["Business model", "/business"], ["Contact", "/contact"], ["Log in", "/login"]]} />
           <FooterGroup title="Trust" links={[["Privacy", "/privacy"], ["Terms", "/terms"], ["Cookies", "/cookies"], ["Admin", "/admin"]]} />

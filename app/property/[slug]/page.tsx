@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { ArrowLeft, Bath, BedDouble, Building2, CalendarDays, Car, CheckCircle2, Heart, Home, MapPin, Share2, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Bath, BedDouble, Building2, CalendarDays, Car, CheckCircle2, Home, MapPin, Share2, ShieldCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { EnquiryForm } from '@/components/property/enquiry-form';
 import { ListingCard } from '@/components/properties/listing-card';
+import { SaveListingButton } from '@/components/properties/save-listing-button';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { loadPortalDiagnostics, loadPortalListingBySlug, loadPortalListings } from '../../../lib/proppd/backend';
@@ -83,7 +84,11 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
           </a>
           <div className="flex items-center gap-2">
             <a href={buildShareMailto(listing)} className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-black"><Share2 size={15} /> Share</a>
-            <a href={`/login?next=/property/${listing.slug}`} className="inline-flex items-center gap-2 rounded-full bg-[#050A30] px-4 py-2 text-sm font-black text-white"><Heart size={15} /> Save</a>
+            <SaveListingButton
+              slug={listing.slug}
+              title={listing.title}
+              className="inline-flex items-center gap-2 rounded-full bg-[#050A30] px-4 py-2 text-sm font-black text-white transition hover:bg-[#0b1246]"
+            />
           </div>
         </div>
       </section>
@@ -236,6 +241,9 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                   className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-[#050A30] px-4 py-3 text-sm font-black text-white transition hover:bg-[#0b1246]"
                 >
                   Email agent directly
+                </a>
+                <a href="/saved" className="mt-3 inline-flex text-sm font-black text-[#3B49FF]">
+                  Open saved homes
                 </a>
               </div>
               <EnquiryForm
