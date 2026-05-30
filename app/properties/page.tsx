@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Bell, ChevronLeft, ChevronRight, Map as MapIcon, MapPin, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
 import { ListingCard } from '@/components/properties/listing-card';
+import { SavedHomesBanner } from '@/components/properties/saved-homes-banner';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { loadPortalListings } from '../../lib/proppd/backend';
@@ -124,6 +125,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
               </a>
             ) : null}
           </div>
+          <SavedHomesBanner />
         </div>
       </section>
 
