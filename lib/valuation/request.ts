@@ -56,7 +56,7 @@ export function buildValuationRequestSummary(input: ValuationRequestInput): stri
     `Phone: ${input.contactPhone?.trim() || '[please add]'}`,
     '',
     'Valuation notes',
-    'Please help me understand an indicative market range and whether Proppd can route this to a suitable launch partner agent.',
+    'Please help me understand an indicative market range and whether Proppd can route this to a suitable agent or agency.',
     '',
     'POPIA acknowledgement',
     'I understand Proppd may use these details to respond to this valuation request and coordinate a suitable agent handoff.',

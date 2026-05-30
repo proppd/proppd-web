@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { BadgeCheck, Building2, MapPin, Search } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
+import { agencies as demoAgencies, agents as demoAgents, listings as demoListings } from '@/lib/demo-data';
 import { loadPortalAgencies, loadPortalAgents, loadPortalListings } from '../../lib/proppd/backend';
 import { filterAgents, formatDirectorySearchSummary, parseDirectoryQuery, slugifyDirectoryName } from '@/lib/directory';
 
@@ -38,11 +39,16 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
     loadPortalListings(),
   ]);
   const filteredAgents = filterAgents(portalAgents.items, query);
-  const agentWatchlist = buildAgentWatchlist(filteredAgents);
-  const directoryPulse = buildDirectoryPulse(filteredAgents, portalAgencies.items, portalListings.items);
-  const agencyLeaders = buildAgencyLeaders(filteredAgents);
+  const hasSearch = Boolean(query);
+  const visibleAgents = !hasSearch && filteredAgents.length === 0 ? demoAgents : filteredAgents;
+  const visibleAgencies = !hasSearch && portalAgencies.items.length === 0 ? demoAgencies : portalAgencies.items;
+  const visibleListings = !hasSearch && portalListings.items.length === 0 ? demoListings : portalListings.items;
+  const agentWatchlist = buildAgentWatchlist(visibleAgents);
+  const directoryPulse = buildDirectoryPulse(visibleAgents, visibleAgencies, visibleListings);
+  const agencyLeaders = buildAgencyLeaders(visibleAgents);
   const featuredAgency = agencyLeaders[0];
-  const featuredProfiles = buildFeaturedProfiles(filteredAgents, portalListings.items);
+  const featuredProfiles = buildFeaturedProfiles(visibleAgents, visibleListings);
+  const showEmptyState = hasSearch && visibleAgents.length === 0;
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -70,7 +76,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
               <div className="flex flex-wrap gap-2">
                 <button className="inline-flex justify-center rounded-full bg-[#3B49FF] px-6 py-4 text-sm font-black text-white shadow-lg shadow-[#3B49FF]/20" type="submit">Search</button>
                 <a className="inline-flex justify-center rounded-full bg-[#050A30] px-6 py-4 text-sm font-black !text-white" href="/list-with-us#launch-application">
-                  Join directory
+                  List your agency
                 </a>
               </div>
             </form>
@@ -87,15 +93,15 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
               ))}
             </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              <DirectoryMetric label="Verified agents" value={filteredAgents.length} detail="Profiles visible in this view" />
-              <DirectoryMetric label="Agencies represented" value={portalAgencies.items.length} detail="Launch partners in network" />
-              <DirectoryMetric label="Portfolio listings" value={portalListings.items.length} detail="Live stock connected to agents" />
+              <DirectoryMetric label="Verified agents" value={visibleAgents.length} detail="Profiles visible in this view" />
+              <DirectoryMetric label="Agencies represented" value={visibleAgencies.length} detail="Agencies in network" />
+              <DirectoryMetric label="Portfolio listings" value={visibleListings.length} detail="Live stock connected to agents" />
             </div>
-            <p className="mt-5 text-sm font-black text-slate-500">{formatDirectorySearchSummary(filteredAgents.length, 'agent', query)}</p>
+            <p className="mt-5 text-sm font-black text-slate-500">{formatDirectorySearchSummary(visibleAgents.length, 'agent', query)}</p>
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-3">
-            {filteredAgents.map((agent) => (
+            {visibleAgents.map((agent) => (
               <a
                 key={agent.name}
                 href={`/agents/${slugifyDirectoryName(agent.name)}`}
@@ -118,7 +124,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
             ))}
           </div>
 
-          {filteredAgents.length === 0 && (
+          {showEmptyState && (
             <div className="mt-8 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
               <div className="grid gap-0 lg:grid-cols-[1.1fr_.9fr]">
                 <div className="p-8 sm:p-10">
@@ -127,7 +133,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                   </div>
                   <h2 className="mt-5 text-2xl font-black tracking-[-.04em] sm:text-3xl">No agents match that search yet.</h2>
                   <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 text-slate-600">
-                    Try a wider agency, city, or area search — or ask Proppd to add a launch partner in that market.
+                    Try a wider agency, city, or area search — or ask Proppd to add a verified agency in that market.
                   </p>
                   <div className="mt-5 flex flex-wrap gap-2 text-sm font-black text-[#3B49FF]">
                     {['Sandton', 'Cape Town', 'Durban', 'Pretoria'].map((area) => (
@@ -155,7 +161,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                   <div className="mt-4 grid gap-3">
                     {[
                       ['Search by city', 'Use area names like Sandton, Cape Town, or Durban.'],
-                      ['Search by agency', 'Jump straight to a branch or launch partner.'],
+                      ['Search by agency', 'Jump straight to a branch or verified agency.'],
                       ['Request a profile', 'Tell Proppd which market is still thin.'],
                     ].map(([title, body]) => (
                       <div key={title} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -250,11 +256,11 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
                   <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Directory support</p>
-                  <h2 className="mt-3 text-4xl font-black tracking-[-.06em]">{agentWatchlist.length ? `${agentWatchlist.length} active agent pockets` : 'Directory support for launch partners'}</h2>
+                  <h2 className="mt-3 text-4xl font-black tracking-[-.06em]">{agentWatchlist.length ? `${agentWatchlist.length} active agent pockets` : 'Directory support for growing markets'}</h2>
                   <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-600">
                     {agentWatchlist.length
                       ? 'Quickly see where the early network is concentrated, then move into the right team or individual profile.'
-                      : 'When a market is still thin, Proppd keeps the page useful with launch guidance and a clear path to get listed.'}
+                      : 'When a market is still thin, Proppd keeps the page useful with a clear path to get listed.'}
                   </p>
                 </div>
                 <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/agencies">
@@ -264,7 +270,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
               <div className="mt-8 grid gap-5 lg:grid-cols-4">
                 <WatchlistCard
                   title="Top areas"
-                  body={agentWatchlist.length ? agentWatchlist.map(({ label, count }) => `${label} (${count})`).join(' • ') : 'No live pockets yet — we will surface them here as launch partners come online.'}
+                  body={agentWatchlist.length ? agentWatchlist.map(({ label, count }) => `${label} (${count})`).join(' • ') : 'No live pockets yet — we will surface them here as verified agencies come online.'}
                 />
                 <WatchlistCard
                   title="Search playbook"
@@ -277,7 +283,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                   actionLabel={featuredAgency ? 'Open agency' : 'Browse agencies'}
                 />
                 <WatchlistCard
-                  title="Need a launch partner?"
+                  title="Need a verified agency?"
                   body="Tell Proppd which market is missing and we can prioritise a verified agent or branch for onboarding review."
                   actionHref="/list-with-us#launch-application"
                   actionLabel="Request a profile"

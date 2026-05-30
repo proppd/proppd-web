@@ -319,14 +319,14 @@ function VerificationPoint({ title, text }: { title: string; text: string }) {
 
 function getListingSourceLabel(source: 'database' | 'demo' | 'empty' | 'error') {
   if (source === 'database') return 'Verified listing';
-  if (source === 'demo') return 'Verified launch listing';
+  if (source === 'demo') return 'Verified listing';
   if (source === 'empty') return 'Verification pending';
   return 'Enquiry-ready listing';
 }
 
 function getRelatedSourceLabel(source: 'database' | 'demo' | 'empty' | 'error') {
   if (source === 'database') return 'Similar verified homes';
-  if (source === 'demo') return 'Launch-market matches';
+  if (source === 'demo') return 'Verified market matches';
   if (source === 'empty') return 'Similar homes coming soon';
   return 'Curated similar homes';
 }

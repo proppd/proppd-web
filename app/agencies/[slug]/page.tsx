@@ -143,7 +143,7 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
               <p className="text-sm font-black uppercase tracking-[.18em] text-[#12D6C5]">Agency enquiry</p>
               <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">Contact {agency.name}</h2>
               <p className="mt-4 text-sm leading-7 text-white/70">
-                Best for launch onboarding, branch updates, mandate requests, or listing corrections for this agency.
+                Best for agency onboarding, branch updates, mandate requests, or listing corrections for this agency.
               </p>
               <a
                 className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 font-black text-[#050A30]"

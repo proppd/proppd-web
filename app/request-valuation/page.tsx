@@ -35,7 +35,7 @@ const reasons: { id: ValuationReason; title: string; detail: string; example: st
   {
     id: 'agent_appraisal',
     title: 'Agent handoff',
-    detail: 'Ask Proppd to route the request to a suitable launch partner agent.',
+    detail: 'Ask Proppd to route the request to a suitable agent or agency.',
     example: 'Family home in Durban North',
   },
 ];
@@ -53,7 +53,7 @@ export default function Page() {
                 <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Request valuation</p>
                 <h1 className="mt-4 max-w-4xl text-5xl font-black tracking-[-.07em] sm:text-6xl">A cleaner first step for sellers and landlords.</h1>
                 <p className="mt-5 max-w-2xl text-lg leading-8 text-white/70">
-                  Proppd’s valuation route is a readiness and handoff flow: capture the right property context, set expectations clearly, and route serious requests to suitable launch partner agents.
+                  Proppd’s valuation route is a readiness and handoff flow: capture the right property context, set expectations clearly, and route serious requests to suitable agents or agencies.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <a className="rounded-full bg-white px-6 py-3 text-sm font-black !text-[#050A30]" href={buildValuationRequestMailto({ reason: 'selling' })}>Start valuation request</a>
@@ -73,7 +73,7 @@ export default function Page() {
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                     <p className="text-xs font-black uppercase tracking-[.14em] text-[#12D6C5]">Handoff style</p>
-                    <p className="mt-2 text-sm font-bold leading-6 text-white/78">Clear summary first, then route to a suitable launch partner or Proppd review.</p>
+                    <p className="mt-2 text-sm font-bold leading-6 text-white/78">Clear summary first, then route to a suitable agent or Proppd review.</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                     <p className="text-xs font-black uppercase tracking-[.14em] text-[#12D6C5]">Best for</p>
@@ -130,7 +130,7 @@ export default function Page() {
                   </div>
                   <div className="rounded-2xl bg-white p-4 text-sm font-bold text-slate-600 shadow-sm">
                     <p className="font-black text-[#050A30]">3. Route to agent</p>
-                    <p className="mt-2 leading-6">The request can be sent to a launch partner or reviewed internally.</p>
+                    <p className="mt-2 leading-6">The request can be sent to a suitable agent or reviewed internally.</p>
                   </div>
                 </div>
                 <p className="mt-4 text-sm font-bold leading-6 text-[#0f766e]">
@@ -154,7 +154,7 @@ export default function Page() {
               <div className="mt-4 rounded-[1.5rem] border border-[#eefcf9] bg-[#f8fffd] p-5">
                 <p className="text-xs font-black uppercase tracking-[.14em] text-[#0f766e]">Sample request wording</p>
                 <p className="mt-3 text-sm font-bold leading-6 text-slate-600">
-                  “I’d like an indicative market range for a 3-bedroom house in Sandton. The owner consents to a follow-up from a suitable launch partner and can be reached by email.”
+                  “I’d like an indicative market range for a 3-bedroom house in Sandton. The owner consents to a follow-up from a suitable agent and can be reached by email.”
                 </p>
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function Page() {
             </div>
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               <MiniFact title="What agents receive" body="A concise owner brief with property basics, reason, and consent status." />
-              <MiniFact title="Typical turnaround" body="The first response should route quickly once the right launch partner is chosen." />
+              <MiniFact title="Typical turnaround" body="The first response should route quickly once the right agent is chosen." />
               <MiniFact title="Best for" body="Owners who want a sensible market opinion before they list, rent, or hold." />
             </div>
             <div className="mt-8 grid gap-5 lg:grid-cols-3">

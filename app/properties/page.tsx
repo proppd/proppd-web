@@ -37,12 +37,14 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
   const filters = parseListingFilters(toURLSearchParams(params));
   const portalListings = (await loadPortalListings()).items;
   const filtered = applyListingFilters(portalListings, filters);
-  const paginated = paginateListings(filtered, filters.page, filters.pageSize);
-  const areaWatchlist = buildAreaWatchlist(filtered);
-  const marketSnapshot = buildMarketSnapshot(filtered);
-  const resultMix = buildResultMix(filtered);
-  const mapPreview = buildMapPreview(areaWatchlist, filtered.length);
-  const hasListings = filtered.length > 0;
+  const hasActiveSearch = Object.values(params).some((value) => value !== undefined && value !== null && value !== '');
+  const visibleListings = filtered.length > 0 || hasActiveSearch ? filtered : portalListings;
+  const paginated = paginateListings(visibleListings, filters.page, filters.pageSize);
+  const areaWatchlist = buildAreaWatchlist(visibleListings);
+  const marketSnapshot = buildMarketSnapshot(visibleListings);
+  const resultMix = buildResultMix(visibleListings);
+  const mapPreview = buildMapPreview(areaWatchlist, visibleListings.length);
+  const hasListings = visibleListings.length > 0;
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -132,7 +134,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                 <div>
                   <h1 className="text-2xl font-black tracking-[-.04em] sm:text-3xl">
-                    {`${filtered.length} ${filtered.length === 1 ? 'home' : 'homes'} ${searchScopeLabel(filters)}`}
+                    {`${visibleListings.length} ${visibleListings.length === 1 ? 'home' : 'homes'} ${searchScopeLabel(filters)}`}
                   </h1>
                   <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
                     {filters.query ? `Matching “${filters.query}” across listing facts, areas, agents, and agencies.` : 'Price-first verified homes with saved search and agent routing.'}
@@ -144,7 +146,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                       Page {paginated.page} of {paginated.totalPages}
                     </div>
                   ) : null}
-                  <a className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[#050A30] px-4 py-2 text-sm font-black text-white" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: filtered.length })} aria-label="Request a saved property search alert">
+                  <a className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[#050A30] px-4 py-2 text-sm font-black text-white" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })} aria-label="Request a saved property search alert">
                     <Bell size={15} /> <span className="text-white">Save search</span>
                   </a>
                 </div>
@@ -180,7 +182,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
             {paginated.totalPages > 1 && (
               <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm">
                 <p className="text-sm font-bold text-slate-600">
-                  Showing page {paginated.page} of {paginated.totalPages} · {filtered.length} total matches
+                  Showing page {paginated.page} of {paginated.totalPages} · {visibleListings.length} total matches
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <PaginationLink href={buildPropertiesHref(params, { page: Math.max(1, paginated.page - 1) })} disabled={paginated.page <= 1}>
@@ -209,7 +211,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                       <div className="grid h-10 w-10 place-items-center rounded-full bg-[#3B49FF] text-white"><MapPin size={18} /></div>
                       <div>
                         <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Area watch</p>
-                        <p className="font-black">{filtered.length} live {filtered.length === 1 ? 'home' : 'homes'} {searchScopeLabel(filters)}</p>
+                        <p className="font-black">{visibleListings.length} live {visibleListings.length === 1 ? 'home' : 'homes'} {searchScopeLabel(filters)}</p>
                       </div>
                     </div>
                     <p className="mt-3 text-sm leading-6 text-slate-600">Use the filters above to narrow the market, then open a listing to start the enquiry flow.</p>
@@ -274,7 +276,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                     <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">Search shortcut</p>
                     <p className="mt-2 text-sm font-semibold leading-6 text-white/72">Save this search, or narrow by purpose to make the result list more focused.</p>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <a className="rounded-full bg-white px-4 py-2 text-xs font-black text-[#050A30]" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: filtered.length })}>Save search</a>
+                      <a className="rounded-full bg-white px-4 py-2 text-xs font-black text-[#050A30]" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })}>Save search</a>
                       <a className="rounded-full border border-white/15 px-4 py-2 text-xs font-black text-white" href="/request-valuation">Request valuation</a>
                     </div>
                   </div>
@@ -343,7 +345,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                   Includes the search path, result count, and active filters.
                 </div>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <a className="inline-flex items-center justify-center rounded-full border border-[#0f766e]/20 bg-white px-5 py-3 text-sm font-black text-[#0f766e] shadow-sm" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: filtered.length })}>Save search email</a>
+                  <a className="inline-flex items-center justify-center rounded-full border border-[#0f766e]/20 bg-white px-5 py-3 text-sm font-black text-[#0f766e] shadow-sm" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })}>Save search email</a>
                   <a className="inline-flex items-center justify-center rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white shadow-sm" href="/agents">Browse agents</a>
                 </div>
               </section>

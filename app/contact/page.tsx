@@ -5,7 +5,7 @@ import { SiteHeader } from '@/components/site/header';
 
 export const metadata: Metadata = {
   title: 'Contact',
-  description: 'Contact Proppd for property support, agency onboarding, valuation requests, or launch partner questions.',
+  description: 'Contact Proppd for property support, agency onboarding, valuation requests, or directory questions.',
   alternates: { canonical: '/contact' },
 };
 
@@ -19,9 +19,9 @@ const contactRoutes = [
   },
   {
     title: 'List with Proppd',
-    description: 'For agencies that want launch access, verified profiles, and cleaner enquiry handoff.',
+    description: 'For agencies that want verified profiles, cleaner enquiry handoff, and a stronger public route.',
     href: '/list-with-us',
-    cta: 'Apply for launch access',
+    cta: 'Apply to list',
     icon: Building2,
   },
   {
@@ -42,7 +42,7 @@ const contactRoutes = [
 
 const contactReasons = [
   ['Property ID or slug', 'If you already have a listing in mind, include the exact page so Proppd can route the request faster.'],
-  ['Area and intent', 'Tell us whether you are buying, renting, selling, or checking a launch partner fit.'],
+  ['Area and intent', 'Tell us whether you are buying, renting, selling, or checking agency fit.'],
   ['Best email / phone', 'Use a reachable contact so the handoff can move quickly once it is reviewed.'],
 ];
 
@@ -65,7 +65,7 @@ export default function ContactPage() {
                 <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Contact Proppd</p>
                 <h1 className="mt-4 max-w-4xl text-5xl font-black tracking-[-.07em] sm:text-6xl">Talk to the right part of the portal.</h1>
                 <p className="mt-5 max-w-2xl text-lg leading-8 text-white/70">
-                  Use this page when you want property support, launch access, valuation routing, or a quicker path to the right route on Proppd.
+                  Use this page when you want property support, agency onboarding, valuation routing, or a quicker path to the right route on Proppd.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <a className="rounded-full bg-white px-6 py-3 text-sm font-black !text-[#050A30]" href="mailto:info@proppd.com?subject=Contact%20Proppd">
@@ -81,7 +81,7 @@ export default function ContactPage() {
                     <p className="mt-2 text-sm font-bold leading-6 text-white/72">Send the page link, suburb, and what you need fixed or routed.</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/6 p-4">
-                    <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">Launch partners</p>
+                    <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">Agency onboarding</p>
                     <p className="mt-2 text-sm font-bold leading-6 text-white/72">Agencies can ask about onboarding, profiles, and listing exposure.</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/6 p-4">
@@ -95,12 +95,12 @@ export default function ContactPage() {
                 <ShieldCheck className="text-[#12D6C5]" size={34} />
                 <h2 className="mt-5 text-3xl font-black tracking-[-.05em]">Route first, then reply.</h2>
                 <p className="mt-3 text-sm font-bold leading-6 text-white/65">
-                  Contact requests are designed to move quickly into the correct public route or launch partner workflow rather than disappear into a generic inbox.
+                  Contact requests are designed to move quickly into the correct public route or agency workflow rather than disappear into a generic inbox.
                 </p>
                 <div className="mt-6 rounded-2xl bg-white p-4 text-[#050A30]">
                   <p className="text-xs font-black uppercase tracking-[.14em] text-slate-500">Primary inbox</p>
                   <p className="mt-2 font-black">info@proppd.com</p>
-                  <p className="mt-2 text-sm font-bold leading-6 text-slate-600">Best for support, launch access, and property route questions.</p>
+                  <p className="mt-2 text-sm font-bold leading-6 text-slate-600">Best for support, agency onboarding, and property route questions.</p>
                 </div>
               </div>
             </div>
@@ -199,7 +199,7 @@ export default function ContactPage() {
               <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">Go directly to the most relevant page.</h2>
               <div className="mt-6 grid gap-4">
                 <RoutePill title="Properties" href="/properties" icon={Search} text="Browse the live marketplace and use search-first filters." />
-                <RoutePill title="List with us" href="/list-with-us" icon={BadgeCheck} text="Apply for launch access or agency onboarding." />
+                <RoutePill title="List with us" href="/list-with-us" icon={BadgeCheck} text="Apply to list or request agency onboarding." />
                 <RoutePill title="Valuation" href="/request-valuation" icon={MapPin} text="Send a seller or landlord request through the right flow." />
               </div>
               <a className="mt-6 inline-flex w-full items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="mailto:info@proppd.com?subject=Proppd%20contact%20request">

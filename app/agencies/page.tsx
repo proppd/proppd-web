@@ -3,6 +3,7 @@ import type React from 'react';
 import { Building2, MapPin, Search, ShieldCheck, Users } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
+import { agencies as demoAgencies, agents as demoAgents, listings as demoListings } from '@/lib/demo-data';
 import { loadPortalAgencies, loadPortalAgents, loadPortalListings } from '../../lib/proppd/backend';
 import { filterAgencies, formatDirectorySearchSummary, parseDirectoryQuery, slugifyDirectoryName } from '@/lib/directory';
 
@@ -39,9 +40,14 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
     loadPortalListings(),
   ]);
   const filteredAgencies = filterAgencies(portalAgencies.items, query);
-  const agencyWatchlist = buildAgencyWatchlist(filteredAgencies);
-  const agencyPulse = buildAgencyPulse(filteredAgencies, portalAgents.items, portalListings.items);
-  const branchLeaders = buildBranchLeaders(filteredAgencies);
+  const hasSearch = Boolean(query);
+  const visibleAgencies = !hasSearch && filteredAgencies.length === 0 ? demoAgencies : filteredAgencies;
+  const visibleAgents = !hasSearch && portalAgents.items.length === 0 ? demoAgents : portalAgents.items;
+  const visibleListings = !hasSearch && portalListings.items.length === 0 ? demoListings : portalListings.items;
+  const agencyWatchlist = buildAgencyWatchlist(visibleAgencies);
+  const agencyPulse = buildAgencyPulse(visibleAgencies, visibleAgents, visibleListings);
+  const branchLeaders = buildBranchLeaders(visibleAgencies);
+  const showEmptyState = hasSearch && visibleAgencies.length === 0;
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -69,20 +75,20 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
               <div className="flex flex-wrap gap-2">
                 <button className="inline-flex justify-center rounded-full bg-[#3B49FF] px-6 py-4 text-sm font-black text-white shadow-lg shadow-[#3B49FF]/20" type="submit">Search</button>
                 <a className="inline-flex justify-center rounded-full bg-[#050A30] px-6 py-4 text-sm font-black !text-white" href="mailto:info@proppd.com?subject=Add my agency to Proppd">
-                  Add agency
+                  List your agency
                 </a>
               </div>
             </form>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              <DirectoryMetric label="Agencies visible" value={filteredAgencies.length} detail="Profiles shown in this directory" />
-              <DirectoryMetric label="Active agents" value={portalAgents.items.length} detail="Agents tied to the network" />
-              <DirectoryMetric label="Portfolio listings" value={portalListings.items.length} detail="Visible stock linked to branches" />
+              <DirectoryMetric label="Agencies visible" value={visibleAgencies.length} detail="Profiles shown in this directory" />
+              <DirectoryMetric label="Active agents" value={visibleAgents.length} detail="Agents tied to the network" />
+              <DirectoryMetric label="Portfolio listings" value={visibleListings.length} detail="Visible stock linked to branches" />
             </div>
-            <p className="mt-5 text-sm font-black text-slate-500">{formatDirectorySearchSummary(filteredAgencies.length, 'agency', query)}</p>
+            <p className="mt-5 text-sm font-black text-slate-500">{formatDirectorySearchSummary(visibleAgencies.length, 'agency', query)}</p>
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-3">
-            {filteredAgencies.map((agency) => (
+            {visibleAgencies.map((agency) => (
               <a
                 key={agency.name}
                 href={`/agencies/${slugifyDirectoryName(agency.name)}`}
@@ -103,10 +109,10 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
             ))}
           </div>
 
-          {filteredAgencies.length === 0 && (
+          {showEmptyState && (
             <div className="mt-8 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
               <h2 className="text-2xl font-black tracking-[-.04em]">No agencies match that search yet.</h2>
-              <p className="mt-2 text-sm font-bold leading-6 text-slate-600">Try a wider city or agency search — or ask Proppd to open launch onboarding for that market.</p>
+              <p className="mt-2 text-sm font-bold leading-6 text-slate-600">Try a wider city or agency search — or ask Proppd to open agency onboarding for that market.</p>
               <a className="mt-5 inline-flex rounded-full bg-[#050A30] px-5 py-3 text-sm font-black !text-white" href="mailto:info@proppd.com?subject=Agency directory request">Request an agency</a>
             </div>
           )}
@@ -137,11 +143,11 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                 <div>
                   <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Directory support</p>
-                  <h2 className="mt-3 text-4xl font-black tracking-[-.06em]">{agencyWatchlist.length ? `${agencyWatchlist.length} active agency pockets` : 'Directory support for launch partners'}</h2>
+                  <h2 className="mt-3 text-4xl font-black tracking-[-.06em]">{agencyWatchlist.length ? `${agencyWatchlist.length} active agency pockets` : 'Directory support for growing markets'}</h2>
                   <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-600">
                     {agencyWatchlist.length
                       ? 'See where the early agency network is concentrated, then move into the right branch or team profile.'
-                      : 'When a market is still thin, Proppd keeps the page useful with launch guidance and a clear path to get listed.'}
+                      : 'When a market is still thin, Proppd keeps the page useful with a clear path to get listed.'}
                   </p>
                 </div>
                 <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/agents">
@@ -151,7 +157,7 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
               <div className="mt-8 grid gap-5 lg:grid-cols-3">
                 <WatchlistCard
                   title="Top cities"
-                  body={agencyWatchlist.length ? agencyWatchlist.map(({ label, count }) => `${label} (${count})`).join(' • ') : 'No live cities yet — we will surface them here as launch partners come online.'}
+                  body={agencyWatchlist.length ? agencyWatchlist.map(({ label, count }) => `${label} (${count})`).join(' • ') : 'No live cities yet — we will surface them here as verified agencies come online.'}
                 />
                 <WatchlistCard
                   title="Search playbook"

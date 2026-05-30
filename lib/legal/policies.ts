@@ -30,7 +30,7 @@ export const legalPages = {
       },
       {
         title: 'Sharing and routing',
-        body: 'Where a request needs an agent or agency response, Proppd may route the relevant context to an appropriate launch partner or internal operator. The intent is limited handoff, not resale of personal information.',
+        body: 'Where a request needs an agent or agency response, Proppd may route the relevant context to an appropriate agent or internal operator. The intent is limited handoff, not resale of personal information.',
       },
       {
         title: 'Your choices',
