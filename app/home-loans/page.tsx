@@ -175,6 +175,12 @@ export default function HomeLoansPage() {
                 the buyer is still comparing homes, wants a realistic budget check, or needs a clearer next step before a full application.
               </p>
             </div>
+            <div className="mt-4 rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-4">
+              <p className="text-xs font-black uppercase tracking-[.18em] text-slate-500">Sample finance note</p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+                “We are looking around R1.1m, have a deposit ready, and want finance guidance before booking more viewings.”
+              </p>
+            </div>
           </div>
         </div>
       </section>
