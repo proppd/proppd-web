@@ -160,6 +160,12 @@ export default function BusinessPage() {
                 <Snapshot value="Next" label="AgentOS workflows and richer lead routing" />
                 <Snapshot value="Later" label="AI tooling, partner revenue, and automation" />
               </div>
+              <div className="mt-5 rounded-3xl border border-white/12 bg-white/8 p-4">
+                <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">Launch order</p>
+                <p className="mt-2 text-sm font-bold leading-6 text-white/76">
+                  Marketplace first, then verified lead routing, then AgentOS automation once the user journey is already earning trust.
+                </p>
+              </div>
             </div>
             <div className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-6">
               <p className="text-xs font-black uppercase tracking-[.2em] text-[#3B49FF]">Commercial guardrails</p>
