@@ -151,6 +151,12 @@ export default function Page() {
                   </div>
                 </div>
               </div>
+              <div className="mt-4 rounded-[1.5rem] border border-[#eefcf9] bg-[#f8fffd] p-5">
+                <p className="text-xs font-black uppercase tracking-[.14em] text-[#0f766e]">Sample request wording</p>
+                <p className="mt-3 text-sm font-bold leading-6 text-slate-600">
+                  “I’d like an indicative market range for a 3-bedroom house in Sandton. The owner consents to a follow-up from a suitable launch partner and can be reached by email.”
+                </p>
+              </div>
             </div>
 
             <ValuationRequestForm reasons={reasons.map((reason) => reason.id)} initialReason="selling" />
