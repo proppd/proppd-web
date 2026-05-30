@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { Bell, ChevronLeft, ChevronRight, Map as MapIcon, MapPin, Search, SlidersHorizontal, X } from 'lucide-react';
+import { Bell, ChevronLeft, ChevronRight, Map as MapIcon, MapPin, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
@@ -150,6 +150,25 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                 </div>
               </div>
             </div>
+
+            {hasListings ? (
+              <div className="mt-4 rounded-[1.25rem] border border-[#12D6C5]/30 bg-[#eefcf9] p-4 shadow-sm">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#12D6C5] text-[#050A30]"><ShieldCheck size={18} /></div>
+                    <div>
+                      <p className="text-sm font-black uppercase tracking-[.16em] text-[#0f766e]">Verified on Proppd</p>
+                      <p className="mt-1 text-sm font-semibold leading-6 text-[#0f766e]">Each visible listing includes an agency name, mandate context, and a clear enquiry route before you send personal details.</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs font-black text-[#050A30]">
+                    <span className="rounded-full bg-white px-3 py-2 shadow-sm">Agency named</span>
+                    <span className="rounded-full bg-white px-3 py-2 shadow-sm">Mandate shown</span>
+                    <span className="rounded-full bg-white px-3 py-2 shadow-sm">Enquiry route checked</span>
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
             <div className="mt-5 grid gap-5 md:grid-cols-2">
               {paginated.items.map((listing) => (

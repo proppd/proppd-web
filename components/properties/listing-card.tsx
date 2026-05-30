@@ -23,7 +23,9 @@ export function ListingCard({ listing }: { listing: Listing }) {
           </div>
           <div className="relative mt-24 flex items-end justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-1 rounded-full bg-[#12D6C5] px-3 py-1 text-xs font-black text-[#050A30]"><ShieldCheck size={13} /> Verified</div>
+              <div className="inline-flex items-center gap-1 rounded-full bg-[#12D6C5] px-3 py-1 text-xs font-black text-[#050A30]" title="Agency, mandate, and enquiry route checked">
+                <ShieldCheck size={13} /> Verified
+              </div>
               <div className="mt-2 text-3xl font-black tracking-[-.04em] drop-shadow-sm">{listing.price}</div>
             </div>
             <span className="rounded-lg border border-white/30 bg-white/15 px-3 py-2 text-xs font-black uppercase tracking-[.12em] backdrop-blur">{photoCountLabel}</span>
@@ -40,7 +42,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
           <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-slate-500"><MapPin size={15} /> {listing.location}</p>
           <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4 text-sm">
             <span className="font-bold text-slate-600">{listing.agency}</span>
-            <span className="font-black text-[#3B49FF]">View details</span>
+            <span className="font-black text-[#3B49FF]">View verified details</span>
           </div>
         </div>
       </a>
