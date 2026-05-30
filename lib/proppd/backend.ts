@@ -279,7 +279,10 @@ export async function loadPortalListings(env: PortalEnv = process.env): Promise<
 
   try {
     const rows = await queryListings(databaseUrl);
-    return { source: rows.length > 0 ? 'database' : 'empty', items: rows.map(mapListingRow) };
+    if (rows.length === 0) {
+      return fallbackToDemoOnEmptySource(demoListings, 'No published database listings yet, using verified launch stock.');
+    }
+    return { source: 'database', items: rows.map(mapListingRow) };
   } catch (error) {
     return fallbackToDemoOnDatabaseConnectivityError(error, demoListings);
   }
@@ -465,7 +468,10 @@ export async function loadPortalAgents(env: PortalEnv = process.env): Promise<Po
 
   try {
     const rows = await queryDirectoryAgents(databaseUrl);
-    return { source: rows.length > 0 ? 'database' : 'empty', items: rows };
+    if (rows.length === 0) {
+      return fallbackToDemoOnEmptySource(demoAgents, 'No database agent profiles yet, using verified launch profiles.');
+    }
+    return { source: 'database', items: rows };
   } catch (error) {
     return fallbackToDemoOnDatabaseConnectivityError(error, demoAgents);
   }
@@ -479,7 +485,10 @@ export async function loadPortalAgencies(env: PortalEnv = process.env): Promise<
 
   try {
     const rows = await queryDirectoryAgencies(databaseUrl);
-    return { source: rows.length > 0 ? 'database' : 'empty', items: rows };
+    if (rows.length === 0) {
+      return fallbackToDemoOnEmptySource(demoAgencies, 'No database agency profiles yet, using verified launch agencies.');
+    }
+    return { source: 'database', items: rows };
   } catch (error) {
     return fallbackToDemoOnDatabaseConnectivityError(error, demoAgencies);
   }
@@ -1395,6 +1404,10 @@ function fallbackToDemoOnDatabaseConnectivityError<T>(error: unknown, items: T[]
     items,
     error: `Database connection failed, using verified launch fallback: ${message}`,
   };
+}
+
+function fallbackToDemoOnEmptySource<T>(items: T[], error: string): PortalPayload<T> {
+  return { source: 'demo', items, error };
 }
 
 function isDatabaseConnectivityError(message: string): boolean {

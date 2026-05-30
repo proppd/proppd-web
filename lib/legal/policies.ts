@@ -55,11 +55,11 @@ export const legalPages = {
       },
       {
         title: 'Enquiries and handoffs',
-        body: 'Lead, saved-search, agency, valuation, and finance-readiness requests may be routed by structured email while backend persistence is being hardened. Proppd does not guarantee a response time, viewing, valuation outcome, loan approval, or transaction result.',
+        body: 'Lead, saved-search, agency, valuation, and finance-readiness requests may be routed by structured email or portal workflows depending on deployment stage. Proppd does not guarantee a response time, viewing, valuation outcome, loan approval, or transaction result.',
       },
       {
         title: 'Pilot-stage features',
-        body: 'Some AgentOS, lead quality, valuation, and onboarding features are pilot-stage foundations. They are provided to shape workflow readiness and may change as Supabase-backed production operations go live.',
+        body: 'Some AgentOS, lead quality, valuation, and onboarding features are pilot-stage foundations. They are provided to shape workflow readiness and may change as production operations mature.',
       },
     ],
   },

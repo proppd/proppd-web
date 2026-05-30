@@ -105,7 +105,7 @@ export function AgencyApplicationForm({ id = 'launch-application' }: Props) {
 
       if (response.status === 503) {
         const mailto = buildAgencyApplicationMailto(form);
-        setStatus('Live storage is not configured yet. Opening email handoff instead.');
+        setStatus('We could not complete the portal handoff, so your email app will open with the launch details ready to send.');
         window.location.href = mailto;
         return;
       }
@@ -117,11 +117,11 @@ export function AgencyApplicationForm({ id = 'launch-application' }: Props) {
       }
 
       const mailto = buildAgencyApplicationMailto(form);
-      setStatus(responsePayload?.error ?? 'We could not save the launch request. Opening email handoff instead.');
+      setStatus(responsePayload?.error ?? 'We could not complete the portal handoff. Opening email with the launch details ready to send.');
       window.location.href = mailto;
     } catch {
       const mailto = buildAgencyApplicationMailto(form);
-      setStatus('Network issue while saving. Opening email handoff instead.');
+      setStatus('Network issue while sending. Opening email with the launch details ready to send.');
       window.location.href = mailto;
     } finally {
       setIsSubmitting(false);
@@ -138,7 +138,7 @@ export function AgencyApplicationForm({ id = 'launch-application' }: Props) {
         </div>
       </div>
       <p className="mt-4 max-w-3xl text-base font-semibold leading-7 text-slate-600">
-        This form writes the launch request into Proppd’s lead pipeline so the team can review the agency details, stock readiness, and routing needs without waiting on email threads.
+        Share the agency details, stock readiness, and routing needs once so Proppd can review the launch fit and follow up with the right next step.
       </p>
 
       <form className="mt-6 grid gap-4 lg:grid-cols-2" onSubmit={handleSubmit} noValidate>

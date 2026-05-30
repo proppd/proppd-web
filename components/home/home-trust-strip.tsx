@@ -11,8 +11,8 @@ export function HomeTrustStrip() {
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-6 rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-4 shadow-sm lg:grid-cols-[1.3fr_.7fr] lg:p-6">
           <div>
-            <p className="text-xs font-black uppercase tracking-[.24em] text-[#3B49FF]">Why Proppd feels trustworthy</p>
-            <h2 className="mt-2 text-2xl font-black tracking-[-.05em] text-[#050A30] sm:text-3xl">A quieter portal with enough proof to make the next click feel safe.</h2>
+            <p className="text-xs font-black uppercase tracking-[.24em] text-[#3B49FF]">Verified property signals</p>
+            <h2 className="mt-2 text-2xl font-black tracking-[-.05em] text-[#050A30] sm:text-3xl">A quieter portal with the proof buyers need before the next click.</h2>
             <div className="mt-5 grid gap-4 sm:grid-cols-3">
               <StatCard icon={<BadgeCheck size={18} />} label="Featured listings live" value={`${featuredCount}`} detail="Verified for home search" />
               <StatCard icon={<MapPinned size={18} />} label="Launch metros covered" value={`${metroCount}`} detail="Johannesburg, Cape Town, Durban" />

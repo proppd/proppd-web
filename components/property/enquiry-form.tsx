@@ -86,7 +86,7 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
       }
 
       if (response.status === 503) {
-        setStatus('Live storage is not configured yet. Open your email app to send the verified enquiry to Proppd.');
+        setStatus('We could not complete the portal handoff, so your email app will open with the enquiry details ready to send.');
         window.location.href = href;
         return;
       }
@@ -97,10 +97,10 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
         return;
       }
 
-      setStatus(payload?.error ?? 'We could not save the enquiry. Open your email app to send it to Proppd.');
+      setStatus(payload?.error ?? 'We could not complete the portal handoff. Open your email app to send it to Proppd.');
       window.location.href = href;
     } catch {
-      setStatus('Network issue while saving. Open your email app to send the verified enquiry to Proppd.');
+      setStatus('Network issue while sending. Open your email app to send the verified enquiry to Proppd.');
       window.location.href = href;
     } finally {
       setIsSubmitting(false);
@@ -112,7 +112,7 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
       <p className="text-sm font-black uppercase tracking-[.18em] text-[#3B49FF]">Verified enquiry</p>
       <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">Contact {listing.agent}</h2>
       <p className="mt-3 text-sm leading-6 text-slate-600">
-        Capture your details once. Proppd saves configured enquiries securely, keeps POPIA consent explicit, and falls back to email handoff if storage is unavailable.
+        Capture your details once. Proppd keeps POPIA consent explicit and routes the enquiry clearly to the relevant agent or agency.
       </p>
 
       <div className="mt-5 rounded-[1.5rem] border border-slate-200 bg-white p-4 text-xs font-bold leading-5 text-slate-600 shadow-sm">
@@ -130,7 +130,7 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
               className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold normal-case tracking-normal text-[#050A30] outline-none focus:border-[#3B49FF]"
               value={form.name}
               onChange={handleTextChange('name')}
-              placeholder="Lerato"
+              placeholder="Your name"
             />
           </label>
           <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
@@ -139,7 +139,7 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
               className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold normal-case tracking-normal text-[#050A30] outline-none focus:border-[#3B49FF]"
               value={form.surname}
               onChange={handleTextChange('surname')}
-              placeholder="Mokoena"
+              placeholder="Your surname"
             />
           </label>
         </div>
@@ -242,7 +242,7 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
 
       <div className="mt-5 rounded-2xl border border-slate-200 bg-[#F5F7FA] p-4 text-xs font-bold leading-5 text-slate-600">
         <div className="flex items-center gap-2 font-black text-[#050A30]"><ShieldCheck size={15} className="text-[#12D6C5]" /> POPIA-aware handoff</div>
-        <p className="mt-2">Your enquiry is saved securely when live storage is available, with email handoff as a fallback.</p>
+        <p className="mt-2">Your enquiry includes your consent, listing context, and a clear route to the relevant agent or agency.</p>
       </div>
     </aside>
   );

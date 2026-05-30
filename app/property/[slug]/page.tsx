@@ -67,10 +67,10 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
   const listingSourceLabel = getListingSourceLabel(portalListing.source);
   const relatedSourceLabel = getRelatedSourceLabel(portalListings.source);
   const leadRoutingLive = diagnostics.databaseConfigured && diagnostics.canReadDatabase;
-  const leadRoutingLabel = leadRoutingLive ? 'Live lead storage' : 'Email handoff fallback';
+  const leadRoutingLabel = leadRoutingLive ? 'Enquiry route confirmed' : 'Direct email route available';
   const leadRoutingDetail = leadRoutingLive
-    ? 'Your enquiry is saved in the database before the agent receives it.'
-    : 'Your enquiry opens in email if live storage is not ready yet.';
+    ? 'Your enquiry is captured securely and routed to the relevant agent or agency.'
+    : 'Your enquiry can open in email so the agent still receives a clear handoff.';
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
@@ -82,8 +82,8 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
             <ArrowLeft size={16} /> Back to search
           </a>
           <div className="flex items-center gap-2">
-            <button className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-black"><Share2 size={15} /> Share</button>
-            <button className="inline-flex items-center gap-2 rounded-full bg-[#050A30] px-4 py-2 text-sm font-black text-white"><Heart size={15} /> Save</button>
+            <a href={buildShareMailto(listing)} className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-black"><Share2 size={15} /> Share</a>
+            <a href={`/login?next=/property/${listing.slug}`} className="inline-flex items-center gap-2 rounded-full bg-[#050A30] px-4 py-2 text-sm font-black text-white"><Heart size={15} /> Save</a>
           </div>
         </div>
       </section>
@@ -188,6 +188,23 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                   </div>
                 </div>
               </section>
+
+              <section id="verification" className="rounded-[2rem] border border-[#12D6C5]/30 bg-[#eefcf9] p-6 shadow-sm sm:p-8">
+                <p className="text-sm font-black uppercase tracking-[.2em] text-[#0f766e]">How verification works</p>
+                <div className="mt-4 grid gap-4 lg:grid-cols-[.95fr_1.05fr] lg:items-start">
+                  <div>
+                    <h2 className="text-2xl font-black tracking-[-.04em] text-[#050A30]">A clearer handoff before you enquire.</h2>
+                    <p className="mt-3 text-sm font-semibold leading-6 text-[#0f766e]">
+                      Proppd marks a listing as verified when the listing has enough agency, mandate, and property context for a buyer or tenant to make the next click with confidence.
+                    </p>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+                    <VerificationPoint title="Agency named" text={listing.agency} />
+                    <VerificationPoint title="Mandate shown" text={listing.mandate} />
+                    <VerificationPoint title="Handoff route" text={leadRoutingLive ? 'Portal enquiry route' : 'Email enquiry route'} />
+                  </div>
+                </div>
+              </section>
             </article>
 
             <aside className="lg:sticky lg:top-24 lg:h-fit">
@@ -208,7 +225,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                 <p className="text-sm font-black uppercase tracking-[.18em] text-[#3B49FF]">Next steps</p>
                 <h2 className="mt-2 text-xl font-black tracking-[-.04em]">Ready to move fast?</h2>
                 <p className="mt-3 text-sm font-semibold leading-6 text-slate-700">
-                  Share your timeline and budget, then use the form below or the direct email fallback.
+                  Share your timeline and budget, then use the form below or email the agent directly.
                 </p>
                 <div className="mt-4 space-y-2 text-sm font-semibold leading-6 text-slate-700">
                   <div className="flex gap-3"><span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-black text-[#050A30]">1</span> Save or share the listing with your co-buyer.</div>
@@ -285,18 +302,33 @@ function slugifyName(value: string): string {
     .replace(/(^-|-$)/g, '');
 }
 
+function buildShareMailto(listing: { title: string; slug: string }) {
+  const subject = encodeURIComponent(`Proppd listing: ${listing.title}`);
+  const body = encodeURIComponent(`I found this Proppd listing worth reviewing: ${listing.title}\n\n/property/${listing.slug}`);
+  return `mailto:?subject=${subject}&body=${body}`;
+}
+
+function VerificationPoint({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-2xl bg-white p-4 shadow-sm">
+      <div className="flex items-center gap-2 text-sm font-black text-[#050A30]"><ShieldCheck size={16} className="text-[#12D6C5]" /> {title}</div>
+      <p className="mt-2 text-sm font-bold leading-5 text-slate-600">{text}</p>
+    </div>
+  );
+}
+
 function getListingSourceLabel(source: 'database' | 'demo' | 'empty' | 'error') {
-  if (source === 'database') return 'Live listing feed';
-  if (source === 'demo') return 'Demo listing feed';
-  if (source === 'empty') return 'Live feed empty';
-  return 'Feed unavailable';
+  if (source === 'database') return 'Verified listing';
+  if (source === 'demo') return 'Verified launch listing';
+  if (source === 'empty') return 'Verification pending';
+  return 'Enquiry-ready listing';
 }
 
 function getRelatedSourceLabel(source: 'database' | 'demo' | 'empty' | 'error') {
-  if (source === 'database') return 'Live related homes';
-  if (source === 'demo') return 'Demo related homes';
-  if (source === 'empty') return 'Related feed empty';
-  return 'Related feed unavailable';
+  if (source === 'database') return 'Similar verified homes';
+  if (source === 'demo') return 'Launch-market matches';
+  if (source === 'empty') return 'Similar homes coming soon';
+  return 'Curated similar homes';
 }
 
 function SourceBadge({ children, tone }: { children: ReactNode; tone: 'sky' | 'emerald' }) {

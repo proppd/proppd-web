@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
   if ((!supabaseUrl || !serviceRoleKey) && !databaseUrl) {
     return NextResponse.json(
-      { ok: false, error: 'Lead persistence is not configured yet. Please use the email handoff while Supabase is being connected.' },
+      { ok: false, error: 'Portal routing is not available yet. Please send the prepared email enquiry instead.' },
       { status: 503 },
     );
   }
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       );
 
   if (!result) {
-    return NextResponse.json({ ok: false, error: 'Lead could not be saved. Please use the email handoff and try again later.' }, { status: 502 });
+    return NextResponse.json({ ok: false, error: 'The enquiry could not be routed. Please send the prepared email enquiry and try again later.' }, { status: 502 });
   }
 
   return NextResponse.json({ ok: true, lead: result }, { status: 201 });

@@ -64,7 +64,7 @@ const launchFlow = [
   {
     step: '03',
     title: 'Pilot starts',
-    text: 'Live enquiries move through email handoff and feedback.',
+    text: 'Live enquiries move through a clear pilot route with feedback.',
   },
 ];
 
@@ -86,7 +86,7 @@ export default function Page() {
                 <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">List with Proppd</p>
                 <h1 className="mt-4 max-w-4xl text-5xl font-black tracking-[-.07em] sm:text-6xl">Fair portal exposure for serious South African property professionals.</h1>
                 <p className="mt-5 max-w-2xl text-lg leading-8 text-white/70">
-                  Join the Proppd launch rollout with verified profiles, cleaner enquiry handoff, and early access to AgentOS workflows without pretending the full backend is already automated.
+                  Join the Proppd launch rollout with verified profiles, cleaner enquiry routing, and early access to agent workflow tools while the network grows deliberately.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <a className="rounded-full bg-white px-6 py-3 text-sm font-black !text-[#050A30]" href="#launch-application">Open launch application</a>

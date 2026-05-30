@@ -172,7 +172,7 @@ export function ValuationRequestForm({ reasons, initialReason = 'selling' }: Val
               className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold text-[#050A30] outline-none focus:border-[#3B49FF]"
               value={form.ownerName}
               onChange={handleTextChange('ownerName')}
-              placeholder="Lerato"
+              placeholder="Your name"
             />
           </label>
           <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
@@ -243,7 +243,7 @@ export function ValuationRequestForm({ reasons, initialReason = 'selling' }: Val
 
       <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-4 text-xs font-bold leading-5 text-slate-600">
         <div className="flex items-center gap-2 font-black text-[#050A30]"><ShieldCheck size={15} className="text-[#12D6C5]" /> POPIA-aware handoff</div>
-        <p className="mt-2">The request stays human-readable and ready for email handoff while the Supabase workflow is still being wired in.</p>
+        <p className="mt-2">The request stays human-readable with owner consent, property context, and a clear route for follow-up.</p>
       </div>
 
       <a className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30]" href="/business">

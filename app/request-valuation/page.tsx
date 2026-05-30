@@ -68,12 +68,12 @@ export default function Page() {
                 </p>
                 <div className="mt-6 rounded-2xl bg-white p-4 text-[#050A30]">
                   <p className="text-xs font-black uppercase tracking-[.14em] text-slate-500">Owner consent first</p>
-                  <p className="mt-2 font-black">Requests are sent by email handoff until Supabase-backed seller workflows are live.</p>
+                  <p className="mt-2 font-black">Requests open with a clear owner-approved summary so the right person can respond.</p>
                 </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                     <p className="text-xs font-black uppercase tracking-[.14em] text-[#12D6C5]">Handoff style</p>
-                    <p className="mt-2 text-sm font-bold leading-6 text-white/78">Email first, then route to a launch partner or internal review.</p>
+                    <p className="mt-2 text-sm font-bold leading-6 text-white/78">Clear summary first, then route to a suitable launch partner or Proppd review.</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                     <p className="text-xs font-black uppercase tracking-[.14em] text-[#12D6C5]">Best for</p>

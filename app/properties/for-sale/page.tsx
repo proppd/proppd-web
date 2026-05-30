@@ -173,7 +173,7 @@ export default async function ForSalePage({ searchParams }: { searchParams: Sear
               <ul className="mt-5 space-y-3 text-sm font-semibold leading-6 text-white/72">
                 <li className="rounded-2xl border border-white/10 bg-white/5 p-4">Search by suburb, city, agent, school, or listing ID.</li>
                 <li className="rounded-2xl border border-white/10 bg-white/5 p-4">Use beds, type, and sort to keep the shortlist honest.</li>
-                <li className="rounded-2xl border border-white/10 bg-white/5 p-4">Save the search to turn strong matches into an email handoff.</li>
+                <li className="rounded-2xl border border-white/10 bg-white/5 p-4">Save the search so strong matches can be sent with the right context.</li>
               </ul>
             </section>
 

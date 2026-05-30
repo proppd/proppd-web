@@ -14,7 +14,7 @@ export function FeaturedAgents() {
             <p className="proppd-kicker">Verified network</p>
             <h2 className="mt-3 text-3xl font-black tracking-[-.055em] text-[#050A30] sm:text-4xl">Agents and agencies that make listings feel real.</h2>
             <p className="mt-4 max-w-2xl text-base font-semibold leading-7 text-slate-600">
-              Keep the network visible and useful without turning the homepage into a dashboard.
+              Explore named professionals, their service areas, and the active stock connected to them.
             </p>
           </div>
           <div className="flex flex-wrap gap-3 lg:justify-end">
@@ -110,7 +110,7 @@ export function FeaturedAgents() {
 
             <div className="mt-5 rounded-[1.35rem] border border-[#3344f5]/10 bg-[#3344f5]/[.06] p-4">
               <p className="text-sm font-bold leading-6 text-slate-700">
-                Missing a market? Add the right agency instead of padding the page with generic claims.
+                Missing a market? Tell us where you are searching and we will prioritise the right verified agency or branch.
               </p>
               <a className="proppd-link-arrow mt-3 inline-flex items-center gap-2 text-sm" href="/contact">
                 Talk to Proppd <ArrowRight size={15} />

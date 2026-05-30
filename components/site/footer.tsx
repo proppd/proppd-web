@@ -13,7 +13,7 @@ export function SiteFooter() {
             </a>
             <p className="mt-5 text-sm font-black text-[#12D6C5]">Real property. Real opportunities.</p>
             <p className="mt-4 max-w-xl text-base leading-7 text-white/70">
-              A cleaner South African property portal for verified listings, direct enquiries, and agent-led stock — without the generic admin-template feel.
+              A cleaner South African property portal for verified listings, direct enquiries, and agent-led stock across trusted local markets.
             </p>
           </div>
 
