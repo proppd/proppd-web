@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { Bell, ChevronLeft, ChevronRight, MapPin, Search, SlidersHorizontal, X } from 'lucide-react';
+import { Bell, ChevronLeft, ChevronRight, Map as MapIcon, MapPin, Search, SlidersHorizontal, X } from 'lucide-react';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
@@ -41,6 +41,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
   const areaWatchlist = buildAreaWatchlist(filtered);
   const marketSnapshot = buildMarketSnapshot(filtered);
   const resultMix = buildResultMix(filtered);
+  const mapPreview = buildMapPreview(areaWatchlist, filtered.length);
   const hasListings = filtered.length > 0;
 
   return (
@@ -193,6 +194,38 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                       </div>
                     </div>
                     <p className="mt-3 text-sm leading-6 text-slate-600">Use the filters above to narrow the market, then open a listing to start the enquiry flow.</p>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/70 bg-white/92 p-4 shadow-xl backdrop-blur">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Map preview</p>
+                        <h2 className="mt-1 text-lg font-black tracking-[-.03em] text-[#050A30]">See where the result set clusters.</h2>
+                      </div>
+                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#12D6C5]/15 text-[#0f766e]"><MapIcon size={18} /></div>
+                    </div>
+                    <div className="relative mt-4 h-56 overflow-hidden rounded-[1.5rem] border border-slate-200 bg-[radial-gradient(circle_at_24%_24%,rgba(59,73,255,.22),transparent_8rem),radial-gradient(circle_at_78%_68%,rgba(18,214,197,.28),transparent_9rem),linear-gradient(135deg,#f8fbff,#eefcf9)]">
+                      <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(#050A30_1px,transparent_1px),linear-gradient(90deg,#050A30_1px,transparent_1px)] [background-size:32px_32px]" />
+                      <div className="absolute left-4 top-4 rounded-full border border-slate-200 bg-white/90 px-3 py-1 text-xs font-black text-[#050A30] shadow-sm">{mapPreview.summary}</div>
+                      {mapPreview.pins.length > 0 ? (
+                        mapPreview.pins.map((pin, index) => (
+                          <a
+                            key={pin.label}
+                            href={buildPropertiesHref(params, { location: pin.label, q: null, page: null })}
+                            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#050A30] px-3 py-2 text-xs font-black text-white shadow-lg shadow-slate-900/20 ring-4 ring-white/80 transition hover:bg-[#3B49FF]"
+                            style={getMapPinPosition(index)}
+                            aria-label={`View homes around ${pin.label}`}
+                          >
+                            {pin.label} · {pin.count}
+                          </a>
+                        ))
+                      ) : (
+                        <div className="absolute inset-x-5 bottom-5 rounded-2xl bg-white/90 p-4 text-sm font-bold leading-6 text-slate-600 shadow-sm">
+                          Widen the search to rebuild the location preview.
+                        </div>
+                      )}
+                    </div>
+                    <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">Use this as a quick area guide, then open a listing for the full agent route and property facts.</p>
                   </div>
 
                   <div className="rounded-2xl border border-white/70 bg-white/88 p-4 shadow-xl backdrop-blur">
@@ -446,6 +479,22 @@ function buildAreaWatchlist(listings: Array<{ location: string }>) {
     .map(([label, count]) => ({ label, count }))
     .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label))
     .slice(0, 3);
+}
+
+function buildMapPreview(areaWatchlist: Array<{ label: string; count: number }>, total: number) {
+  const pins = areaWatchlist.slice(0, 3);
+  const summary = total > 0 ? `${total} mapped ${total === 1 ? 'home' : 'homes'}` : 'No mapped homes yet';
+  return { pins, summary };
+}
+
+function getMapPinPosition(index: number): { left: string; top: string } {
+  const positions = [
+    { left: '34%', top: '42%' },
+    { left: '66%', top: '58%' },
+    { left: '52%', top: '74%' },
+  ];
+
+  return positions[index] ?? positions[0];
 }
 
 function buildMarketSnapshot(listings: Array<{ priceValue: number; city: string; province: string }>) {
