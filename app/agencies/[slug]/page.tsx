@@ -176,6 +176,9 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
                   <AgencySnapshotPill label="Stock" value={formatDirectoryCount(activeListings.length, 'listing')} />
                   <AgencySnapshotPill label="Top suburb" value={agencyMarketSummary.topSuburb} />
                 </div>
+                <p className="mt-3 text-sm font-bold leading-6 text-slate-600">
+                  Dominant property type: <span className="font-black text-[#050A30]">{agencyMarketSummary.topType}</span>
+                </p>
               </div>
             </div>
             <div className="rounded-[2rem] bg-[#050A30] p-6 text-white shadow-sm">
