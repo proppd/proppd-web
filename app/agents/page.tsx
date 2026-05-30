@@ -268,7 +268,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                 />
                 <WatchlistCard
                   title="Search playbook"
-                  body="Search by agent, agency, or service area. Then compare listing count, profile quality, and response readiness before you enquire."
+                  body="Search by agent, agency, or service area. Then compare the top pocket, leading agency, and response readiness before you enquire."
                 />
                 <WatchlistCard
                   title="Featured agency"
