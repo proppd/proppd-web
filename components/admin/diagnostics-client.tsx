@@ -123,6 +123,43 @@ export function DiagnosticsClient({ diagnostics }: { diagnostics: PortalBackendD
       </div>
 
       <aside className="space-y-5">
+        <div className="rounded-[2rem] border border-[#d7def4] bg-white p-6 shadow-sm">
+          <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Readiness verdict</p>
+          <h2 className="mt-3 text-2xl font-black tracking-[-.04em]">
+            {diagnostics.canReadDatabase ? 'Ready for live reads' : 'Still in demo fallback'}
+          </h2>
+          <p className="mt-3 text-sm font-bold leading-6 text-slate-600">
+            {diagnostics.canReadDatabase
+              ? 'The backend can read live records now, so listings, leads, agents, and agencies can move beyond seed data.'
+              : 'The backend is not yet reading live records, so the page is showing fallback status instead of a production signal.'}
+          </p>
+          <div className="mt-4 grid grid-cols-3 gap-3 text-center text-xs font-black uppercase tracking-[.14em] text-slate-500">
+            <div className="rounded-2xl bg-slate-50 px-3 py-4">
+              <p className={diagnostics.databaseConfigured ? 'text-emerald-600' : 'text-amber-600'}>
+                {diagnostics.databaseConfigured ? 'Configured' : 'Missing'}
+              </p>
+              <p className="mt-1">Database</p>
+            </div>
+            <div className="rounded-2xl bg-slate-50 px-3 py-4">
+              <p className={diagnostics.browserSupabaseConfigured ? 'text-emerald-600' : 'text-amber-600'}>
+                {diagnostics.browserSupabaseConfigured ? 'Configured' : 'Missing'}
+              </p>
+              <p className="mt-1">Browser auth</p>
+            </div>
+            <div className="rounded-2xl bg-slate-50 px-3 py-4">
+              <p className={diagnostics.serviceRoleConfigured ? 'text-emerald-600' : 'text-amber-600'}>
+                {diagnostics.serviceRoleConfigured ? 'Configured' : 'Missing'}
+              </p>
+              <p className="mt-1">Service role</p>
+            </div>
+          </div>
+          <p className="mt-4 text-sm font-bold leading-6 text-slate-600">
+            {diagnostics.canReadDatabase
+              ? 'No immediate blockers are visible from this check.'
+              : 'To move this route into production mode, configure the database URL, browser auth, and service role settings.'}
+          </p>
+        </div>
+
         <div className="rounded-[2rem] bg-white p-6 shadow-sm">
           <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Browser context</p>
           <h2 className="mt-3 text-2xl font-black tracking-[-.04em]">What the browser sees right now</h2>
