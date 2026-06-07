@@ -25,21 +25,36 @@ jobs:
           echo "$DIFF" >> $GITHUB_OUTPUT
           echo "DIFF_EOF" >> $GITHUB_OUTPUT
 
+      - name: Changed files
+        id: files
+        run: |
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.tsx' '*.ts' '*.css')
+          echo "files<<FILES_EOF" >> $GITHUB_OUTPUT
+          echo "$FILES" >> $GITHUB_OUTPUT
+          echo "FILES_EOF" >> $GITHUB_OUTPUT
+
       - name: AI Review
+        if: env.HAS_API_KEY == 'true'
         id: review
         uses: actions/github-script@v7
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: *** secrets.OPENAI_API_KEY }}
+          HAS_API_KEY: ${{ secrets.OPENAI_API_KEY != '' }}
           DIFF: ${{ steps.diff.outputs.diff }}
+          FILES: ${{ steps.files.outputs.files }}
         with:
           script: |
             const diff = process.env.DIFF;
+            const files = process.env.FILES;
             if (!diff || diff.trim().length === 0) {
               core.info('No code changes to review');
               return;
             }
 
             const prompt = `You are a senior software architect reviewing a pull request for proppd.com, a South African property portal built with Next.js, Supabase, and PostgreSQL.
+
+Changed files:
+${files}
 
 Review the following diff and provide feedback. Focus ONLY on:
 
@@ -85,11 +100,9 @@ ${diff}`;
             const data = await response.json();
             const review = data.choices?.[0]?.message?.content || 'No review generated';
 
-            // Count critical issues
             const criticalCount = (review.match(/CRITICAL/gi) || []).length;
             const warningCount = (review.match(/WARNING/gi) || []).length;
 
-            // Post review comment
             const body = `## 🤖 AI Code Review
 
 ${review}
@@ -101,9 +114,10 @@ ${review}
 - Critical issues: ${criticalCount}
 - Warnings: ${warningCount}
 - Model: gpt-4o-mini
+- Focus: Security, Business Logic, Performance, Data Integrity
 </details>
 
-> Auto-generated review. Focus on architecture and security, not style.`;
+> Auto-generated review. Focus on architecture and security, not style. Add \`OPENAI_API_KEY\` secret to enable.`;
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -112,9 +126,26 @@ ${review}
               body,
             });
 
-            // Fail if critical issues found
             if (criticalCount > 0) {
               core.setFailed(`❌ ${criticalCount} critical issue(s) found. Please fix before merging.`);
             } else {
               core.info(`✅ Review passed (${warningCount} warnings)`);
             }
+
+      - name: Post review skipped notice
+        if: env.HAS_API_KEY != 'true'
+        uses: actions/github-script@v7
+        env:
+          HAS_API_KEY: ${{ secrets.OPENAI_API_KEY != '' }}
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## 🤖 AI Code Review
+
+> ⚠️ AI review skipped — \`OPENAI_API_KEY\` secret not configured.
+>
+> To enable: go to **Settings → Secrets → Actions** and add your OpenAI API key.`
+            });
