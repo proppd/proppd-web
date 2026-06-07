@@ -7,7 +7,7 @@ const featuredAgents = agents.slice(0, 6);
 export function FeaturedAgents() {
   return (
     <section className="bg-[#F7F8FA]">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
         {/* Header */}
         <div className="flex items-end justify-between gap-4">
           <div>

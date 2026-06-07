@@ -10,7 +10,7 @@ const averageSalePrice = average(saleListings.map((l) => l.priceValue));
 export function MarketPulse() {
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
         <div className="grid gap-4 sm:grid-cols-3">
           <StatCard
             icon={<Sparkles size={18} />}

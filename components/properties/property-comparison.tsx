@@ -19,7 +19,7 @@ export function PropertyComparison({ listings, onRemove }: PropertyComparisonPro
     }).format(value);
 
   return (
-    <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm sm:p-5">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-bold text-[#1A1A2E]">Compare properties</h3>
         <span className="text-xs font-bold text-[#9CA3AF]">{listings.length}/3 selected</span>

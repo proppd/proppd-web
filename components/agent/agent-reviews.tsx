@@ -70,7 +70,7 @@ function AverageRating({ reviews }: { reviews: Review[] }) {
   }));
 
   return (
-    <div className="flex items-start gap-6">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
       <div className="text-center">
         <p className="text-4xl font-bold text-[#1A1A2E]">{avg.toFixed(1)}</p>
         <StarRating rating={Math.round(avg)} size={16} />
@@ -132,7 +132,7 @@ export function AgentReviews({ agentName, agentArea }: AgentReviewsProps) {
   };
 
   return (
-    <div className="rounded-xl border border-[#E5E7EB] bg-white p-5">
+    <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 sm:p-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <MessageSquare size={18} className="text-[#4A3AFF]" />

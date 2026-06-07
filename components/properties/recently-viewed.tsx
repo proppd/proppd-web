@@ -35,13 +35,13 @@ export function RecentlyViewed() {
 
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
         <div className="flex items-center gap-2">
           <Clock size={18} className="text-[#9CA3AF]" />
           <h2 className="text-xl font-bold text-[#1A1A2E]">Recently viewed</h2>
         </div>
 
-        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {viewed.slice(0, MAX_ITEMS).map((item) => (
             <a
               key={item.slug}

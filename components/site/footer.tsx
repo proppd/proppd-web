@@ -4,11 +4,11 @@ import { ProppdLogo } from './logo';
 export function SiteFooter() {
   return (
     <footer className="border-t border-[#E5E7EB] bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
         {/* Top row */}
-        <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr]">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr]">
           {/* Brand */}
-          <div>
+          <div className="sm:col-span-2 lg:col-span-1">
             <a href="/" aria-label="Proppd home">
               <ProppdLogo />
             </a>
@@ -65,7 +65,7 @@ export function SiteFooter() {
         </div>
 
         {/* Bottom */}
-        <div className="mt-10 flex flex-col gap-3 border-t border-[#E5E7EB] pt-6 text-sm text-[#9CA3AF] sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-8 flex flex-col gap-3 border-t border-[#E5E7EB] pt-6 text-xs text-[#9CA3AF] sm:mt-10 sm:flex-row sm:items-center sm:justify-between sm:text-sm">
           <p>&copy; {new Date().getFullYear()} Proppd. All rights reserved.</p>
           <p>Verified listings, routed leads, and clean portal navigation.</p>
         </div>
@@ -78,7 +78,7 @@ function FooterGroup({ title, links }: { title: string; links: string[][] }) {
   return (
     <div>
       <h3 className="text-sm font-bold text-[#1A1A2E]">{title}</h3>
-      <div className="mt-3 grid gap-2.5">
+      <div className="mt-3 grid gap-2">
         {links.map(([label, href]) => (
           <a
             key={href}

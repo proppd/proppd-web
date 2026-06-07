@@ -27,7 +27,7 @@ export function PriceHistory({ listingPrice, listedAt }: PriceHistoryProps) {
   const trendColor = change > 0 ? 'text-red-500' : change < 0 ? 'text-[#00C9A7]' : 'text-[#9CA3AF]';
 
   return (
-    <div className="rounded-xl border border-[#E5E7EB] bg-white p-5">
+    <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 sm:p-5">
       <h3 className="text-base font-bold text-[#1A1A2E]">Price history</h3>
 
       <div className="mt-3 flex items-center gap-3">

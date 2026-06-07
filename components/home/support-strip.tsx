@@ -27,7 +27,7 @@ const routes = [
 export function SupportStrip() {
   return (
     <section className="bg-[#F7F8FA]">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-[#1A1A2E] sm:text-3xl">
             How Proppd works

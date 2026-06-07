@@ -184,7 +184,7 @@ export function PropertyMap({ properties, selectedSlug, onSelect }: PropertyMapP
   }
 
   return (
-    <div className={`relative overflow-hidden rounded-xl border border-[#E5E7EB] bg-white ${expanded ? 'fixed inset-4 z-50' : 'h-[400px]'}`}>
+    <div className={`relative overflow-hidden rounded-xl border border-[#E5E7EB] bg-white ${expanded ? 'fixed inset-4 z-50' : 'h-[280px] sm:h-[400px]'}`}>
       {/* Map container */}
       <div ref={mapRef} className="h-full w-full" />
 

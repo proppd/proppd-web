@@ -43,7 +43,7 @@ export function MortgageCalculator({ price }: MortgageCalculatorProps) {
     }).format(value);
 
   return (
-    <div className="rounded-xl border border-[#E5E7EB] bg-white p-5">
+    <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 sm:p-5">
       <div className="flex items-center gap-2">
         <Calculator size={18} className="text-[#4A3AFF]" />
         <h3 className="text-base font-bold text-[#1A1A2E]">Mortgage calculator</h3>

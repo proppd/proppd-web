@@ -1,6 +1,6 @@
 export function AgentCta() {
   return (
-    <section className="bg-[#1A1A2E] px-4 py-16 text-white sm:px-6 lg:px-8">
+    <section className="bg-[#1A1A2E] px-4 py-12 text-white sm:px-6 sm:py-16 lg:px-8">
       <div className="mx-auto grid max-w-7xl gap-8 rounded-xl border border-white/10 bg-white/5 p-8 lg:grid-cols-[1fr_auto] lg:items-center lg:p-12">
         <div>
           <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">For agents and agencies</p>
