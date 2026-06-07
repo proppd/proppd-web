@@ -25,7 +25,7 @@ export function PropertyComparison({ listings, onRemove }: PropertyComparisonPro
         <span className="text-xs font-bold text-[#9CA3AF]">{listings.length}/3 selected</span>
       </div>
 
-      <div className="mt-4 overflow-x-auto">
+      <div className="mt-4 overflow-x-auto -mx-5 px-5 sm:mx-0 sm:px-0">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[#E5E7EB]">

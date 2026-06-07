@@ -55,8 +55,8 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
 
       <section className="border-b border-[#E5E7EB] bg-white px-4 py-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <form action="/properties" className="grid gap-3 rounded-lg border border-[#E5E7EB] bg-white p-4 shadow-sm xl:grid-cols-[1.6fr_1fr_1fr_1fr_auto] xl:items-end">
-            <label className="flex min-h-14 items-center gap-3 rounded-full border border-slate-300 bg-white px-5 text-sm font-bold text-[#9CA3AF] focus-within:border-[#4A3AFF] focus-within:ring-4 focus-within:ring-[#4A3AFF]/10">
+          <form action="/properties" className="grid gap-3 rounded-lg border border-[#E5E7EB] bg-white p-3 shadow-sm sm:p-4 xl:grid-cols-[1.6fr_1fr_1fr_1fr_auto] xl:items-end">
+            <label className="flex min-h-12 items-center gap-3 rounded-full border border-slate-300 bg-white px-4 text-sm font-bold text-[#9CA3AF] focus-within:border-[#4A3AFF] focus-within:ring-4 focus-within:ring-[#4A3AFF]/10 sm:min-h-14 sm:px-5">
               <Search size={21} className="text-[#4A3AFF]" />
               <input
                 name="q"

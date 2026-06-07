@@ -160,7 +160,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
       <section className="px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-3 overflow-hidden rounded-xl bg-white p-3 shadow-sm lg:grid-cols-[1.35fr_.65fr]">
-            <div className={`relative min-h-[25rem] overflow-hidden rounded-lg bg-gradient-to-br ${listing.gradient} p-6 text-white`}>
+            <div className={`relative min-h-[16rem] overflow-hidden rounded-lg bg-gradient-to-br ${listing.gradient} p-4 text-white sm:min-h-[25rem] sm:p-6`}>
               <PhotoLightbox photos={listing.photos} startIndex={0} />
               <img
                 src={listing.photos[0]?.src}
@@ -172,19 +172,19 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                 <span className="rounded-md bg-white px-3 py-1 text-xs font-bold uppercase tracking-[.08em] text-[#1A1A2E]">{listing.purpose}</span>
                 <a href="#verification" className="rounded-md bg-[#00C9A7] px-3 py-1 text-xs font-bold uppercase tracking-[.08em] text-[#1A1A2E] transition hover:bg-white">Verified</a>
               </div>
-              <div className="relative mt-48 max-w-3xl">
-                <p className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-bold backdrop-blur"><MapPin size={16} /> {listing.location}</p>
-                <h1 className="mt-4 text-4xl font-bold tracking-[-.065em] sm:text-6xl">{listing.title}</h1>
+              <div className="relative mt-20 max-w-3xl sm:mt-48">
+                <p className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold backdrop-blur sm:px-4 sm:py-2 sm:text-sm"><MapPin size={14} /> {listing.location}</p>
+                <h1 className="mt-3 text-2xl font-bold tracking-[-.065em] sm:mt-4 sm:text-4xl lg:text-6xl">{listing.title}</h1>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <SourceBadge tone="sky">{listingSourceLabel}</SourceBadge>
                   <SourceBadge tone="emerald">{relatedSourceLabel}</SourceBadge>
                 </div>
               </div>
-              <div className="absolute bottom-6 right-6 hidden rounded-full bg-white px-4 py-2 text-sm font-bold text-[#1A1A2E] shadow-lg sm:block">
+              <div className="absolute bottom-3 right-3 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-[#1A1A2E] shadow-lg backdrop-blur sm:bottom-6 sm:right-6 sm:px-4 sm:py-2 sm:text-sm">
                 View all {listing.photos.length} photos
               </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="hidden gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-1">
               {listing.photos.slice(1, 3).map((photo, index) => (
                 <div key={photo.src} className={`relative min-h-48 overflow-hidden rounded-lg bg-gradient-to-br ${listing.gradient} p-5 text-white`}>
                   <img src={photo.src} alt={photo.alt} className="absolute inset-0 h-full w-full object-cover" />

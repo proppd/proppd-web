@@ -12,26 +12,26 @@ const popularAreas = ['Sandton', 'Sea Point', 'Umhlanga', 'Rosebank', 'Waterfron
 export function HeroSearch() {
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-7xl px-4 pt-12 pb-8 sm:px-6 sm:pt-16 sm:pb-10 lg:px-8 lg:pt-20 lg:pb-12">
+      <div className="mx-auto max-w-7xl px-4 pt-8 pb-6 sm:px-6 sm:pt-14 sm:pb-8 lg:px-8 lg:pt-20 lg:pb-12">
         {/* Headline */}
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-[#1A1A2E] sm:text-5xl lg:text-[3.5rem]">
+          <h1 className="text-3xl font-bold tracking-tight text-[#1A1A2E] sm:text-5xl lg:text-[3.5rem]">
             Find your next home
           </h1>
-          <p className="mt-4 text-lg text-[#6B7280]">
+          <p className="mt-3 text-base text-[#6B7280] sm:text-lg">
             Search verified properties across South Africa
           </p>
         </div>
 
         {/* Search card */}
-        <div className="mx-auto mt-8 max-w-4xl">
-          {/* Tabs */}
-          <div className="flex items-center gap-1 border-b border-[#E5E7EB] px-1">
+        <div className="mx-auto mt-6 max-w-4xl sm:mt-8">
+          {/* Tabs — scrollable on mobile */}
+          <div className="flex overflow-x-auto border-b border-[#E5E7EB] px-1 scrollbar-none">
             {tabs.map((tab, i) => (
               <a
                 key={tab.label}
                 href={tab.href}
-                className={`rounded-t-lg px-5 py-3 text-sm font-semibold transition ${
+                className={`shrink-0 whitespace-nowrap rounded-t-lg px-4 py-2.5 text-sm font-semibold transition sm:px-5 sm:py-3 ${
                   i === 0
                     ? 'border-b-2 border-[#4A3AFF] text-[#4A3AFF]'
                     : 'text-[#6B7280] hover:text-[#1A1A2E]'
@@ -42,10 +42,10 @@ export function HeroSearch() {
             ))}
           </div>
 
-          {/* Search input */}
-          <div className="rounded-b-xl border border-t-0 border-[#E5E7EB] bg-white p-4 shadow-sm sm:p-5">
-            <form action="/properties" className="flex items-center gap-3">
-              <div className="flex flex-1 items-center gap-3 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3">
+          {/* Search input — stacks on mobile */}
+          <div className="rounded-b-xl border border-t-0 border-[#E5E7EB] bg-white p-3 shadow-sm sm:p-5">
+            <form action="/properties" className="grid gap-2.5 sm:flex sm:items-center sm:gap-3">
+              <div className="flex flex-1 items-center gap-3 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] px-3 py-2.5 sm:px-4 sm:py-3">
                 <Search size={18} className="shrink-0 text-[#6B7280]" />
                 <input
                   name="q"
@@ -55,28 +55,30 @@ export function HeroSearch() {
                   aria-label="Search properties"
                 />
               </div>
-              <a
-                href="/properties"
-                className="hidden items-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
-              >
-                <SlidersHorizontal size={16} /> Filters
-              </a>
-              <button
-                type="submit"
-                className="flex shrink-0 items-center gap-2 rounded-lg bg-[#4A3AFF] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#3A2AE0]"
-              >
-                Search <ArrowRight size={16} />
-              </button>
+              <div className="flex gap-2.5">
+                <a
+                  href="/properties"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-2.5 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:py-3"
+                >
+                  <SlidersHorizontal size={16} /> Filters
+                </a>
+                <button
+                  type="submit"
+                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#4A3AFF] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#3A2AE0] sm:flex-none sm:px-6 sm:py-3"
+                >
+                  Search <ArrowRight size={16} />
+                </button>
+              </div>
             </form>
 
-            {/* Popular areas */}
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold text-[#9CA3AF]">Popular:</span>
+            {/* Popular areas — scrollable on mobile */}
+            <div className="mt-3 flex items-center gap-2 overflow-x-auto sm:mt-4 sm:flex-wrap">
+              <span className="shrink-0 text-xs font-semibold text-[#9CA3AF]">Popular:</span>
               {popularAreas.map((area) => (
                 <a
                   key={area}
                   href={`/properties?location=${encodeURIComponent(area)}`}
-                  className="rounded-full border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]"
+                  className="shrink-0 rounded-full border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]"
                 >
                   {area}
                 </a>
@@ -86,7 +88,7 @@ export function HeroSearch() {
         </div>
 
         {/* Quick links */}
-        <div className="mx-auto mt-6 flex max-w-4xl flex-wrap justify-center gap-4 text-sm sm:justify-start">
+        <div className="mx-auto mt-5 flex max-w-4xl flex-wrap justify-center gap-3 text-sm sm:mt-6 sm:justify-start sm:gap-4">
           <a href="/properties/for-sale" className="font-semibold text-[#4A3AFF] transition hover:text-[#3A2AE0]">
             Buy a home →
           </a>

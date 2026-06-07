@@ -109,3 +109,12 @@ img {
     transition-duration: .01ms !important;
   }
 }
+
+/* Hide scrollbar but keep scroll functionality */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
