@@ -20,7 +20,7 @@ jobs:
       - name: Get PR diff
         id: diff
         run: |
-          DIFF=$(git diff origin/${{ github.base_ref }}...HEAD -- '*.tsx' '*.ts' '*.css' | head -c 30000)
+          DIFF=$(git diff origin/${{ github.base_ref }}...HEAD -- '*.tsx' '*.ts' '*.css' '*.yml' '*.json' | head -c 30000)
           echo "diff<<DIFF_EOF" >> $GITHUB_OUTPUT
           echo "$DIFF" >> $GITHUB_OUTPUT
           echo "DIFF_EOF" >> $GITHUB_OUTPUT
@@ -28,7 +28,7 @@ jobs:
       - name: Changed files
         id: files
         run: |
-          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.tsx' '*.ts' '*.css')
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.tsx' '*.ts' '*.css' '*.yml' '*.json')
           echo "files<<FILES_EOF" >> $GITHUB_OUTPUT
           echo "$FILES" >> $GITHUB_OUTPUT
           echo "FILES_EOF" >> $GITHUB_OUTPUT
@@ -36,14 +36,13 @@ jobs:
       - name: AI Review
         uses: actions/github-script@v7
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           DIFF: ${{ steps.diff.outputs.diff }}
           FILES: ${{ steps.files.outputs.files }}
         with:
           script: |
             const diff = process.env.DIFF || '';
             const files = process.env.FILES || '';
-            const apiKey = process.env.OPENAI_API_KEY;
+            const apiKey = process.env.REVIEW_API_KEY;
 
             if (!apiKey) {
               core.info('No API key, posting skip notice');
@@ -51,7 +50,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
-                body: '## 🤖 AI Code Review\n\n> ⚠️ Skipped — add `OPENAI_API_KEY` secret to enable.'
+                body: '## 🤖 AI Code Review\n\n> ⚠️ Skipped — add `REVIEW_API_KEY` secret to enable.'
               });
               return;
             }
@@ -85,14 +84,16 @@ jobs:
               diff,
             ].join('\n');
 
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
               method: 'POST',
               headers: {
                 'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json',
+                'HTTP-Referer': 'https://proppd.com',
+                'X-Title': 'Proppd AI Code Review',
               },
               body: JSON.stringify({
-                model: 'gpt-4o-mini',
+                model: 'google/gemini-2.0-flash-001',
                 messages: [{ role: 'user', content: prompt }],
                 max_tokens: 2000,
                 temperature: 0.1,
@@ -107,8 +108,9 @@ jobs:
             const data = await response.json();
             const review = data.choices?.[0]?.message?.content || 'No review generated';
 
-            const criticalCount = (review.match(/CRITICAL/gi) || []).length;
-            const warningCount = (review.match(/WARNING/gi) || []).length;
+            const reviewBody = review.split('---')[0] || review;
+            const criticalCount = (reviewBody.match(/CRITICAL/gi) || []).length;
+            const warningCount = (reviewBody.match(/WARNING/gi) || []).length;
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -124,7 +126,7 @@ jobs:
                 '',
                 `- Critical: ${criticalCount}`,
                 `- Warnings: ${warningCount}`,
-                `- Model: gpt-4o-mini`,
+                `- Model: gemini-2.0-flash via OpenRouter (free)`,
                 '</details>',
                 '',
                 '> Auto-generated. Focus on architecture and security, not style.',
