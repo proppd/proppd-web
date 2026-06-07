@@ -21,3 +21,4 @@ Portal-first platform for:
 ## Security Note
 
 Do not commit cPanel, Supabase, email provider, or hosting credentials. Use `.env.local` for local secrets and `.env.example` for placeholders only.
+# test
