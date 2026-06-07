@@ -65,6 +65,9 @@ export function SiteHeader() {
             <a className="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex" href="/login">
               Sign in
             </a>
+            <a className="hidden rounded-lg bg-[#1A1A2E] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#3A2AE0] sm:inline-flex" href="/signup">
+              Sign up
+            </a>
             <a className="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex" href="/list-with-us">
               List with us
             </a>
@@ -117,6 +120,13 @@ export function SiteHeader() {
                 className="block rounded-lg px-4 py-3 text-base font-semibold text-[#1A1A2E] transition hover:bg-[#F7F8FA]"
               >
                 Sign in
+              </a>
+              <a
+                href="/signup"
+                onClick={() => setMobileOpen(false)}
+                className="block rounded-lg px-4 py-3 text-base font-semibold text-[#1A1A2E] transition hover:bg-[#F7F8FA]"
+              >
+                Sign up
               </a>
               <a
                 href="/list-with-us"

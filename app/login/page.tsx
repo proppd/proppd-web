@@ -91,10 +91,13 @@ export default async function Page() {
             </div>
 
             <div className="mt-6 border-t border-[#E5E7EB] pt-6">
-              <p className="text-xs font-bold text-[#9CA3AF]">Need access?</p>
-              <p className="mt-1 text-xs text-[#9CA3AF]">
-                Contact <a href="mailto:info@proppd.com" className="font-bold text-[#4A3AFF]">info@proppd.com</a> from your agency email to request an invite.
-              </p>
+              <p className="text-sm font-bold text-[#1A1A2E]">Don&apos;t have an account?</p>
+              <a
+                href="/signup"
+                className="mt-2 inline-flex items-center gap-2 text-sm font-bold text-[#4A3AFF] transition hover:text-[#3A2AE0]"
+              >
+                Create account <ArrowRight size={14} />
+              </a>
             </div>
           </div>
         </div>

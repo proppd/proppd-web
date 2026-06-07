@@ -50,6 +50,7 @@ export function SiteFooter() {
               ['Contact', '/contact'],
               ['Request valuation', '/request-valuation'],
               ['Log in', '/login'],
+              ['Sign up', '/signup'],
             ]}
           />
 
