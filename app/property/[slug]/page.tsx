@@ -4,6 +4,7 @@ import { ArrowLeft, Bath, BedDouble, Building2, CalendarDays, Car, CheckCircle2,
 import { notFound } from 'next/navigation';
 import { EnquiryForm } from '@/components/property/enquiry-form';
 import { MortgageCalculator } from '@/components/finance/mortgage-calculator';
+import { PreApprovalForm } from '@/components/finance/pre-approval-form';
 import { NeighborhoodContext } from '@/components/property/neighborhood-context';
 import { PhotoLightbox } from '@/components/property/photo-lightbox';
 import { PriceHistory } from '@/components/property/price-history';
@@ -299,6 +300,9 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
               </div>
               <div className="mb-4">
                 <NeighborhoodContext location={listing.location} city={listing.city} />
+              </div>
+              <div className="mb-4">
+                <PreApprovalForm listingPrice={listing.priceValue} listingTitle={listing.title} />
               </div>
               <EnquiryForm
                 agentProfileHref={agentProfileHref}

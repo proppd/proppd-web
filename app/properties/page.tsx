@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Bell, ChevronLeft, ChevronRight, Map as MapIcon, MapPin, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
 import { ListingCard } from '@/components/properties/listing-card';
+import { PropertyMap } from '@/components/properties/property-map';
 import { SavedHomesBanner } from '@/components/properties/saved-homes-banner';
+import { SavedSearchAlerts } from '@/components/properties/saved-search-alerts';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { loadPortalListings } from '../../lib/proppd/backend';
@@ -174,6 +176,28 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
               </div>
             ) : null}
 
+            {hasListings ? (
+              <div className="mt-4 mb-4">
+                <PropertyMap
+                  properties={paginated.items.map((l) => ({
+                    slug: l.slug,
+                    title: l.title,
+                    price: l.price,
+                    priceValue: l.priceValue,
+                    location: l.location,
+                    beds: l.beds,
+                    baths: l.baths,
+                    parking: l.parking,
+                    type: l.type,
+                    purpose: l.purpose,
+                    photo: l.photos[0]?.src ?? '',
+                    lat: l.lat,
+                    lng: l.lng,
+                  }))}
+                />
+              </div>
+            ) : null}
+
             <div className="mt-5 grid gap-5 md:grid-cols-2">
               {paginated.items.map((listing) => (
                 <ListingCard key={listing.slug} listing={listing} />
@@ -286,6 +310,16 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
               </div>
             </div>
           </aside>
+
+          {/* Saved search alerts - mobile/tablet */}
+          <div className="mt-4 lg:hidden">
+            <SavedSearchAlerts searchParams={{
+              q: filters.query ?? undefined,
+              location: filters.location ?? undefined,
+              purpose: filters.purpose !== 'all' ? filters.purpose : undefined,
+              bedrooms: filters.bedrooms ? String(filters.bedrooms) : undefined,
+            }} />
+          </div>
         </div>
       </section>
 

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BadgeCheck, Building2, Mail, MapPin } from 'lucide-react';
+import { AgentReviews } from '@/components/agent/agent-reviews';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
@@ -138,23 +139,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
           </div>
 
           <div className="mt-8 grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#4A3AFF]">Working with this agent</p>
-              <h2 className="mt-2 text-3xl font-bold tracking-[-.05em]">A clean path from search to enquiry.</h2>
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <ProfilePill title="Search" text="Filter by area, stock, or school catchment." />
-                <ProfilePill title="Shortlist" text="Open listing details and compare verified options." />
-                <ProfilePill title="Reach out" text="Send a structured enquiry or viewing request." />
-              </div>
-              <div className="mt-5 rounded-3xl bg-[#F7F8FA] p-4">
-                <p className="text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">Current market snapshot</p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                  <SnapshotPill label="Active stock" value={formatDirectoryCount(activeListings.length, 'listing')} />
-                  <SnapshotPill label="Top suburb" value={agentMarketSummary.topSuburb} />
-                  <SnapshotPill label="Top type" value={agentMarketSummary.topType} />
-                </div>
-              </div>
-            </div>
+            <AgentReviews agentName={agent.name} agentArea={agent.area} />
             <div className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm">
               <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Need a shortlist?</p>
               <p className="mt-2 text-2xl font-bold tracking-[-.04em]">Focus on the right local stock.</p>

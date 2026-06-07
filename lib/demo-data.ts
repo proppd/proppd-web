@@ -28,6 +28,8 @@ export type Listing = {
   erfSize?: number;
   rates?: string;
   levies?: string;
+  lat?: number;
+  lng?: number;
   featured?: boolean;
   isActive?: boolean;
 };
@@ -76,6 +78,8 @@ export const listings: Listing[] = [
     rates: 'R 1 850 pm',
     levies: 'R 1 420 pm',
     featured: true,
+    lat: -26.0989,
+    lng: 28.0556,
   },
   {
     id: 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
@@ -118,6 +122,8 @@ export const listings: Listing[] = [
     floorSize: 82,
     levies: 'Included in rent',
     featured: true,
+    lat: -33.9187,
+    lng: 18.3893,
   },
   {
     id: 'ffffffff-ffff-4fff-8fff-ffffffffffff',
@@ -162,6 +168,8 @@ export const listings: Listing[] = [
     rates: 'R 1 260 pm',
     levies: 'R 2 050 pm',
     featured: true,
+    lat: -29.7284,
+    lng: 31.0823,
   },
   ...sakstonsListings,
 ];
