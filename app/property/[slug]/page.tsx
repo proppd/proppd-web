@@ -3,6 +3,9 @@ import type { ReactNode } from 'react';
 import { ArrowLeft, Bath, BedDouble, Building2, CalendarDays, Car, CheckCircle2, Home, MapPin, Share2, ShieldCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { EnquiryForm } from '@/components/property/enquiry-form';
+import { MortgageCalculator } from '@/components/finance/mortgage-calculator';
+import { NeighborhoodContext } from '@/components/property/neighborhood-context';
+import { PriceHistory } from '@/components/property/price-history';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SaveListingButton } from '@/components/properties/save-listing-button';
 import { SiteFooter } from '@/components/site/footer';
@@ -194,6 +197,10 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                 </div>
               </section>
 
+              <section className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm sm:p-8">
+                <PriceHistory listingPrice={listing.priceValue} listedAt={listing.listedAt} />
+              </section>
+
               <section id="verification" className="rounded-xl border border-[#00C9A7]/30 bg-[#E6FBF7] p-6 shadow-sm sm:p-8">
                 <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">How verification works</p>
                 <div className="mt-4 grid gap-4 lg:grid-cols-[.95fr_1.05fr] lg:items-start">
@@ -226,25 +233,11 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                   <span className="flex items-center gap-2"><CalendarDays size={16} /> Listed {formatDate(listing.listedAt)}</span>
                 </div>
               </div>
-              <div className="mb-4 rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-5 shadow-sm">
-                <p className="text-sm font-bold uppercase tracking-[.18em] text-[#4A3AFF]">Next steps</p>
-                <h2 className="mt-2 text-xl font-bold tracking-[-.04em]">Ready to move fast?</h2>
-                <p className="mt-3 text-sm font-semibold leading-6 text-[#6B7280]">
-                  Share your timeline and budget, then use the form below or email the agent directly.
-                </p>
-                <div className="mt-4 space-y-2 text-sm font-semibold leading-6 text-[#6B7280]">
-                  <div className="flex gap-3"><span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-[#1A1A2E]">1</span> Save or share the listing with your co-buyer.</div>
-                  <div className="flex gap-3"><span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-[#1A1A2E]">2</span> Open the enquiry form when you’re ready.</div>
-                </div>
-                <a
-                  href={buildEnquiryMailto(listing)}
-                  className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-[#1A1A2E] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0]"
-                >
-                  Email agent directly
-                </a>
-                <a href="/saved" className="mt-3 inline-flex text-sm font-bold text-[#4A3AFF]">
-                  Open saved homes
-                </a>
+              <div className="mb-4">
+                <MortgageCalculator price={listing.priceValue} />
+              </div>
+              <div className="mb-4">
+                <NeighborhoodContext location={listing.location} city={listing.city} />
               </div>
               <EnquiryForm
                 agentProfileHref={agentProfileHref}
