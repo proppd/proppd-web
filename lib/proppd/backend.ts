@@ -284,7 +284,10 @@ export async function loadPortalListings(env: PortalEnv = process.env): Promise<
     }
     return { source: 'database', items: rows.map(mapListingRow) };
   } catch (error) {
-    return fallbackToDemoOnDatabaseConnectivityError(error, demoListings);
+    const message = errorMessage(error);
+    console.error('[proppd] loadPortalListings error:', message);
+    // Fall back to demo on any database error, not just connectivity errors
+    return { source: 'demo', items: demoListings, error: `Database error, using demo fallback: ${message}` };
   }
 }
 
@@ -996,6 +999,7 @@ async function queryListings(databaseUrl: string, slug?: string): Promise<Listin
   `;
 
   const result = await pool.query<ListingRow>(sql, values);
+  console.log(`[proppd] queryListings returned ${result.rows.length} rows`);
   return result.rows;
 }
 
