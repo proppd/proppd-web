@@ -34,12 +34,11 @@ jobs:
           echo "FILES_EOF" >> $GITHUB_OUTPUT
 
       - name: AI Review
-        if: env.HAS_API_KEY == 'true'
+        if: ${{ secrets.OPENAI_API_KEY != '' }}
         id: review
         uses: actions/github-script@v7
         env:
-          OPENAI_API_KEY: *** secrets.OPENAI_API_KEY }}
-          HAS_API_KEY: ${{ secrets.OPENAI_API_KEY != '' }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           DIFF: ${{ steps.diff.outputs.diff }}
           FILES: ${{ steps.files.outputs.files }}
         with:
@@ -117,7 +116,7 @@ ${review}
 - Focus: Security, Business Logic, Performance, Data Integrity
 </details>
 
-> Auto-generated review. Focus on architecture and security, not style. Add \`OPENAI_API_KEY\` secret to enable.`;
+> Auto-generated review. Focus on architecture and security, not style.`;
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -133,10 +132,8 @@ ${review}
             }
 
       - name: Post review skipped notice
-        if: env.HAS_API_KEY != 'true'
+        if: ${{ secrets.OPENAI_API_KEY == '' }}
         uses: actions/github-script@v7
-        env:
-          HAS_API_KEY: ${{ secrets.OPENAI_API_KEY != '' }}
         with:
           script: |
             await github.rest.issues.createComment({
