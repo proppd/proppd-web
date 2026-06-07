@@ -3,6 +3,7 @@
 import type React from 'react';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ArrowRight, ArrowLeft, Check, MapPin, Home, DollarSign, FileText, BedDouble, Bath, Car } from 'lucide-react';
 import type { PortalListingDraft } from '@/lib/proppd/backend';
 import { portalPropertyTypeOptions } from '@/lib/proppd/listing-editor';
 
@@ -41,7 +42,6 @@ function toFieldValue(value: unknown): string {
 
 function buildInitialState(initialListing?: Partial<PortalListingDraft>): ListingFormState {
   const propertyTypeSlug = initialListing?.propertyTypeSlug && initialListing.propertyTypeSlug.length > 0 ? initialListing.propertyTypeSlug : portalPropertyTypeOptions[0]?.slug ?? 'house';
-
   return {
     title: toFieldValue(initialListing?.title),
     purpose: (initialListing?.purpose as 'sale' | 'rent' | undefined) ?? 'sale',
@@ -63,9 +63,18 @@ function buildInitialState(initialListing?: Partial<PortalListingDraft>): Listin
   };
 }
 
+const steps = [
+  { id: 'basics', label: 'Basics', icon: Home },
+  { id: 'location', label: 'Location', icon: MapPin },
+  { id: 'details', label: 'Details', icon: BedDouble },
+  { id: 'pricing', label: 'Pricing', icon: DollarSign },
+  { id: 'review', label: 'Review', icon: FileText },
+];
+
 export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel, redirectTo }: Props) {
   const router = useRouter();
   const [state, setState] = useState<ListingFormState>(() => buildInitialState(initialListing));
+  const [currentStep, setCurrentStep] = useState(0);
   const [status, setStatus] = useState<{ kind: 'idle' | 'loading' | 'success' | 'error'; message: string }>({
     kind: 'idle',
     message: mode === 'create' ? 'Fill in the listing details and save as a draft.' : 'Update the listing details and save changes.',
@@ -73,11 +82,25 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
 
   const buttonLabel = submitLabel ?? (mode === 'create' ? 'Create listing' : 'Save changes');
   const method = mode === 'create' ? 'POST' : 'PATCH';
+  const isLastStep = currentStep === steps.length - 1;
+  const isFirstStep = currentStep === 0;
 
   const propertyTypeLabel = useMemo(
     () => portalPropertyTypeOptions.find((option) => option.slug === state.propertyTypeSlug)?.label ?? 'Property type',
     [state.propertyTypeSlug],
   );
+
+  const update = (field: keyof ListingFormState, value: string | boolean) => {
+    setState((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const canAdvance = () => {
+    if (currentStep === 0) return state.title.trim().length > 0;
+    if (currentStep === 1) return state.suburb.trim().length > 0 && state.city.trim().length > 0;
+    if (currentStep === 2) return true;
+    if (currentStep === 3) return state.price.length > 0;
+    return true;
+  };
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -96,139 +119,196 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
     }
 
     setStatus({ kind: 'success', message: 'Listing saved successfully.' });
-    const destination = redirectTo ?? (mode === 'create' ? '/dashboard/listings' : '/dashboard/listings');
-    if (payload?.item?.slug && mode === 'create') {
-      router.push(`/dashboard/listings/${payload.item.slug}/edit`);
-      return;
-    }
-    router.push(destination);
-    router.refresh();
+    const destination = redirectTo ?? '/dashboard/listings';
+    setTimeout(() => router.push(destination), 1000);
   }
 
   return (
-    <form className="grid gap-5 rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm" onSubmit={submit}>
-      <div className="grid gap-4 md:grid-cols-2">
-        <Field label="Title">
-          <input value={state.title} onChange={(event) => setState({ ...state, title: event.target.value })} className={inputClass} required minLength={6} />
-        </Field>
-        <Field label="Property type">
-          <select value={state.propertyTypeSlug} onChange={(event) => setState({ ...state, propertyTypeSlug: event.target.value })} className={inputClass} required>
-            {portalPropertyTypeOptions.map((option) => (
-              <option key={option.slug} value={option.slug}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Purpose">
-          <select value={state.purpose} onChange={(event) => setState({ ...state, purpose: event.target.value as ListingFormState['purpose'] })} className={inputClass}>
-            <option value="sale">For sale</option>
-            <option value="rent">To rent</option>
-          </select>
-        </Field>
-        <Field label="Status">
-          <select value={state.status} onChange={(event) => setState({ ...state, status: event.target.value as ListingFormState['status'] })} className={inputClass}>
-            <option value="draft">Draft</option>
-            <option value="pending_review">Pending review</option>
-            <option value="available">Available</option>
-            <option value="under_offer">Under offer</option>
-            <option value="sold">Sold</option>
-            <option value="rented">Rented</option>
-            <option value="archived">Archived</option>
-          </select>
-        </Field>
-        <Field label="Price">
-          <input type="number" min="0" step="1" value={state.price} onChange={(event) => setState({ ...state, price: event.target.value })} className={inputClass} required />
-        </Field>
-        <Field label="Bedrooms">
-          <input type="number" min="0" step="1" value={state.bedrooms} onChange={(event) => setState({ ...state, bedrooms: event.target.value })} className={inputClass} />
-        </Field>
-        <Field label="Bathrooms">
-          <input type="number" min="0" step="0.5" value={state.bathrooms} onChange={(event) => setState({ ...state, bathrooms: event.target.value })} className={inputClass} />
-        </Field>
-        <Field label="Parking">
-          <input type="number" min="0" step="1" value={state.parking} onChange={(event) => setState({ ...state, parking: event.target.value })} className={inputClass} />
-        </Field>
-        <Field label="Floor size (sqm)">
-          <input type="number" min="0" step="0.1" value={state.floorSizeSqm} onChange={(event) => setState({ ...state, floorSizeSqm: event.target.value })} className={inputClass} />
-        </Field>
-        <Field label="Erf size (sqm)">
-          <input type="number" min="0" step="0.1" value={state.erfSizeSqm} onChange={(event) => setState({ ...state, erfSizeSqm: event.target.value })} className={inputClass} />
-        </Field>
-        <Field label="Rates & taxes">
-          <input type="number" min="0" step="0.01" value={state.ratesAndTaxes} onChange={(event) => setState({ ...state, ratesAndTaxes: event.target.value })} className={inputClass} />
-        </Field>
-        <Field label="Levies">
-          <input type="number" min="0" step="0.01" value={state.levies} onChange={(event) => setState({ ...state, levies: event.target.value })} className={inputClass} />
-        </Field>
+    <div className="rounded-xl border border-[#E5E7EB] bg-white shadow-sm">
+      {/* Progress bar */}
+      <div className="border-b border-[#E5E7EB] px-5 py-4">
+        <div className="flex items-center gap-2">
+          {steps.map((step, i) => (
+            <div key={step.id} className="flex items-center gap-2">
+              <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition ${
+                i < currentStep ? 'bg-[#00C9A7] text-white' : i === currentStep ? 'bg-[#4A3AFF] text-white' : 'bg-[#F3F4F6] text-[#9CA3AF]'
+              }`}>
+                {i < currentStep ? <Check size={14} /> : i + 1}
+              </div>
+              {i < steps.length - 1 && (
+                <div className={`h-px w-8 sm:w-12 ${i < currentStep ? 'bg-[#00C9A7]' : 'bg-[#E5E7EB]'}`} />
+              )}
+            </div>
+          ))}
+        </div>
+        <p className="mt-2 text-xs font-bold text-[#9CA3AF]">Step {currentStep + 1} of {steps.length}: {steps[currentStep].label}</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Field label="Suburb">
-          <input value={state.suburb} onChange={(event) => setState({ ...state, suburb: event.target.value })} className={inputClass} required minLength={2} />
-        </Field>
-        <Field label="City">
-          <input value={state.city} onChange={(event) => setState({ ...state, city: event.target.value })} className={inputClass} required minLength={2} />
-        </Field>
-        <Field label="Province">
-          <input value={state.province} onChange={(event) => setState({ ...state, province: event.target.value })} className={inputClass} required minLength={2} />
-        </Field>
-      </div>
+      <form onSubmit={isLastStep ? submit : undefined} className="p-5">
+        {/* Step 1: Basics */}
+        {currentStep === 0 && (
+          <div className="grid gap-4">
+            <InputField label="Listing title" value={state.title} onChange={(v) => update('title', v)} placeholder="e.g. Modern 3-bed house in Sandton" required />
+            <div className="grid grid-cols-2 gap-4">
+              <SelectField label="Purpose" value={state.purpose} onChange={(v) => update('purpose', v)}>
+                <option value="sale">For sale</option>
+                <option value="rent">To rent</option>
+              </SelectField>
+              <SelectField label="Property type" value={state.propertyTypeSlug} onChange={(v) => update('propertyTypeSlug', v)}>
+                {portalPropertyTypeOptions.map((opt) => (
+                  <option key={opt.slug} value={opt.slug}>{opt.label}</option>
+                ))}
+              </SelectField>
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">Description</label>
+              <textarea
+                value={state.description}
+                onChange={(e) => update('description', e.target.value)}
+                className="mt-1.5 w-full rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] px-3 py-2.5 text-sm text-[#1A1A2E] outline-none focus:border-[#4A3AFF] focus:ring-2 focus:ring-[#4A3AFF]/10"
+                rows={4}
+                placeholder="Describe the property, its features, and what makes it special..."
+              />
+            </div>
+          </div>
+        )}
 
-      <Field label="Description">
-        <textarea
-          value={state.description}
-          onChange={(event) => setState({ ...state, description: event.target.value })}
-          className={`${inputClass} min-h-[180px]`}
-          required
-          minLength={20}
-        />
-      </Field>
+        {/* Step 2: Location */}
+        {currentStep === 1 && (
+          <div className="grid gap-4">
+            <InputField label="Suburb" value={state.suburb} onChange={(v) => update('suburb', v)} placeholder="e.g. Sandton" required />
+            <InputField label="City" value={state.city} onChange={(v) => update('city', v)} placeholder="e.g. Johannesburg" required />
+            <InputField label="Province" value={state.province} onChange={(v) => update('province', v)} placeholder="e.g. Gauteng" />
+          </div>
+        )}
 
-      <label className="flex items-center gap-3 rounded-2xl bg-slate-50 px-4 py-3 text-sm font-bold text-[#6B7280]">
-        <input
-          type="checkbox"
-          checked={state.isFeatured}
-          onChange={(event) => setState({ ...state, isFeatured: event.target.checked })}
-          className="h-4 w-4 rounded border-slate-300 text-[#4A3AFF] focus:ring-[#4A3AFF]"
-        />
-        Featured listing
-      </label>
+        {/* Step 3: Details */}
+        {currentStep === 2 && (
+          <div className="grid gap-4">
+            <div className="grid grid-cols-3 gap-4">
+              <NumberField label="Bedrooms" value={state.bedrooms} onChange={(v) => update('bedrooms', v)} icon={<BedDouble size={16} />} />
+              <NumberField label="Bathrooms" value={state.bathrooms} onChange={(v) => update('bathrooms', v)} icon={<Bath size={16} />} />
+              <NumberField label="Parking" value={state.parking} onChange={(v) => update('parking', v)} icon={<Car size={16} />} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <InputField label="Floor size (m²)" value={state.floorSizeSqm} onChange={(v) => update('floorSizeSqm', v)} type="number" placeholder="e.g. 150" />
+              <InputField label="Erf size (m²)" value={state.erfSizeSqm} onChange={(v) => update('erfSizeSqm', v)} type="number" placeholder="e.g. 500" />
+            </div>
+          </div>
+        )}
 
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="submit"
-          className="rounded-full bg-[#1A1A2E] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF] disabled:cursor-not-allowed disabled:bg-slate-400"
-          disabled={status.kind === 'loading'}
-        >
-          {status.kind === 'loading' ? 'Saving…' : buttonLabel}
-        </button>
-        <span className="text-sm font-bold text-[#9CA3AF]">Current type: {propertyTypeLabel}</span>
-        <span aria-live="polite" className={`text-sm font-bold ${status.kind === 'error' ? 'text-red-600' : status.kind === 'success' ? 'text-[#00C9A7]' : 'text-[#9CA3AF]'}`}>
-          {status.message}
-        </span>
-      </div>
-    </form>
-  );
-}
+        {/* Step 4: Pricing */}
+        {currentStep === 3 && (
+          <div className="grid gap-4">
+            <InputField label={`Price ${state.purpose === 'rent' ? '(monthly)' : ''}`} value={state.price} onChange={(v) => update('price', v)} type="number" placeholder="e.g. 3500000" required />
+            <div className="grid grid-cols-2 gap-4">
+              <InputField label="Rates & taxes (monthly)" value={state.ratesAndTaxes} onChange={(v) => update('ratesAndTaxes', v)} placeholder="e.g. R 2 500" />
+              <InputField label="Levies (monthly)" value={state.levies} onChange={(v) => update('levies', v)} placeholder="e.g. R 1 800" />
+            </div>
+            <SelectField label="Status" value={state.status} onChange={(v) => update('status', v)}>
+              <option value="draft">Draft</option>
+              <option value="pending_review">Pending review</option>
+              <option value="available">Available</option>
+              <option value="under_offer">Under offer</option>
+            </SelectField>
+          </div>
+        )}
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="grid gap-2 text-sm font-bold text-[#6B7280]">
-      <span>{label}</span>
-      {children}
-    </label>
-  );
-}
+        {/* Step 5: Review */}
+        {currentStep === 4 && (
+          <div className="space-y-4">
+            <div className="rounded-lg bg-[#F7F8FA] p-4">
+              <h3 className="text-sm font-bold text-[#1A1A2E]">Listing summary</h3>
+              <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                <div><span className="text-[#9CA3AF]">Title:</span> <span className="font-bold text-[#1A1A2E]">{state.title || '—'}</span></div>
+                <div><span className="text-[#9CA3AF]">Purpose:</span> <span className="font-bold text-[#1A1A2E]">{state.purpose === 'sale' ? 'For sale' : 'To rent'}</span></div>
+                <div><span className="text-[#9CA3AF]">Location:</span> <span className="font-bold text-[#1A1A2E]">{state.suburb || '—'}, {state.city || '—'}</span></div>
+                <div><span className="text-[#9CA3AF]">Price:</span> <span className="font-bold text-[#1A1A2E]">{state.price ? `R ${Number(state.price).toLocaleString('en-ZA')}` : '—'}</span></div>
+                <div><span className="text-[#9CA3AF]">Beds:</span> <span className="font-bold text-[#1A1A2E]">{state.bedrooms || '—'}</span></div>
+                <div><span className="text-[#9CA3AF]">Baths:</span> <span className="font-bold text-[#1A1A2E]">{state.bathrooms || '—'}</span></div>
+                <div><span className="text-[#9CA3AF]">Type:</span> <span className="font-bold text-[#1A1A2E]">{propertyTypeLabel}</span></div>
+                <div><span className="text-[#9CA3AF]">Status:</span> <span className="font-bold text-[#1A1A2E]">{state.status}</span></div>
+              </div>
+            </div>
+            {state.description && (
+              <div className="rounded-lg bg-[#F7F8FA] p-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">Description</p>
+                <p className="mt-1 text-sm text-[#6B7280]">{state.description}</p>
+              </div>
+            )}
+          </div>
+        )}
 
-function BackendCard({ title, text }: { title: string; text: string }) {
-  return (
-    <div className="rounded-3xl border border-[#E5E7EB] bg-[#F7F8FA] p-4">
-      <p className="text-xs font-bold uppercase tracking-[.14em] text-[#4A3AFF]">{title}</p>
-      <p className="mt-2 text-sm font-bold leading-6 text-[#6B7280]">{text}</p>
+        {/* Status message */}
+        {status.kind !== 'idle' && (
+          <div className={`mt-4 rounded-lg p-3 text-sm font-bold ${
+            status.kind === 'error' ? 'bg-red-50 text-red-600' : status.kind === 'success' ? 'bg-[#E6FBF7] text-[#00C9A7]' : 'bg-[#F7F8FA] text-[#6B7280]'
+          }`}>
+            {status.message}
+          </div>
+        )}
+
+        {/* Navigation */}
+        <div className="mt-6 flex items-center justify-between">
+          {!isFirstStep ? (
+            <button type="button" onClick={() => setCurrentStep((s) => s - 1)} className="inline-flex items-center gap-1.5 text-sm font-bold text-[#6B7280] hover:text-[#1A1A2E]">
+              <ArrowLeft size={14} /> Back
+            </button>
+          ) : <div />}
+
+          {isLastStep ? (
+            <button type="submit" disabled={status.kind === 'loading'} className="inline-flex items-center gap-2 rounded-lg bg-[#4A3AFF] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0] disabled:opacity-50">
+              {status.kind === 'loading' ? 'Saving…' : buttonLabel}
+            </button>
+          ) : (
+            <button type="button" onClick={() => setCurrentStep((s) => s + 1)} disabled={!canAdvance()} className="inline-flex items-center gap-2 rounded-lg bg-[#4A3AFF] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0] disabled:opacity-50">
+              Next <ArrowRight size={14} />
+            </button>
+          )}
+        </div>
+      </form>
     </div>
   );
 }
 
-const inputClass =
-  'rounded-2xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-semibold text-[#1A1A2E] outline-none transition placeholder:text-[#9CA3AF] focus:border-[#4A3AFF] focus:ring-4 focus:ring-[#4A3AFF]/10';
+function InputField({ label, value, onChange, type = 'text', placeholder, required }: {
+  label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string; required?: boolean;
+}) {
+  return (
+    <label className="block text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">
+      {label}
+      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} required={required}
+        className="mt-1.5 w-full rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] px-3 py-2.5 text-sm font-bold text-[#1A1A2E] outline-none focus:border-[#4A3AFF] focus:ring-2 focus:ring-[#4A3AFF]/10"
+        placeholder={placeholder} />
+    </label>
+  );
+}
+
+function NumberField({ label, value, onChange, icon }: {
+  label: string; value: string; onChange: (v: string) => void; icon?: React.ReactNode;
+}) {
+  return (
+    <label className="block text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">
+      {label}
+      <div className="mt-1.5 flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] px-3 py-2.5">
+        {icon && <span className="text-[#9CA3AF]">{icon}</span>}
+        <input type="number" min="0" value={value} onChange={(e) => onChange(e.target.value)}
+          className="w-full bg-transparent text-sm font-bold text-[#1A1A2E] outline-none" placeholder="0" />
+      </div>
+    </label>
+  );
+}
+
+function SelectField({ label, value, onChange, children }: {
+  label: string; value: string; onChange: (v: string) => void; children: React.ReactNode;
+}) {
+  return (
+    <label className="block text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">
+      {label}
+      <select value={value} onChange={(e) => onChange(e.target.value)}
+        className="mt-1.5 w-full rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] px-3 py-2.5 text-sm font-bold text-[#1A1A2E] outline-none focus:border-[#4A3AFF]">
+        {children}
+      </select>
+    </label>
+  );
+}
