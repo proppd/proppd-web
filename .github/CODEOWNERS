@@ -1,0 +1,9 @@
+# Default code owner for all files
+* @hamez
+
+# Security-sensitive paths require explicit review
+/app/api/ @hamez
+/lib/proppd/ @hamez
+/lib/supabase/ @hamez
+/components/auth/ @hamez
+/components/admin/ @hamez
