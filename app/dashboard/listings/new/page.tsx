@@ -7,10 +7,8 @@ import { loadPortalUserAccess } from '@/lib/proppd/backend';
 import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
 
 export const metadata: Metadata = {
-  title: {
-    absolute: 'Create listing | Proppd',
-  },
-  description: 'Create a new listing draft in the Proppd backend.',
+  title: { absolute: 'New listing | Proppd' },
+  description: 'Create a new property listing on Proppd.',
   alternates: { canonical: '/dashboard/listings/new' },
 };
 
@@ -18,65 +16,28 @@ export const dynamic = 'force-dynamic';
 
 export default async function Page() {
   const supabase = await createPortalSupabaseServerClient();
-  if (!supabase) {
-    redirect('/login?next=%2Fdashboard%2Flistings%2Fnew');
-  }
+  if (!supabase) redirect('/login?next=%2Fdashboard%2Flistings%2Fnew');
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    redirect('/login?next=%2Fdashboard%2Flistings%2Fnew');
-  }
+  if (!user) redirect('/login?next=%2Fdashboard%2Flistings%2Fnew');
 
   const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
-  if (!access) {
-    redirect('/login?next=%2Fdashboard%2Flistings%2Fnew');
-  }
+  if (!access) redirect('/login?next=%2Fdashboard%2Flistings%2Fnew');
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="min-h-screen bg-[#F7F8FA]">
       <SiteHeader />
-      <section className="px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-5xl">
-          <div className="rounded-xl bg-[#1A1A2E] p-8 text-white shadow-sm sm:p-10">
-            <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">New listing</p>
-            <h1 className="mt-4 text-5xl font-bold tracking-[-.07em]">Create the next property listing.</h1>
-            <p className="mt-4 max-w-2xl text-lg leading-8 text-white/70">
-              Add the core details once and store them in the database as a real draft that can be edited and published later.
-            </p>
+      <section className="px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-6">
+            <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">New listing</p>
+            <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#1A1A2E]">Create a property listing</h1>
+            <p className="mt-2 text-sm text-[#6B7280]">Follow the steps to add a new property to Proppd.</p>
           </div>
-
-          <div className="mt-8 grid gap-6 lg:grid-cols-[1.1fr_.9fr] lg:items-start">
-            <ListingEditorForm mode="create" submitUrl="/api/dashboard/listings" submitLabel="Create listing" />
-
-            <aside className="rounded-xl bg-white p-6 shadow-sm">
-              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#4A3AFF]">Draft checklist</p>
-              <h2 className="mt-2 text-2xl font-bold tracking-[-.04em]">Have these ready before you save.</h2>
-              <div className="mt-5 space-y-3">
-                <SupportStep title="Listing basics" text="Title, suburb, city, price, and property type are the minimum useful inputs." />
-                <SupportStep title="Live stock context" text="Mark whether the listing is draft, pending review, available, or already under offer." />
-                <SupportStep title="Trust signals" text="Add bedrooms, bathrooms, parking, and a clear description so the portal card reads properly." />
-              </div>
-
-              <div className="mt-6 rounded-lg bg-[#F7F8FA] p-4">
-                <p className="text-xs font-bold uppercase tracking-[.16em] text-[#1A1A2E]">After you save</p>
-                <p className="mt-2 text-sm leading-6 text-[#6B7280]">
-                  Proppd saves the draft first, then routes you to the edit view so the listing can be refined before it is exposed more widely.
-                </p>
-              </div>
-            </aside>
-          </div>
+          <ListingEditorForm mode="create" submitUrl="/api/dashboard/listings" submitLabel="Create listing" />
         </div>
       </section>
       <SiteFooter />
     </main>
-  );
-}
-
-function SupportStep({ title, text }: { title: string; text: string }) {
-  return (
-    <div className="rounded-[1.25rem] border border-[#E5E7EB] bg-[#F7F8FA] p-4">
-      <p className="text-xs font-bold uppercase tracking-[.16em] text-[#4A3AFF]">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-[#6B7280]">{text}</p>
-    </div>
   );
 }

@@ -1,29 +1,18 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { AlertTriangle, BarChart3, BellRing, CheckCircle2, Home, MessageCircle, ShieldCheck, Sparkles } from 'lucide-react';
+import { BarChart3, BellRing, Building2, CheckCircle2, ChevronRight, Home, ListPlus, MessageCircle, Phone, Plus, TrendingUp, Users } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { getPortalServerUser } from '@/lib/supabase/server';
 import { loadMyPortalListings, loadPortalLeadQueue, loadPortalListings, loadPortalUserAccess } from '../../lib/proppd/backend';
-import { getAgentFollowUpActions, getAgentWorkspaceStats, formatAgentResponseSignal, type AgentFollowUpAction } from '@/lib/agent/workspace';
-import { formatLeadIntent } from '@/lib/leads/pipeline';
+import { getPortalServerUser } from '@/lib/supabase/server';
+import { getAgentWorkspaceStats, formatAgentResponseSignal, type AgentFollowUpAction } from '@/lib/agent/workspace';
 
 const agentName = 'Lerato Mokoena';
 
-const priorityStyles: Record<AgentFollowUpAction['priority'], string> = {
-  high: 'bg-red-50 text-red-700 border-red-100',
-  medium: 'bg-amber-50 text-amber-700 border-amber-100',
-  low: 'bg-[#E6FBF7] text-[#00C9A7] border-[#c8f6ec]',
-};
-
 export const metadata: Metadata = {
-  title: {
-    absolute: 'Agent workspace | Proppd',
-  },
-  description: 'Agent workspace for lead follow-up, listing health, and response priorities.',
-  alternates: {
-    canonical: '/dashboard',
-  },
+  title: { absolute: 'Dashboard | Proppd' },
+  description: 'Manage your listings, track leads, and monitor performance.',
+  alternates: { canonical: '/dashboard' },
 };
 
 export const dynamic = 'force-dynamic';
@@ -33,22 +22,18 @@ export default async function Page() {
   const access = user ? await loadPortalUserAccess(user.id, user.email) : null;
   if (user && !access) {
     return (
-      <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+      <main className="min-h-screen bg-[#F7F8FA]">
         <SiteHeader />
         <section className="px-4 py-16 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl rounded-xl border border-[#E5E7EB] bg-white p-8 shadow-sm sm:p-12">
-            <p className="text-sm font-bold uppercase tracking-[.2em] text-[#4A3AFF]">Workspace access</p>
-            <h1 className="mt-4 text-4xl font-bold tracking-[-.06em]">Your account is not linked to an agent profile yet.</h1>
-            <p className="mt-4 text-base font-semibold leading-7 text-[#6B7280]">
-              Sign-in worked, but Proppd does not have a live agent or agency profile mapped to this user yet. Use the onboarding flow to request access and we will wire the gateway to your profile.
+            <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Workspace access</p>
+            <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#1A1A2E]">Your account is not linked to an agent profile yet.</h1>
+            <p className="mt-4 text-sm text-[#6B7280]">
+              Sign-in worked, but we don&apos;t have an agent profile mapped to this user. Request access to get started.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a className="rounded-full bg-[#1A1A2E] px-6 py-3 text-sm font-bold !text-white" href="/list-with-us#launch-application">
-                Request access
-              </a>
-              <a className="rounded-full border border-[#E5E7EB] px-6 py-3 text-sm font-bold text-[#1A1A2E]" href="/agents">
-                Browse agents
-              </a>
+            <div className="mt-6 flex gap-3">
+              <a className="rounded-lg bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0]" href="/list-with-us">Request access</a>
+              <a className="rounded-lg border border-[#E5E7EB] bg-white px-5 py-3 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF]" href="/agents">Browse agents</a>
             </div>
           </div>
         </section>
@@ -61,169 +46,117 @@ export default async function Page() {
   const portalLeads = (await loadPortalLeadQueue(access?.agentName ?? undefined)).items;
   const workspaceAgentName = access?.agentName ?? portalListings[0]?.agent ?? portalLeads[0]?.agent ?? agentName;
   const stats = getAgentWorkspaceStats(workspaceAgentName, portalListings, portalLeads);
-  const actions = getAgentFollowUpActions(workspaceAgentName, portalLeads);
-  const agentLeads = portalLeads.filter((lead) => lead.agent === workspaceAgentName);
-  const agentListings = portalListings.filter((listing) => listing.agent === workspaceAgentName);
+  const agentListings = portalListings.filter((l) => l.agent === workspaceAgentName);
+  const agentLeads = portalLeads.filter((l) => l.agent === workspaceAgentName);
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="min-h-screen bg-[#F7F8FA]">
       <SiteHeader />
 
-      <section className="px-4 py-10 sm:px-6 lg:px-8">
+      {/* Hero banner */}
+      <section className="bg-[#1A1A2E] px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="overflow-hidden rounded-xl bg-[#1A1A2E] text-white shadow-sm">
-            <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[1fr_360px] lg:p-12">
-              <div>
-                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Agent workspace</p>
-                <h1 className="mt-4 max-w-4xl text-5xl font-bold tracking-[-.07em] sm:text-6xl">A practical command centre for listings, leads, and seller follow-up.</h1>
-                <p className="mt-5 max-w-2xl text-lg leading-8 text-white/70">
-                  The AgentOS foundation now gives agents a clear command surface for live-style lead priorities, listing health, and the next action to take.
-                </p>
-                <div className="mt-8 flex flex-wrap gap-3">
-                  <a className="rounded-full bg-white px-6 py-3 text-sm font-bold !text-[#1A1A2E]" href="/admin">
-                    Open admin queue
-                  </a>
-                  <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white" href="/dashboard/listings">
-                    Manage listings
-                  </a>
-                  <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white" href="/list-with-us#launch-application">
-                    Request AgentOS pilot
-                  </a>
-                </div>
-              </div>
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Dashboard</p>
+              <h1 className="mt-2 text-3xl font-bold text-white sm:text-4xl">Welcome back, {stats.agentName.split(' ')[0]}</h1>
+              <p className="mt-2 text-sm text-white/60">{stats.agencyName} · {formatAgentResponseSignal(stats)}</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <a className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-bold text-[#1A1A2E] transition hover:bg-[#F7F8FA]" href="/dashboard/listings/new">
+                <Plus size={16} /> New listing
+              </a>
+              <a className="inline-flex items-center gap-2 rounded-lg border border-white/20 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10" href="/dashboard/listings">
+                <ListPlus size={16} /> Manage listings
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
 
-              <div className="rounded-xl border border-white/10 bg-white/10 p-6 backdrop-blur">
-                <p className="text-sm font-bold uppercase tracking-[.18em] text-white/60">Signed-in agent</p>
-                <h2 className="mt-4 text-3xl font-bold tracking-[-.05em]">{stats.agentName}</h2>
-                <p className="mt-2 text-sm font-bold text-white/60">{stats.agencyName}</p>
-                <div className="mt-6 grid grid-cols-3 gap-3">
-                  <div className="rounded-2xl bg-white/10 p-3 text-center">
-                    <p className="text-2xl font-bold text-white">{stats.activeListings}</p>
-                    <p className="mt-1 text-[11px] font-bold uppercase tracking-[.14em] text-white/60">Listings</p>
-                  </div>
-                  <div className="rounded-2xl bg-white/10 p-3 text-center">
-                    <p className="text-2xl font-bold text-white">{stats.newLeads}</p>
-                    <p className="mt-1 text-[11px] font-bold uppercase tracking-[.14em] text-white/60">New leads</p>
-                  </div>
-                  <div className="rounded-2xl bg-white/10 p-3 text-center">
-                    <p className="text-2xl font-bold text-white">{stats.flaggedLeads}</p>
-                    <p className="mt-1 text-[11px] font-bold uppercase tracking-[.14em] text-white/60">Flagged</p>
-                  </div>
-                </div>
-                <div className="mt-6 rounded-2xl bg-white p-4 text-[#1A1A2E]">
-                  <p className="text-xs font-bold uppercase tracking-[.14em] text-[#9CA3AF]">Response signal</p>
-                  <p className="mt-2 font-bold">{formatAgentResponseSignal(stats)}</p>
-                </div>
-              </div>
+      {/* Stats grid */}
+      <section className="px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            <StatCard icon={<Home size={20} />} label="Active listings" value={stats.activeListings} color="#4A3AFF" />
+            <StatCard icon={<BellRing size={20} />} label="New leads" value={stats.newLeads} color="#00C9A7" />
+            <StatCard icon={<CheckCircle2 size={20} />} label="Qualified" value={stats.qualifiedLeads} color="#4A3AFF" />
+            <StatCard icon={<TrendingUp size={20} />} label="Total leads" value={stats.totalLeads} color="#00C9A7" />
+          </div>
+        </div>
+      </section>
+
+      {/* Quick actions + Recent leads */}
+      <section className="px-4 pb-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl grid gap-6 lg:grid-cols-[1fr_1fr]">
+          {/* Quick actions */}
+          <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+            <h2 className="text-base font-bold text-[#1A1A2E]">Quick actions</h2>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <QuickAction icon={<Plus size={18} />} label="New listing" href="/dashboard/listings/new" />
+              <QuickAction icon={<ListPlus size={18} />} label="All listings" href="/dashboard/listings" />
+              <QuickAction icon={<MessageCircle size={18} />} label="Lead queue" href="/dashboard#leads" />
+              <QuickAction icon={<Building2 size={18} />} label="Admin panel" href="/admin" />
             </div>
           </div>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-4">
-            <Metric icon={<Home size={20} />} label="Active listings" value={stats.activeListings} detail="Visible on Proppd" />
-            <Metric icon={<BellRing size={20} />} label="New leads" value={stats.newLeads} detail="Need first response" />
-            <Metric icon={<CheckCircle2 size={20} />} label="Qualified" value={stats.qualifiedLeads} detail="High-intent follow-up" />
-            <Metric icon={<AlertTriangle size={20} />} label="Quality checks" value={stats.flaggedLeads} detail="Review before routing" warning />
-          </div>
-
-          <section className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
-            <div className="space-y-8">
-              <div className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-bold uppercase tracking-[.2em] text-[#4A3AFF]">Follow-up queue</p>
-                    <h2 className="mt-2 text-3xl font-bold tracking-[-.05em]">Next best actions</h2>
-                  </div>
-                  <span className="rounded-full bg-[#E6FBF7] px-4 py-2 text-sm font-bold text-[#00C9A7]">Queue snapshot</span>
-                </div>
-
-                <div className="mt-6 space-y-3">
-                  {actions.map((action) => (
-                    <a key={action.leadId} className="block rounded-lg border border-[#E5E7EB] p-5 transition hover:border-[#4A3AFF] hover:bg-[#F7F8FA]" href={action.href}>
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <p className="text-lg font-bold">{action.label}</p>
-                          <p className="mt-2 text-sm font-bold leading-6 text-[#6B7280]">{action.detail}</p>
-                        </div>
-                        <span className={`rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-[.12em] ${priorityStyles[action.priority]}`}>{action.priority}</span>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
-                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#4A3AFF]">Listings</p>
-                <h2 className="mt-2 text-3xl font-bold tracking-[-.05em]">Your stock health</h2>
-                <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  {agentListings.map((listing) => (
-                    <a key={listing.slug} className="overflow-hidden rounded-[1.75rem] border border-[#E5E7EB] bg-[#F7F8FA]" href={`/property/${listing.slug}`}>
-                      <div className={`h-28 bg-gradient-to-br ${listing.gradient}`} />
-                      <div className="p-5">
-                        <p className="text-xs font-bold uppercase tracking-[.14em] text-[#4A3AFF]">{listing.purpose}</p>
-                        <h3 className="mt-2 text-xl font-bold tracking-[-.04em]">{listing.title}</h3>
-                        <p className="mt-2 text-sm font-bold text-[#9CA3AF]">{listing.location}</p>
-                        <p className="mt-4 font-bold">{listing.price}</p>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              </div>
+          {/* Recent leads */}
+          <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-[#1A1A2E]">Recent leads</h2>
+              <a href="/dashboard#leads" className="text-xs font-bold text-[#4A3AFF]">View all</a>
             </div>
-
-            <aside className="space-y-5">
-              <div className="rounded-xl bg-white p-6 shadow-sm">
-                <MessageCircle className="text-[#00C9A7]" size={28} />
-                <h2 className="mt-4 text-2xl font-bold tracking-[-.04em]">Latest enquiry</h2>
-                {stats.latestLead ? (
-                  <div className="mt-4 text-sm font-bold leading-6 text-[#6B7280]">
-                    <p className="font-bold text-[#1A1A2E]">{stats.latestLead.name}</p>
-                    <p>
-                      {formatLeadIntent(stats.latestLead.intent)} on {stats.latestLead.listingTitle}
-                    </p>
-                    <p className="mt-3 rounded-2xl bg-[#F7F8FA] p-4">“{stats.latestLead.message}”</p>
-                  </div>
-                ) : (
-                  <p className="mt-4 text-sm font-bold text-[#6B7280]">No enquiries yet.</p>
-                )}
-              </div>
-
-              <div className="rounded-xl bg-white p-6 shadow-sm">
-                <BarChart3 className="text-[#4A3AFF]" size={28} />
-                <h2 className="mt-4 text-2xl font-bold tracking-[-.04em]">Lead mix</h2>
-                <div className="mt-4 space-y-3">
-                  {agentLeads.map((lead) => (
-                    <div key={lead.id} className="rounded-2xl border border-[#E5E7EB] p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="font-bold">{lead.name}</p>
-                        <span className="text-xs font-bold capitalize text-[#9CA3AF]">{lead.quality}</span>
-                      </div>
-                      <p className="mt-1 text-sm font-bold text-[#9CA3AF]">
-                        {formatLeadIntent(lead.intent)} · {lead.status}
-                      </p>
+            <div className="mt-4 space-y-3">
+              {agentLeads.length === 0 ? (
+                <p className="text-sm text-[#9CA3AF]">No leads yet. They&apos;ll appear here as buyers and tenants enquire.</p>
+              ) : (
+                agentLeads.slice(0, 4).map((lead) => (
+                  <div key={lead.id} className="flex items-center justify-between rounded-lg border border-[#F3F4F6] px-3 py-2.5">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-[#1A1A2E] truncate">{lead.name}</p>
+                      <p className="text-xs text-[#9CA3AF]">{lead.intent} · {lead.email}</p>
                     </div>
-                  ))}
+                    <ChevronRight size={14} className="shrink-0 text-[#9CA3AF]" />
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Your listings */}
+      <section className="px-4 pb-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-bold text-[#1A1A2E]">Your listings</h2>
+            <a href="/dashboard/listings" className="text-xs font-bold text-[#4A3AFF]">Manage all</a>
+          </div>
+          <div className="mt-4 space-y-3">
+            {agentListings.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-[#E5E7EB] p-8 text-center">
+                <p className="text-sm text-[#9CA3AF]">No listings yet.</p>
+                <a href="/dashboard/listings/new" className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[#4A3AFF] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#3A2AE0]">
+                  <Plus size={14} /> Create your first listing
+                </a>
+              </div>
+            ) : (
+              agentListings.slice(0, 5).map((listing) => (
+                <div key={listing.slug} className="flex items-center justify-between rounded-lg border border-[#F3F4F6] px-4 py-3 transition hover:border-[#4A3AFF]/20">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold text-[#1A1A2E] truncate">{listing.title}</p>
+                    <p className="text-xs text-[#9CA3AF]">{listing.price} · {listing.location}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${listing.purpose === 'For sale' ? 'bg-[#4A3AFF]/10 text-[#4A3AFF]' : 'bg-[#00C9A7]/10 text-[#00C9A7]'}`}>
+                      {listing.purpose}
+                    </span>
+                    <a href={`/dashboard/listings/${listing.slug}/edit`} className="text-xs font-bold text-[#4A3AFF]">Edit</a>
+                  </div>
                 </div>
-              </div>
-
-              <div className="rounded-xl border border-[#E5E7EB] bg-[#E6FBF7] p-6">
-                <ShieldCheck className="text-[#00C9A7]" size={28} />
-                <h2 className="mt-4 text-2xl font-bold tracking-[-.04em] text-[#00C9A7]">Production gate</h2>
-                <p className="mt-3 text-sm font-bold leading-6 text-[#00C9A7]">
-                  Production auth, tenant-scoped listings, persisted lead changes, and notification routing are being connected behind this workspace.
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-[#1A1A2E] p-6 text-white">
-                <Sparkles className="text-[#00C9A7]" size={28} />
-                <h2 className="mt-4 text-2xl font-bold tracking-[-.04em]">Next release</h2>
-                <ul className="mt-4 space-y-2 text-sm font-bold leading-6 text-white/70">
-                  <li>• Tenant-scoped permissions and audit events.</li>
-                  <li>• Notification routing for new enquiries.</li>
-                  <li>• Agent assist tools for follow-up and copy.</li>
-                </ul>
-              </div>
-            </aside>
-          </section>
+              ))
+            )}
+          </div>
         </div>
       </section>
 
@@ -232,13 +165,29 @@ export default async function Page() {
   );
 }
 
-function Metric({ icon, label, value, detail, warning = false }: { icon: ReactNode; label: string; value: number; detail: string; warning?: boolean }) {
+function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color: string }) {
   return (
-    <div className="rounded-xl bg-white p-5 shadow-sm">
-      <div className={`inline-flex rounded-2xl p-3 ${warning ? 'bg-red-50 text-red-600' : 'bg-[#E6FBF7] text-[#00C9A7]'}`}>{icon}</div>
-      <p className="mt-4 text-3xl font-bold">{value}</p>
-      <h2 className="mt-1 font-bold">{label}</h2>
-      <p className="mt-1 text-sm font-bold text-[#9CA3AF]">{detail}</p>
+    <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm sm:p-5">
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ backgroundColor: `${color}10`, color }}>
+          {icon}
+        </div>
+        <div>
+          <p className="text-2xl font-bold text-[#1A1A2E]">{value}</p>
+          <p className="text-xs font-bold text-[#9CA3AF]">{label}</p>
+        </div>
+      </div>
     </div>
+  );
+}
+
+function QuickAction({ icon, label, href }: { icon: React.ReactNode; label: string; href: string }) {
+  return (
+    <a href={href} className="flex items-center gap-3 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] p-3 transition hover:border-[#4A3AFF]/20 hover:bg-white">
+      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#4A3AFF]/10 text-[#4A3AFF]">
+        {icon}
+      </div>
+      <span className="text-sm font-bold text-[#1A1A2E]">{label}</span>
+    </a>
   );
 }
