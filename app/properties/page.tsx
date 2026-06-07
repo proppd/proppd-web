@@ -131,14 +131,14 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
       <section className="px-4 py-5 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[minmax(0,1fr)_440px]">
           <div>
-            <div className="rounded-[1.25rem] border border-[#E5E7EB] bg-white p-4 shadow-sm">
+            <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm sm:p-5">
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                 <div>
-                  <h1 className="text-2xl font-bold tracking-[-.04em] sm:text-3xl">
+                  <h1 className="text-xl font-bold tracking-tight text-[#1A1A2E] sm:text-2xl">
                     {`${visibleListings.length} ${visibleListings.length === 1 ? 'home' : 'homes'} ${searchScopeLabel(filters)}`}
                   </h1>
                   <p className="mt-1 text-sm font-semibold leading-6 text-[#6B7280]">
-                    {filters.query ? `Matching “${filters.query}” across listing facts, areas, agents, and agencies.` : 'Price-first verified homes with saved search and agent routing.'}
+                    {filters.query ? `Matching “${filters.query}” across listing facts, areas, agents, and agencies.` : 'Verified homes with agent routing.'}
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-wrap gap-2">
@@ -147,7 +147,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                       Page {paginated.page} of {paginated.totalPages}
                     </div>
                   ) : null}
-                  <a className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[#1A1A2E] px-4 py-2 text-sm font-bold text-white" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })} aria-label="Request a saved property search alert">
+                  <a className="inline-flex items-center gap-2 whitespace-nowrap rounded-lg bg-[#4A3AFF] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#3A2AE0]" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })} aria-label="Request a saved property search alert">
                     <Bell size={15} /> <span className="text-white">Save search</span>
                   </a>
                 </div>
