@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { ListingEditorForm } from '@/components/listings/listing-editor-form';
-import { SiteFooter } from '@/components/site/footer';
-import { SiteHeader } from '@/components/site/header';
 import { loadPortalUserAccess } from '@/lib/proppd/backend';
 import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
 
@@ -26,7 +24,6 @@ export default async function Page() {
 
   return (
     <main className="min-h-screen bg-[#F7F8FA]">
-      <SiteHeader />
       <section className="px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl">
           <div className="mb-6">
@@ -37,7 +34,6 @@ export default async function Page() {
           <ListingEditorForm mode="create" submitUrl="/api/dashboard/listings" submitLabel="Create listing" />
         </div>
       </section>
-      <SiteFooter />
     </main>
   );
 }

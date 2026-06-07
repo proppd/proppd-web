@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { Plus, Pencil, Eye, Trash2, ExternalLink, Home, Clock, CheckCircle } from 'lucide-react';
-import { SiteFooter } from '@/components/site/footer';
-import { SiteHeader } from '@/components/site/header';
 import { loadMyPortalListings, loadPortalUserAccess } from '@/lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
 
@@ -42,7 +40,6 @@ export default async function Page() {
 
   return (
     <main className="min-h-screen bg-[#F7F8FA]">
-      <SiteHeader />
 
       <section className="px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
@@ -137,7 +134,6 @@ export default async function Page() {
         </div>
       </section>
 
-      <SiteFooter />
     </main>
   );
 }
