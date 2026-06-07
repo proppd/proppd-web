@@ -7,6 +7,7 @@ import { MortgageCalculator } from '@/components/finance/mortgage-calculator';
 import { NeighborhoodContext } from '@/components/property/neighborhood-context';
 import { PhotoLightbox } from '@/components/property/photo-lightbox';
 import { PriceHistory } from '@/components/property/price-history';
+import { PropertyTracking } from '@/components/property/property-tracking';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SaveListingButton } from '@/components/properties/save-listing-button';
 import { SiteFooter } from '@/components/site/footer';
@@ -114,6 +115,15 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
             },
           }),
         }}
+      />
+      <PropertyTracking
+        slug={listing.slug}
+        title={listing.title}
+        price={listing.price}
+        location={listing.location}
+        beds={listing.beds}
+        baths={listing.baths}
+        photo={listing.photos[0]?.src ?? ''}
       />
       <SiteHeader />
 
