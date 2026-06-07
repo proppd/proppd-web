@@ -3,6 +3,7 @@
 import { createClient } from '@supabase/supabase-js';
 import type React from 'react';
 import { useMemo, useState } from 'react';
+import { Mail, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
 
 type LoginFormProps = {
   supabaseUrl?: string;
@@ -16,13 +17,11 @@ type SubmitState =
   | { status: 'success'; message: string }
   | { status: 'error'; message: string };
 
-const INVITE_EMAIL = 'info@proppd.com';
-
-export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/dashboard/listings' }: LoginFormProps) {
-  const [email, setEmail] = useState(INVITE_EMAIL);
+export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/dashboard' }: LoginFormProps) {
+  const [email, setEmail] = useState('');
   const [state, setState] = useState<SubmitState>({
     status: 'idle',
-    message: 'Enter the email linked to your Proppd agent or admin profile.',
+    message: '',
   });
   const isConfigured = Boolean(supabaseUrl && publishableKey);
 
@@ -33,13 +32,12 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
 
   const cleanEmail = email.trim().toLowerCase();
   const isValidEmail = cleanEmail.includes('@') && cleanEmail.includes('.');
-  const isAdminEmail = cleanEmail === INVITE_EMAIL;
 
   async function submitMagicLink(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!isValidEmail) {
-      setState({ status: 'error', message: 'Enter a valid work email address.' });
+      setState({ status: 'error', message: 'Enter a valid email address.' });
       return;
     }
 
@@ -49,79 +47,73 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
         [`Please approve Proppd access for: ${cleanEmail}`, '', 'Agency:', 'Role:', 'Notes:'].join('\n'),
       );
       setState({ status: 'success', message: 'Opening your email app with a ready-to-send access request.' });
-      window.location.href = `mailto:${INVITE_EMAIL}?subject=${subject}&body=${body}`;
+      window.location.href = `mailto:info@proppd.com?subject=${subject}&body=${body}`;
       return;
     }
 
-    setState({ status: 'loading', message: isAdminEmail ? 'Sending admin login link…' : 'Sending secure login link…' });
+    setState({ status: 'loading', message: 'Sending secure login link…' });
 
     const { error } = await supabase.auth.signInWithOtp({
       email: cleanEmail,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
-        shouldCreateUser: isAdminEmail,
       },
     });
 
     if (error) {
-      setState({ status: 'error', message: error.message || 'Could not send the login link. Please contact info@proppd.com.' });
+      setState({ status: 'error', message: error.message || 'Could not send the login link.' });
       return;
     }
 
-    setState({ status: 'success', message: isAdminEmail ? 'Check info@proppd.com for the admin login link.' : 'Check your inbox for the secure Proppd login link.' });
+    setState({ status: 'success', message: 'Check your inbox for the login link.' });
   }
 
   return (
-    <div className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-4 sm:p-5">
-      <form className="grid gap-3 sm:grid-cols-[1fr_auto]" onSubmit={submitMagicLink}>
-        <label className="sr-only" htmlFor="login-email">
+    <div>
+      <form className="grid gap-4" onSubmit={submitMagicLink}>
+        <label className="block text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">
           Email address
+          <div className="mt-1.5 flex items-center gap-3 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 focus-within:border-[#4A3AFF] focus-within:ring-2 focus-within:ring-[#4A3AFF]/10">
+            <Mail size={16} className="shrink-0 text-[#9CA3AF]" />
+            <input
+              id="login-email"
+              className="w-full bg-transparent text-sm font-bold text-[#1A1A2E] outline-none placeholder:text-[#9CA3AF]"
+              type="email"
+              placeholder="you@agency.co.za"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              inputMode="email"
+              autoComplete="email"
+              autoCapitalize="none"
+              spellCheck={false}
+              required
+            />
+          </div>
         </label>
-        <input
-          id="login-email"
-          className="rounded-full border border-[#E5E7EB] bg-white px-5 py-4 text-sm font-bold text-[#1A1A2E] outline-none transition placeholder:text-[#9CA3AF] focus:border-[#4A3AFF] focus:ring-4 focus:ring-[#4A3AFF]/10"
-          type="email"
-          placeholder="info@proppd.com"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          inputMode="email"
-          autoComplete="email"
-          autoCapitalize="none"
-          spellCheck={false}
-          required
-        />
+
         <button
-          className="rounded-full bg-[#1A1A2E] px-6 py-4 text-sm font-bold text-white transition hover:bg-[#4A3AFF] disabled:cursor-not-allowed disabled:bg-slate-400"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0] disabled:opacity-50"
           type="submit"
           disabled={state.status === 'loading'}
         >
-          {state.status === 'loading' ? 'Sending…' : isConfigured ? (isAdminEmail ? 'Send admin link' : 'Send login link') : 'Request invite'}
+          {state.status === 'loading' ? (
+            'Sending…'
+          ) : isConfigured ? (
+            <>Send login link <ArrowRight size={14} /></>
+          ) : (
+            <>Request invite <ArrowRight size={14} /></>
+          )}
         </button>
       </form>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
-        <p
-          aria-live="polite"
-          className={`text-sm font-bold leading-6 ${state.status === 'error' ? 'text-red-600' : state.status === 'success' ? 'text-[#00C9A7]' : 'text-[#6B7280]'}`}
-        >
-          {isConfigured ? state.message : 'The request button prepares a ready-to-send invite email until live login links are enabled.'}
-        </p>
-        <a
-          className="inline-flex justify-center rounded-full border border-[#E5E7EB] bg-white px-5 py-3 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]"
-          href={`mailto:${INVITE_EMAIL}?subject=${encodeURIComponent('Proppd access request')}&body=${encodeURIComponent(
-            [`Please approve Proppd access for: ${cleanEmail || '[add your work email]'}`, '', 'Agency:', 'Role:', 'Notes:'].join('\n'),
-          )}`}
-        >
-          Email request
-        </a>
-      </div>
-
-      {state.status === 'success' ? (
-        <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold leading-6 text-emerald-800">
-          <p className="font-bold uppercase tracking-[.14em]">What to check next</p>
-          <p className="mt-2">Look for the message from Proppd or Supabase, then check spam and promotions if it does not land quickly.</p>
+      {state.status !== 'idle' && state.message && (
+        <div className={`mt-4 flex items-start gap-2.5 rounded-lg p-3 text-sm font-bold ${
+          state.status === 'error' ? 'bg-red-50 text-red-600' : 'bg-[#E6FBF7] text-[#00C9A7]'
+        }`}>
+          {state.status === 'error' ? <AlertCircle size={16} className="mt-0.5 shrink-0" /> : <CheckCircle size={16} className="mt-0.5 shrink-0" />}
+          <span>{state.message}</span>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }
