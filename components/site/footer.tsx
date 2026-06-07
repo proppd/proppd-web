@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { ProppdLogo } from './logo';
 
 export function SiteFooter() {
   return (
@@ -8,9 +9,8 @@ export function SiteFooter() {
         <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr]">
           {/* Brand */}
           <div>
-            <a href="/" aria-label="Proppd home" className="inline-flex items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#4A3AFF] text-sm font-bold text-white">P</span>
-              <span className="text-xl font-bold text-[#1A1A2E]">Proppd</span>
+            <a href="/" aria-label="Proppd home">
+              <ProppdLogo />
             </a>
             <p className="mt-3 text-sm leading-relaxed text-[#6B7280]">
               A modern South African property portal for verified listings, direct enquiries, and agent-led stock.
