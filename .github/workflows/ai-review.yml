@@ -107,8 +107,9 @@ jobs:
             const data = await response.json();
             const review = data.choices?.[0]?.message?.content || 'No review generated';
 
-            const criticalCount = (review.match(/CRITICAL/gi) || []).length;
-            const warningCount = (review.match(/WARNING/gi) || []).length;
+            const reviewBody = review.split("---")[0] || review;
+            const criticalCount = (reviewBody.match(/CRITICAL/gi) || []).length;
+            const warningCount = (reviewBody.match(/WARNING/gi) || []).length;
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
