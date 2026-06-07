@@ -37,10 +37,12 @@ jobs:
         uses: actions/github-script@v7
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DIFF: ${{ steps.diff.outputs.diff }}
+          FILES: ${{ steps.files.outputs.files }}
         with:
           script: |
-            const diff = `${{ steps.diff.outputs.diff }}`;
-            const files = `${{ steps.files.outputs.files }}`;
+            const diff = process.env.DIFF || '';
+            const files = process.env.FILES || '';
             const apiKey = process.env.OPENAI_API_KEY;
 
             if (!apiKey) {
