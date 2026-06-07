@@ -36,7 +36,7 @@ jobs:
       - name: AI Review
         uses: actions/github-script@v7
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: *** secrets.OPENAI_API_KEY }}
           DIFF: ${{ steps.diff.outputs.diff }}
           FILES: ${{ steps.files.outputs.files }}
         with:
@@ -120,12 +120,12 @@ jobs:
                 review,
                 '',
                 '---',
-                `<details><summary>Review stats</summary>`,
+                '<details><summary>Review stats</summary>',
                 '',
                 `- Critical: ${criticalCount}`,
                 `- Warnings: ${warningCount}`,
                 `- Model: gpt-4o-mini`,
-                `</details>`,
+                '</details>',
                 '',
                 '> Auto-generated. Focus on architecture and security, not style.',
               ].join('\n'),
