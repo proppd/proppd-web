@@ -947,7 +947,7 @@ export async function loadPortalDiagnostics(env: PortalEnv = process.env): Promi
 async function queryListings(databaseUrl: string, slug?: string): Promise<ListingRow[]> {
   const pool = getPortalPool(databaseUrl);
   const values: Array<string> = [];
-  const clauses = ["l.status in ('available', 'under_offer', 'sold', 'rented')", "coalesce(ag.is_active, true) = true", "coalesce(a.is_active, true) = true"];
+  const clauses = ["l.status in ('available', 'under_offer', 'sold', 'rented')"];
 
   if (slug) {
     values.push(slug);
