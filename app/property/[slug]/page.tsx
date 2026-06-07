@@ -5,11 +5,13 @@ import { notFound } from 'next/navigation';
 import { EnquiryForm } from '@/components/property/enquiry-form';
 import { MortgageCalculator } from '@/components/finance/mortgage-calculator';
 import { NeighborhoodContext } from '@/components/property/neighborhood-context';
+import { PhotoLightbox } from '@/components/property/photo-lightbox';
 import { PriceHistory } from '@/components/property/price-history';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SaveListingButton } from '@/components/properties/save-listing-button';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
+import { Breadcrumbs } from '@/components/site/breadcrumbs';
 import { loadPortalDiagnostics, loadPortalListingBySlug, loadPortalListings } from '../../../lib/proppd/backend';
 import { listings as demoListings } from '@/lib/demo-data';
 import { buildEnquiryMailto, buildListingShareText, getListingBySlug, getListingFacts, getRelatedListings } from '@/lib/listings/details';
@@ -78,7 +80,55 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
 
   return (
     <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+      {/* Structured data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'RealEstateListing',
+            name: listing.title,
+            description: listing.description,
+            url: `/property/${listing.slug}`,
+            image: listing.photos[0]?.src,
+            offers: {
+              '@type': 'Offer',
+              price: listing.priceValue,
+              priceCurrency: 'ZAR',
+            },
+            address: {
+              '@type': 'PostalAddress',
+              addressLocality: listing.city,
+              addressRegion: listing.province,
+              addressCountry: 'ZA',
+            },
+            numberOfBedrooms: listing.beds,
+            numberOfBathroomsTotal: listing.baths,
+            agent: {
+              '@type': 'Person',
+              name: listing.agent,
+              worksFor: {
+                '@type': 'Organization',
+                name: listing.agency,
+              },
+            },
+          }),
+        }}
+      />
       <SiteHeader />
+
+      <div className="border-b border-[#E5E7EB] bg-white px-4 py-2 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <Breadcrumbs
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Properties', href: '/properties' },
+              { label: listing.purpose === 'For sale' ? 'For sale' : 'To rent', href: listing.purpose === 'For sale' ? '/properties/for-sale' : '/properties/to-rent' },
+              { label: listing.title },
+            ]}
+          />
+        </div>
+      </div>
 
       <section className="border-b border-[#E5E7EB] bg-white px-4 py-3 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
@@ -100,6 +150,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-3 overflow-hidden rounded-xl bg-white p-3 shadow-sm lg:grid-cols-[1.35fr_.65fr]">
             <div className={`relative min-h-[25rem] overflow-hidden rounded-lg bg-gradient-to-br ${listing.gradient} p-6 text-white`}>
+              <PhotoLightbox photos={listing.photos} startIndex={0} />
               <img
                 src={listing.photos[0]?.src}
                 alt={listing.photos[0]?.alt ?? listing.title}

@@ -3,8 +3,11 @@
 import { Bath, BedDouble, Car, MapPin } from 'lucide-react';
 import type { Listing } from '@/lib/demo-data';
 import { SaveListingButton } from '@/components/properties/save-listing-button';
+import { ListingBadgeDisplay, getListingBadges } from './listing-badges';
 
 export function ListingCard({ listing }: { listing: Listing }) {
+  const badges = getListingBadges(listing);
+
   return (
     <article className="group overflow-hidden rounded-xl border border-[#E5E7EB] bg-white transition hover:shadow-lg hover:shadow-black/5">
       <a href={`/property/${listing.slug}`} className="block">
@@ -20,6 +23,10 @@ export function ListingCard({ listing }: { listing: Listing }) {
           <span className="absolute left-3 top-3 rounded bg-[#1A1A2E] px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-white">
             {listing.purpose}
           </span>
+          {/* Listing badges */}
+          <div className="absolute left-3 top-10 z-10">
+            <ListingBadgeDisplay badges={badges} />
+          </div>
           {/* Photo count */}
           {listing.photos.length > 1 && (
             <span className="absolute bottom-3 right-3 rounded bg-black/60 px-2 py-1 text-xs font-semibold text-white backdrop-blur-sm">

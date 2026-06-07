@@ -11,6 +11,24 @@ import { SiteHeader } from '@/components/site/header';
 export default function Home() {
   return (
     <main className="min-h-screen bg-white">
+      {/* Structured data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'Proppd',
+            url: 'https://proppd.com',
+            description: 'South African property portal for verified listings, direct enquiries, and agent-led stock.',
+            potentialAction: {
+              '@type': 'SearchAction',
+              target: 'https://proppd.com/properties?q={search_term_string}',
+              'query-input': 'required name=search_term_string',
+            },
+          }),
+        }}
+      />
       <SiteHeader />
       <HeroSearch />
       <FeaturedListings />
