@@ -80,17 +80,17 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
           : 'Stock unavailable';
 
   return (
-    <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
+    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
       <SiteHeader />
       <section className="px-4 py-14 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="overflow-hidden rounded-[2.5rem] bg-white shadow-sm">
-            <div className="bg-gradient-to-br from-[#050A30] via-[#3B49FF] to-[#12D6C5] p-8 text-white sm:p-12">
-              <div className="flex h-20 w-20 items-center justify-center rounded-[2rem] bg-white/15 backdrop-blur">
+          <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+            <div className="bg-gradient-to-br from-[#1A1A2E] via-[#4A3AFF] to-[#00C9A7] p-8 text-white sm:p-12">
+              <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-white/15 backdrop-blur">
                 <Building2 size={36} />
               </div>
-              <p className="mt-8 text-sm font-black uppercase tracking-[.2em] text-[#BFFFF8]">Agency profile</p>
-              <h1 className="mt-4 max-w-4xl text-5xl font-black tracking-[-.07em] sm:text-6xl">{agency.name}</h1>
+              <p className="mt-8 text-sm font-bold uppercase tracking-[.2em] text-[#BFFFF8]">Agency profile</p>
+              <h1 className="mt-4 max-w-4xl text-5xl font-bold tracking-[-.07em] sm:text-6xl">{agency.name}</h1>
               <p className="mt-5 flex items-center gap-2 text-lg font-bold text-white/80"><MapPin size={20} /> {agency.city}</p>
             </div>
             <div className="grid gap-4 p-6 sm:grid-cols-3 sm:p-8">
@@ -99,25 +99,25 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
               <AgencyMetric icon={<Building2 size={18} />} label="Status" value="Verified agency" />
             </div>
             <div className="px-6 pb-6 sm:px-8">
-              <div className="flex flex-wrap gap-2 text-xs font-black uppercase tracking-[.16em]">
+              <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[.16em]">
                 <span className="rounded-full bg-[#E9FFFC] px-4 py-2 text-[#087d75]">{directoryStateLabel}</span>
-                <span className="rounded-full bg-[#F5F7FA] px-4 py-2 text-slate-600">{teamStateLabel}</span>
-                <span className="rounded-full bg-[#F5F7FA] px-4 py-2 text-slate-600">{listingStateLabel}</span>
+                <span className="rounded-full bg-[#F7F8FA] px-4 py-2 text-[#6B7280]">{teamStateLabel}</span>
+                <span className="rounded-full bg-[#F7F8FA] px-4 py-2 text-[#6B7280]">{listingStateLabel}</span>
               </div>
             </div>
           </div>
 
           <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
             <div>
-              <div className="rounded-[2rem] bg-white p-7 shadow-sm">
-                <p className="text-sm font-black uppercase tracking-[.18em] text-[#3B49FF]">Agency team</p>
-                <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">Verified professionals</h2>
+              <div className="rounded-xl bg-white p-7 shadow-sm">
+                <p className="text-sm font-bold uppercase tracking-[.18em] text-[#4A3AFF]">Agency team</p>
+                <h2 className="mt-3 text-3xl font-bold tracking-[-.05em]">Verified professionals</h2>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   {team.map((agent) => (
-                    <a key={agent.name} href={`/agents/${slugifyDirectoryName(agent.name)}`} className="rounded-3xl border border-slate-200 p-5 transition hover:border-[#3B49FF]/40 hover:bg-[#F5F7FA]">
-                      <div className="text-lg font-black">{agent.name}</div>
-                      <div className="mt-2 text-sm font-bold text-slate-500">{agent.area}</div>
-                      <div className="mt-4 text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">{formatDirectoryCount(agent.listings, 'portfolio listing')}</div>
+                    <a key={agent.name} href={`/agents/${slugifyDirectoryName(agent.name)}`} className="rounded-3xl border border-[#E5E7EB] p-5 transition hover:border-[#4A3AFF]/40 hover:bg-[#F7F8FA]">
+                      <div className="text-lg font-bold">{agent.name}</div>
+                      <div className="mt-2 text-sm font-bold text-[#9CA3AF]">{agent.area}</div>
+                      <div className="mt-4 text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">{formatDirectoryCount(agent.listings, 'portfolio listing')}</div>
                     </a>
                   ))}
                 </div>
@@ -125,10 +125,10 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
 
               <div className="mt-8 flex items-end justify-between gap-4">
                 <div>
-                  <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Agency listings</p>
-                  <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">Current stock</h2>
+                  <p className="text-sm font-bold uppercase tracking-[.2em] text-[#4A3AFF]">Agency listings</p>
+                  <h2 className="mt-2 text-3xl font-bold tracking-[-.05em]">Current stock</h2>
                 </div>
-                <a className="hidden rounded-full bg-white px-5 py-3 text-sm font-black text-[#3B49FF] shadow-sm sm:inline-flex" href={`/properties?agency=${encodeURIComponent(agency.name)}`}>
+                <a className="hidden rounded-full bg-white px-5 py-3 text-sm font-bold text-[#4A3AFF] shadow-sm sm:inline-flex" href={`/properties?agency=${encodeURIComponent(agency.name)}`}>
                   View all
                 </a>
               </div>
@@ -139,20 +139,20 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
               </div>
             </div>
 
-            <aside className="h-fit rounded-[2.5rem] bg-[#050A30] p-7 text-white shadow-2xl shadow-slate-300/50">
-              <p className="text-sm font-black uppercase tracking-[.18em] text-[#12D6C5]">Agency enquiry</p>
-              <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">Contact {agency.name}</h2>
+            <aside className="h-fit rounded-xl bg-[#1A1A2E] p-7 text-white shadow-2xl shadow-slate-300/50">
+              <p className="text-sm font-bold uppercase tracking-[.18em] text-[#00C9A7]">Agency enquiry</p>
+              <h2 className="mt-3 text-3xl font-bold tracking-[-.05em]">Contact {agency.name}</h2>
               <p className="mt-4 text-sm leading-7 text-white/70">
                 Best for agency onboarding, branch updates, mandate requests, or listing corrections for this agency.
               </p>
               <a
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 font-black text-[#050A30]"
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 font-bold text-[#1A1A2E]"
                 href={`mailto:info@proppd.com?subject=Agency enquiry: ${agency.name}`}
               >
                 <Mail size={18} /> Email agency
               </a>
               <a
-                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 px-5 py-3 font-black text-white hover:bg-white/5"
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 px-5 py-3 font-bold text-white hover:bg-white/5"
                 href={`/properties?agency=${encodeURIComponent(agency.name)}`}
               >
                 View agency listings
@@ -161,29 +161,29 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
           </div>
 
           <div className="mt-8 grid gap-4 lg:grid-cols-[1fr_.9fr]">
-            <div className="rounded-[2rem] bg-white p-6 shadow-sm">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">How to work with this agency</p>
-              <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">Simple, verified, and route-friendly.</h2>
+            <div className="rounded-xl bg-white p-6 shadow-sm">
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#4A3AFF]">How to work with this agency</p>
+              <h2 className="mt-2 text-3xl font-bold tracking-[-.05em]">Simple, verified, and route-friendly.</h2>
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 <AgencyPill title="Browse" text="Review the branch, team, and current stock." />
                 <AgencyPill title="Choose" text="Open a listing and compare the verified details." />
                 <AgencyPill title="Enquire" text="Use the agency handoff to start the conversation." />
               </div>
-              <div className="mt-5 rounded-3xl bg-[#F5F7FA] p-4">
-                <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Portfolio snapshot</p>
+              <div className="mt-5 rounded-3xl bg-[#F7F8FA] p-4">
+                <p className="text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">Portfolio snapshot</p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-3">
                   <AgencySnapshotPill label="Team" value={formatDirectoryCount(team.length, 'agent')} />
                   <AgencySnapshotPill label="Stock" value={formatDirectoryCount(activeListings.length, 'listing')} />
                   <AgencySnapshotPill label="Top suburb" value={agencyMarketSummary.topSuburb} />
                 </div>
-                <p className="mt-3 text-sm font-bold leading-6 text-slate-600">
-                  Dominant property type: <span className="font-black text-[#050A30]">{agencyMarketSummary.topType}</span>
+                <p className="mt-3 text-sm font-bold leading-6 text-[#6B7280]">
+                  Dominant property type: <span className="font-bold text-[#1A1A2E]">{agencyMarketSummary.topType}</span>
                 </p>
               </div>
             </div>
-            <div className="rounded-[2rem] bg-[#050A30] p-6 text-white shadow-sm">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Need a shortlist?</p>
-              <p className="mt-2 text-2xl font-black tracking-[-.04em]">Keep browsing in {agency.city}.</p>
+            <div className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm">
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Need a shortlist?</p>
+              <p className="mt-2 text-2xl font-bold tracking-[-.04em]">Keep browsing in {agency.city}.</p>
               <p className="mt-3 text-sm font-bold leading-6 text-white/70">
                 {team.length} verified agent{team.length === 1 ? '' : 's'} and {activeListings.length} active listing{activeListings.length === 1 ? '' : 's'} are currently tied to {agency.name}.
               </p>
@@ -193,10 +193,10 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
                 <AgencySnapshotPill label="Stock" value={String(activeListings.length)} dark />
               </div>
               <div className="mt-5 flex flex-wrap gap-3">
-                <a className="rounded-full bg-white px-5 py-3 text-sm font-black text-[#050A30] shadow-sm" href={`/properties?agency=${encodeURIComponent(agency.name)}`}>
+                <a className="rounded-full bg-white px-5 py-3 text-sm font-bold text-[#1A1A2E] shadow-sm" href={`/properties?agency=${encodeURIComponent(agency.name)}`}>
                   View listings
                 </a>
-                <a className="rounded-full border border-white/15 px-5 py-3 text-sm font-black text-white hover:bg-white/5" href={`/agents?agency=${encodeURIComponent(agency.name)}`}>
+                <a className="rounded-full border border-white/15 px-5 py-3 text-sm font-bold text-white hover:bg-white/5" href={`/agents?agency=${encodeURIComponent(agency.name)}`}>
                   Browse agents
                 </a>
               </div>
@@ -211,9 +211,9 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
 
 function AgencyMetric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-3xl bg-[#F5F7FA] p-5">
-      <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.16em] text-slate-400">{icon} {label}</div>
-      <div className="mt-2 text-xl font-black text-[#050A30]">{value}</div>
+    <div className="rounded-3xl bg-[#F7F8FA] p-5">
+      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">{icon} {label}</div>
+      <div className="mt-2 text-xl font-bold text-[#1A1A2E]">{value}</div>
     </div>
   );
 }
@@ -221,8 +221,8 @@ function AgencyMetric({ icon, label, value }: { icon: React.ReactNode; label: st
 function AgencySnapshotPill({ label, value, dark = false }: { label: string; value: string; dark?: boolean }) {
   return (
     <div className={`rounded-3xl p-4 ${dark ? 'bg-white/8' : 'bg-white'}`}>
-      <div className={`text-xs font-black uppercase tracking-[.14em] ${dark ? 'text-[#12D6C5]' : 'text-slate-400'}`}>{label}</div>
-      <div className={`mt-2 text-sm font-black leading-6 ${dark ? 'text-white' : 'text-[#050A30]'}`}>{value}</div>
+      <div className={`text-xs font-bold uppercase tracking-[.14em] ${dark ? 'text-[#00C9A7]' : 'text-[#9CA3AF]'}`}>{label}</div>
+      <div className={`mt-2 text-sm font-bold leading-6 ${dark ? 'text-white' : 'text-[#1A1A2E]'}`}>{value}</div>
     </div>
   );
 }
@@ -244,9 +244,9 @@ function buildAgencyMarketSummary(listings: Array<{ suburb?: string; type: strin
 
 function AgencyPill({ title, text }: { title: string; text: string }) {
   return (
-    <div className="rounded-3xl bg-[#F5F7FA] p-4">
-      <div className="text-sm font-black text-[#050A30]">{title}</div>
-      <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{text}</p>
+    <div className="rounded-3xl bg-[#F7F8FA] p-4">
+      <div className="text-sm font-bold text-[#1A1A2E]">{title}</div>
+      <p className="mt-2 text-sm font-bold leading-6 text-[#6B7280]">{text}</p>
     </div>
   );
 }

@@ -48,19 +48,19 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
   const hasListings = visibleListings.length > 0;
 
   return (
-    <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
+    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
       <SiteHeader />
 
-      <section className="border-b border-slate-200 bg-white px-4 py-4 sm:px-6 lg:px-8">
+      <section className="border-b border-[#E5E7EB] bg-white px-4 py-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <form action="/properties" className="grid gap-3 rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm xl:grid-cols-[1.6fr_1fr_1fr_1fr_auto] xl:items-end">
-            <label className="flex min-h-14 items-center gap-3 rounded-full border border-slate-300 bg-white px-5 text-sm font-bold text-slate-500 focus-within:border-[#3B49FF] focus-within:ring-4 focus-within:ring-[#3B49FF]/10">
-              <Search size={21} className="text-[#3B49FF]" />
+          <form action="/properties" className="grid gap-3 rounded-lg border border-[#E5E7EB] bg-white p-4 shadow-sm xl:grid-cols-[1.6fr_1fr_1fr_1fr_auto] xl:items-end">
+            <label className="flex min-h-14 items-center gap-3 rounded-full border border-slate-300 bg-white px-5 text-sm font-bold text-[#9CA3AF] focus-within:border-[#4A3AFF] focus-within:ring-4 focus-within:ring-[#4A3AFF]/10">
+              <Search size={21} className="text-[#4A3AFF]" />
               <input
                 name="q"
                 type="search"
                 defaultValue={filters.query ?? ''}
-                className="min-w-0 flex-1 bg-transparent font-bold text-[#050A30] outline-none placeholder:text-slate-500"
+                className="min-w-0 flex-1 bg-transparent font-bold text-[#1A1A2E] outline-none placeholder:text-[#9CA3AF]"
                 placeholder="Search suburb or city"
                 aria-label="Search properties"
               />
@@ -96,16 +96,16 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                 <option value="4">4+</option>
                 <option value="5">5+</option>
               </SelectField>
-              <button className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#3B49FF] px-5 text-sm font-black text-white shadow-lg shadow-[#3B49FF]/20 transition hover:bg-[#2f3fd6]" type="submit">
+              <button className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#4A3AFF] px-5 text-sm font-bold text-white shadow-lg shadow-[#4A3AFF]/20 transition hover:bg-[#2f3fd6]" type="submit">
                 Search
               </button>
-              <a className="inline-flex min-h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-4 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF]" href="/properties">
+              <a className="inline-flex min-h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-4 text-sm font-bold text-[#1A1A2E] shadow-sm transition hover:border-[#4A3AFF]" href="/properties">
                 Clear
               </a>
             </div>
           </form>
 
-          <div className="mt-4 flex flex-wrap gap-2 text-sm font-black text-[#050A30]">
+          <div className="mt-4 flex flex-wrap gap-2 text-sm font-bold text-[#1A1A2E]">
             {filters.query ? <FilterChip href={buildPropertiesHref(params, { q: null })}>Search: “{filters.query}” <X size={14} /></FilterChip> : null}
             {filters.location ? <FilterChip href={buildPropertiesHref(params, { location: null })}>Location: {filters.location} <X size={14} /></FilterChip> : null}
             {filters.agency ? <FilterChip href={buildPropertiesHref(params, { agency: null })}>Agency: {filters.agency} <X size={14} /></FilterChip> : null}
@@ -120,7 +120,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
             {filters.status ? <FilterChip href={buildPropertiesHref(params, { status: null })}>Status: {filters.status} <X size={14} /></FilterChip> : null}
             {filters.sort !== 'featured' ? <FilterChip href={buildPropertiesHref(params, { sort: 'featured' })}>Sort: {filters.sort.replace('-', ' ')} <X size={14} /></FilterChip> : null}
             {(filters.query || filters.location || filters.agency || filters.agent || filters.purpose !== 'all' || filters.propertyType || filters.minPrice !== undefined || filters.maxPrice !== undefined || filters.bedrooms || filters.bathrooms || filters.parking || filters.status || filters.sort !== 'featured') ? (
-              <a className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-2 text-slate-500 transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties">
+              <a className="inline-flex items-center gap-1 rounded-full border border-[#E5E7EB] bg-white px-3 py-2 text-[#9CA3AF] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href="/properties">
                 Clear all
               </a>
             ) : null}
@@ -132,23 +132,23 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
       <section className="px-4 py-5 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[minmax(0,1fr)_440px]">
           <div>
-            <div className="rounded-[1.25rem] border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="rounded-[1.25rem] border border-[#E5E7EB] bg-white p-4 shadow-sm">
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                 <div>
-                  <h1 className="text-2xl font-black tracking-[-.04em] sm:text-3xl">
+                  <h1 className="text-2xl font-bold tracking-[-.04em] sm:text-3xl">
                     {`${visibleListings.length} ${visibleListings.length === 1 ? 'home' : 'homes'} ${searchScopeLabel(filters)}`}
                   </h1>
-                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
+                  <p className="mt-1 text-sm font-semibold leading-6 text-[#6B7280]">
                     {filters.query ? `Matching “${filters.query}” across listing facts, areas, agents, and agencies.` : 'Price-first verified homes with saved search and agent routing.'}
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-wrap gap-2">
                   {paginated.totalPages > 1 ? (
-                    <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-black text-[#050A30]">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-slate-50 px-4 py-2 text-sm font-bold text-[#1A1A2E]">
                       Page {paginated.page} of {paginated.totalPages}
                     </div>
                   ) : null}
-                  <a className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[#050A30] px-4 py-2 text-sm font-black text-white" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })} aria-label="Request a saved property search alert">
+                  <a className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[#1A1A2E] px-4 py-2 text-sm font-bold text-white" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })} aria-label="Request a saved property search alert">
                     <Bell size={15} /> <span className="text-white">Save search</span>
                   </a>
                 </div>
@@ -156,16 +156,16 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
             </div>
 
             {hasListings ? (
-              <div className="mt-4 rounded-[1.25rem] border border-[#12D6C5]/30 bg-[#eefcf9] p-4 shadow-sm">
+              <div className="mt-4 rounded-[1.25rem] border border-[#00C9A7]/30 bg-[#E6FBF7] p-4 shadow-sm">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div className="flex items-start gap-3">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#12D6C5] text-[#050A30]"><ShieldCheck size={18} /></div>
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#00C9A7] text-[#1A1A2E]"><ShieldCheck size={18} /></div>
                     <div>
-                      <p className="text-sm font-black uppercase tracking-[.16em] text-[#0f766e]">Verified on Proppd</p>
-                      <p className="mt-1 text-sm font-semibold leading-6 text-[#0f766e]">Each visible listing includes an agency name, mandate context, and a clear enquiry route before you send personal details.</p>
+                      <p className="text-sm font-bold uppercase tracking-[.16em] text-[#00C9A7]">Verified on Proppd</p>
+                      <p className="mt-1 text-sm font-semibold leading-6 text-[#00C9A7]">Each visible listing includes an agency name, mandate context, and a clear enquiry route before you send personal details.</p>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2 text-xs font-black text-[#050A30]">
+                  <div className="flex flex-wrap gap-2 text-xs font-bold text-[#1A1A2E]">
                     <span className="rounded-full bg-white px-3 py-2 shadow-sm">Agency named</span>
                     <span className="rounded-full bg-white px-3 py-2 shadow-sm">Mandate shown</span>
                     <span className="rounded-full bg-white px-3 py-2 shadow-sm">Enquiry route checked</span>
@@ -182,8 +182,8 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
             {paginated.items.length === 0 && <EmptyResults filters={filters} params={params} />}
 
             {paginated.totalPages > 1 && (
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm">
-                <p className="text-sm font-bold text-slate-600">
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#E5E7EB] bg-white p-4 shadow-sm">
+                <p className="text-sm font-bold text-[#6B7280]">
                   Showing page {paginated.page} of {paginated.totalPages} · {visibleListings.length} total matches
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -204,38 +204,38 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
           </div>
 
           <aside className="hidden lg:block">
-            <div className="sticky top-24 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+            <div className="sticky top-24 overflow-hidden rounded-xl border border-[#E5E7EB] bg-white shadow-sm">
               <div className="bg-[radial-gradient(circle_at_30%_20%,rgba(18,214,197,.55),transparent_14rem),radial-gradient(circle_at_72%_35%,rgba(59,73,255,.45),transparent_15rem),linear-gradient(135deg,#edf7ff,#f8fbff_45%,#e7fbf8)] p-5">
-                <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(#050A30_1px,transparent_1px),linear-gradient(90deg,#050A30_1px,transparent_1px)] [background-size:42px_42px]" />
+                <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(#1A1A2E_1px,transparent_1px),linear-gradient(90deg,#1A1A2E_1px,transparent_1px)] [background-size:42px_42px]" />
                 <div className="relative grid gap-4">
                   <div className="rounded-2xl border border-white/70 bg-white/90 p-4 shadow-xl backdrop-blur">
                     <div className="flex items-center gap-3">
-                      <div className="grid h-10 w-10 place-items-center rounded-full bg-[#3B49FF] text-white"><MapPin size={18} /></div>
+                      <div className="grid h-10 w-10 place-items-center rounded-full bg-[#4A3AFF] text-white"><MapPin size={18} /></div>
                       <div>
-                        <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Area watch</p>
-                        <p className="font-black">{visibleListings.length} live {visibleListings.length === 1 ? 'home' : 'homes'} {searchScopeLabel(filters)}</p>
+                        <p className="text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">Area watch</p>
+                        <p className="font-bold">{visibleListings.length} live {visibleListings.length === 1 ? 'home' : 'homes'} {searchScopeLabel(filters)}</p>
                       </div>
                     </div>
-                    <p className="mt-3 text-sm leading-6 text-slate-600">Use the filters above to narrow the market, then open a listing to start the enquiry flow.</p>
+                    <p className="mt-3 text-sm leading-6 text-[#6B7280]">Use the filters above to narrow the market, then open a listing to start the enquiry flow.</p>
                   </div>
 
                   <div className="rounded-2xl border border-white/70 bg-white/92 p-4 shadow-xl backdrop-blur">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Map preview</p>
-                        <h2 className="mt-1 text-lg font-black tracking-[-.03em] text-[#050A30]">See where the result set clusters.</h2>
+                        <p className="text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">Map preview</p>
+                        <h2 className="mt-1 text-lg font-bold tracking-[-.03em] text-[#1A1A2E]">See where the result set clusters.</h2>
                       </div>
-                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#12D6C5]/15 text-[#0f766e]"><MapIcon size={18} /></div>
+                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#00C9A7]/15 text-[#00C9A7]"><MapIcon size={18} /></div>
                     </div>
-                    <div className="relative mt-4 h-56 overflow-hidden rounded-[1.5rem] border border-slate-200 bg-[radial-gradient(circle_at_24%_24%,rgba(59,73,255,.22),transparent_8rem),radial-gradient(circle_at_78%_68%,rgba(18,214,197,.28),transparent_9rem),linear-gradient(135deg,#f8fbff,#eefcf9)]">
-                      <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(#050A30_1px,transparent_1px),linear-gradient(90deg,#050A30_1px,transparent_1px)] [background-size:32px_32px]" />
-                      <div className="absolute left-4 top-4 rounded-full border border-slate-200 bg-white/90 px-3 py-1 text-xs font-black text-[#050A30] shadow-sm">{mapPreview.summary}</div>
+                    <div className="relative mt-4 h-56 overflow-hidden rounded-lg border border-[#E5E7EB] bg-[radial-gradient(circle_at_24%_24%,rgba(59,73,255,.22),transparent_8rem),radial-gradient(circle_at_78%_68%,rgba(18,214,197,.28),transparent_9rem),linear-gradient(135deg,#f8fbff,#E6FBF7)]">
+                      <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(#1A1A2E_1px,transparent_1px),linear-gradient(90deg,#1A1A2E_1px,transparent_1px)] [background-size:32px_32px]" />
+                      <div className="absolute left-4 top-4 rounded-full border border-[#E5E7EB] bg-white/90 px-3 py-1 text-xs font-bold text-[#1A1A2E] shadow-sm">{mapPreview.summary}</div>
                       {mapPreview.pins.length > 0 ? (
                         mapPreview.pins.map((pin, index) => (
                           <a
                             key={pin.label}
                             href={buildPropertiesHref(params, { location: pin.label, q: null, page: null })}
-                            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#050A30] px-3 py-2 text-xs font-black text-white shadow-lg shadow-slate-900/20 ring-4 ring-white/80 transition hover:bg-[#3B49FF]"
+                            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#1A1A2E] px-3 py-2 text-xs font-bold text-white shadow-lg shadow-slate-900/20 ring-4 ring-white/80 transition hover:bg-[#4A3AFF]"
                             style={getMapPinPosition(index)}
                             aria-label={`View homes around ${pin.label}`}
                           >
@@ -243,43 +243,43 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                           </a>
                         ))
                       ) : (
-                        <div className="absolute inset-x-5 bottom-5 rounded-2xl bg-white/90 p-4 text-sm font-bold leading-6 text-slate-600 shadow-sm">
+                        <div className="absolute inset-x-5 bottom-5 rounded-2xl bg-white/90 p-4 text-sm font-bold leading-6 text-[#6B7280] shadow-sm">
                           Widen the search to rebuild the location preview.
                         </div>
                       )}
                     </div>
-                    <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">Use this as a quick area guide, then open a listing for the full agent route and property facts.</p>
+                    <p className="mt-3 text-sm font-semibold leading-6 text-[#6B7280]">Use this as a quick area guide, then open a listing for the full agent route and property facts.</p>
                   </div>
 
                   <div className="rounded-2xl border border-white/70 bg-white/88 p-4 shadow-xl backdrop-blur">
-                    <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Top areas</p>
+                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">Top areas</p>
                     <div className="mt-3 grid gap-3">
                       {areaWatchlist.length > 0 ? (
                         areaWatchlist.map((area) => (
                           <a
                             key={area.label}
                             href={buildPropertiesHref(params, { location: area.label, q: null, page: null })}
-                            className="group flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]"
+                            className="group flex items-center justify-between gap-3 rounded-2xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]"
                             aria-label={`View ${area.label} homes`}
                           >
                             <span>View {area.label} homes</span>
-                            <span className="rounded-full bg-[#3B49FF]/10 px-2.5 py-1 text-xs font-black text-[#3B49FF] transition group-hover:bg-[#3B49FF] group-hover:text-white">{area.count} match{area.count === 1 ? '' : 'es'} ›</span>
+                            <span className="rounded-full bg-[#4A3AFF]/10 px-2.5 py-1 text-xs font-bold text-[#4A3AFF] transition group-hover:bg-[#4A3AFF] group-hover:text-white">{area.count} match{area.count === 1 ? '' : 'es'} ›</span>
                           </a>
                         ))
                       ) : (
-                        <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600">
+                        <div className="rounded-2xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-semibold text-[#6B7280]">
                           No area summary yet. Clear the location filter or browse all homes to reopen the market.
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-[#050A30] p-4 text-white shadow-2xl">
-                    <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">Search shortcut</p>
+                  <div className="rounded-2xl bg-[#1A1A2E] p-4 text-white shadow-2xl">
+                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">Search shortcut</p>
                     <p className="mt-2 text-sm font-semibold leading-6 text-white/72">Save this search, or narrow by purpose to make the result list more focused.</p>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <a className="rounded-full bg-white px-4 py-2 text-xs font-black text-[#050A30]" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })}>Save search</a>
-                      <a className="rounded-full border border-white/15 px-4 py-2 text-xs font-black text-white" href="/request-valuation">Request valuation</a>
+                      <a className="rounded-full bg-white px-4 py-2 text-xs font-bold text-[#1A1A2E]" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })}>Save search</a>
+                      <a className="rounded-full border border-white/15 px-4 py-2 text-xs font-bold text-white" href="/request-valuation">Request valuation</a>
                     </div>
                   </div>
                 </div>
@@ -293,65 +293,65 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
         <section className="px-4 pb-10 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-5 lg:grid-cols-3">
-              <section className="rounded-[2rem] bg-white p-6 shadow-sm">
-                <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Market snapshot</p>
-                <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">{marketSnapshot.hasListings ? 'Price range in this result set.' : 'No price data to summarize yet.'}</h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{marketSnapshot.hasListings ? 'This view gives a faster read than the suburb list by showing the average asking price and the overall market spread.' : 'Once matching homes are live, this panel will show the average asking price, price band, and market spread for the filtered search.'}</p>
+              <section className="rounded-xl bg-white p-6 shadow-sm">
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#4A3AFF]">Market snapshot</p>
+                <h2 className="mt-2 text-2xl font-bold tracking-[-.04em]">{marketSnapshot.hasListings ? 'Price range in this result set.' : 'No price data to summarize yet.'}</h2>
+                <p className="mt-2 text-sm leading-6 text-[#6B7280]">{marketSnapshot.hasListings ? 'This view gives a faster read than the suburb list by showing the average asking price and the overall market spread.' : 'Once matching homes are live, this panel will show the average asking price, price band, and market spread for the filtered search.'}</p>
                 <div className="mt-5 grid gap-3">
-                  <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
-                    <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Average asking</p>
-                    <p className="mt-1 text-2xl font-black tracking-[-.04em] text-[#050A30]">{marketSnapshot.average}</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-600">Across the current filtered listings</p>
+                  <div className="rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3">
+                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">Average asking</p>
+                    <p className="mt-1 text-2xl font-bold tracking-[-.04em] text-[#1A1A2E]">{marketSnapshot.average}</p>
+                    <p className="mt-1 text-sm font-semibold text-[#6B7280]">Across the current filtered listings</p>
                   </div>
-                  <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
-                    <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Price band</p>
-                    <p className="mt-1 text-sm font-black text-[#050A30]">{marketSnapshot.hasListings ? `${marketSnapshot.low} → ${marketSnapshot.high}` : 'No active price band yet'}</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-600">{marketSnapshot.hasListings ? 'From the lowest to the highest asking price' : 'Widen the search or save it for the next matching listing'}</p>
+                  <div className="rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3">
+                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">Price band</p>
+                    <p className="mt-1 text-sm font-bold text-[#1A1A2E]">{marketSnapshot.hasListings ? `${marketSnapshot.low} → ${marketSnapshot.high}` : 'No active price band yet'}</p>
+                    <p className="mt-1 text-sm font-semibold text-[#6B7280]">{marketSnapshot.hasListings ? 'From the lowest to the highest asking price' : 'Widen the search or save it for the next matching listing'}</p>
                   </div>
-                  <div className="rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3">
-                    <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Geography</p>
-                    <p className="mt-1 text-sm font-black text-[#050A30]">{marketSnapshot.cityLabel} · {marketSnapshot.provinceLabel}</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-600">{marketSnapshot.hasListings ? 'A quick sense of how broad the set is' : 'No geographic spread in the current filtered set'}</p>
+                  <div className="rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3">
+                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">Geography</p>
+                    <p className="mt-1 text-sm font-bold text-[#1A1A2E]">{marketSnapshot.cityLabel} · {marketSnapshot.provinceLabel}</p>
+                    <p className="mt-1 text-sm font-semibold text-[#6B7280]">{marketSnapshot.hasListings ? 'A quick sense of how broad the set is' : 'No geographic spread in the current filtered set'}</p>
                   </div>
                 </div>
               </section>
 
-              <section className="rounded-[2rem] bg-[#050A30] p-6 text-white shadow-sm lg:col-span-1">
-                <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Result mix</p>
-                <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">What this result set is made of.</h2>
+              <section className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm lg:col-span-1">
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Result mix</p>
+                <h2 className="mt-2 text-2xl font-bold tracking-[-.04em]">What this result set is made of.</h2>
                 <p className="mt-2 text-sm font-semibold leading-6 text-white/72">A quick read on the current market split helps you decide whether to tighten by purpose, type, or location.</p>
                 <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">For sale</p>
-                    <p className="mt-2 text-3xl font-black">{resultMix.saleCount}</p>
+                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">For sale</p>
+                    <p className="mt-2 text-3xl font-bold">{resultMix.saleCount}</p>
                     <p className="mt-1 text-sm font-semibold text-white/65">Homes in the current set</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">To rent</p>
-                    <p className="mt-2 text-3xl font-black">{resultMix.rentCount}</p>
+                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">To rent</p>
+                    <p className="mt-2 text-3xl font-bold">{resultMix.rentCount}</p>
                     <p className="mt-1 text-sm font-semibold text-white/65">Rental homes in the current set</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs font-black uppercase tracking-[.16em] text-[#12D6C5]">Top type</p>
-                    <p className="mt-2 text-2xl font-black">{resultMix.topType}</p>
+                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">Top type</p>
+                    <p className="mt-2 text-2xl font-bold">{resultMix.topType}</p>
                     <p className="mt-1 text-sm font-semibold text-white/65">Most common property type</p>
                   </div>
                 </div>
               </section>
 
-              <section className="rounded-[2rem] border border-slate-200 bg-[#eefcf9] p-6 shadow-sm">
-                <p className="text-sm font-black uppercase tracking-[.2em] text-[#0f766e]">Need a shortlist?</p>
-                <h2 className="mt-2 text-2xl font-black tracking-[-.04em] text-[#0f766e]">Turn the current result set into a clean handoff.</h2>
-                <p className="mt-4 text-sm font-bold leading-6 text-[#0f766e]">Save the search email, then send it to a buyer, tenant, or co-buyer with the filters already captured.</p>
-                <div className="mt-4 rounded-2xl border border-[#0f766e]/15 bg-white/75 p-4 text-xs font-black uppercase tracking-[.14em] text-[#0f766e]/70">
+              <section className="rounded-xl border border-[#E5E7EB] bg-[#E6FBF7] p-6 shadow-sm">
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Need a shortlist?</p>
+                <h2 className="mt-2 text-2xl font-bold tracking-[-.04em] text-[#00C9A7]">Turn the current result set into a clean handoff.</h2>
+                <p className="mt-4 text-sm font-bold leading-6 text-[#00C9A7]">Save the search email, then send it to a buyer, tenant, or co-buyer with the filters already captured.</p>
+                <div className="mt-4 rounded-2xl border border-[#00C9A7]/15 bg-white/75 p-4 text-xs font-bold uppercase tracking-[.14em] text-[#00C9A7]/70">
                   Includes the search path, result count, and active filters.
                 </div>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <a className="inline-flex items-center justify-center rounded-full border border-[#0f766e]/20 bg-white px-5 py-3 text-sm font-black text-[#0f766e] shadow-sm" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })}>Save search email</a>
-                  <a className="inline-flex items-center justify-center rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white shadow-sm" href="/saved">Open saved homes</a>
+                  <a className="inline-flex items-center justify-center rounded-full border border-[#00C9A7]/20 bg-white px-5 py-3 text-sm font-bold text-[#00C9A7] shadow-sm" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })}>Save search email</a>
+                  <a className="inline-flex items-center justify-center rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white shadow-sm" href="/saved">Open saved homes</a>
                 </div>
-                <p className="mt-3 text-xs font-semibold leading-6 text-[#0f766e]/80">
-                  Saved homes stay on this device until you sign in. <a className="font-black text-[#0f766e] underline decoration-[#0f766e]/30 underline-offset-2" href="/login?next=%2Fsaved">Sync across devices</a> when you’re ready.
+                <p className="mt-3 text-xs font-semibold leading-6 text-[#00C9A7]/80">
+                  Saved homes stay on this device until you sign in. <a className="font-bold text-[#00C9A7] underline decoration-[#00C9A7]/30 underline-offset-2" href="/login?next=%2Fsaved">Sync across devices</a> when you’re ready.
                 </p>
               </section>
             </div>
@@ -366,12 +366,12 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
 
 function SelectField({ label, name, defaultValue, children, compact = false }: { label: string; name: string; defaultValue?: string; children: ReactNode; compact?: boolean }) {
   return (
-    <label className={`block text-xs font-black uppercase tracking-[.12em] text-slate-500 ${compact ? 'w-full sm:w-auto' : ''}`}>
+    <label className={`block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF] ${compact ? 'w-full sm:w-auto' : ''}`}>
       {label}
       <select
         name={name}
         defaultValue={defaultValue ?? ''}
-        className={`mt-2 w-full rounded-full border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-[#050A30] shadow-sm outline-none transition focus:border-[#3B49FF] focus:ring-4 focus:ring-[#3B49FF]/10 ${compact ? 'sm:min-w-[9rem]' : ''}`}
+        className={`mt-2 w-full rounded-full border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-[#1A1A2E] shadow-sm outline-none transition focus:border-[#4A3AFF] focus:ring-4 focus:ring-[#4A3AFF]/10 ${compact ? 'sm:min-w-[9rem]' : ''}`}
       >
         {children}
       </select>
@@ -381,7 +381,7 @@ function SelectField({ label, name, defaultValue, children, compact = false }: {
 
 function FilterChip({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <a className="inline-flex items-center gap-2 rounded-full border border-[#3B49FF]/20 bg-[#3B49FF]/8 px-3 py-2 text-[#3B49FF] transition hover:border-[#3B49FF] hover:bg-[#3B49FF]/12" href={href}>
+    <a className="inline-flex items-center gap-2 rounded-full border border-[#4A3AFF]/20 bg-[#4A3AFF]/8 px-3 py-2 text-[#4A3AFF] transition hover:border-[#4A3AFF] hover:bg-[#4A3AFF]/12" href={href}>
       {children}
     </a>
   );
@@ -392,64 +392,64 @@ function EmptyResults({ filters, params }: { filters: ReturnType<typeof parseLis
   const scope = filters.location || filters.query || 'this search';
 
   return (
-    <section className="mt-5 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+    <section className="mt-5 overflow-hidden rounded-xl border border-[#E5E7EB] bg-white shadow-sm">
       <div className="grid gap-0 lg:grid-cols-[1.15fr_.85fr]">
         <div className="p-6 sm:p-8">
-          <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">No matching homes yet</p>
-          <h2 className="mt-3 text-3xl font-black tracking-[-.05em] text-[#050A30]">
+          <p className="text-sm font-bold uppercase tracking-[.2em] text-[#4A3AFF]">No matching homes yet</p>
+          <h2 className="mt-3 text-3xl font-bold tracking-[-.05em] text-[#1A1A2E]">
             Keep the search useful while stock catches up.
           </h2>
-          <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 text-slate-600">
+          <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 text-[#6B7280]">
             There are no active listings for {scope} right now. Save the search for a handoff, widen the filters, or route the enquiry to the Proppd team so the next matching home can be picked up cleanly.
           </p>
 
-          <div className="mt-6 rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-4">
-            <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Suggested next searches</p>
+          <div className="mt-6 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] p-4">
+            <p className="text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">Suggested next searches</p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <a className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties?location=Sandton">
+              <a className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-[#1A1A2E] shadow-sm transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href="/properties?location=Sandton">
                 Sandton homes
               </a>
-              <a className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties?location=Sea%20Point">
+              <a className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-[#1A1A2E] shadow-sm transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href="/properties?location=Sea%20Point">
                 Sea Point rentals
               </a>
-              <a className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties?location=Umhlanga">
+              <a className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-[#1A1A2E] shadow-sm transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href="/properties?location=Umhlanga">
                 Umhlanga homes
               </a>
-              <a className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties?purpose=sale">
+              <a className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-[#1A1A2E] shadow-sm transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href="/properties?purpose=sale">
                 For-sale homes
               </a>
-              <a className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties?purpose=rent">
+              <a className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-[#1A1A2E] shadow-sm transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href="/properties?purpose=rent">
                 Rental homes
               </a>
             </div>
           </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <a className="inline-flex items-center justify-center rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white shadow-lg" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: 0 })}>
+            <a className="inline-flex items-center justify-center rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white shadow-lg" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: 0 })}>
               Save this search
             </a>
             {hasActiveFilters ? (
-              <a className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties">
+              <a className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-[#1A1A2E] shadow-sm transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href="/properties">
                 Clear filters
               </a>
             ) : null}
-            <a className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/list-with-us">
+            <a className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-[#1A1A2E] shadow-sm transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href="/list-with-us">
               List a property
             </a>
           </div>
         </div>
 
-        <div className="border-t border-slate-200 bg-[#F5F7FA] p-6 sm:p-8 lg:border-l lg:border-t-0">
-          <p className="text-sm font-black uppercase tracking-[.2em] text-slate-400">Try next</p>
+        <div className="border-t border-[#E5E7EB] bg-[#F7F8FA] p-6 sm:p-8 lg:border-l lg:border-t-0">
+          <p className="text-sm font-bold uppercase tracking-[.2em] text-[#9CA3AF]">Try next</p>
           <div className="mt-4 grid gap-2">
             {[
               ['Browse all homes', '/properties'],
               ['For-sale homes', '/properties?purpose=sale'],
               ['Rental homes', '/properties?purpose=rent'],
             ].map(([label, href]) => (
-              <a key={label} className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-[#050A30] shadow-sm transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href={href}>
+              <a key={label} className="flex items-center justify-between rounded-2xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-bold text-[#1A1A2E] shadow-sm transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href={href}>
                 <span>{label}</span>
-                <span className="text-[#3B49FF]">›</span>
+                <span className="text-[#4A3AFF]">›</span>
               </a>
             ))}
           </div>
@@ -462,7 +462,7 @@ function EmptyResults({ filters, params }: { filters: ReturnType<typeof parseLis
 function PaginationLink({ href, children, active = false, disabled = false }: { href: string; children: ReactNode; active?: boolean; disabled?: boolean }) {
   if (disabled) {
     return (
-      <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-black text-slate-300">
+      <span className="inline-flex items-center gap-2 rounded-full border border-[#E5E7EB] px-4 py-2 text-sm font-bold text-slate-300">
         {children}
       </span>
     );
@@ -470,7 +470,7 @@ function PaginationLink({ href, children, active = false, disabled = false }: { 
 
   return (
     <a
-      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-black transition ${active ? 'border-[#3B49FF] bg-[#3B49FF]/10 text-[#3B49FF]' : 'border-slate-200 text-[#050A30] hover:border-[#3B49FF] hover:text-[#3B49FF]'}`}
+      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition ${active ? 'border-[#4A3AFF] bg-[#4A3AFF]/10 text-[#4A3AFF]' : 'border-[#E5E7EB] text-[#1A1A2E] hover:border-[#4A3AFF] hover:text-[#4A3AFF]'}`}
       href={href}
       aria-current={active ? 'page' : undefined}
     >

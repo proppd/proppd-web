@@ -25,14 +25,14 @@ export function HomeLoanCalculator() {
   const estimate = useMemo(() => estimateAffordability(input), [input]);
 
   return (
-    <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-2xl shadow-slate-200/70">
-      <div className="flex items-center gap-3 rounded-[1.5rem] bg-[#050A30] p-6 text-white">
-        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#12D6C5]/20 text-[#12D6C5]">
+    <div className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-2xl shadow-slate-200/70">
+      <div className="flex items-center gap-3 rounded-lg bg-[#1A1A2E] p-6 text-white">
+        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#00C9A7]/20 text-[#00C9A7]">
           <Calculator size={22} />
         </div>
         <div>
-          <p className="text-xs font-black uppercase tracking-[.18em] text-white/50">Indicative calculator</p>
-          <h2 className="text-2xl font-black tracking-[-.04em]">Affordability guide</h2>
+          <p className="text-xs font-bold uppercase tracking-[.18em] text-white/50">Indicative calculator</p>
+          <h2 className="text-2xl font-bold tracking-[-.04em]">Affordability guide</h2>
         </div>
       </div>
 
@@ -40,7 +40,7 @@ export function HomeLoanCalculator() {
         {presets.map((preset) => (
           <button
             key={preset.label}
-            className={`rounded-full border px-4 py-2 text-xs font-black transition ${activePreset === preset.label ? 'border-[#3B49FF] bg-[#3B49FF] text-white' : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-[#3B49FF] hover:text-[#3B49FF]'}`}
+            className={`rounded-full border px-4 py-2 text-xs font-bold transition ${activePreset === preset.label ? 'border-[#4A3AFF] bg-[#4A3AFF] text-white' : 'border-[#E5E7EB] bg-slate-50 text-[#6B7280] hover:border-[#4A3AFF] hover:text-[#4A3AFF]'}`}
             type="button"
             onClick={() => {
               setInput(preset.input);
@@ -66,20 +66,20 @@ export function HomeLoanCalculator() {
         <Metric label="Income buffer" value={formatRand(estimate.requiredIncomeBuffer)} />
       </div>
 
-      <div className="mt-5 rounded-[1.5rem] bg-[#F5F7FA] p-5">
-        <div className="flex items-center gap-2 text-sm font-black text-[#050A30]">
-          <ShieldCheck size={16} className="text-[#3B49FF]" /> Indicative only
+      <div className="mt-5 rounded-lg bg-[#F7F8FA] p-5">
+        <div className="flex items-center gap-2 text-sm font-bold text-[#1A1A2E]">
+          <ShieldCheck size={16} className="text-[#4A3AFF]" /> Indicative only
         </div>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
+        <p className="mt-2 text-sm leading-6 text-[#6B7280]">
           Final affordability depends on lender rules, credit profile, purchase costs, insurance, rate changes, and verified documents.
         </p>
       </div>
 
       <div className="mt-5 flex flex-wrap gap-3">
-        <a className="inline-flex items-center justify-center gap-2 rounded-full bg-[#3B49FF] px-5 py-3 text-sm font-black text-white shadow-lg shadow-[#3B49FF]/20 transition hover:bg-[#050A30]" href="mailto:info@proppd.com?subject=Home%20loan%20readiness">
+        <a className="inline-flex items-center justify-center gap-2 rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-[#4A3AFF]/20 transition hover:bg-[#1A1A2E]" href="mailto:info@proppd.com?subject=Home%20loan%20readiness">
           <Mail size={15} /> Register finance interest
         </a>
-        <a className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties/for-sale">
+        <a className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href="/properties/for-sale">
           Browse homes for sale
         </a>
       </div>
@@ -89,7 +89,7 @@ export function HomeLoanCalculator() {
 
 function Field({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) {
   return (
-    <label className="block rounded-[1.5rem] border border-slate-200 bg-white p-4 text-xs font-black uppercase tracking-[.14em] text-slate-500 shadow-sm transition focus-within:border-[#3B49FF] focus-within:ring-4 focus-within:ring-[#3B49FF]/10">
+    <label className="block rounded-lg border border-[#E5E7EB] bg-white p-4 text-xs font-bold uppercase tracking-[.14em] text-[#9CA3AF] shadow-sm transition focus-within:border-[#4A3AFF] focus-within:ring-4 focus-within:ring-[#4A3AFF]/10">
       {label}
       <input
         type="number"
@@ -98,7 +98,7 @@ function Field({ label, value, onChange }: { label: string; value: number; onCha
         step={label === 'Interest rate %' ? '0.05' : '1000'}
         value={value}
         onChange={(event) => onChange(Number(event.target.value || 0))}
-        className="mt-2 w-full rounded-lg bg-transparent text-lg font-black tracking-[-.03em] text-[#050A30] outline-none"
+        className="mt-2 w-full rounded-lg bg-transparent text-lg font-bold tracking-[-.03em] text-[#1A1A2E] outline-none"
       />
     </label>
   );
@@ -106,9 +106,9 @@ function Field({ label, value, onChange }: { label: string; value: number; onCha
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-[#050A30] p-4 text-white">
-      <p className="text-[.7rem] font-black uppercase tracking-[.14em] text-white/50">{label}</p>
-      <p className="mt-1 text-lg font-black tracking-[-.03em]">{value}</p>
+    <div className="rounded-2xl bg-[#1A1A2E] p-4 text-white">
+      <p className="text-[.7rem] font-bold uppercase tracking-[.14em] text-white/50">{label}</p>
+      <p className="mt-1 text-lg font-bold tracking-[-.03em]">{value}</p>
     </div>
   );
 }
@@ -125,11 +125,11 @@ function SupportCard({
   actionLabel?: string;
 }) {
   return (
-    <article className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-5">
-      <h3 className="text-xl font-black tracking-[-.03em]">{title}</h3>
-      <p className="mt-3 text-sm font-bold leading-6 text-slate-600">{body}</p>
+    <article className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-5">
+      <h3 className="text-xl font-bold tracking-[-.03em]">{title}</h3>
+      <p className="mt-3 text-sm font-bold leading-6 text-[#6B7280]">{body}</p>
       {actionHref && actionLabel && (
-        <a className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#3B49FF]" href={actionHref}>
+        <a className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#4A3AFF]" href={actionHref}>
           {actionLabel} →
         </a>
       )}

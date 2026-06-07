@@ -1,4 +1,4 @@
-import { ArrowRight, BadgeCheck, Home, Mail, Search, ShieldCheck } from 'lucide-react';
+import { ArrowRight, BadgeCheck, Home, Mail, Search } from 'lucide-react';
 
 const routes = [
   {
@@ -19,78 +19,59 @@ const routes = [
     title: 'Need support',
     text: 'Send valuation, finance, partnership, and support questions to the right inbox.',
     href: '/contact',
-    cta: 'Contact Proppd',
+    cta: 'Contact us',
     icon: Mail,
   },
 ];
 
-const quickSteps = ['Search', 'Shortlist', 'Enquire'];
-
-
 export function SupportStrip() {
   return (
-    <section className="bg-[linear-gradient(180deg,#fff_0%,#f7f9fd_100%)] px-4 py-14 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="proppd-glass overflow-hidden rounded-[2rem] p-5 sm:p-6 lg:p-7">
-          <div className="grid gap-8 lg:grid-cols-[.82fr_1.18fr] lg:items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#3B49FF]/12 bg-white/70 px-4 py-2 text-sm font-black text-[#3344f5] shadow-sm">
-                <ShieldCheck size={16} className="text-[#12D6C5]" /> Portal routes
-              </div>
-              <h2 className="mt-5 max-w-xl text-3xl font-black tracking-[-.055em] text-[#050A30] sm:text-4xl">
-                Search, shortlist, and enquire without losing your place.
-              </h2>
-              <p className="mt-4 max-w-2xl text-base font-semibold leading-7 text-slate-600">
-                Move from a suburb search into verified listings, agent profiles, valuations, or support without landing on a dead-end page.
-              </p>
-              <div className="mt-6 grid gap-3 sm:grid-cols-3 lg:max-w-xl">
-                {quickSteps.map((step, index) => (
-                  <div key={step} className="rounded-2xl border border-slate-200/80 bg-white/68 px-4 py-3">
-                    <p className="text-xs font-black text-[#3344f5]">0{index + 1}</p>
-                    <p className="mt-1 text-sm font-black text-[#050A30]">{step}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+    <section className="bg-[#F7F8FA]">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-[#1A1A2E] sm:text-3xl">
+            How Proppd works
+          </h2>
+          <p className="mt-3 text-[#6B7280]">
+            Search, shortlist, and enquire without losing your place.
+          </p>
+        </div>
 
-            <div className="grid gap-3 md:grid-cols-3">
-              {routes.map(({ title, text, href, cta, icon: Icon }) => (
-                <a
-                  key={title}
-                  href={href}
-                  className="group proppd-card flex min-h-56 flex-col rounded-[1.5rem] p-5 transition hover:-translate-y-0.5 hover:border-[#3B49FF]/30 hover:shadow-[var(--proppd-lift-shadow)]"
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#eefcf9] text-[#0f766e]">
-                      <Icon size={20} />
-                    </div>
-                    <span className="rounded-full bg-[#F5F7FA] px-3 py-1 text-xs font-black text-slate-500 transition group-hover:text-[#3344f5]">
-                      Open
-                    </span>
-                  </div>
-                  <h3 className="mt-5 text-xl font-black tracking-[-.035em] text-[#050A30]">{title}</h3>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">{text}</p>
-                  <span className="proppd-link-arrow mt-auto inline-flex items-center gap-2 pt-5 text-sm">
-                    {cta} <ArrowRight size={15} />
-                  </span>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-5 flex flex-col gap-3 rounded-[1.35rem] border border-slate-200/80 bg-white/62 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-full bg-[#050A30] text-white">
-                <Home size={18} />
+        <div className="mx-auto mt-10 grid max-w-4xl gap-5 sm:grid-cols-3">
+          {routes.map(({ title, text, href, cta, icon: Icon }) => (
+            <a
+              key={title}
+              href={href}
+              className="group rounded-xl border border-[#E5E7EB] bg-white p-6 transition hover:shadow-lg hover:shadow-black/5"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6FBF7] text-[#00C9A7]">
+                <Icon size={20} />
               </div>
-              <p className="text-sm font-bold leading-6 text-slate-600">
-                Start with search, then shortlist homes, compare professionals, or open a direct enquiry route.
-              </p>
-            </div>
-            <a className="inline-flex shrink-0 items-center justify-center rounded-full bg-[#3344f5] px-5 py-3 text-sm font-black text-white shadow-lg shadow-[#3344f5]/20 transition hover:bg-[#050A30]" href="/properties">
-              Browse marketplace
+              <h3 className="mt-4 text-lg font-bold text-[#1A1A2E]">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-[#6B7280]">{text}</p>
+              <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#4A3AFF] transition group-hover:gap-2.5">
+                {cta} <ArrowRight size={14} />
+              </span>
             </a>
+          ))}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="mx-auto mt-10 flex max-w-4xl flex-wrap items-center justify-between gap-4 rounded-xl border border-[#E5E7EB] bg-white px-6 py-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1A1A2E] text-white">
+              <Home size={18} />
+            </div>
+            <p className="text-sm font-semibold text-[#6B7280]">
+              Start with search, then shortlist homes or open a direct enquiry route.
+            </p>
           </div>
+          <a
+            href="/properties"
+            className="shrink-0 rounded-lg bg-[#4A3AFF] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#3A2AE0]"
+          >
+            Browse properties
+          </a>
         </div>
       </div>
     </section>

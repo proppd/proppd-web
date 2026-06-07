@@ -8,7 +8,7 @@ import { SiteHeader } from '@/components/site/header';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white text-slate-950">
+    <main className="min-h-screen bg-white">
       <SiteHeader />
       <HeroSearch />
       <FeaturedListings />

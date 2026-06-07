@@ -1,90 +1,101 @@
-import { ArrowRight, Home, MapPin, Search, ShieldCheck, SlidersHorizontal } from 'lucide-react';
+import { ArrowRight, Search, SlidersHorizontal } from 'lucide-react';
 
-const quickLinks = ['Sandton', 'Sea Point', 'Umhlanga'];
+const tabs = [
+  { label: 'Buy', href: '/properties/for-sale' },
+  { label: 'Rent', href: '/properties/to-rent' },
+  { label: 'Sell', href: '/list-with-us' },
+  { label: 'Agents', href: '/agents' },
+];
+
+const popularAreas = ['Sandton', 'Sea Point', 'Umhlanga', 'Rosebank', 'Waterfront'];
 
 export function HeroSearch() {
   return (
-    <section className="relative isolate overflow-hidden bg-white">
-      <div className="absolute inset-x-0 top-0 -z-10 h-[27rem] bg-[linear-gradient(180deg,rgba(5,10,48,.66),rgba(5,10,48,.32)_48%,rgba(255,255,255,0)_100%),radial-gradient(circle_at_24%_20%,rgba(18,214,197,.62),transparent_18rem),radial-gradient(circle_at_72%_12%,rgba(59,73,255,.62),transparent_22rem),linear-gradient(135deg,#eef6ff_0%,#f8fbff_42%,#dff8f4_100%)]" />
-      <div className="mx-auto max-w-7xl px-4 pb-8 pt-7 sm:px-6 lg:px-8 lg:pb-10 lg:pt-10">
-        <div className="mx-auto max-w-4xl text-center text-white">
-          <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/18 px-4 py-2 text-xs font-black uppercase tracking-[.16em] shadow-lg backdrop-blur sm:text-sm sm:normal-case sm:tracking-normal">
-            <ShieldCheck size={16} className="text-[#12D6C5]" /> Verified South African property portal
-          </div>
-          <h1 className="mt-6 text-[2.55rem] font-black leading-[.96] tracking-[-.07em] drop-shadow-sm sm:text-6xl lg:text-7xl">
-            Find your way home.
+    <section className="bg-white">
+      <div className="mx-auto max-w-7xl px-4 pt-12 pb-8 sm:px-6 sm:pt-16 sm:pb-10 lg:px-8 lg:pt-20 lg:pb-12">
+        {/* Headline */}
+        <div className="mx-auto max-w-3xl text-center">
+          <h1 className="text-4xl font-bold tracking-tight text-[#1A1A2E] sm:text-5xl lg:text-[3.5rem]">
+            Find your next home
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-base font-semibold leading-7 text-white sm:text-lg">
-            Search verified homes, rentals, agents, and listings across South Africa.
+          <p className="mt-4 text-lg text-[#6B7280]">
+            Search verified properties across South Africa
           </p>
         </div>
 
-        <div className="mx-auto mt-6 max-w-5xl rounded-[1.35rem] border border-white/60 bg-white/95 p-2 shadow-2xl shadow-[#050A30]/14 sm:p-2.5">
-          <div className="flex items-center gap-1 overflow-x-auto border-b border-slate-100 px-1 pb-1.5 text-xs font-black text-slate-600 sm:flex-wrap sm:justify-center sm:gap-2 sm:text-sm">
-            {['Buy', 'Rent', 'Sell', 'Agents', 'Valuations'].map((tab, index) => (
+        {/* Search card */}
+        <div className="mx-auto mt-8 max-w-4xl">
+          {/* Tabs */}
+          <div className="flex items-center gap-1 border-b border-[#E5E7EB] px-1">
+            {tabs.map((tab, i) => (
               <a
-                key={tab}
-                href={index === 1 ? '/properties/to-rent' : index === 2 ? '/list-with-us' : index === 3 ? '/agents' : index === 4 ? '/request-valuation' : '/properties/for-sale'}
-                className={`shrink-0 rounded-full px-3 py-1.5 transition sm:px-4 sm:py-2 ${index === 0 ? 'border border-[#3B49FF] bg-white text-[#3B49FF] shadow-sm' : 'hover:bg-[#F5F7FA] hover:text-[#050A30]'}`}
+                key={tab.label}
+                href={tab.href}
+                className={`rounded-t-lg px-5 py-3 text-sm font-semibold transition ${
+                  i === 0
+                    ? 'border-b-2 border-[#4A3AFF] text-[#4A3AFF]'
+                    : 'text-[#6B7280] hover:text-[#1A1A2E]'
+                }`}
               >
-                {tab}
+                {tab.label}
               </a>
             ))}
           </div>
-          <form action="/properties" className="grid gap-2 pt-2.5 sm:gap-2.5 lg:grid-cols-[1fr_auto_auto]">
-            <label className="flex min-h-12 items-center gap-3 rounded-2xl border border-slate-200/80 bg-white px-4 text-left text-sm font-bold text-slate-500 shadow-inner shadow-slate-100 focus-within:border-[#3B49FF] focus-within:ring-4 focus-within:ring-[#3B49FF]/10 sm:min-h-13 sm:px-5 sm:text-base">
-              <Search size={19} className="shrink-0 text-[#3B49FF]" />
-              <input
-                name="q"
-                type="search"
-                className="min-w-0 flex-1 bg-transparent text-sm font-bold text-[#050A30] outline-none placeholder:text-slate-500 sm:text-base"
-                placeholder="Search suburb, city, agent, or listing ID"
-                aria-label="Search properties"
-              />
-            </label>
-            <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 font-black text-slate-700 hover:bg-[#F5F7FA] hover:text-[#050A30] sm:min-h-13 sm:px-5" href="/properties">
-              <SlidersHorizontal size={17} /> Filters
-            </a>
-            <button className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#3B49FF] px-5 font-black text-white shadow-xl shadow-[#3B49FF]/20 transition hover:bg-[#050A30] sm:min-h-13 sm:px-6" type="submit">
-              Search <ArrowRight size={17} />
-            </button>
-          </form>
+
+          {/* Search input */}
+          <div className="rounded-b-xl border border-t-0 border-[#E5E7EB] bg-white p-4 shadow-sm sm:p-5">
+            <form action="/properties" className="flex items-center gap-3">
+              <div className="flex flex-1 items-center gap-3 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3">
+                <Search size={18} className="shrink-0 text-[#6B7280]" />
+                <input
+                  name="q"
+                  type="search"
+                  className="w-full bg-transparent text-sm text-[#1A1A2E] outline-none placeholder:text-[#9CA3AF] sm:text-base"
+                  placeholder="Enter a suburb, city, or address"
+                  aria-label="Search properties"
+                />
+              </div>
+              <a
+                href="/properties"
+                className="hidden items-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
+              >
+                <SlidersHorizontal size={16} /> Filters
+              </a>
+              <button
+                type="submit"
+                className="flex shrink-0 items-center gap-2 rounded-lg bg-[#4A3AFF] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#3A2AE0]"
+              >
+                Search <ArrowRight size={16} />
+              </button>
+            </form>
+
+            {/* Popular areas */}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="text-xs font-semibold text-[#9CA3AF]">Popular:</span>
+              {popularAreas.map((area) => (
+                <a
+                  key={area}
+                  href={`/properties?location=${encodeURIComponent(area)}`}
+                  className="rounded-full border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]"
+                >
+                  {area}
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div className="mx-auto mt-3 max-w-5xl space-y-2">
-          <div className="flex flex-wrap items-center justify-center gap-1.5 text-xs font-bold text-[#050A30] lg:justify-start sm:gap-2 sm:text-sm">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/75 px-2.5 py-1.5 text-slate-500 ring-1 ring-slate-200/80 sm:gap-2 sm:px-3.5"><MapPin size={14} className="text-[#3B49FF]" /> Popular</span>
-            {quickLinks.map((link, index) => (
-              <a key={link} className={`${index > 2 ? 'hidden sm:inline-flex' : 'inline-flex'} rounded-full bg-white/80 px-2.5 py-1.5 text-[#050A30] ring-1 ring-slate-200/80 transition hover:text-[#3B49FF] hover:ring-[#3B49FF]/40 sm:px-3.5`} href={`/properties?location=${encodeURIComponent(link)}`}>
-                {link}
-              </a>
-            ))}
-            <a className="inline-flex rounded-full bg-white/80 px-2.5 py-1.5 text-[#050A30] ring-1 ring-slate-200/80 transition hover:text-[#3B49FF] hover:ring-[#3B49FF]/40 sm:px-3.5" href="/properties">
-              More areas
-            </a>
-          </div>
-
-          <div className="grid gap-2 md:grid-cols-3">
-            {[
-              ['Buy verified homes', '/properties/for-sale'],
-              ['Find rentals', '/properties/to-rent'],
-              ['List agency stock', '/list-with-us'],
-            ].map(([title, href], index) => (
-              <a
-                key={title}
-                href={href}
-                className="group flex items-center gap-2.5 rounded-[.95rem] border border-slate-200/70 bg-white/85 px-2.5 py-2 text-left shadow-none transition hover:border-[#3B49FF]/25 hover:bg-white hover:shadow-sm sm:px-3 sm:py-2.5"
-              >
-                <div className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg ${index === 2 ? 'bg-[#12D6C5]/10 text-[#057a70]' : 'bg-[#3B49FF]/10 text-[#3B49FF]'}`}>
-                  <Home size={15} />
-                </div>
-                <div className="min-w-0">
-                  <h2 className="text-[13px] font-black tracking-[-.03em] text-[#050A30] sm:text-sm">{title}</h2>
-                </div>
-                <ArrowRight size={13} className="ml-auto hidden shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-[#3B49FF] sm:block" />
-              </a>
-            ))}
-          </div>
+        {/* Quick links */}
+        <div className="mx-auto mt-6 flex max-w-4xl flex-wrap justify-center gap-4 text-sm sm:justify-start">
+          <a href="/properties/for-sale" className="font-semibold text-[#4A3AFF] transition hover:text-[#3A2AE0]">
+            Buy a home →
+          </a>
+          <a href="/properties/to-rent" className="font-semibold text-[#4A3AFF] transition hover:text-[#3A2AE0]">
+            Find rentals →
+          </a>
+          <a href="/list-with-us" className="font-semibold text-[#4A3AFF] transition hover:text-[#3A2AE0]">
+            List your property →
+          </a>
         </div>
       </div>
     </section>

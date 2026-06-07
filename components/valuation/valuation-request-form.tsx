@@ -90,18 +90,18 @@ export function ValuationRequestForm({ reasons, initialReason = 'selling' }: Val
   }
 
   return (
-    <aside className="h-fit rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm lg:sticky lg:top-6">
-      <p className="text-sm font-black uppercase tracking-[.18em] text-[#3B49FF]">Request builder</p>
-      <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">Shape the valuation request before sending it.</h2>
-      <p className="mt-3 text-sm leading-6 text-slate-600">
+    <aside className="h-fit rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm lg:sticky lg:top-6">
+      <p className="text-sm font-bold uppercase tracking-[.18em] text-[#4A3AFF]">Request builder</p>
+      <h2 className="mt-3 text-3xl font-bold tracking-[-.05em]">Shape the valuation request before sending it.</h2>
+      <p className="mt-3 text-sm leading-6 text-[#6B7280]">
         Fill the basics once. Proppd uses the data to draft a clear, POPIA-aware handoff email for the owner or landlord.
       </p>
 
       <div className="mt-6 grid gap-3">
-        <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
+        <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
           Reason
           <select
-            className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-black text-[#050A30] outline-none focus:border-[#3B49FF]"
+            className="mt-2 w-full rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-sm font-bold text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
             value={form.reason}
             onChange={(event) => updateField('reason', event.target.value as ValuationReason)}
           >
@@ -114,19 +114,19 @@ export function ValuationRequestForm({ reasons, initialReason = 'selling' }: Val
         </label>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
+          <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
             Property type
             <input
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold text-[#050A30] outline-none focus:border-[#3B49FF]"
+              className="mt-2 w-full rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-sm font-bold text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
               value={form.propertyType}
               onChange={handleTextChange('propertyType')}
               placeholder="House"
             />
           </label>
-          <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
+          <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
             Bedrooms
             <input
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold text-[#050A30] outline-none focus:border-[#3B49FF]"
+              className="mt-2 w-full rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-sm font-bold text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
               value={form.bedrooms}
               onChange={handleTextChange('bedrooms')}
               placeholder="3"
@@ -135,19 +135,19 @@ export function ValuationRequestForm({ reasons, initialReason = 'selling' }: Val
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
+          <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
             Suburb
             <input
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold text-[#050A30] outline-none focus:border-[#3B49FF]"
+              className="mt-2 w-full rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-sm font-bold text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
               value={form.suburb}
               onChange={handleTextChange('suburb')}
               placeholder="Sandton"
             />
           </label>
-          <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
+          <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
             City
             <input
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold text-[#050A30] outline-none focus:border-[#3B49FF]"
+              className="mt-2 w-full rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-sm font-bold text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
               value={form.city}
               onChange={handleTextChange('city')}
               placeholder="Johannesburg"
@@ -155,10 +155,10 @@ export function ValuationRequestForm({ reasons, initialReason = 'selling' }: Val
           </label>
         </div>
 
-        <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
+        <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
           Timeframe
           <input
-            className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold text-[#050A30] outline-none focus:border-[#3B49FF]"
+            className="mt-2 w-full rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-sm font-bold text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
             value={form.timeframe}
             onChange={handleTextChange('timeframe')}
             placeholder="Next 30 days"
@@ -166,19 +166,19 @@ export function ValuationRequestForm({ reasons, initialReason = 'selling' }: Val
         </label>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
+          <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
             Owner name
             <input
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold text-[#050A30] outline-none focus:border-[#3B49FF]"
+              className="mt-2 w-full rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-sm font-bold text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
               value={form.ownerName}
               onChange={handleTextChange('ownerName')}
               placeholder="Your name"
             />
           </label>
-          <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
+          <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
             Phone
             <input
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold text-[#050A30] outline-none focus:border-[#3B49FF]"
+              className="mt-2 w-full rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-sm font-bold text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
               value={form.contactPhone}
               onChange={handleTextChange('contactPhone')}
               placeholder="+27 82 123 4567"
@@ -186,20 +186,20 @@ export function ValuationRequestForm({ reasons, initialReason = 'selling' }: Val
           </label>
         </div>
 
-        <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
+        <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
           Contact email
           <input
             type="email"
-            className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold text-[#050A30] outline-none focus:border-[#3B49FF]"
+            className="mt-2 w-full rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-sm font-bold text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
             value={form.contactEmail}
             onChange={handleTextChange('contactEmail')}
             placeholder="owner@example.com"
           />
         </label>
 
-        <label className="flex items-start gap-3 rounded-2xl bg-[#eefcf9] p-4 text-xs font-bold leading-5 text-[#0f766e]">
+        <label className="flex items-start gap-3 rounded-2xl bg-[#E6FBF7] p-4 text-xs font-bold leading-5 text-[#00C9A7]">
           <input
-            className="mt-1 h-4 w-4 accent-[#12D6C5]"
+            className="mt-1 h-4 w-4 accent-[#00C9A7]"
             type="checkbox"
             checked={form.popiaConsent}
             onChange={(event) => updateField('popiaConsent', event.target.checked)}
@@ -208,20 +208,20 @@ export function ValuationRequestForm({ reasons, initialReason = 'selling' }: Val
         </label>
       </div>
 
-      <div className="mt-6 rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-4">
-        <p className="text-xs font-black uppercase tracking-[.14em] text-slate-500">Live summary</p>
-        <pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap rounded-2xl bg-white p-4 text-xs leading-6 text-slate-700">{summary}</pre>
+      <div className="mt-6 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] p-4">
+        <p className="text-xs font-bold uppercase tracking-[.14em] text-[#9CA3AF]">Live summary</p>
+        <pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap rounded-2xl bg-white p-4 text-xs leading-6 text-[#6B7280]">{summary}</pre>
       </div>
 
       {copyStatus ? (
-        <p className="mt-4 rounded-2xl border border-slate-200 p-4 text-xs font-bold leading-5 text-slate-600">
+        <p className="mt-4 rounded-2xl border border-[#E5E7EB] p-4 text-xs font-bold leading-5 text-[#6B7280]">
           {copyStatus}
         </p>
       ) : null}
 
       <div className="mt-5 grid gap-3">
         <a
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-[#050A30] px-5 py-3 text-sm font-black text-white shadow-lg shadow-slate-900/10 disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-slate-900/10 disabled:opacity-60"
           href={form.popiaConsent ? mailtoHref : '#'}
           aria-disabled={!form.popiaConsent}
           tabIndex={form.popiaConsent ? 0 : -1}
@@ -233,7 +233,7 @@ export function ValuationRequestForm({ reasons, initialReason = 'selling' }: Val
           <span className="text-white">Open valuation email</span>
         </a>
         <button
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 px-5 py-3 text-sm font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E5E7EB] px-5 py-3 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]"
           type="button"
           onClick={copySummary}
         >
@@ -241,12 +241,12 @@ export function ValuationRequestForm({ reasons, initialReason = 'selling' }: Val
         </button>
       </div>
 
-      <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-4 text-xs font-bold leading-5 text-slate-600">
-        <div className="flex items-center gap-2 font-black text-[#050A30]"><ShieldCheck size={15} className="text-[#12D6C5]" /> POPIA-aware handoff</div>
+      <div className="mt-5 rounded-2xl border border-[#E5E7EB] bg-white p-4 text-xs font-bold leading-5 text-[#6B7280]">
+        <div className="flex items-center gap-2 font-bold text-[#1A1A2E]"><ShieldCheck size={15} className="text-[#00C9A7]" /> POPIA-aware handoff</div>
         <p className="mt-2">The request stays human-readable with owner consent, property context, and a clear route for follow-up.</p>
       </div>
 
-      <a className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30]" href="/business">
+      <a className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#E5E7EB] px-5 py-3 font-bold text-[#1A1A2E]" href="/business">
         See the product roadmap <ArrowRight size={16} />
       </a>
     </aside>

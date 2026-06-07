@@ -21,7 +21,7 @@ export function SavedHomesLink({ className = '' }: SavedHomesLinkProps) {
     <a className={className} href="/saved">
       <span>Saved homes</span>
       {savedCount > 0 ? (
-        <span className="ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-[#0f766e]/10 px-1.5 py-0.5 text-[11px] font-black text-[#0f766e]">
+        <span className="ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-[#E6FBF7] px-1.5 py-0.5 text-[11px] font-bold text-[#00C9A7]">
           {savedCount}
         </span>
       ) : null}

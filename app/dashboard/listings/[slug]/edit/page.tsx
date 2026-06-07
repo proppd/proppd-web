@@ -47,13 +47,13 @@ export default async function Page({ params }: PageProps) {
   const current = listing.items[0];
 
   return (
-    <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
+    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
       <SiteHeader />
       <section className="px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl">
-          <div className="rounded-[2.5rem] bg-[#050A30] p-8 text-white shadow-sm sm:p-10">
-            <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Edit listing</p>
-            <h1 className="mt-4 text-5xl font-black tracking-[-.07em]">Update the live listing record.</h1>
+          <div className="rounded-xl bg-[#1A1A2E] p-8 text-white shadow-sm sm:p-10">
+            <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Edit listing</p>
+            <h1 className="mt-4 text-5xl font-bold tracking-[-.07em]">Update the live listing record.</h1>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-white/70">
               Changes are saved straight into the database and tied to your authenticated account.
             </p>
@@ -81,7 +81,7 @@ export default async function Page({ params }: PageProps) {
               </SupportCard>
 
               <SupportCard title="What to do next" text="Use this page to keep the record ready for buyers, tenants, and internal review.">
-                <ul className="mt-4 space-y-3 text-sm font-bold leading-6 text-slate-600">
+                <ul className="mt-4 space-y-3 text-sm font-bold leading-6 text-[#6B7280]">
                   <li>• Confirm the price, status, and featured flag before publishing.</li>
                   <li>• Keep the suburb and city clean so search results stay trustworthy.</li>
                   <li>• Add enough description detail that a lead can enquire without guessing.</li>
@@ -89,7 +89,7 @@ export default async function Page({ params }: PageProps) {
               </SupportCard>
 
               <SupportCard title="Publishing signal" text={getPublishingSignal(current)}>
-                <div className="mt-4 rounded-2xl bg-white px-4 py-3 text-sm font-bold text-slate-600 shadow-sm ring-1 ring-slate-200">
+                <div className="mt-4 rounded-2xl bg-white px-4 py-3 text-sm font-bold text-[#6B7280] shadow-sm ring-1 ring-slate-200">
                   {current.publishedAt
                     ? `Published at ${new Date(current.publishedAt).toLocaleDateString('en-ZA', { month: 'short', day: 'numeric', year: 'numeric' })}.`
                     : 'This listing is not live yet.'}
@@ -127,9 +127,9 @@ function getPublishingSignal(listing: { status: string; publishedAt: string | nu
 
 function SupportCard({ title, text, children }: { title: string; text: string; children?: React.ReactNode }) {
   return (
-    <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
-      <p className="text-xs font-black uppercase tracking-[.18em] text-[#3B49FF]">{title}</p>
-      <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{text}</p>
+    <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+      <p className="text-xs font-bold uppercase tracking-[.18em] text-[#4A3AFF]">{title}</p>
+      <p className="mt-2 text-sm font-bold leading-6 text-[#6B7280]">{text}</p>
       {children}
     </div>
   );
@@ -141,16 +141,16 @@ function StatusPill({ tone, children }: { tone: 'live' | 'draft' | 'neutral'; ch
       ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
       : tone === 'draft'
         ? 'bg-amber-50 text-amber-700 ring-amber-200'
-        : 'bg-slate-50 text-slate-700 ring-slate-200';
+        : 'bg-slate-50 text-[#6B7280] ring-slate-200';
 
-  return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-[.18em] ring-1 ${toneClass}`}>{children}</span>;
+  return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[.18em] ring-1 ${toneClass}`}>{children}</span>;
 }
 
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-[#F5F7FA] px-4 py-3">
-      <p className="text-[11px] font-black uppercase tracking-[.18em] text-slate-400">{label}</p>
-      <p className="mt-1 text-sm font-black text-[#050A30]">{value}</p>
+    <div className="rounded-2xl bg-[#F7F8FA] px-4 py-3">
+      <p className="text-[11px] font-bold uppercase tracking-[.18em] text-[#9CA3AF]">{label}</p>
+      <p className="mt-1 text-sm font-bold text-[#1A1A2E]">{value}</p>
     </div>
   );
 }

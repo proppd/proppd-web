@@ -108,7 +108,7 @@ export function LeadModerationControls({ leadId, currentStatus, currentQuality, 
   }
 
   return (
-    <div className="space-y-2 rounded-[1.25rem] border border-slate-200 bg-white p-3">
+    <div className="space-y-2 rounded-[1.25rem] border border-[#E5E7EB] bg-white p-3">
       <div className="flex flex-wrap gap-2">
         {ACTIONS.map((action) => {
           const disabled = !enabled || activeAction !== null || action.disabledWhen(status, quality);
@@ -117,7 +117,7 @@ export function LeadModerationControls({ leadId, currentStatus, currentQuality, 
               ? 'border-amber-200 bg-amber-50 text-amber-700 hover:border-amber-300 hover:bg-amber-100'
               : action.tone === 'success'
                 ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100'
-                : 'border-slate-200 bg-white text-slate-700 hover:border-[#3B49FF] hover:text-[#3B49FF]';
+                : 'border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#4A3AFF] hover:text-[#4A3AFF]';
 
           return (
             <button
@@ -125,7 +125,7 @@ export function LeadModerationControls({ leadId, currentStatus, currentQuality, 
               type="button"
               onClick={() => updateLead(action.key, action.body)}
               disabled={disabled}
-              className={`inline-flex items-center justify-center rounded-full border px-3 py-2 text-xs font-black transition disabled:cursor-not-allowed disabled:opacity-50 ${toneClasses}`}
+              className={`inline-flex items-center justify-center rounded-full border px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50 ${toneClasses}`}
             >
               {activeAction === action.key ? 'Saving…' : action.label}
             </button>
@@ -134,7 +134,7 @@ export function LeadModerationControls({ leadId, currentStatus, currentQuality, 
       </div>
 
       {!enabled ? (
-        <p className="text-xs font-bold text-slate-500">Live moderation is disabled in demo mode until a Supabase database is connected.</p>
+        <p className="text-xs font-bold text-[#9CA3AF]">Live moderation is disabled in demo mode until a Supabase database is connected.</p>
       ) : null}
       {error ? <p className="text-xs font-bold text-red-600">{error}</p> : null}
     </div>

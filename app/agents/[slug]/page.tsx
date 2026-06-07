@@ -71,29 +71,29 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
           : 'Listings unavailable';
 
   return (
-    <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
+    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
       <SiteHeader />
       <section className="px-4 py-14 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
-            <div className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm sm:p-12">
+            <div className="rounded-xl border border-[#E5E7EB] bg-white p-8 shadow-sm sm:p-12">
               <div className="flex flex-wrap items-center gap-4">
-                <div className="flex h-20 w-20 items-center justify-center rounded-[2rem] bg-gradient-to-br from-[#3B49FF] to-[#12D6C5] text-3xl font-black text-white">
+                <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-gradient-to-br from-[#4A3AFF] to-[#00C9A7] text-3xl font-bold text-white">
                   {agent.name.split(' ').map((part: string) => part[0]).join('').slice(0, 2)}
                 </div>
                 <div>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-[#E9FFFC] px-4 py-2 text-xs font-black uppercase tracking-[.14em] text-[#087d75]">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-[#E9FFFC] px-4 py-2 text-xs font-bold uppercase tracking-[.14em] text-[#087d75]">
                     <BadgeCheck size={15} /> Verified profile
                   </div>
-                  <h1 className="mt-3 text-5xl font-black tracking-[-.07em] sm:text-6xl">{agent.name}</h1>
+                  <h1 className="mt-3 text-5xl font-bold tracking-[-.07em] sm:text-6xl">{agent.name}</h1>
                 </div>
               </div>
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-600">
+              <p className="mt-6 max-w-3xl text-lg leading-8 text-[#6B7280]">
                 {agent.name} helps buyers, tenants, and sellers across {agent.area}. This profile is wired to Proppd's verified enquiry foundation and active listing data.
               </p>
-              <div className="mt-6 flex flex-wrap gap-2 text-xs font-black uppercase tracking-[.16em]">
+              <div className="mt-6 flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[.16em]">
                 <span className="rounded-full bg-[#E9FFFC] px-4 py-2 text-[#087d75]">{directoryStateLabel}</span>
-                <span className="rounded-full bg-[#F5F7FA] px-4 py-2 text-slate-600">{listingStateLabel}</span>
+                <span className="rounded-full bg-[#F7F8FA] px-4 py-2 text-[#6B7280]">{listingStateLabel}</span>
               </div>
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
                 <ProfileStat label="Agency" value={agent.agency} icon={<Building2 size={18} />} />
@@ -101,20 +101,20 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
                 <ProfileStat label="Active listings" value={formatDirectoryCount(activeListings.length, 'listing')} icon={<BadgeCheck size={18} />} />
               </div>
             </div>
-            <aside className="rounded-[2.5rem] bg-[#050A30] p-7 text-white shadow-2xl shadow-slate-300/50">
-              <p className="text-sm font-black uppercase tracking-[.18em] text-[#12D6C5]">Contact agent</p>
-              <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">Send a verified enquiry</h2>
+            <aside className="rounded-xl bg-[#1A1A2E] p-7 text-white shadow-2xl shadow-slate-300/50">
+              <p className="text-sm font-bold uppercase tracking-[.18em] text-[#00C9A7]">Contact agent</p>
+              <h2 className="mt-3 text-3xl font-bold tracking-[-.05em]">Send a verified enquiry</h2>
               <p className="mt-4 text-sm leading-7 text-white/70">
                 Best for viewing requests, valuation follow-ups, and direct questions about this agent&apos;s active listings.
               </p>
               <a
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 font-black text-[#050A30]"
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 font-bold text-[#1A1A2E]"
                 href={`mailto:info@proppd.com?subject=Agent enquiry: ${agent.name}`}
               >
                 <Mail size={18} /> Email enquiry
               </a>
               <a
-                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 px-5 py-3 font-black text-white hover:bg-white/5"
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 px-5 py-3 font-bold text-white hover:bg-white/5"
                 href={`/properties?agent=${encodeURIComponent(agent.name)}`}
               >
                 Browse this agent&apos;s listings
@@ -124,10 +124,10 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
 
           <div className="mt-10 flex items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Active listings</p>
-              <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">Listed by {agent.name}</h2>
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#4A3AFF]">Active listings</p>
+              <h2 className="mt-2 text-3xl font-bold tracking-[-.05em]">Listed by {agent.name}</h2>
             </div>
-            <a className="hidden rounded-full bg-white px-5 py-3 text-sm font-black text-[#3B49FF] shadow-sm sm:inline-flex" href={`/properties?agent=${encodeURIComponent(agent.name)}`}>
+            <a className="hidden rounded-full bg-white px-5 py-3 text-sm font-bold text-[#4A3AFF] shadow-sm sm:inline-flex" href={`/properties?agent=${encodeURIComponent(agent.name)}`}>
               View all
             </a>
           </div>
@@ -138,16 +138,16 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
           </div>
 
           <div className="mt-8 grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
-            <div className="rounded-[2rem] bg-white p-6 shadow-sm">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Working with this agent</p>
-              <h2 className="mt-2 text-3xl font-black tracking-[-.05em]">A clean path from search to enquiry.</h2>
+            <div className="rounded-xl bg-white p-6 shadow-sm">
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#4A3AFF]">Working with this agent</p>
+              <h2 className="mt-2 text-3xl font-bold tracking-[-.05em]">A clean path from search to enquiry.</h2>
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 <ProfilePill title="Search" text="Filter by area, stock, or school catchment." />
                 <ProfilePill title="Shortlist" text="Open listing details and compare verified options." />
                 <ProfilePill title="Reach out" text="Send a structured enquiry or viewing request." />
               </div>
-              <div className="mt-5 rounded-3xl bg-[#F5F7FA] p-4">
-                <p className="text-xs font-black uppercase tracking-[.16em] text-slate-400">Current market snapshot</p>
+              <div className="mt-5 rounded-3xl bg-[#F7F8FA] p-4">
+                <p className="text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">Current market snapshot</p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-3">
                   <SnapshotPill label="Active stock" value={formatDirectoryCount(activeListings.length, 'listing')} />
                   <SnapshotPill label="Top suburb" value={agentMarketSummary.topSuburb} />
@@ -155,9 +155,9 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
                 </div>
               </div>
             </div>
-            <div className="rounded-[2rem] bg-[#050A30] p-6 text-white shadow-sm">
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Need a shortlist?</p>
-              <p className="mt-2 text-2xl font-black tracking-[-.04em]">Focus on the right local stock.</p>
+            <div className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm">
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Need a shortlist?</p>
+              <p className="mt-2 text-2xl font-bold tracking-[-.04em]">Focus on the right local stock.</p>
               <p className="mt-3 text-sm font-bold leading-6 text-white/70">
                 {activeListings.length} verified listing{activeListings.length === 1 ? '' : 's'} are currently tied to {agent.name}. Save the agent, compare the cards, and send a structured enquiry when you are ready.
               </p>
@@ -167,10 +167,10 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
                 <SnapshotPill label="Listings" value={String(activeListings.length)} dark />
               </div>
               <div className="mt-5 flex flex-wrap gap-3">
-                <a className="rounded-full bg-white px-5 py-3 text-sm font-black text-[#050A30] shadow-sm" href={`/properties?agent=${encodeURIComponent(agent.name)}`}>
+                <a className="rounded-full bg-white px-5 py-3 text-sm font-bold text-[#1A1A2E] shadow-sm" href={`/properties?agent=${encodeURIComponent(agent.name)}`}>
                   Browse listings
                 </a>
-                <a className="rounded-full border border-white/15 px-5 py-3 text-sm font-black text-white hover:bg-white/5" href={`mailto:info@proppd.com?subject=Agent enquiry: ${agent.name}`}>
+                <a className="rounded-full border border-white/15 px-5 py-3 text-sm font-bold text-white hover:bg-white/5" href={`mailto:info@proppd.com?subject=Agent enquiry: ${agent.name}`}>
                   Email agent
                 </a>
               </div>
@@ -185,9 +185,9 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
 
 function ProfileStat({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
   return (
-    <div className="rounded-3xl bg-[#F5F7FA] p-4">
-      <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.16em] text-slate-400">{icon} {label}</div>
-      <div className="mt-2 text-lg font-black text-[#050A30]">{value}</div>
+    <div className="rounded-3xl bg-[#F7F8FA] p-4">
+      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">{icon} {label}</div>
+      <div className="mt-2 text-lg font-bold text-[#1A1A2E]">{value}</div>
     </div>
   );
 }
@@ -195,8 +195,8 @@ function ProfileStat({ label, value, icon }: { label: string; value: string; ico
 function SnapshotPill({ label, value, dark = false }: { label: string; value: string; dark?: boolean }) {
   return (
     <div className={`rounded-3xl p-4 ${dark ? 'bg-white/8' : 'bg-white'}`}>
-      <div className={`text-xs font-black uppercase tracking-[.14em] ${dark ? 'text-[#12D6C5]' : 'text-slate-400'}`}>{label}</div>
-      <div className={`mt-2 text-sm font-black leading-6 ${dark ? 'text-white' : 'text-[#050A30]'}`}>{value}</div>
+      <div className={`text-xs font-bold uppercase tracking-[.14em] ${dark ? 'text-[#00C9A7]' : 'text-[#9CA3AF]'}`}>{label}</div>
+      <div className={`mt-2 text-sm font-bold leading-6 ${dark ? 'text-white' : 'text-[#1A1A2E]'}`}>{value}</div>
     </div>
   );
 }
@@ -218,9 +218,9 @@ function buildAgentMarketSummary(listings: Array<{ suburb?: string; type: string
 
 function ProfilePill({ title, text }: { title: string; text: string }) {
   return (
-    <div className="rounded-3xl bg-[#F5F7FA] p-4">
-      <div className="text-sm font-black text-[#050A30]">{title}</div>
-      <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{text}</p>
+    <div className="rounded-3xl bg-[#F7F8FA] p-4">
+      <div className="text-sm font-bold text-[#1A1A2E]">{title}</div>
+      <p className="mt-2 text-sm font-bold leading-6 text-[#6B7280]">{text}</p>
     </div>
   );
 }

@@ -108,35 +108,35 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
   }
 
   return (
-    <aside className="h-fit rounded-[2.5rem] bg-white p-6 shadow-sm lg:sticky lg:top-6">
-      <p className="text-sm font-black uppercase tracking-[.18em] text-[#3B49FF]">Verified enquiry</p>
-      <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">Contact {listing.agent}</h2>
-      <p className="mt-3 text-sm leading-6 text-slate-600">
+    <aside className="h-fit rounded-xl bg-white p-6 shadow-sm lg:sticky lg:top-6">
+      <p className="text-sm font-bold uppercase tracking-[.18em] text-[#4A3AFF]">Verified enquiry</p>
+      <h2 className="mt-3 text-3xl font-bold tracking-[-.05em]">Contact {listing.agent}</h2>
+      <p className="mt-3 text-sm leading-6 text-[#6B7280]">
         Capture your details once. Proppd keeps POPIA consent explicit and routes the enquiry clearly to the relevant agent or agency.
       </p>
 
-      <div className="mt-5 rounded-[1.5rem] border border-slate-200 bg-white p-4 text-xs font-bold leading-5 text-slate-600 shadow-sm">
-        <div className="flex items-center gap-2 font-black text-[#050A30]">
-          <ShieldCheck size={15} className="text-[#12D6C5]" /> {routingLabel}
+      <div className="mt-5 rounded-lg border border-[#E5E7EB] bg-white p-4 text-xs font-bold leading-5 text-[#6B7280] shadow-sm">
+        <div className="flex items-center gap-2 font-bold text-[#1A1A2E]">
+          <ShieldCheck size={15} className="text-[#00C9A7]" /> {routingLabel}
         </div>
-        <p className="mt-2 text-sm leading-6 text-slate-600">{routingDetail}</p>
+        <p className="mt-2 text-sm leading-6 text-[#6B7280]">{routingDetail}</p>
       </div>
 
       <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-          <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
+          <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
             Name
             <input
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold normal-case tracking-normal text-[#050A30] outline-none focus:border-[#3B49FF]"
+              className="mt-2 w-full rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-sm font-bold normal-case tracking-normal text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
               value={form.name}
               onChange={handleTextChange('name')}
               placeholder="Your name"
             />
           </label>
-          <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
+          <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
             Surname
             <input
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold normal-case tracking-normal text-[#050A30] outline-none focus:border-[#3B49FF]"
+              className="mt-2 w-full rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-sm font-bold normal-case tracking-normal text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
               value={form.surname}
               onChange={handleTextChange('surname')}
               placeholder="Your surname"
@@ -144,10 +144,10 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
           </label>
         </div>
 
-        <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
+        <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
           Email
           <input
-            className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold normal-case tracking-normal text-[#050A30] outline-none focus:border-[#3B49FF]"
+            className="mt-2 w-full rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-sm font-bold normal-case tracking-normal text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
             type="email"
             value={form.email}
             onChange={handleTextChange('email')}
@@ -155,10 +155,10 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
           />
         </label>
 
-        <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
+        <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
           Phone
           <input
-            className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold normal-case tracking-normal text-[#050A30] outline-none focus:border-[#3B49FF]"
+            className="mt-2 w-full rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-sm font-bold normal-case tracking-normal text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
             type="tel"
             value={form.phone}
             onChange={handleTextChange('phone')}
@@ -166,10 +166,10 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
           />
         </label>
 
-        <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
+        <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
           I want to
           <select
-            className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-black normal-case tracking-normal text-[#050A30] outline-none focus:border-[#3B49FF]"
+            className="mt-2 w-full rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-sm font-bold normal-case tracking-normal text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
             value={form.intent}
             onChange={(event) => updateField('intent', event.target.value as LeadFormState['intent'])}
           >
@@ -180,31 +180,31 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
           </select>
         </label>
 
-        <label className="block text-xs font-black uppercase tracking-[.12em] text-slate-500">
+        <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
           Message
           <textarea
-            className="mt-2 min-h-28 w-full rounded-2xl border border-slate-200 bg-[#F5F7FA] px-4 py-3 text-sm font-bold normal-case tracking-normal text-[#050A30] outline-none focus:border-[#3B49FF]"
+            className="mt-2 min-h-28 w-full rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] px-4 py-3 text-sm font-bold normal-case tracking-normal text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
             value={form.message}
             onChange={handleTextChange('message')}
           />
         </label>
 
-        <label className="flex items-start gap-3 rounded-2xl bg-[#eefcf9] p-4 text-xs font-bold leading-5 text-[#0f766e]">
+        <label className="flex items-start gap-3 rounded-2xl bg-[#E6FBF7] p-4 text-xs font-bold leading-5 text-[#00C9A7]">
           <input
-            className="mt-1 h-4 w-4 accent-[#12D6C5]"
+            className="mt-1 h-4 w-4 accent-[#00C9A7]"
             type="checkbox"
             checked={form.popiaConsent}
             onChange={(event) => updateField('popiaConsent', event.target.checked)}
           />
           <span>
             I consent to Proppd processing my details for this property enquiry and sharing them with the relevant agent or agency.
-            {!form.popiaConsent && <span className="mt-1 block font-black text-[#0f766e]">Required before sending.</span>}
+            {!form.popiaConsent && <span className="mt-1 block font-bold text-[#00C9A7]">Required before sending.</span>}
           </span>
         </label>
 
         {errors.length > 0 && (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-bold leading-5 text-red-700">
-            <p className="font-black">Check these details:</p>
+            <p className="font-bold">Check these details:</p>
             <ul className="mt-2 list-disc space-y-1 pl-4">
               {errors.map((error) => (
                 <li key={error}>{error}</li>
@@ -214,14 +214,14 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
         )}
 
         {status && (
-          <p className="flex items-start gap-2 rounded-2xl border border-slate-200 p-4 text-xs font-bold leading-5 text-slate-600">
-            {isReady ? <CheckCircle2 className="mt-0.5 text-[#12D6C5]" size={16} /> : <ShieldCheck className="mt-0.5 text-[#3B49FF]" size={16} />}
+          <p className="flex items-start gap-2 rounded-2xl border border-[#E5E7EB] p-4 text-xs font-bold leading-5 text-[#6B7280]">
+            {isReady ? <CheckCircle2 className="mt-0.5 text-[#00C9A7]" size={16} /> : <ShieldCheck className="mt-0.5 text-[#4A3AFF]" size={16} />}
             {status}
           </p>
         )}
 
         <button
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#050A30] px-5 py-3 font-black text-white shadow-lg shadow-slate-900/10 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#1A1A2E] px-5 py-3 font-bold text-white shadow-lg shadow-slate-900/10 disabled:cursor-not-allowed disabled:opacity-60"
           type="submit"
           disabled={isSubmitting || !form.popiaConsent}
           aria-disabled={isSubmitting || !form.popiaConsent}
@@ -230,18 +230,18 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
         </button>
 
         {mailtoHref && (
-          <a className="inline-flex w-full justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30]" href={mailtoHref}>
+          <a className="inline-flex w-full justify-center rounded-full border border-[#E5E7EB] px-5 py-3 font-bold text-[#1A1A2E]" href={mailtoHref}>
             Open email again
           </a>
         )}
       </form>
 
-      <a className="mt-3 inline-flex w-full justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30]" href={agentProfileHref}>
+      <a className="mt-3 inline-flex w-full justify-center rounded-full border border-[#E5E7EB] px-5 py-3 font-bold text-[#1A1A2E]" href={agentProfileHref}>
         View agent profile
       </a>
 
-      <div className="mt-5 rounded-2xl border border-slate-200 bg-[#F5F7FA] p-4 text-xs font-bold leading-5 text-slate-600">
-        <div className="flex items-center gap-2 font-black text-[#050A30]"><ShieldCheck size={15} className="text-[#12D6C5]" /> POPIA-aware handoff</div>
+      <div className="mt-5 rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] p-4 text-xs font-bold leading-5 text-[#6B7280]">
+        <div className="flex items-center gap-2 font-bold text-[#1A1A2E]"><ShieldCheck size={15} className="text-[#00C9A7]" /> POPIA-aware handoff</div>
         <p className="mt-2">Your enquiry includes your consent, listing context, and a clear route to the relevant agent or agency.</p>
       </div>
     </aside>

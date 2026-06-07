@@ -18,24 +18,24 @@ export default async function Page() {
   const diagnostics = await loadPortalDiagnostics();
 
   return (
-    <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
+    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
       <SiteHeader />
 
       <section className="px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="overflow-hidden rounded-[2.5rem] bg-[#050A30] text-white shadow-sm">
+          <div className="overflow-hidden rounded-xl bg-[#1A1A2E] text-white shadow-sm">
             <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[1fr_360px] lg:p-12">
               <div>
-                <p className="text-sm font-black uppercase tracking-[.2em] text-[#12D6C5]">Backend diagnostics</p>
-                <h1 className="mt-4 max-w-4xl text-5xl font-black tracking-[-.07em] sm:text-6xl">See whether Proppd is ready for live listings, login, and lead persistence.</h1>
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Backend diagnostics</p>
+                <h1 className="mt-4 max-w-4xl text-5xl font-bold tracking-[-.07em] sm:text-6xl">See whether Proppd is ready for live listings, login, and lead persistence.</h1>
                 <p className="mt-5 max-w-2xl text-lg leading-8 text-white/70">
                   This page shows the current database mode, browser auth config, and the live record counts the backend can read right now.
                 </p>
               </div>
 
-              <div className="rounded-[2rem] border border-white/10 bg-white/10 p-6 backdrop-blur">
-                <p className="text-sm font-black uppercase tracking-[.18em] text-white/60">Backend mode</p>
-                <h2 className="mt-4 text-3xl font-black tracking-[-.05em]">{diagnostics.backendMode === 'database' ? 'Database connected' : 'Demo fallback'}</h2>
+              <div className="rounded-xl border border-white/10 bg-white/10 p-6 backdrop-blur">
+                <p className="text-sm font-bold uppercase tracking-[.18em] text-white/60">Backend mode</p>
+                <h2 className="mt-4 text-3xl font-bold tracking-[-.05em]">{diagnostics.backendMode === 'database' ? 'Database connected' : 'Demo fallback'}</h2>
                 <div className="mt-6 grid grid-cols-2 gap-3">
                   <StatCard label="Listings" value={diagnostics.listingCount ?? '—'} />
                   <StatCard label="Leads" value={diagnostics.leadCount ?? '—'} />
@@ -60,10 +60,10 @@ export default async function Page() {
           </p>
 
           {diagnostics.error ? (
-            <div className="mt-8 rounded-[2rem] border border-red-200 bg-red-50 p-6 text-red-700 shadow-sm">
+            <div className="mt-8 rounded-xl border border-red-200 bg-red-50 p-6 text-red-700 shadow-sm">
               <div className="flex items-center gap-3">
                 <AlertTriangle size={22} />
-                <h2 className="text-xl font-black">Backend error</h2>
+                <h2 className="text-xl font-bold">Backend error</h2>
               </div>
               <p className="mt-3 text-sm font-bold leading-6">{diagnostics.error}</p>
             </div>
@@ -81,18 +81,18 @@ export default async function Page() {
 function StatCard({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-2xl bg-white/10 p-4 text-center">
-      <p className="text-2xl font-black text-white">{value}</p>
-      <p className="mt-1 text-[11px] font-black uppercase tracking-[.14em] text-white/60">{label}</p>
+      <p className="text-2xl font-bold text-white">{value}</p>
+      <p className="mt-1 text-[11px] font-bold uppercase tracking-[.14em] text-white/60">{label}</p>
     </div>
   );
 }
 
 function CheckCard({ icon, label, value, tone }: { icon: ReactNode; label: string; value: string; tone: 'good' | 'warn' }) {
   return (
-    <div className="rounded-[2rem] bg-white p-5 shadow-sm">
-      <div className={`inline-flex rounded-2xl p-3 ${tone === 'good' ? 'bg-[#eefcf9] text-[#0f766e]' : 'bg-amber-50 text-amber-700'}`}>{icon}</div>
-      <p className="mt-4 text-xs font-black uppercase tracking-[.16em] text-slate-400">{label}</p>
-      <p className="mt-2 text-lg font-black text-[#050A30]">{value}</p>
+    <div className="rounded-xl bg-white p-5 shadow-sm">
+      <div className={`inline-flex rounded-2xl p-3 ${tone === 'good' ? 'bg-[#E6FBF7] text-[#00C9A7]' : 'bg-amber-50 text-amber-700'}`}>{icon}</div>
+      <p className="mt-4 text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">{label}</p>
+      <p className="mt-2 text-lg font-bold text-[#1A1A2E]">{value}</p>
     </div>
   );
 }

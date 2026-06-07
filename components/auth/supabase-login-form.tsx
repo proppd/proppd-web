@@ -72,14 +72,14 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
   }
 
   return (
-    <div className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-4 sm:p-5">
+    <div className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-4 sm:p-5">
       <form className="grid gap-3 sm:grid-cols-[1fr_auto]" onSubmit={submitMagicLink}>
         <label className="sr-only" htmlFor="login-email">
           Email address
         </label>
         <input
           id="login-email"
-          className="rounded-full border border-slate-200 bg-white px-5 py-4 text-sm font-bold text-[#050A30] outline-none transition placeholder:text-slate-400 focus:border-[#3B49FF] focus:ring-4 focus:ring-[#3B49FF]/10"
+          className="rounded-full border border-[#E5E7EB] bg-white px-5 py-4 text-sm font-bold text-[#1A1A2E] outline-none transition placeholder:text-[#9CA3AF] focus:border-[#4A3AFF] focus:ring-4 focus:ring-[#4A3AFF]/10"
           type="email"
           placeholder="info@proppd.com"
           value={email}
@@ -91,7 +91,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
           required
         />
         <button
-          className="rounded-full bg-[#050A30] px-6 py-4 text-sm font-black text-white transition hover:bg-[#3B49FF] disabled:cursor-not-allowed disabled:bg-slate-400"
+          className="rounded-full bg-[#1A1A2E] px-6 py-4 text-sm font-bold text-white transition hover:bg-[#4A3AFF] disabled:cursor-not-allowed disabled:bg-slate-400"
           type="submit"
           disabled={state.status === 'loading'}
         >
@@ -102,12 +102,12 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
       <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
         <p
           aria-live="polite"
-          className={`text-sm font-bold leading-6 ${state.status === 'error' ? 'text-red-600' : state.status === 'success' ? 'text-[#0f766e]' : 'text-slate-600'}`}
+          className={`text-sm font-bold leading-6 ${state.status === 'error' ? 'text-red-600' : state.status === 'success' ? 'text-[#00C9A7]' : 'text-[#6B7280]'}`}
         >
           {isConfigured ? state.message : 'The request button prepares a ready-to-send invite email until live login links are enabled.'}
         </p>
         <a
-          className="inline-flex justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]"
+          className="inline-flex justify-center rounded-full border border-[#E5E7EB] bg-white px-5 py-3 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]"
           href={`mailto:${INVITE_EMAIL}?subject=${encodeURIComponent('Proppd access request')}&body=${encodeURIComponent(
             [`Please approve Proppd access for: ${cleanEmail || '[add your work email]'}`, '', 'Agency:', 'Role:', 'Notes:'].join('\n'),
           )}`}
@@ -117,8 +117,8 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
       </div>
 
       {state.status === 'success' ? (
-        <div className="mt-4 rounded-[1.5rem] border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold leading-6 text-emerald-800">
-          <p className="font-black uppercase tracking-[.14em]">What to check next</p>
+        <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold leading-6 text-emerald-800">
+          <p className="font-bold uppercase tracking-[.14em]">What to check next</p>
           <p className="mt-2">Look for the message from Proppd or Supabase, then check spam and promotions if it does not land quickly.</p>
         </div>
       ) : null}

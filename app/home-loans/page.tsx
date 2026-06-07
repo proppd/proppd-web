@@ -38,35 +38,35 @@ const trustPoints = [
 
 export default function HomeLoansPage() {
   return (
-    <main className="min-h-screen bg-[#F5F7FA] text-[#050A30]">
+    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
       <SiteHeader />
 
       <section className="relative isolate overflow-hidden bg-white px-4 py-20 sm:px-6 lg:px-8">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_18%,rgba(59,73,255,.18),transparent_22rem),radial-gradient(circle_at_80%_10%,rgba(18,214,197,.22),transparent_20rem)]" />
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1fr] lg:items-start lg:gap-12">
-          <div className="rounded-[2.5rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur sm:p-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#3B49FF]/20 bg-[#3B49FF]/10 px-4 py-2 text-sm font-black text-[#3B49FF]">
+          <div className="rounded-xl border border-[#E5E7EB] bg-white/90 p-6 shadow-sm backdrop-blur sm:p-8">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#4A3AFF]/20 bg-[#4A3AFF]/10 px-4 py-2 text-sm font-bold text-[#4A3AFF]">
               <ShieldCheck size={16} /> Home loan readiness
             </div>
-            <h1 className="mt-6 max-w-4xl text-5xl font-black leading-[.96] tracking-[-.07em] sm:text-6xl lg:text-7xl">
+            <h1 className="mt-6 max-w-4xl text-5xl font-bold leading-[.96] tracking-[-.07em] sm:text-6xl lg:text-7xl">
               Make finance readiness part of the property search.
             </h1>
-            <p className="mt-6 max-w-2xl text-lg font-semibold leading-8 text-slate-600">
+            <p className="mt-6 max-w-2xl text-lg font-semibold leading-8 text-[#6B7280]">
               Proppd is preparing a buyer-friendly home loan handoff: practical affordability guidance, document readiness, and partner routing before the enquiry becomes a dead lead.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a className="inline-flex rounded-full bg-[#3B49FF] px-6 py-3 font-black text-white shadow-xl shadow-[#3B49FF]/20 transition hover:bg-[#050A30]" href="mailto:info@proppd.com?subject=Home%20loan%20readiness">
+              <a className="inline-flex rounded-full bg-[#4A3AFF] px-6 py-3 font-bold text-white shadow-xl shadow-[#4A3AFF]/20 transition hover:bg-[#1A1A2E]" href="mailto:info@proppd.com?subject=Home%20loan%20readiness">
                 Register finance interest
               </a>
-              <a className="inline-flex rounded-full border border-slate-300 bg-white px-6 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="/properties/for-sale">
+              <a className="inline-flex rounded-full border border-slate-300 bg-white px-6 py-3 font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href="/properties/for-sale">
                 Browse homes for sale
               </a>
             </div>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {readinessFacts.map(([title, body]) => (
-                <div key={title} className="rounded-[1.5rem] border border-slate-200 bg-white/85 p-4 shadow-sm backdrop-blur">
-                  <p className="text-xs font-black uppercase tracking-[.16em] text-[#3B49FF]">{title}</p>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">{body}</p>
+                <div key={title} className="rounded-lg border border-[#E5E7EB] bg-white/85 p-4 shadow-sm backdrop-blur">
+                  <p className="text-xs font-bold uppercase tracking-[.16em] text-[#4A3AFF]">{title}</p>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-[#6B7280]">{body}</p>
                 </div>
               ))}
             </div>
@@ -80,12 +80,12 @@ export default function HomeLoansPage() {
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-5 md:grid-cols-3">
             {steps.map(([title, body], index) => (
-              <div key={title} className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#12D6C5]/15 text-[#057a70]">
+              <div key={title} className="rounded-[1.75rem] border border-[#E5E7EB] bg-white p-6 shadow-sm">
+                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#00C9A7]/15 text-[#057a70]">
                   {index === 0 ? <FileCheck2 size={22} /> : <CheckCircle2 size={22} />}
                 </div>
-                <h2 className="mt-5 text-2xl font-black tracking-[-.04em]">{title}</h2>
-                <p className="mt-3 text-sm font-semibold leading-7 text-slate-600">{body}</p>
+                <h2 className="mt-5 text-2xl font-bold tracking-[-.04em]">{title}</h2>
+                <p className="mt-3 text-sm font-semibold leading-7 text-[#6B7280]">{body}</p>
               </div>
             ))}
           </div>
@@ -93,16 +93,16 @@ export default function HomeLoansPage() {
       </section>
 
       <section className="px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl rounded-[2.5rem] bg-white p-6 shadow-sm sm:p-8">
+        <div className="mx-auto max-w-7xl rounded-xl bg-white p-6 shadow-sm sm:p-8">
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
             <div>
-              <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Finance handoff</p>
-              <h2 className="mt-3 text-4xl font-black tracking-[-.06em]">3 document-ready steps before you apply</h2>
-              <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-600">
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#4A3AFF]">Finance handoff</p>
+              <h2 className="mt-3 text-4xl font-bold tracking-[-.06em]">3 document-ready steps before you apply</h2>
+              <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-[#6B7280]">
                 Keep the buyer journey moving by preparing the right documents early, then let Proppd route the finance request with clean context.
               </p>
             </div>
-            <a className="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 font-black text-[#050A30] transition hover:border-[#3B49FF] hover:text-[#3B49FF]" href="mailto:info@proppd.com?subject=Home%20loan%20readiness">
+            <a className="inline-flex items-center justify-center rounded-full border border-[#E5E7EB] px-5 py-3 font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href="mailto:info@proppd.com?subject=Home%20loan%20readiness">
               Register finance interest →
             </a>
           </div>
@@ -129,55 +129,55 @@ export default function HomeLoansPage() {
 
       <section className="px-4 pb-20 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.1fr_.9fr]">
-          <div className="rounded-[2.5rem] bg-[#050A30] p-6 text-white shadow-[0_30px_80px_rgba(5,10,48,.16)] sm:p-8">
-            <p className="text-sm font-black uppercase tracking-[.2em] text-cyan-300">What happens next</p>
-            <h2 className="mt-3 max-w-2xl text-4xl font-black tracking-[-.06em]">A clear handoff after the calculator.</h2>
+          <div className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-[0_30px_80px_rgba(5,10,48,.16)] sm:p-8">
+            <p className="text-sm font-bold uppercase tracking-[.2em] text-cyan-300">What happens next</p>
+            <h2 className="mt-3 max-w-2xl text-4xl font-bold tracking-[-.06em]">A clear handoff after the calculator.</h2>
             <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-white/70">
               Buyers should be able to move from affordability to action without losing the context that makes a finance request useful.
             </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               {handoffSteps.map(([title, body], index) => (
-                <div key={title} className="rounded-[1.5rem] border border-white/10 bg-white/6 p-4 backdrop-blur">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-300/15 text-sm font-black text-cyan-200">
+                <div key={title} className="rounded-lg border border-white/10 bg-white/6 p-4 backdrop-blur">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-300/15 text-sm font-bold text-cyan-200">
                     {index + 1}
                   </div>
-                  <h3 className="mt-4 text-lg font-black tracking-[-.03em]">{title}</h3>
+                  <h3 className="mt-4 text-lg font-bold tracking-[-.03em]">{title}</h3>
                   <p className="mt-2 text-sm font-semibold leading-6 text-white/70">{body}</p>
                 </div>
               ))}
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a className="inline-flex rounded-full bg-white px-5 py-3 font-black text-[#050A30] transition hover:bg-cyan-100" href="mailto:info@proppd.com?subject=Home%20loan%20readiness">
+              <a className="inline-flex rounded-full bg-white px-5 py-3 font-bold text-[#1A1A2E] transition hover:bg-cyan-100" href="mailto:info@proppd.com?subject=Home%20loan%20readiness">
                 Register finance interest
               </a>
-              <a className="inline-flex rounded-full border border-white/20 px-5 py-3 font-black text-white transition hover:border-cyan-200 hover:text-cyan-200" href="/properties/for-sale">
+              <a className="inline-flex rounded-full border border-white/20 px-5 py-3 font-bold text-white transition hover:border-cyan-200 hover:text-cyan-200" href="/properties/for-sale">
                 Browse homes for sale
               </a>
             </div>
           </div>
 
-          <div className="rounded-[2.5rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Response guide</p>
-            <h2 className="mt-3 text-3xl font-black tracking-[-.05em]">Why the handoff feels safe.</h2>
+          <div className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm sm:p-8">
+            <p className="text-sm font-bold uppercase tracking-[.2em] text-[#4A3AFF]">Response guide</p>
+            <h2 className="mt-3 text-3xl font-bold tracking-[-.05em]">Why the handoff feels safe.</h2>
             <ul className="mt-6 space-y-4">
               {trustPoints.map((point) => (
-                <li key={point} className="flex gap-3 rounded-[1.25rem] bg-[#F5F7FA] p-4">
-                  <div className="mt-1 flex h-7 w-7 flex-none items-center justify-center rounded-full bg-[#12D6C5]/20 text-[#057a70]">
+                <li key={point} className="flex gap-3 rounded-[1.25rem] bg-[#F7F8FA] p-4">
+                  <div className="mt-1 flex h-7 w-7 flex-none items-center justify-center rounded-full bg-[#00C9A7]/20 text-[#057a70]">
                     <ShieldCheck size={16} />
                   </div>
-                  <p className="text-sm font-semibold leading-6 text-slate-600">{point}</p>
+                  <p className="text-sm font-semibold leading-6 text-[#6B7280]">{point}</p>
                 </li>
               ))}
             </ul>
-            <div className="mt-6 rounded-[1.5rem] border border-[#3B49FF]/10 bg-[#3B49FF]/6 p-4">
-              <p className="text-xs font-black uppercase tracking-[.18em] text-[#3B49FF]">Good fit when</p>
-              <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+            <div className="mt-6 rounded-lg border border-[#4A3AFF]/10 bg-[#4A3AFF]/6 p-4">
+              <p className="text-xs font-bold uppercase tracking-[.18em] text-[#4A3AFF]">Good fit when</p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-[#6B7280]">
                 the buyer is still comparing homes, wants a realistic budget check, or needs a clearer next step before a full application.
               </p>
             </div>
-            <div className="mt-4 rounded-[1.5rem] border border-slate-200 bg-[#F5F7FA] p-4">
-              <p className="text-xs font-black uppercase tracking-[.18em] text-slate-500">Sample finance note</p>
-              <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+            <div className="mt-4 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] p-4">
+              <p className="text-xs font-bold uppercase tracking-[.18em] text-[#9CA3AF]">Sample finance note</p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-[#6B7280]">
                 “We are looking around R1.1m, have a deposit ready, and want finance guidance before booking more viewings.”
               </p>
             </div>
@@ -202,11 +202,11 @@ function SupportCard({
   actionLabel?: string;
 }) {
   return (
-    <article className="rounded-[2rem] border border-slate-200 bg-[#F5F7FA] p-5">
-      <h3 className="text-xl font-black tracking-[-.03em]">{title}</h3>
-      <p className="mt-3 text-sm font-bold leading-6 text-slate-600">{body}</p>
+    <article className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-5">
+      <h3 className="text-xl font-bold tracking-[-.03em]">{title}</h3>
+      <p className="mt-3 text-sm font-bold leading-6 text-[#6B7280]">{body}</p>
       {actionHref && actionLabel && (
-        <a className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#3B49FF]" href={actionHref}>
+        <a className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#4A3AFF]" href={actionHref}>
           {actionLabel} →
         </a>
       )}

@@ -1,26 +1,49 @@
-import { BadgeCheck, Bot, ShieldCheck, Workflow } from 'lucide-react';
+import { BadgeCheck, ShieldCheck, TrendingUp, Users } from 'lucide-react';
 
 const values = [
-  ['Verified lead culture', 'Lead capture is designed around cleaner buyer/tenant intent, duplicate checks, and agent feedback loops.', ShieldCheck],
-  ['Modern portal UX', 'Fast search-first browsing, clean listing pages, mobile-first enquiry paths, and SEO-ready property routes.', BadgeCheck],
-  ['AgentOS foundation', 'The MVP stays simple while preparing the data model for CRM, automations, AI listing tools, and WhatsApp workflows.', Bot],
-  ['Fair property infrastructure', 'Built to challenge expensive legacy portals with transparent, professional, agent-friendly technology.', Workflow],
+  {
+    title: 'Verified listings',
+    text: 'Every listing is checked for agency legitimacy, mandate clarity, and enquiry routing.',
+    icon: ShieldCheck,
+  },
+  {
+    title: 'Clean search',
+    text: 'Search-first browsing with suburb, price, beds, and property type filters that work.',
+    icon: BadgeCheck,
+  },
+  {
+    title: 'Direct agent routes',
+    text: 'Connect with named professionals and agencies instead of generic contact forms.',
+    icon: Users,
+  },
+  {
+    title: 'Market data',
+    text: 'Price trends and property insights to help you make informed decisions.',
+    icon: TrendingUp,
+  },
 ];
 
 export function ValueProps() {
   return (
-    <section className="bg-[#F5F7FA] px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="max-w-3xl">
-          <p className="text-sm font-black uppercase tracking-[.2em] text-[#3B49FF]">Why Proppd</p>
-          <h2 className="mt-3 text-4xl font-black tracking-[-.06em] text-[#050A30] sm:text-5xl">Property technology, rebuilt.</h2>
+    <section className="bg-white">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-[#1A1A2E] sm:text-3xl">
+            Why Proppd
+          </h2>
+          <p className="mt-3 text-[#6B7280]">
+            Property technology built for South African markets.
+          </p>
         </div>
-        <div className="mt-9 grid gap-5 md:grid-cols-2">
-          {values.map(([title, body, Icon]) => (
-            <div key={title as string} className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm">
-              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#050A30] text-[#12D6C5]"><Icon size={22} /></div>
-              <h3 className="mt-6 text-2xl font-black tracking-[-.04em] text-[#050A30]">{title as string}</h3>
-              <p className="mt-3 leading-7 text-slate-600">{body as string}</p>
+
+        <div className="mx-auto mt-10 grid max-w-4xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {values.map(({ title, text, icon: Icon }) => (
+            <div key={title} className="rounded-xl border border-[#E5E7EB] bg-white p-5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6FBF7] text-[#00C9A7]">
+                <Icon size={20} />
+              </div>
+              <h3 className="mt-4 text-base font-bold text-[#1A1A2E]">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-[#6B7280]">{text}</p>
             </div>
           ))}
         </div>

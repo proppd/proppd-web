@@ -106,7 +106,7 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
   }
 
   return (
-    <form className="grid gap-5 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm" onSubmit={submit}>
+    <form className="grid gap-5 rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm" onSubmit={submit}>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="Title">
           <input value={state.title} onChange={(event) => setState({ ...state, title: event.target.value })} className={inputClass} required minLength={6} />
@@ -185,12 +185,12 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
         />
       </Field>
 
-      <label className="flex items-center gap-3 rounded-2xl bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700">
+      <label className="flex items-center gap-3 rounded-2xl bg-slate-50 px-4 py-3 text-sm font-bold text-[#6B7280]">
         <input
           type="checkbox"
           checked={state.isFeatured}
           onChange={(event) => setState({ ...state, isFeatured: event.target.checked })}
-          className="h-4 w-4 rounded border-slate-300 text-[#3B49FF] focus:ring-[#3B49FF]"
+          className="h-4 w-4 rounded border-slate-300 text-[#4A3AFF] focus:ring-[#4A3AFF]"
         />
         Featured listing
       </label>
@@ -198,13 +198,13 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="submit"
-          className="rounded-full bg-[#050A30] px-6 py-3 text-sm font-black text-white transition hover:bg-[#3B49FF] disabled:cursor-not-allowed disabled:bg-slate-400"
+          className="rounded-full bg-[#1A1A2E] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF] disabled:cursor-not-allowed disabled:bg-slate-400"
           disabled={status.kind === 'loading'}
         >
           {status.kind === 'loading' ? 'Saving…' : buttonLabel}
         </button>
-        <span className="text-sm font-bold text-slate-500">Current type: {propertyTypeLabel}</span>
-        <span aria-live="polite" className={`text-sm font-bold ${status.kind === 'error' ? 'text-red-600' : status.kind === 'success' ? 'text-[#0f766e]' : 'text-slate-500'}`}>
+        <span className="text-sm font-bold text-[#9CA3AF]">Current type: {propertyTypeLabel}</span>
+        <span aria-live="polite" className={`text-sm font-bold ${status.kind === 'error' ? 'text-red-600' : status.kind === 'success' ? 'text-[#00C9A7]' : 'text-[#9CA3AF]'}`}>
           {status.message}
         </span>
       </div>
@@ -214,7 +214,7 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="grid gap-2 text-sm font-black text-slate-700">
+    <label className="grid gap-2 text-sm font-bold text-[#6B7280]">
       <span>{label}</span>
       {children}
     </label>
@@ -223,12 +223,12 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function BackendCard({ title, text }: { title: string; text: string }) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-[#F5F7FA] p-4">
-      <p className="text-xs font-black uppercase tracking-[.14em] text-[#3B49FF]">{title}</p>
-      <p className="mt-2 text-sm font-bold leading-6 text-slate-600">{text}</p>
+    <div className="rounded-3xl border border-[#E5E7EB] bg-[#F7F8FA] p-4">
+      <p className="text-xs font-bold uppercase tracking-[.14em] text-[#4A3AFF]">{title}</p>
+      <p className="mt-2 text-sm font-bold leading-6 text-[#6B7280]">{text}</p>
     </div>
   );
 }
 
 const inputClass =
-  'rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-[#050A30] outline-none transition placeholder:text-slate-400 focus:border-[#3B49FF] focus:ring-4 focus:ring-[#3B49FF]/10';
+  'rounded-2xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-semibold text-[#1A1A2E] outline-none transition placeholder:text-[#9CA3AF] focus:border-[#4A3AFF] focus:ring-4 focus:ring-[#4A3AFF]/10';
