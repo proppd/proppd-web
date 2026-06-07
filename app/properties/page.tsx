@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { Bell, ChevronLeft, ChevronRight, Map as MapIcon, MapPin, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
+import { Bell, ChevronLeft, ChevronRight, Map as MapIcon, MapPin, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
+import { SearchAutocomplete } from '@/components/search/search-autocomplete';
 import { ListingCard } from '@/components/properties/listing-card';
 import { PropertyMap } from '@/components/properties/property-map';
 import { SavedHomesBanner } from '@/components/properties/saved-homes-banner';
@@ -57,14 +58,10 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
         <div className="mx-auto max-w-7xl">
           <form action="/properties" className="grid gap-3 rounded-lg border border-[#E5E7EB] bg-white p-3 shadow-sm sm:p-4 xl:grid-cols-[1.6fr_1fr_1fr_1fr_auto] xl:items-end">
             <label className="flex min-h-12 items-center gap-3 rounded-full border border-slate-300 bg-white px-4 text-sm font-bold text-[#9CA3AF] focus-within:border-[#4A3AFF] focus-within:ring-4 focus-within:ring-[#4A3AFF]/10 sm:min-h-14 sm:px-5">
-              <Search size={21} className="text-[#4A3AFF]" />
-              <input
+              <SearchAutocomplete
                 name="q"
-                type="search"
                 defaultValue={filters.query ?? ''}
-                className="min-w-0 flex-1 bg-transparent font-bold text-[#1A1A2E] outline-none placeholder:text-[#9CA3AF]"
                 placeholder="Search suburb or city"
-                aria-label="Search properties"
               />
             </label>
 

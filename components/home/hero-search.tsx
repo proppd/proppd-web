@@ -1,4 +1,5 @@
-import { ArrowRight, Search, SlidersHorizontal } from 'lucide-react';
+import { ArrowRight, SlidersHorizontal } from 'lucide-react';
+import { SearchAutocomplete } from '@/components/search/search-autocomplete';
 
 const tabs = [
   { label: 'Buy', href: '/properties/for-sale' },
@@ -46,13 +47,9 @@ export function HeroSearch() {
           <div className="rounded-b-xl border border-t-0 border-[#E5E7EB] bg-white p-3 shadow-sm sm:p-5">
             <form action="/properties" className="grid gap-2.5 sm:flex sm:items-center sm:gap-3">
               <div className="flex flex-1 items-center gap-3 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] px-3 py-2.5 sm:px-4 sm:py-3">
-                <Search size={18} className="shrink-0 text-[#6B7280]" />
-                <input
+                <SearchAutocomplete
                   name="q"
-                  type="search"
-                  className="w-full bg-transparent text-sm text-[#1A1A2E] outline-none placeholder:text-[#9CA3AF] sm:text-base"
                   placeholder="Enter a suburb, city, or address"
-                  aria-label="Search properties"
                 />
               </div>
               <div className="flex gap-2.5">
