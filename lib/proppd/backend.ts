@@ -41,7 +41,8 @@ export type PortalUserAccess = {
   agencyName: string | null;
 };
 
-const ADMIN_EMAIL = 'info@proppd.com';
+const ADMIN_EMAILS = ['info@proppd.com', 'james@sakstons.com'];
+const ADMIN_EMAIL = ADMIN_EMAILS[0];
 
 export type PortalListingDraft = {
   id: string;
@@ -671,7 +672,7 @@ async function generateUniqueListingSlug(pool: Pool, title: string): Promise<str
 }
 
 export async function loadPortalUserAccess(userId: string, userEmail?: string | null, env: PortalEnv = process.env): Promise<PortalUserAccess | null> {
-  const isAdminEmail = userEmail?.trim().toLowerCase() === ADMIN_EMAIL;
+  const isAdminEmail = ADMIN_EMAILS.includes(userEmail?.trim().toLowerCase() ?? '')
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
     return isAdminEmail
