@@ -32,7 +32,7 @@ export default function AuthCallbackPage() {
           return;
         }
 
-        // Implicit flow: #access_token=...&refresh_token=...
+        // Implicit flow: #access_token=...&refresh_token=***
         const accessToken = hashParams.get('access_token');
         const refreshToken = hashParams.get('refresh_token');
         if (accessToken && refreshToken) {
