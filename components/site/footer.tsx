@@ -6,7 +6,7 @@ export function SiteFooter() {
     <footer className="border-t border-[#E5E7EB] bg-white">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
         {/* Top row */}
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr]">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-[1.5fr_1.1fr_1fr_1fr_1fr_1fr]">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <a href="/" aria-label="Proppd home">
@@ -29,6 +29,19 @@ export function SiteFooter() {
               ['To rent', '/properties/to-rent'],
               ['Saved homes', '/saved'],
               ['Home loans', '/home-loans'],
+            ]}
+          />
+
+          {/* Popular areas */}
+          <FooterGroup
+            title="Popular areas"
+            links={[
+              ['For sale in Cape Town', '/properties/for-sale/cape-town'],
+              ['To rent in Cape Town', '/properties/to-rent/cape-town'],
+              ['For sale in Johannesburg', '/properties/for-sale/johannesburg'],
+              ['To rent in Johannesburg', '/properties/to-rent/johannesburg'],
+              ['Agents in Cape Town', '/estate-agents/cape-town'],
+              ['Agents in Johannesburg', '/estate-agents/johannesburg'],
             ]}
           />
 
