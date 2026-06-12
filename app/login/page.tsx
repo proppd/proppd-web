@@ -52,15 +52,15 @@ export default async function Page() {
             <div className="mt-10 rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-6">
               <div className="flex items-center gap-3">
                 <ShieldCheck size={20} className="text-[#00C9A7]" />
-                <h3 className="text-sm font-bold text-[#1A1A2E]">Secure, passwordless login</h3>
+                <h3 className="text-sm font-bold text-[#1A1A2E]">Secure account login</h3>
               </div>
               <p className="mt-2 text-sm text-[#6B7280]">
-                We send a one-time login link to your email. No passwords to remember, no weak credentials to steal.
+                Sign in with your email and password. Forgot it? Reset it from this page in a few seconds.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <span className="rounded-full bg-[#E6FBF7] px-3 py-1.5 text-xs font-bold text-[#00C9A7]">Magic link</span>
-                <span className="rounded-full bg-[#F3F4F6] px-3 py-1.5 text-xs font-bold text-[#6B7280]">Invite-only</span>
-                <span className="rounded-full bg-[#F3F4F6] px-3 py-1.5 text-xs font-bold text-[#6B7280]">No passwords</span>
+                <span className="rounded-full bg-[#E6FBF7] px-3 py-1.5 text-xs font-bold text-[#00C9A7]">Encrypted sessions</span>
+                <span className="rounded-full bg-[#F3F4F6] px-3 py-1.5 text-xs font-bold text-[#6B7280]">Verified agents</span>
+                <span className="rounded-full bg-[#F3F4F6] px-3 py-1.5 text-xs font-bold text-[#6B7280]">Easy password reset</span>
               </div>
             </div>
 
