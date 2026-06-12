@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Menu, X, Heart } from 'lucide-react';
+import { AuthModal, type AuthMode } from '@/components/auth/auth-modal';
 import { ProppdLogo } from './logo';
 
 const nav = [
@@ -13,6 +14,12 @@ const nav = [
 
 export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<AuthMode | null>(null);
+
+  const openAuth = (mode: AuthMode) => {
+    setMobileOpen(false);
+    setAuthMode(mode);
+  };
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -61,9 +68,13 @@ export function SiteHeader() {
             <a className="rounded-lg bg-[#4A3AFF] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#3A2AE0]" href="/properties">
               Search
             </a>
-            <a className="rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex" href="/login">
+            <button
+              type="button"
+              onClick={() => openAuth('login')}
+              className="rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
+            >
               Sign in
-            </a>
+            </button>
           </div>
         </div>
       </header>
@@ -111,19 +122,26 @@ export function SiteHeader() {
             </div>
 
             <div className="border-t border-[#E5E7EB] px-3 py-3">
-              <a
-                href="/login"
-                onClick={() => setMobileOpen(false)}
+              <button
+                type="button"
+                onClick={() => openAuth('login')}
                 className="block w-full rounded-lg bg-[#4A3AFF] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#3A2AE0]"
               >
                 Sign in
-              </a>
+              </button>
               <p className="mt-3 px-3 text-center text-xs text-[#9CA3AF]">
-                New here? <a href="/signup" className="font-bold text-[#4A3AFF]">Create account</a>
+                New here?{' '}
+                <button type="button" onClick={() => openAuth('signup')} className="font-bold text-[#4A3AFF]">
+                  Create account
+                </button>
               </p>
             </div>
           </div>
         </div>
+      )}
+
+      {authMode && (
+        <AuthModal mode={authMode} onModeChange={setAuthMode} onClose={() => setAuthMode(null)} />
       )}
     </>
   );
