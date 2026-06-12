@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { ArrowLeft, Bath, BedDouble, Building2, CalendarDays, Car, CheckCircle2, Home, MapPin, Share2, ShieldCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { EnquiryForm } from '@/components/property/enquiry-form';
+import { ReportListingButton } from '@/components/property/report-listing';
 import { MortgageCalculator } from '@/components/finance/mortgage-calculator';
 import { PreApprovalForm } from '@/components/finance/pre-approval-form';
 import { NeighborhoodContext } from '@/components/property/neighborhood-context';
@@ -277,6 +278,9 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                     <VerificationPoint title="Mandate shown" text={listing.mandate} />
                     <VerificationPoint title="Handoff route" text={leadRoutingLive ? 'Portal enquiry route' : 'Email enquiry route'} />
                   </div>
+                </div>
+                <div className="mt-5 border-t border-[#00C9A7]/20 pt-4">
+                  <ReportListingButton listing={{ slug: listing.slug, title: listing.title, agent: listing.agent, agency: listing.agency }} />
                 </div>
               </section>
             </article>
