@@ -132,6 +132,8 @@ type ListingRow = {
   erf_size_sqm: number | string | null;
   rates_and_taxes: number | string | null;
   levies: number | string | null;
+  views_total?: number | string | null;
+  views_7d?: number | string | null;
 };
 
 type LeadRow = {
@@ -584,7 +586,9 @@ async function queryManagedListings(databaseUrl: string, access: PortalUserAcces
       l.floor_size_sqm,
       l.erf_size_sqm,
       l.rates_and_taxes,
-      l.levies
+      l.levies,
+      (select count(*) from public.listing_views v where v.listing_id = l.id) as views_total,
+      (select count(*) from public.listing_views v where v.listing_id = l.id and v.viewed_at >= now() - interval '7 days') as views_7d
     from public.listings l
     left join public.agencies ag on ag.id = l.agency_id
     left join public.agents a on a.id = l.agent_id
@@ -1494,6 +1498,8 @@ function mapListingRow(row: ListingRow): Listing {
     rates: toMoneyDisplay(row.rates_and_taxes),
     levies: toMoneyDisplay(row.levies),
     featured: Boolean(row.is_featured),
+    viewsTotal: toOptionalNumber(row.views_total ?? null),
+    views7d: toOptionalNumber(row.views_7d ?? null),
   };
 }
 

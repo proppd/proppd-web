@@ -82,6 +82,7 @@ export default async function Page() {
                       <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">Price</th>
                       <th className="hidden px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#9CA3AF] sm:table-cell">Location</th>
                       <th className="hidden px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#9CA3AF] md:table-cell">Beds</th>
+                      <th className="hidden px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#9CA3AF] md:table-cell">Views</th>
                       <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">Status</th>
                       <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">Actions</th>
                     </tr>
@@ -108,6 +109,12 @@ export default async function Page() {
                           <td className="px-4 py-3 font-bold text-[#1A1A2E]">{listing.price}</td>
                           <td className="hidden px-4 py-3 text-[#6B7280] sm:table-cell">{listing.location}</td>
                           <td className="hidden px-4 py-3 text-[#6B7280] md:table-cell">{listing.beds}</td>
+                          <td className="hidden px-4 py-3 text-[#6B7280] md:table-cell">
+                            <span className="inline-flex items-center gap-1 font-bold text-[#1A1A2E]" title={`${listing.viewsTotal ?? 0} total views`}>
+                              <Eye size={13} className="text-[#9CA3AF]" /> {listing.views7d ?? 0}
+                              <span className="text-xs font-semibold text-[#9CA3AF]">/ 7d</span>
+                            </span>
+                          </td>
                           <td className="px-4 py-3">
                             <span className="inline-flex rounded-full bg-[#E6FBF7] px-2.5 py-1 text-xs font-bold text-[#00C9A7]">
                               Live

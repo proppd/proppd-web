@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { BarChart3, BellRing, Building2, CheckCircle2, ChevronRight, Home, ListPlus, MessageCircle, Phone, Plus, TrendingUp, Users } from 'lucide-react';
+import { BarChart3, BellRing, Building2, CheckCircle2, ChevronRight, Eye, Home, ListPlus, MessageCircle, Phone, Plus, TrendingUp, Users } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { loadMyPortalListings, loadPortalLeadQueue, loadPortalListings, loadPortalUserAccess } from '../../lib/proppd/backend';
@@ -48,6 +48,7 @@ export default async function Page() {
   const stats = getAgentWorkspaceStats(workspaceAgentName, portalListings, portalLeads);
   const agentListings = portalListings.filter((l) => l.agent === workspaceAgentName);
   const agentLeads = portalLeads.filter((l) => l.agent === workspaceAgentName);
+  const views7d = agentListings.reduce((sum, l) => sum + (l.views7d ?? 0), 0);
 
   return (
     <main className="min-h-screen bg-[#F7F8FA]">
@@ -77,8 +78,9 @@ export default async function Page() {
       {/* Stats grid */}
       <section className="px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
             <StatCard icon={<Home size={20} />} label="Active listings" value={stats.activeListings} color="#4A3AFF" />
+            <StatCard icon={<Eye size={20} />} label="Views (7 days)" value={views7d} color="#1A1A2E" />
             <StatCard icon={<BellRing size={20} />} label="New leads" value={stats.newLeads} color="#00C9A7" />
             <StatCard icon={<CheckCircle2 size={20} />} label="Qualified" value={stats.qualifiedLeads} color="#4A3AFF" />
             <StatCard icon={<TrendingUp size={20} />} label="Total leads" value={stats.totalLeads} color="#00C9A7" />
@@ -148,6 +150,9 @@ export default async function Page() {
                     <p className="text-xs text-[#9CA3AF]">{listing.price} · {listing.location}</p>
                   </div>
                   <div className="flex items-center gap-2">
+                    <span className="hidden items-center gap-1 text-xs font-bold text-[#9CA3AF] sm:inline-flex" title="Total views">
+                      <Eye size={13} /> {listing.viewsTotal ?? 0}
+                    </span>
                     <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${listing.purpose === 'For sale' ? 'bg-[#4A3AFF]/10 text-[#4A3AFF]' : 'bg-[#00C9A7]/10 text-[#00C9A7]'}`}>
                       {listing.purpose}
                     </span>
