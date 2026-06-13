@@ -32,6 +32,8 @@ export type Listing = {
   lng?: number;
   featured?: boolean;
   isActive?: boolean;
+  viewsTotal?: number;
+  views7d?: number;
 };
 
 export const listings: Listing[] = [
