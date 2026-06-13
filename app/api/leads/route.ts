@@ -8,9 +8,17 @@ import {
   type PreparedLeadInsert,
 } from '@/lib/leads/persistence';
 import { getPortalDatabaseUrl } from '@/lib/proppd/backend';
+import { notifyOnNewLead } from '@/lib/notifications/lead-notifications';
 import type { ExistingLeadFingerprint, LeadInput } from '@/lib/leads/validation';
 
 export const runtime = 'nodejs';
+
+type LeadNotifyTarget = {
+  agentName: string | null;
+  agentEmail: string | null;
+  listingTitle: string | null;
+  listingSlug: string | null;
+};
 
 type LeadRequestBody = LeadInput & LeadPersistenceContext;
 type SavedLead = { id: string; status: string; quality: string; flags: string[] };
@@ -64,7 +72,85 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: 'The enquiry could not be routed. Please send the prepared email enquiry and try again later.' }, { status: 502 });
   }
 
+  // Best-effort notifications: never let an email failure break a captured lead.
+  try {
+    const target = databaseUrl
+      ? await loadLeadNotifyTargetFromPostgres(databaseUrl, context.agentId, context.listingId)
+      : await loadLeadNotifyTargetFromSupabase(
+          createClient(supabaseUrl as string, serviceRoleKey as string, { auth: { persistSession: false } }),
+          context.agentId,
+          context.listingId,
+        );
+
+    await notifyOnNewLead({
+      quality: result.quality as 'valid' | 'suspicious' | 'duplicate' | 'spam',
+      agentName: target.agentName,
+      agentEmail: target.agentEmail,
+      listingTitle: target.listingTitle,
+      listingSlug: target.listingSlug,
+      leadName: prepared.data.name,
+      leadSurname: prepared.data.surname,
+      leadEmail: prepared.data.email,
+      leadPhone: prepared.data.phone,
+      message: prepared.data.message,
+      intent: prepared.data.intent,
+    });
+  } catch (error) {
+    console.error('[leads] notification failed:', error instanceof Error ? error.message : error);
+  }
+
   return NextResponse.json({ ok: true, lead: result }, { status: 201 });
+}
+
+async function loadLeadNotifyTargetFromPostgres(databaseUrl: string, agentId?: string, listingId?: string): Promise<LeadNotifyTarget> {
+  const pool = getPostgresPool(databaseUrl);
+  const target: LeadNotifyTarget = { agentName: null, agentEmail: null, listingTitle: null, listingSlug: null };
+
+  if (agentId) {
+    const agent = await pool.query<{ name: string; email: string | null }>(
+      'select name, email::text as email from public.agents where id = $1 limit 1',
+      [agentId],
+    );
+    if (agent.rows[0]) {
+      target.agentName = agent.rows[0].name;
+      target.agentEmail = agent.rows[0].email;
+    }
+  }
+
+  if (listingId) {
+    const listing = await pool.query<{ title: string; slug: string }>(
+      'select title, slug from public.listings where id = $1 limit 1',
+      [listingId],
+    );
+    if (listing.rows[0]) {
+      target.listingTitle = listing.rows[0].title;
+      target.listingSlug = listing.rows[0].slug;
+    }
+  }
+
+  return target;
+}
+
+async function loadLeadNotifyTargetFromSupabase(supabase: SupabaseClient, agentId?: string, listingId?: string): Promise<LeadNotifyTarget> {
+  const target: LeadNotifyTarget = { agentName: null, agentEmail: null, listingTitle: null, listingSlug: null };
+
+  if (agentId) {
+    const { data } = await supabase.from('agents').select('name, email').eq('id', agentId).maybeSingle();
+    if (data) {
+      target.agentName = (data as { name: string }).name ?? null;
+      target.agentEmail = (data as { email: string | null }).email ?? null;
+    }
+  }
+
+  if (listingId) {
+    const { data } = await supabase.from('listings').select('title, slug').eq('id', listingId).maybeSingle();
+    if (data) {
+      target.listingTitle = (data as { title: string }).title ?? null;
+      target.listingSlug = (data as { slug: string }).slug ?? null;
+    }
+  }
+
+  return target;
 }
 
 async function saveLeadWithSupabase(supabase: SupabaseClient, lead: PreparedLeadInsert): Promise<SavedLead | null> {
