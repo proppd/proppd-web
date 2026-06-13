@@ -1,10 +1,10 @@
 'use client';
 
-import { createClient } from '@supabase/supabase-js';
 import type React from 'react';
 import { useMemo, useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
 import { validateLoginInput, isValidAuthEmail } from '@/lib/auth/validation';
+import { getBrowserSupabaseClient } from '@/lib/supabase/client';
 
 type LoginFormProps = {
   supabaseUrl?: string;
@@ -28,7 +28,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
 
   const supabase = useMemo(() => {
     if (!supabaseUrl || !publishableKey) return null;
-    return createClient(supabaseUrl, publishableKey, { auth: { persistSession: true, autoRefreshToken: true } });
+    return getBrowserSupabaseClient();
   }, [publishableKey, supabaseUrl]);
 
   const cleanEmail = email.trim().toLowerCase();
@@ -84,7 +84,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
     setState({ status: 'loading', message: 'Sending password reset email…' });
 
     const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-      redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent('/dashboard/profile')}`,
+      redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent('/reset-password')}`,
     });
 
     if (error) {
