@@ -21,21 +21,53 @@ export function ResetPasswordForm() {
       return;
     }
     let active = true;
+    let settled = false;
 
-    // A recovery link (handled by /auth/callback) leaves an authenticated
-    // session in cookies; confirm it before showing the form.
-    supabase.auth.getUser().then(({ data }) => {
-      if (!active) return;
-      setPhase(data.user ? 'ready' : 'no-session');
-    });
+    const ready = () => {
+      if (active && !settled) {
+        settled = true;
+        setPhase('ready');
+      }
+    };
+    const noSession = () => {
+      if (active && !settled) {
+        settled = true;
+        setPhase('no-session');
+      }
+    };
 
+    // The recovery token arrives either as ?code= (PKCE) or #access_token (implicit).
+    // The browser client auto-processes it and fires PASSWORD_RECOVERY / SIGNED_IN.
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!active) return;
-      if (event === 'PASSWORD_RECOVERY' || session?.user) setPhase('ready');
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN' || session?.user) ready();
     });
+
+    // Fast path: a session already established (e.g. via the server callback) — reads
+    // local storage/cookies without a network round-trip that could hang the spinner.
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session?.user) ready();
+    }).catch(() => undefined);
+
+    const hasRecoveryToken =
+      typeof window !== 'undefined' &&
+      (window.location.search.includes('code=') || window.location.hash.includes('access_token') || window.location.hash.includes('type=recovery'));
+
+    // Never hang on "verifying". If a token is present give the client a moment to
+    // process it; otherwise resolve quickly so the user isn't stuck.
+    const timer = setTimeout(async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data.session?.user) ready();
+        else noSession();
+      } catch {
+        noSession();
+      }
+    }, hasRecoveryToken ? 5000 : 1500);
 
     return () => {
       active = false;
+      settled = true;
+      clearTimeout(timer);
       sub.subscription.unsubscribe();
     };
   }, [supabase]);
@@ -61,7 +93,10 @@ export function ResetPasswordForm() {
     setPhase('saving');
     const { error: updateError } = await supabase.auth.updateUser({ password });
     if (updateError) {
-      setError(updateError.message || 'Could not update your password.');
+      const message = /session|jwt|token|missing/i.test(updateError.message)
+        ? 'Your reset link has expired or is invalid. Request a new one from the sign-in screen.'
+        : updateError.message || 'Could not update your password.';
+      setError(message);
       setPhase('ready');
       return;
     }
