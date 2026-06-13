@@ -117,6 +117,14 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                 <div className={`mt-6 inline-flex rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[.18em] ${moderationEnabled ? 'bg-white/10 text-white' : 'bg-amber-100 text-amber-900'}`}>
                   {sourceLabel}
                 </div>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <a href="/admin/listings" className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-[#1A1A2E] transition hover:bg-[#F7F8FA]">
+                    Manage listings
+                  </a>
+                  <a href="/admin/diagnostics" className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-white/10">
+                    Diagnostics
+                  </a>
+                </div>
                 <div className="mt-6">
                   <p className="text-xs font-bold uppercase tracking-[.18em] text-white/45">Source lanes</p>
                   <div className="mt-3 flex flex-wrap gap-2">
