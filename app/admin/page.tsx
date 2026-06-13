@@ -16,6 +16,7 @@ import {
   getLeadSourceStats,
   groupLeadsByStatus,
   hasLeadFilters,
+  isLeadStatus,
   type LeadQuality,
   type LeadSourceGroup,
   type LeadStatus,
@@ -42,7 +43,11 @@ const statusOptions: Array<{ value: LeadStatus | 'all'; label: string }> = [
   { value: 'all', label: 'All leads' },
   { value: 'new', label: 'New' },
   { value: 'contacted', label: 'Contacted' },
+  { value: 'viewing_booked', label: 'Viewing booked' },
   { value: 'qualified', label: 'Qualified' },
+  { value: 'converted', label: 'Converted' },
+  { value: 'not_interested', label: 'Not interested' },
+  { value: 'fake_spam', label: 'Fake / spam' },
 ];
 
 const qualityOptions: Array<{ value: LeadQuality | 'all'; label: string }> = [
@@ -446,7 +451,7 @@ function getSingleParam(value?: string | string[]): string {
 }
 
 function parseStatus(value: string): LeadStatus | 'all' {
-  return value === 'new' || value === 'contacted' || value === 'qualified' ? value : 'all';
+  return isLeadStatus(value) ? value : 'all';
 }
 
 function parseQuality(value: string): LeadQuality | 'all' {

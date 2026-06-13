@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getPortalServerUser } from '../../../../../lib/supabase/server';
 import { loadPortalLeadById, loadPortalUserAccess, updatePortalLeadWorkflow } from '../../../../../lib/proppd/backend';
+import { isLeadStatus } from '@/lib/leads/pipeline';
 
 export const runtime = 'nodejs';
 
@@ -39,7 +40,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!status && !quality) return jsonError('Provide a status or quality change');
 
   const result = await updatePortalLeadWorkflow(id, access, {
-    status: status === 'new' || status === 'contacted' || status === 'qualified' || status === 'archived' ? status : undefined,
+    status: isLeadStatus(status) ? status : undefined,
     quality: quality === 'clean' || quality === 'duplicate' || quality === 'flagged' ? quality : undefined,
   });
 

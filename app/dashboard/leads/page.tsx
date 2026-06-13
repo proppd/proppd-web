@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { MessageCircle, Mail, Phone, Clock, CheckCircle, AlertTriangle, ExternalLink } from 'lucide-react';
+import { MessageCircle, Mail, Phone, Clock, CheckCircle, TrendingUp, ExternalLink } from 'lucide-react';
 import { loadPortalLeadQueue, loadPortalUserAccess } from '@/lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
+import { formatLeadStatus, type LeadStatus } from '@/lib/leads/pipeline';
+import { LeadPipelineControls } from '@/components/dashboard/lead-pipeline-controls';
 
 export const metadata: Metadata = {
   title: { absolute: 'Leads | Proppd' },
@@ -26,13 +28,25 @@ export default async function Page() {
   }
 
   const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
-  const { items: leads } = await loadPortalLeadQueue(access?.agentName ?? undefined);
+  const leadPayload = await loadPortalLeadQueue(access?.agentName ?? undefined);
+  const leads = leadPayload.items;
+  const controlsEnabled = leadPayload.source === 'database' || leadPayload.source === 'empty';
 
   const stats = {
     total: leads.length,
     new: leads.filter((l) => l.status === 'new').length,
     contacted: leads.filter((l) => l.status === 'contacted').length,
-    qualified: leads.filter((l) => l.quality === 'clean').length,
+    converted: leads.filter((l) => l.status === 'converted').length,
+  };
+
+  const statusStyles: Record<LeadStatus, string> = {
+    new: 'bg-[#4A3AFF]/10 text-[#4A3AFF]',
+    contacted: 'bg-amber-50 text-amber-700',
+    viewing_booked: 'bg-[#4A3AFF]/10 text-[#4A3AFF]',
+    qualified: 'bg-[#E6FBF7] text-[#00C9A7]',
+    converted: 'bg-[#00C9A7]/15 text-[#0a6b62]',
+    not_interested: 'bg-slate-100 text-slate-500',
+    fake_spam: 'bg-red-50 text-red-700',
   };
 
   return (
@@ -52,7 +66,7 @@ export default async function Page() {
             <MiniStat icon={<MessageCircle size={16} />} label="Total leads" value={stats.total} />
             <MiniStat icon={<Clock size={16} />} label="New" value={stats.new} color="#4A3AFF" />
             <MiniStat icon={<CheckCircle size={16} />} label="Contacted" value={stats.contacted} color="#00C9A7" />
-            <MiniStat icon={<AlertTriangle size={16} />} label="High quality" value={stats.qualified} color="#F59E0B" />
+            <MiniStat icon={<TrendingUp size={16} />} label="Converted" value={stats.converted} color="#0a6b62" />
           </div>
 
           {/* Lead list */}
@@ -85,11 +99,11 @@ export default async function Page() {
                             <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${intent.bg} ${intent.text}`}>
                               {lead.intent}
                             </span>
-                            {lead.quality === 'clean' && (
-                              <span className="rounded-full bg-[#E6FBF7] px-2.5 py-1 text-[10px] font-bold uppercase text-[#00C9A7]">Clean</span>
-                            )}
+                            <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${statusStyles[lead.status]}`}>
+                              {formatLeadStatus(lead.status)}
+                            </span>
                             {lead.quality === 'flagged' && (
-                              <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase text-amber-700">Flagged</span>
+                              <span className="rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold uppercase text-red-700">Flagged</span>
                             )}
                           </div>
                         </div>
@@ -118,6 +132,14 @@ export default async function Page() {
                               <ExternalLink size={12} /> View listing
                             </a>
                           )}
+                        </div>
+
+                        {/* CRM pipeline controls */}
+                        <div className="mt-3 border-t border-[#F3F4F6] pt-3">
+                          <LeadPipelineControls leadId={lead.id} currentStatus={lead.status} enabled={controlsEnabled} />
+                          {lead.latestEventNote ? (
+                            <p className="mt-2 text-xs text-[#6B7280]"><span className="font-bold text-[#9CA3AF]">Last note:</span> {lead.latestEventNote}</p>
+                          ) : null}
                         </div>
                       </div>
                     </div>
