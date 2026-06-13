@@ -1,18 +1,11 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { getBrowserSupabaseClient } from '@/lib/supabase/client';
 
 export const LISTING_PHOTO_BUCKET = 'listing-photos';
 export const MAX_PHOTO_BYTES = 10 * 1024 * 1024; // 10MB
 
-let cachedClient: SupabaseClient | null = null;
-
 export function getListingPhotoClient(): SupabaseClient | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return null;
-  if (!cachedClient) {
-    cachedClient = createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true } });
-  }
-  return cachedClient;
+  return getBrowserSupabaseClient();
 }
 
 export function isUploadableImage(file: File): boolean {

@@ -2,9 +2,9 @@
 
 import type React from 'react';
 import { useMemo, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import { ArrowRight, CheckCircle, Mail, Phone, Building2, User, MapPin, Lock, Eye, EyeOff } from 'lucide-react';
 import { validateSignUpInput } from '@/lib/auth/validation';
+import { getBrowserSupabaseClient } from '@/lib/supabase/client';
 
 type Props = {
   supabaseUrl?: string;
@@ -32,7 +32,7 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
 
   const supabase = useMemo(() => {
     if (!supabaseUrl || !publishableKey) return null;
-    return createClient(supabaseUrl, publishableKey, { auth: { persistSession: true, autoRefreshToken: true } });
+    return getBrowserSupabaseClient();
   }, [publishableKey, supabaseUrl]);
 
   const update = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
