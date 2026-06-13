@@ -84,7 +84,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
     setState({ status: 'loading', message: 'Sending password reset email…' });
 
     const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent('/reset-password')}`,
     });
 
     if (error) {

@@ -3,6 +3,7 @@ import { ShieldCheck } from 'lucide-react';
 import { ResetPasswordForm } from '@/components/auth/reset-password-form';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
+import { getPortalServerUser } from '@/lib/supabase/server';
 
 export const metadata: Metadata = {
   title: 'Reset password | Proppd',
@@ -13,7 +14,12 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default function Page() {
+export default async function Page() {
+  // The /auth/callback route exchanges the recovery code and sets the session
+  // cookie before redirecting here, so the server can authoritatively tell
+  // whether a valid recovery session exists — no client-side spinner/race.
+  const user = await getPortalServerUser();
+
   return (
     <main className="min-h-screen bg-white">
       <SiteHeader />
@@ -27,14 +33,15 @@ export default function Page() {
             <div className="mt-8 flex items-start gap-3 rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-5">
               <ShieldCheck size={20} className="mt-0.5 shrink-0 text-[#00C9A7]" />
               <p className="text-sm text-[#6B7280]">
-                For your security, reset links expire after a short time and can only be used once. If yours has expired, request a new one from the sign-in screen.
+                For your security, reset links expire after a short time, can only be used once, and must be opened in the same browser you requested them from.
               </p>
             </div>
           </div>
-          <ResetPasswordForm />
+          <ResetPasswordForm authenticated={Boolean(user)} />
         </div>
       </section>
       <SiteFooter />
     </main>
   );
 }
+
