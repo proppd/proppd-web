@@ -1,7 +1,7 @@
 import { Pool, type PoolClient } from 'pg';
 import { agencies as demoAgencies, agents as demoAgents, listings as demoListings, type Listing } from '../demo-data';
 import { demoLeads } from '../leads/demo-leads';
-import { getLeadQueue, getLeadActivityLabel, getLeadSourceLabel, type LeadRecord, type LeadQuality, type LeadStatus, type LeadIntent } from '../leads/pipeline';
+import { getLeadQueue, getLeadActivityLabel, getLeadSourceLabel, isLeadStatus, type LeadRecord, type LeadQuality, type LeadStatus, type LeadIntent } from '../leads/pipeline';
 import { getSupabaseBrowserConfig } from '../supabase/env';
 import type { DirectoryAgency, DirectoryAgent } from '../directory';
 import { slugifyAgentName } from '../agents/profile';
@@ -444,6 +444,50 @@ export async function updatePortalLeadWorkflow(
           actor_role: access.role,
         }),
       ],
+    );
+
+    return await loadPortalLeadById(leadId, env);
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function addPortalLeadNote(
+  leadId: string,
+  access: PortalUserAccess,
+  note: string,
+  env: PortalEnv = process.env,
+): Promise<PortalPayload<LeadRecord>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  }
+
+  const trimmed = note.trim();
+  if (trimmed.length < 2) {
+    return { source: 'error', items: [], error: 'Note is too short.' };
+  }
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const rows = await queryLeads(databaseUrl);
+    const current = rows.find((entry) => entry.id === leadId);
+    if (!current) {
+      return { source: 'error', items: [], error: 'Lead not found.' };
+    }
+
+    const ownsLead =
+      access.role === 'super_admin' ||
+      (access.agentName !== null && current.agent_name === access.agentName) ||
+      (access.agencyName !== null && current.agency_name === access.agencyName);
+    if (!ownsLead) {
+      return { source: 'error', items: [], error: 'Access denied for this lead.' };
+    }
+
+    await pool.query(
+      `insert into public.lead_events (lead_id, actor_id, event_type, notes, metadata)
+       values ($1, $2, 'note_added', $3, $4)`,
+      [leadId, access.profileId, trimmed.slice(0, 2000), JSON.stringify({ actor_role: access.role })],
     );
 
     return await loadPortalLeadById(leadId, env);
@@ -1679,9 +1723,9 @@ function mapLeadIntent(value: string): LeadIntent {
 }
 
 function mapLeadStatus(value: string): LeadStatus {
-  if (value === 'new' || value === 'contacted' || value === 'qualified' || value === 'archived') return value;
-  if (value === 'viewing_booked' || value === 'converted') return 'qualified';
-  return 'archived';
+  if (isLeadStatus(value)) return value;
+  // Legacy/unknown values fall back to the entry stage.
+  return 'new';
 }
 
 function mapLeadQuality(value: string): LeadQuality {

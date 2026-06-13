@@ -41,7 +41,7 @@ describe('lead pipeline helpers', () => {
     expect(grouped.new).toHaveLength(2);
     expect(grouped.contacted).toHaveLength(1);
     expect(grouped.qualified).toHaveLength(1);
-    expect(grouped.archived).toHaveLength(0);
+    expect(grouped.converted).toHaveLength(0);
   });
 
   it('labels agency launch requests and property enquiries from their source pages', () => {

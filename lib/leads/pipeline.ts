@@ -1,7 +1,27 @@
-export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'archived';
+export type LeadStatus = 'new' | 'contacted' | 'viewing_booked' | 'qualified' | 'converted' | 'not_interested' | 'fake_spam';
 export type LeadQuality = 'clean' | 'duplicate' | 'flagged';
 export type LeadIntent = 'viewing' | 'more_info' | 'valuation' | 'finance';
 export type LeadSourceGroup = 'all' | 'launch' | 'property' | 'valuation' | 'agent' | 'portal' | 'general';
+
+// Ordered agent CRM pipeline (active stages first, then closed outcomes).
+export const LEAD_PIPELINE_STATUSES: LeadStatus[] = ['new', 'contacted', 'viewing_booked', 'qualified', 'converted', 'not_interested', 'fake_spam'];
+
+export function isLeadStatus(value: unknown): value is LeadStatus {
+  return typeof value === 'string' && (LEAD_PIPELINE_STATUSES as string[]).includes(value);
+}
+
+export function formatLeadStatus(status: LeadStatus): string {
+  const labels: Record<LeadStatus, string> = {
+    new: 'New',
+    contacted: 'Contacted',
+    viewing_booked: 'Viewing booked',
+    qualified: 'Qualified',
+    converted: 'Converted',
+    not_interested: 'Not interested',
+    fake_spam: 'Fake / spam',
+  };
+  return labels[status];
+}
 
 export type LeadRecord = {
   id: string;
@@ -29,7 +49,9 @@ export type LeadPipelineStats = {
   total: number;
   newLeads: number;
   contacted: number;
+  viewingBooked: number;
   qualified: number;
+  converted: number;
   flagged: number;
 };
 
@@ -54,7 +76,9 @@ export function getLeadPipelineStats(leads: LeadRecord[]): LeadPipelineStats {
     total: leads.length,
     newLeads: leads.filter((lead) => lead.status === 'new').length,
     contacted: leads.filter((lead) => lead.status === 'contacted').length,
+    viewingBooked: leads.filter((lead) => lead.status === 'viewing_booked').length,
     qualified: leads.filter((lead) => lead.status === 'qualified').length,
+    converted: leads.filter((lead) => lead.status === 'converted').length,
     flagged: leads.filter((lead) => lead.quality === 'flagged').length,
   };
 }
@@ -113,8 +137,11 @@ export function groupLeadsByStatus(leads: LeadRecord[]): Record<LeadStatus, Lead
   return {
     new: leads.filter((lead) => lead.status === 'new'),
     contacted: leads.filter((lead) => lead.status === 'contacted'),
+    viewing_booked: leads.filter((lead) => lead.status === 'viewing_booked'),
     qualified: leads.filter((lead) => lead.status === 'qualified'),
-    archived: leads.filter((lead) => lead.status === 'archived'),
+    converted: leads.filter((lead) => lead.status === 'converted'),
+    not_interested: leads.filter((lead) => lead.status === 'not_interested'),
+    fake_spam: leads.filter((lead) => lead.status === 'fake_spam'),
   };
 }
 

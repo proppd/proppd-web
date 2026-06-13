@@ -6,7 +6,7 @@ describe('lead workflow event notes', () => {
     expect(buildLeadWorkflowEventNotes('new', 'contacted', 'clean', 'clean')).toBe('Updated status new → contacted.');
     expect(buildLeadWorkflowEventNotes('contacted', 'contacted', 'clean', 'duplicate')).toBe('Updated quality clean → duplicate.');
     expect(buildLeadWorkflowEventNotes('new', 'qualified', 'clean', 'flagged')).toBe('Updated status new → qualified and quality clean → flagged.');
-    expect(buildLeadWorkflowEventNotes('qualified', 'archived', 'clean', 'clean')).toBe('Updated status qualified → archived.');
+    expect(buildLeadWorkflowEventNotes('qualified', 'converted', 'clean', 'clean')).toBe('Updated status qualified → converted.');
   });
 
   it('records a review note when no moderation change was applied', () => {
