@@ -20,7 +20,7 @@ export default async function Page() {
   if (!user) redirect('/login?next=%2Fdashboard%2Flistings%2Fnew');
 
   const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
-  if (!access) redirect('/login?next=%2Fdashboard%2Flistings%2Fnew');
+  if (!access) redirect('/dashboard/profile');
 
   return (
     <main className="min-h-screen bg-[#F7F8FA]">

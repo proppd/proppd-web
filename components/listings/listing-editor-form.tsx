@@ -3,9 +3,10 @@
 import type React from 'react';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, ArrowLeft, Check, MapPin, Home, DollarSign, FileText, BedDouble, Bath, Car } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, MapPin, Home, DollarSign, FileText, BedDouble, Bath, Car, Image as ImageIcon } from 'lucide-react';
 import type { PortalListingDraft } from '@/lib/proppd/backend';
 import { portalPropertyTypeOptions } from '@/lib/proppd/listing-editor';
+import { PhotoUpload, type ListingPhoto } from '@/components/listings/photo-upload';
 
 type ListingFormState = {
   title: string;
@@ -25,6 +26,7 @@ type ListingFormState = {
   ratesAndTaxes: string;
   levies: string;
   isFeatured: boolean;
+  photos: ListingPhoto[];
 };
 
 type Props = {
@@ -60,6 +62,7 @@ function buildInitialState(initialListing?: Partial<PortalListingDraft>): Listin
     ratesAndTaxes: toFieldValue(initialListing?.ratesAndTaxes),
     levies: toFieldValue(initialListing?.levies),
     isFeatured: Boolean(initialListing?.isFeatured),
+    photos: initialListing?.photos ?? [],
   };
 }
 
@@ -67,6 +70,7 @@ const steps = [
   { id: 'basics', label: 'Basics', icon: Home },
   { id: 'location', label: 'Location', icon: MapPin },
   { id: 'details', label: 'Details', icon: BedDouble },
+  { id: 'photos', label: 'Photos', icon: ImageIcon },
   { id: 'pricing', label: 'Pricing', icon: DollarSign },
   { id: 'review', label: 'Review', icon: FileText },
 ];
@@ -98,7 +102,8 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
     if (currentStep === 0) return state.title.trim().length > 0;
     if (currentStep === 1) return state.suburb.trim().length > 0 && state.city.trim().length > 0;
     if (currentStep === 2) return true;
-    if (currentStep === 3) return state.price.length > 0;
+    if (currentStep === 3) return true;
+    if (currentStep === 4) return state.price.length > 0;
     return true;
   };
 
@@ -197,25 +202,35 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
           </div>
         )}
 
-        {/* Step 4: Pricing */}
+        {/* Step 4: Photos */}
         {currentStep === 3 && (
+          <PhotoUpload
+            existingPhotos={state.photos}
+            onChange={(photos) => setState((prev) => ({ ...prev, photos }))}
+          />
+        )}
+
+        {/* Step 5: Pricing */}
+        {currentStep === 4 && (
           <div className="grid gap-4">
             <InputField label={`Price ${state.purpose === 'rent' ? '(monthly)' : ''}`} value={state.price} onChange={(v) => update('price', v)} type="number" placeholder="e.g. 3500000" required />
             <div className="grid grid-cols-2 gap-4">
               <InputField label="Rates & taxes (monthly)" value={state.ratesAndTaxes} onChange={(v) => update('ratesAndTaxes', v)} placeholder="e.g. R 2 500" />
               <InputField label="Levies (monthly)" value={state.levies} onChange={(v) => update('levies', v)} placeholder="e.g. R 1 800" />
             </div>
-            <SelectField label="Status" value={state.status} onChange={(v) => update('status', v)}>
-              <option value="draft">Draft</option>
-              <option value="pending_review">Pending review</option>
-              <option value="available">Available</option>
-              <option value="under_offer">Under offer</option>
+            <SelectField label="Listing status" value={state.status} onChange={(v) => update('status', v)}>
+              <option value="draft">Save as draft (only you can see it)</option>
+              <option value="available">Publish — available now</option>
+              <option value="under_offer">Published — under offer</option>
+              <option value="sold">Sold / no longer available</option>
+              <option value="rented">Rented / no longer available</option>
             </SelectField>
+            <p className="-mt-2 text-xs text-[#9CA3AF]">Drafts stay private until you publish. You can change this any time.</p>
           </div>
         )}
 
-        {/* Step 5: Review */}
-        {currentStep === 4 && (
+        {/* Step 6: Review */}
+        {currentStep === 5 && (
           <div className="space-y-4">
             <div className="rounded-lg bg-[#F7F8FA] p-4">
               <h3 className="text-sm font-bold text-[#1A1A2E]">Listing summary</h3>
@@ -227,7 +242,8 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
                 <div><span className="text-[#9CA3AF]">Beds:</span> <span className="font-bold text-[#1A1A2E]">{state.bedrooms || '—'}</span></div>
                 <div><span className="text-[#9CA3AF]">Baths:</span> <span className="font-bold text-[#1A1A2E]">{state.bathrooms || '—'}</span></div>
                 <div><span className="text-[#9CA3AF]">Type:</span> <span className="font-bold text-[#1A1A2E]">{propertyTypeLabel}</span></div>
-                <div><span className="text-[#9CA3AF]">Status:</span> <span className="font-bold text-[#1A1A2E]">{state.status}</span></div>
+                <div><span className="text-[#9CA3AF]">Status:</span> <span className="font-bold text-[#1A1A2E]">{statusLabel(state.status)}</span></div>
+                <div><span className="text-[#9CA3AF]">Photos:</span> <span className="font-bold text-[#1A1A2E]">{state.photos.length}</span></div>
               </div>
             </div>
             {state.description && (
@@ -269,6 +285,19 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
       </form>
     </div>
   );
+}
+
+function statusLabel(status: ListingFormState['status']): string {
+  const labels: Record<ListingFormState['status'], string> = {
+    draft: 'Draft (private)',
+    pending_review: 'Pending review',
+    available: 'Published — available',
+    under_offer: 'Under offer',
+    sold: 'Sold',
+    rented: 'Rented',
+    archived: 'Archived',
+  };
+  return labels[status] ?? status;
 }
 
 function InputField({ label, value, onChange, type = 'text', placeholder, required }: {
