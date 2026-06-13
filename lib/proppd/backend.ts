@@ -1,9 +1,10 @@
-import { Pool } from 'pg';
+import { Pool, type PoolClient } from 'pg';
 import { agencies as demoAgencies, agents as demoAgents, listings as demoListings, type Listing } from '../demo-data';
 import { demoLeads } from '../leads/demo-leads';
 import { getLeadQueue, getLeadActivityLabel, getLeadSourceLabel, type LeadRecord, type LeadQuality, type LeadStatus, type LeadIntent } from '../leads/pipeline';
 import { getSupabaseBrowserConfig } from '../supabase/env';
 import type { DirectoryAgency, DirectoryAgent } from '../directory';
+import { slugifyAgentName } from '../agents/profile';
 import { portalPropertyTypeOptions, slugifyListingTitle } from './listing-editor';
 
 export type PortalBackendMode = 'database' | 'demo';
@@ -70,7 +71,10 @@ export type PortalListingDraft = {
   levies: number | string | null;
   publishedAt: string | null;
   createdAt: string;
+  photos: { src: string; alt: string }[];
 };
+
+export type PortalListingPhotoInput = { src: string; alt: string };
 
 export type PortalListingWriteInput = {
   title: string;
@@ -90,6 +94,7 @@ export type PortalListingWriteInput = {
   ratesAndTaxes?: number;
   levies?: number;
   isFeatured?: boolean;
+  photos?: PortalListingPhotoInput[];
 };
 
 export type PortalDirectoryAgent = DirectoryAgent;
@@ -623,7 +628,44 @@ function mapListingDraftRow(row: ManagedListingRow): PortalListingDraft {
     levies: row.levies,
     publishedAt: row.published_at,
     createdAt: row.created_at,
+    photos: buildDraftPhotos(row),
   };
+}
+
+function buildDraftPhotos(row: ManagedListingRow): { src: string; alt: string }[] {
+  const urls = row.image_urls ?? [];
+  const alts = row.image_alts ?? [];
+  const photos = urls.map((src, index) => ({ src, alt: alts[index] ?? row.cover_image_alt ?? row.title }));
+
+  if (row.cover_image_url) {
+    const coverIndex = photos.findIndex((photo) => photo.src === row.cover_image_url);
+    if (coverIndex > 0) {
+      const [cover] = photos.splice(coverIndex, 1);
+      photos.unshift(cover);
+    } else if (coverIndex === -1) {
+      photos.unshift({ src: row.cover_image_url, alt: row.cover_image_alt ?? row.title });
+    }
+  }
+
+  return photos;
+}
+
+async function replaceListingImages(client: QueryClient, listingId: string, photos: PortalListingPhotoInput[]): Promise<void> {
+  await client.query('delete from public.listing_images where listing_id = $1', [listingId]);
+  if (photos.length === 0) return;
+
+  const values: unknown[] = [];
+  const rows: string[] = [];
+  photos.forEach((photo, index) => {
+    const base = index * 4;
+    rows.push(`($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, ${index})`);
+    values.push(listingId, photo.src, photo.alt, index === 0);
+  });
+
+  await client.query(
+    `insert into public.listing_images (listing_id, image_url, alt_text, is_cover, sort_order) values ${rows.join(', ')}`,
+    values,
+  );
 }
 
 async function ensurePropertyTypeId(pool: Pool, slug: string): Promise<string> {
@@ -826,7 +868,11 @@ export async function createPortalListing(access: PortalUserAccess, input: Porta
       return { source: 'error', items: [], error: 'Listing could not be created.' };
     }
 
-    return { source: 'database', items: [row] };
+    if (input.photos && input.photos.length > 0) {
+      await replaceListingImages(pool, row.id, input.photos);
+    }
+
+    return { source: 'database', items: [{ ...row, photos: input.photos ?? [] }] };
   } catch (error) {
     return { source: 'error', items: [], error: errorMessage(error) };
   }
@@ -907,10 +953,203 @@ export async function updatePortalListingBySlug(
       return { source: 'error', items: [], error: 'Listing could not be updated.' };
     }
 
-    return { source: 'database', items: [row] };
+    if (input.photos) {
+      await replaceListingImages(pool, row.id, input.photos);
+    }
+
+    return { source: 'database', items: [{ ...row, photos: input.photos ?? [] }] };
   } catch (error) {
     return { source: 'error', items: [], error: errorMessage(error) };
   }
+}
+
+export type PortalAgentProfile = {
+  agentId: string;
+  name: string;
+  slug: string;
+  phone: string | null;
+  whatsapp: string | null;
+  email: string | null;
+  bio: string | null;
+  areasServed: string[];
+  agencyId: string | null;
+  agencyName: string | null;
+  photoUrl: string | null;
+  isVerified: boolean;
+};
+
+type AgentProfileRow = {
+  agent_id: string;
+  name: string;
+  slug: string;
+  phone: string | null;
+  whatsapp: string | null;
+  email: string | null;
+  bio: string | null;
+  areas_served: string[] | null;
+  agency_id: string | null;
+  agency_name: string | null;
+  photo_url: string | null;
+  is_verified: boolean;
+};
+
+const AGENT_PROFILE_SELECT = `
+  select
+    a.id as agent_id,
+    a.name,
+    a.slug,
+    a.phone,
+    a.whatsapp,
+    a.email::text as email,
+    a.bio,
+    a.areas_served,
+    a.agency_id,
+    ag.name as agency_name,
+    a.photo_url,
+    a.is_verified
+  from public.agents a
+  left join public.agencies ag on ag.id = a.agency_id
+`;
+
+export async function loadPortalAgentProfile(userId: string, env: PortalEnv = process.env): Promise<PortalPayload<PortalAgentProfile>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return { source: 'demo', items: [] };
+  }
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const result = await pool.query<AgentProfileRow>(`${AGENT_PROFILE_SELECT} where a.profile_id = $1 limit 1`, [userId]);
+    const row = result.rows[0];
+    return { source: row ? 'database' : 'empty', items: row ? [mapAgentProfileRow(row)] : [] };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export type PortalAgentProfileWriteInput = {
+  name: string;
+  phone: string;
+  whatsapp?: string;
+  email?: string;
+  bio?: string;
+  agencyName: string;
+  areasServed: string[];
+};
+
+export async function upsertPortalAgentProfile(
+  userId: string,
+  input: PortalAgentProfileWriteInput,
+  env: PortalEnv = process.env,
+): Promise<PortalPayload<PortalAgentProfile>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  }
+
+  const pool = getPortalPool(databaseUrl);
+  const client = await pool.connect();
+
+  try {
+    await client.query('begin');
+
+    const agencyId = await ensureAgencyId(client, input.agencyName, userId);
+    const existing = await client.query<{ id: string }>('select id from public.agents where profile_id = $1 limit 1', [userId]);
+
+    let agentId: string;
+    if (existing.rows[0]) {
+      agentId = existing.rows[0].id;
+      await client.query(
+        `update public.agents set
+          name = $1, phone = $2, whatsapp = $3, email = $4, bio = $5, areas_served = $6, agency_id = $7, updated_at = now()
+        where id = $8`,
+        [input.name, input.phone, input.whatsapp ?? null, input.email ?? null, input.bio ?? null, input.areasServed, agencyId, agentId],
+      );
+    } else {
+      const slug = await generateUniqueAgentSlug(client, input.name);
+      const inserted = await client.query<{ id: string }>(
+        `insert into public.agents (profile_id, agency_id, name, slug, phone, whatsapp, email, bio, areas_served)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         returning id`,
+        [userId, agencyId, input.name, slug, input.phone, input.whatsapp ?? null, input.email ?? null, input.bio ?? null, input.areasServed],
+      );
+      agentId = inserted.rows[0].id;
+      await client.query(
+        `update public.profiles set role = 'agent'::public.app_role, updated_at = now()
+         where id = $1 and role = 'user'::public.app_role`,
+        [userId],
+      );
+    }
+
+    const result = await client.query<AgentProfileRow>(`${AGENT_PROFILE_SELECT} where a.id = $1 limit 1`, [agentId]);
+    await client.query('commit');
+
+    const row = result.rows[0];
+    if (!row) {
+      return { source: 'error', items: [], error: 'Profile could not be saved.' };
+    }
+    return { source: 'database', items: [mapAgentProfileRow(row)] };
+  } catch (error) {
+    await client.query('rollback').catch(() => undefined);
+    return { source: 'error', items: [], error: errorMessage(error) };
+  } finally {
+    client.release();
+  }
+}
+
+function mapAgentProfileRow(row: AgentProfileRow): PortalAgentProfile {
+  return {
+    agentId: row.agent_id,
+    name: row.name,
+    slug: row.slug,
+    phone: row.phone,
+    whatsapp: row.whatsapp,
+    email: row.email,
+    bio: row.bio,
+    areasServed: row.areas_served ?? [],
+    agencyId: row.agency_id,
+    agencyName: row.agency_name,
+    photoUrl: row.photo_url,
+    isVerified: row.is_verified,
+  };
+}
+
+type QueryClient = Pool | PoolClient;
+
+async function ensureAgencyId(client: QueryClient, agencyName: string, createdBy: string): Promise<string> {
+  const found = await client.query<{ id: string }>(
+    'select id from public.agencies where lower(name) = lower($1) limit 1',
+    [agencyName],
+  );
+  if (found.rows[0]) return found.rows[0].id;
+
+  const baseSlug = slugifyAgentName(agencyName) || 'agency';
+  const slug = await generateUniqueSlug(client, 'agencies', baseSlug);
+  const inserted = await client.query<{ id: string }>(
+    'insert into public.agencies (name, slug, created_by) values ($1, $2, $3) returning id',
+    [agencyName, slug, createdBy],
+  );
+  return inserted.rows[0].id;
+}
+
+async function generateUniqueAgentSlug(client: QueryClient, name: string): Promise<string> {
+  const baseSlug = slugifyAgentName(name) || 'agent';
+  return generateUniqueSlug(client, 'agents', baseSlug);
+}
+
+async function generateUniqueSlug(client: QueryClient, table: 'agents' | 'agencies', baseSlug: string): Promise<string> {
+  const existing = await client.query<{ slug: string }>(
+    `select slug from public.${table} where slug = $1 or slug like $2`,
+    [baseSlug, `${baseSlug}-%`],
+  );
+  if (!existing.rows.some((row) => row.slug === baseSlug)) return baseSlug;
+
+  const taken = new Set(existing.rows.map((row) => row.slug));
+  for (let suffix = 2; suffix < 1000; suffix += 1) {
+    const candidate = `${baseSlug}-${suffix}`;
+    if (!taken.has(candidate)) return candidate;
+  }
+  return `${baseSlug}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
 export async function loadPortalDiagnostics(env: PortalEnv = process.env): Promise<PortalBackendDiagnostics> {

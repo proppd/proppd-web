@@ -17,6 +17,11 @@ export type PortalListingStatus = 'draft' | 'pending_review' | 'available' | 'un
 
 export type PortalListingInput = Record<string, unknown>;
 
+export type PortalListingPhotoInput = {
+  src: string;
+  alt: string;
+};
+
 export type ValidPortalListingInput = {
   title: string;
   purpose: PortalListingPurpose;
@@ -35,7 +40,29 @@ export type ValidPortalListingInput = {
   ratesAndTaxes?: number;
   levies?: number;
   isFeatured?: boolean;
+  photos: PortalListingPhotoInput[];
 };
+
+const MAX_LISTING_PHOTOS = 20;
+
+export function parseListingPhotos(value: unknown): PortalListingPhotoInput[] {
+  if (!Array.isArray(value)) return [];
+
+  const photos: PortalListingPhotoInput[] = [];
+  for (const entry of value) {
+    if (!entry || typeof entry !== 'object') continue;
+    const src = coerceString((entry as Record<string, unknown>).src);
+    if (!isValidPhotoUrl(src)) continue;
+    const alt = coerceString((entry as Record<string, unknown>).alt) || 'Listing photo';
+    photos.push({ src, alt });
+    if (photos.length >= MAX_LISTING_PHOTOS) break;
+  }
+  return photos;
+}
+
+function isValidPhotoUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value);
+}
 
 function coerceString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
@@ -114,6 +141,7 @@ export function validatePortalListingInput(input: PortalListingInput) {
       ratesAndTaxes,
       levies,
       isFeatured: coerceBoolean(input.isFeatured),
+      photos: parseListingPhotos(input.photos),
     } satisfies ValidPortalListingInput,
   };
 }
