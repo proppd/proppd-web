@@ -783,6 +783,114 @@ export async function loadPortalUserAccess(userId: string, userEmail?: string | 
   };
 }
 
+export async function loadManagedListingDrafts(access: PortalUserAccess, env: PortalEnv = process.env): Promise<PortalPayload<PortalListingDraft>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return { source: 'demo', items: [] };
+  }
+
+  try {
+    const rows = await queryManagedListings(databaseUrl, access);
+    return { source: rows.length > 0 ? 'database' : 'empty', items: rows.map(mapListingDraftRow) };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+const MODERATION_STATUSES = ['draft', 'pending_review', 'available', 'under_offer', 'sold', 'rented', 'archived'] as const;
+export type ModerationStatus = (typeof MODERATION_STATUSES)[number];
+
+export type ListingModerationInput = {
+  status?: ModerationStatus;
+  isFeatured?: boolean;
+};
+
+export async function setPortalListingModeration(
+  slug: string,
+  access: PortalUserAccess,
+  input: ListingModerationInput,
+  env: PortalEnv = process.env,
+): Promise<PortalPayload<PortalListingDraft>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  }
+
+  if (input.status === undefined && input.isFeatured === undefined) {
+    return { source: 'error', items: [], error: 'Nothing to update.' };
+  }
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const owned = await queryManagedListings(databaseUrl, access, slug);
+    if (owned.length === 0) {
+      return { source: 'error', items: [], error: 'You do not have access to moderate this listing.' };
+    }
+
+    const sets: string[] = ['updated_at = now()'];
+    const values: unknown[] = [];
+
+    if (input.status !== undefined) {
+      values.push(input.status);
+      sets.push(`status = $${values.length}::public.listing_status`);
+      sets.push(`published_at = case when $${values.length}::public.listing_status = 'available' and published_at is null then now() else published_at end`);
+    }
+    if (input.isFeatured !== undefined) {
+      values.push(input.isFeatured);
+      sets.push(`is_featured = $${values.length}`);
+    }
+
+    values.push(slug);
+    const result = await pool.query<PortalListingDraft>(
+      `update public.listings set ${sets.join(', ')}
+       where slug = $${values.length}
+       returning
+         id, slug, title, purpose, status, price, description, suburb, city, province, bedrooms, bathrooms, parking,
+         (select slug from public.property_types where id = property_type_id) as property_type_slug,
+         (select name from public.property_types where id = property_type_id) as property_type_name,
+         agency_id, (select name from public.agencies where id = agency_id) as agency_name,
+         agent_id, (select name from public.agents where id = agent_id) as agent_name,
+         is_featured, floor_size_sqm, erf_size_sqm, rates_and_taxes, levies, published_at, created_at`,
+      values,
+    );
+
+    const row = result.rows[0];
+    if (!row) {
+      return { source: 'error', items: [], error: 'Listing could not be updated.' };
+    }
+
+    await logAdminActivity(pool, access.profileId, 'listing_moderation', 'listing', row.id, {
+      slug,
+      status: input.status ?? null,
+      isFeatured: input.isFeatured ?? null,
+    });
+
+    return { source: 'database', items: [{ ...row, photos: [] }] };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+async function logAdminActivity(
+  client: QueryClient,
+  actorId: string | null,
+  action: string,
+  entityType: string,
+  entityId: string | null,
+  metadata: Record<string, unknown>,
+): Promise<void> {
+  try {
+    const actor = actorId && /^[0-9a-f-]{36}$/i.test(actorId) ? actorId : null;
+    await client.query(
+      `insert into public.admin_activity_logs (actor_id, action, entity_type, entity_id, metadata)
+       values ($1, $2, $3, $4, $5)`,
+      [actor, action, entityType, entityId, JSON.stringify(metadata)],
+    );
+  } catch {
+    // Activity logging is best-effort and must never block a moderation action.
+  }
+}
+
 export async function loadMyPortalListings(access: PortalUserAccess, env: PortalEnv = process.env): Promise<PortalPayload<Listing>> {
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
