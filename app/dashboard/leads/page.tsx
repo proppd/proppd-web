@@ -92,7 +92,7 @@ export default async function Page() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <p className="font-bold text-[#1A1A2E]">{lead.name}</p>
+                            <a href={`/dashboard/leads/${lead.id}`} className="font-bold text-[#1A1A2E] transition hover:text-[#4A3AFF]">{lead.name}</a>
                             <p className="text-xs text-[#9CA3AF]">{lead.email}</p>
                           </div>
                           <div className="flex items-center gap-2">
