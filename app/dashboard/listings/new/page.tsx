@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { ListingEditorForm } from '@/components/listings/listing-editor-form';
+import { isAiConfigured } from '@/lib/ai/listing-description';
 import { loadPortalUserAccess } from '@/lib/proppd/backend';
 import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
 
@@ -31,7 +32,7 @@ export default async function Page() {
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#1A1A2E]">Create a property listing</h1>
             <p className="mt-2 text-sm text-[#6B7280]">Follow the steps to add a new property to Proppd.</p>
           </div>
-          <ListingEditorForm mode="create" submitUrl="/api/dashboard/listings" submitLabel="Create listing" />
+          <ListingEditorForm mode="create" submitUrl="/api/dashboard/listings" submitLabel="Create listing" aiEnabled={isAiConfigured()} />
         </div>
       </section>
     </main>

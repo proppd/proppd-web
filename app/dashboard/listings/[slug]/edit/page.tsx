@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { ListingEditorForm } from '@/components/listings/listing-editor-form';
+import { isAiConfigured } from '@/lib/ai/listing-description';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { loadPortalListingDraftBySlug, loadPortalUserAccess } from '@/lib/proppd/backend';
@@ -61,7 +62,7 @@ export default async function Page({ params }: PageProps) {
 
           <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(280px,0.8fr)] lg:items-start">
             <div>
-              <ListingEditorForm mode="edit" initialListing={current} submitUrl={`/api/dashboard/listings/${slug}`} submitLabel="Save changes" />
+              <ListingEditorForm mode="edit" initialListing={current} submitUrl={`/api/dashboard/listings/${slug}`} submitLabel="Save changes" aiEnabled={isAiConfigured()} />
             </div>
 
             <aside className="grid gap-4">
