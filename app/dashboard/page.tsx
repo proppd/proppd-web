@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { BarChart3, BellRing, Building2, CheckCircle2, ChevronRight, Eye, Home, ListPlus, MessageCircle, Phone, Plus, TrendingUp, Users } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
+import { FollowUpPanel } from '@/components/dashboard/follow-up-panel';
 import { loadMyPortalListings, loadPortalLeadQueue, loadPortalListings, loadPortalUserAccess } from '../../lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
 import { getAgentWorkspaceStats, formatAgentResponseSignal, type AgentFollowUpAction } from '@/lib/agent/workspace';
@@ -85,6 +86,13 @@ export default async function Page() {
             <StatCard icon={<CheckCircle2 size={20} />} label="Qualified" value={stats.qualifiedLeads} color="#4A3AFF" />
             <StatCard icon={<TrendingUp size={20} />} label="Total leads" value={stats.totalLeads} color="#00C9A7" />
           </div>
+        </div>
+      </section>
+
+      {/* Follow-up reminders */}
+      <section className="px-4 pb-2 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <FollowUpPanel leads={agentLeads} />
         </div>
       </section>
 

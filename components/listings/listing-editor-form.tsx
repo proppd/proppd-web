@@ -3,7 +3,7 @@
 import type React from 'react';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, ArrowLeft, Check, MapPin, Home, DollarSign, FileText, BedDouble, Bath, Car, Image as ImageIcon } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, MapPin, Home, DollarSign, FileText, BedDouble, Bath, Car, Image as ImageIcon, Sparkles, Loader2, AlertCircle } from 'lucide-react';
 import type { PortalListingDraft } from '@/lib/proppd/backend';
 import { portalPropertyTypeOptions } from '@/lib/proppd/listing-editor';
 import { PhotoUpload, type ListingPhoto } from '@/components/listings/photo-upload';
@@ -35,6 +35,7 @@ type Props = {
   submitUrl: string;
   submitLabel?: string;
   redirectTo?: string;
+  aiEnabled?: boolean;
 };
 
 function toFieldValue(value: unknown): string {
@@ -75,7 +76,7 @@ const steps = [
   { id: 'review', label: 'Review', icon: FileText },
 ];
 
-export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel, redirectTo }: Props) {
+export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel, redirectTo, aiEnabled = false }: Props) {
   const router = useRouter();
   const [state, setState] = useState<ListingFormState>(() => buildInitialState(initialListing));
   const [currentStep, setCurrentStep] = useState(0);
@@ -83,6 +84,41 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
     kind: 'idle',
     message: mode === 'create' ? 'Fill in the listing details and save as a draft.' : 'Update the listing details and save changes.',
   });
+
+  const [ai, setAi] = useState<{ kind: 'idle' | 'loading' | 'error'; message: string }>({ kind: 'idle', message: '' });
+
+  async function generateDescription() {
+    setAi({ kind: 'loading', message: '' });
+    try {
+      const response = await fetch('/api/dashboard/listings/ai-description', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          title: state.title,
+          purpose: state.purpose,
+          propertyTypeSlug: state.propertyTypeSlug,
+          suburb: state.suburb,
+          city: state.city,
+          province: state.province,
+          price: state.price,
+          bedrooms: state.bedrooms,
+          bathrooms: state.bathrooms,
+          parking: state.parking,
+          floorSizeSqm: state.floorSizeSqm,
+          erfSizeSqm: state.erfSizeSqm,
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setAi({ kind: 'error', message: data?.error || 'Could not generate a description.' });
+        return;
+      }
+      setState((prev) => ({ ...prev, description: data.description }));
+      setAi({ kind: 'idle', message: '' });
+    } catch {
+      setAi({ kind: 'error', message: 'Could not reach the AI service. Try again.' });
+    }
+  }
 
   const buttonLabel = submitLabel ?? (mode === 'create' ? 'Create listing' : 'Save changes');
   const method = mode === 'create' ? 'POST' : 'PATCH';
@@ -166,7 +202,20 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
               </SelectField>
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">Description</label>
+              <div className="flex items-center justify-between gap-3">
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">Description</label>
+                {aiEnabled && (
+                  <button
+                    type="button"
+                    onClick={generateDescription}
+                    disabled={ai.kind === 'loading' || state.title.trim().length === 0}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#4A3AFF]/30 bg-[#4A3AFF]/5 px-3 py-1.5 text-xs font-bold text-[#4A3AFF] transition hover:bg-[#4A3AFF]/10 disabled:opacity-50"
+                    title={state.title.trim().length === 0 ? 'Add a listing title first' : 'Generate a description from the listing facts'}
+                  >
+                    {ai.kind === 'loading' ? <><Loader2 size={13} className="animate-spin" /> Writing…</> : <><Sparkles size={13} /> {state.description.trim() ? 'Regenerate' : 'Write with AI'}</>}
+                  </button>
+                )}
+              </div>
               <textarea
                 value={state.description}
                 onChange={(e) => update('description', e.target.value)}
@@ -174,6 +223,12 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
                 rows={4}
                 placeholder="Describe the property, its features, and what makes it special..."
               />
+              {ai.kind === 'error' && (
+                <p className="mt-1.5 flex items-center gap-1.5 text-xs font-bold text-red-600"><AlertCircle size={13} /> {ai.message}</p>
+              )}
+              {aiEnabled && (
+                <p className="mt-1.5 text-xs text-[#9CA3AF]">AI drafts from the facts you enter — always review and edit before publishing.</p>
+              )}
             </div>
           </div>
         )}
