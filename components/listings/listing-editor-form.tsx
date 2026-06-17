@@ -3,7 +3,7 @@
 import type React from 'react';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, ArrowLeft, Check, MapPin, Home, DollarSign, FileText, BedDouble, Bath, Car, Image as ImageIcon, Sparkles, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, MapPin, Home, DollarSign, FileText, BedDouble, Bath, Car, Image as ImageIcon, Sparkles, Loader2, AlertCircle, Copy } from 'lucide-react';
 import type { PortalListingDraft } from '@/lib/proppd/backend';
 import { portalPropertyTypeOptions } from '@/lib/proppd/listing-editor';
 import { PhotoUpload, type ListingPhoto } from '@/components/listings/photo-upload';
@@ -93,20 +93,7 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
       const response = await fetch('/api/dashboard/listings/ai-description', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          title: state.title,
-          purpose: state.purpose,
-          propertyTypeSlug: state.propertyTypeSlug,
-          suburb: state.suburb,
-          city: state.city,
-          province: state.province,
-          price: state.price,
-          bedrooms: state.bedrooms,
-          bathrooms: state.bathrooms,
-          parking: state.parking,
-          floorSizeSqm: state.floorSizeSqm,
-          erfSizeSqm: state.erfSizeSqm,
-        }),
+        body: JSON.stringify(listingFactsPayload()),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
@@ -117,6 +104,54 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
       setAi({ kind: 'idle', message: '' });
     } catch {
       setAi({ kind: 'error', message: 'Could not reach the AI service. Try again.' });
+    }
+  }
+
+  const [social, setSocial] = useState<{ kind: 'idle' | 'loading' | 'error'; text: string; message: string; copied: boolean }>({ kind: 'idle', text: '', message: '', copied: false });
+
+  function listingFactsPayload() {
+    return {
+      title: state.title,
+      purpose: state.purpose,
+      propertyTypeSlug: state.propertyTypeSlug,
+      suburb: state.suburb,
+      city: state.city,
+      province: state.province,
+      price: state.price,
+      bedrooms: state.bedrooms,
+      bathrooms: state.bathrooms,
+      parking: state.parking,
+      floorSizeSqm: state.floorSizeSqm,
+      erfSizeSqm: state.erfSizeSqm,
+    };
+  }
+
+  async function generateSocialPost() {
+    setSocial((prev) => ({ ...prev, kind: 'loading', message: '', copied: false }));
+    try {
+      const response = await fetch('/api/dashboard/listings/social-post', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(listingFactsPayload()),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setSocial((prev) => ({ ...prev, kind: 'error', message: data?.error || 'Could not generate a post.' }));
+        return;
+      }
+      setSocial({ kind: 'idle', text: data.post, message: '', copied: false });
+    } catch {
+      setSocial((prev) => ({ ...prev, kind: 'error', message: 'Could not reach the AI service. Try again.' }));
+    }
+  }
+
+  async function copySocialPost() {
+    try {
+      await navigator.clipboard.writeText(social.text);
+      setSocial((prev) => ({ ...prev, copied: true }));
+      setTimeout(() => setSocial((prev) => ({ ...prev, copied: false })), 2000);
+    } catch {
+      // Clipboard unavailable (insecure context); the agent can select and copy manually.
     }
   }
 
@@ -305,6 +340,43 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
               <div className="rounded-lg bg-[#F7F8FA] p-4">
                 <p className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">Description</p>
                 <p className="mt-1 text-sm text-[#6B7280]">{state.description}</p>
+              </div>
+            )}
+
+            {aiEnabled && (
+              <div className="rounded-lg border border-[#4A3AFF]/15 bg-[#4A3AFF]/5 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#4A3AFF]">Social post</p>
+                  <button
+                    type="button"
+                    onClick={generateSocialPost}
+                    disabled={social.kind === 'loading' || state.title.trim().length === 0}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#4A3AFF]/30 bg-white px-3 py-1.5 text-xs font-bold text-[#4A3AFF] transition hover:bg-[#4A3AFF]/10 disabled:opacity-50"
+                  >
+                    {social.kind === 'loading' ? <><Loader2 size={13} className="animate-spin" /> Writing…</> : <><Sparkles size={13} /> {social.text ? 'Regenerate' : 'Generate a post'}</>}
+                  </button>
+                </div>
+                <p className="mt-1 text-xs text-[#6B7280]">Create a ready-to-share post for Facebook, Instagram, or WhatsApp.</p>
+                {social.kind === 'error' && (
+                  <p className="mt-2 flex items-center gap-1.5 text-xs font-bold text-red-600"><AlertCircle size={13} /> {social.message}</p>
+                )}
+                {social.text && (
+                  <div className="mt-3">
+                    <textarea
+                      value={social.text}
+                      onChange={(e) => setSocial((prev) => ({ ...prev, text: e.target.value }))}
+                      className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2.5 text-sm text-[#1A1A2E] outline-none focus:border-[#4A3AFF]"
+                      rows={5}
+                    />
+                    <button
+                      type="button"
+                      onClick={copySocialPost}
+                      className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-[#1A1A2E] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[#4A3AFF]"
+                    >
+                      {social.copied ? <><Check size={13} /> Copied</> : <><Copy size={13} /> Copy post</>}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
