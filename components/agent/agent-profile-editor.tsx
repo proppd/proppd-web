@@ -140,8 +140,21 @@ export function AgentProfileEditor() {
 
   if (load.kind === 'error') {
     return (
-      <div className="flex items-start gap-3 rounded-xl border border-red-100 bg-red-50 p-6 text-sm font-bold text-red-600">
-        <AlertCircle size={18} className="mt-0.5 shrink-0" /> {load.message}
+      <div className="rounded-xl border border-red-100 bg-white p-6 shadow-sm">
+        <div className="flex items-start gap-3 rounded-2xl bg-red-50 p-4 text-sm font-bold text-red-600">
+          <AlertCircle size={18} className="mt-0.5 shrink-0" /> {load.message}
+        </div>
+        <div className="mt-5 rounded-2xl bg-[#F7F8FA] p-5">
+          <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Agent setup unavailable</p>
+          <h3 className="mt-2 text-xl font-bold tracking-tight text-[#1A1A2E]">Profile editing needs the live backend.</h3>
+          <p className="mt-2 text-sm font-bold leading-6 text-[#6B7280]">
+            You can still review CRM priorities, listings, and lead handoff tools while the profile service is offline.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <a href="/dashboard" className="rounded-lg bg-[#4A3AFF] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#3A2AE0]">Open command centre</a>
+            <a href="/dashboard/leads" className="rounded-lg border border-[#E5E7EB] bg-white px-4 py-2.5 text-xs font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF]">Open CRM</a>
+          </div>
+        </div>
       </div>
     );
   }
