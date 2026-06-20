@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { BarChart3, BellRing, Building2, CheckCircle2, ChevronRight, Eye, Home, ListPlus, MessageCircle, Phone, Plus, TrendingUp, Users } from 'lucide-react';
+import { BarChart3, BellRing, Building2, CheckCircle2, ChevronRight, Eye, Home, ListPlus, MessageCircle, Plus, TrendingUp } from 'lucide-react';
 import { FollowUpPanel } from '@/components/dashboard/follow-up-panel';
 import { loadMyPortalListings, loadPortalLeadQueue, loadPortalListings, loadPortalUserAccess } from '../../lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
-import { getAgentWorkspaceStats, formatAgentResponseSignal, type AgentFollowUpAction } from '@/lib/agent/workspace';
+import { getAgentFollowUpActions, getAgentWorkspaceStats, formatAgentResponseSignal, type AgentFollowUpAction } from '@/lib/agent/workspace';
 
 const agentName = 'Lerato Mokoena';
 
@@ -45,6 +45,7 @@ export default async function Page() {
   const stats = getAgentWorkspaceStats(workspaceAgentName, portalListings, portalLeads);
   const agentListings = portalListings.filter((l) => l.agent === workspaceAgentName);
   const agentLeads = portalLeads.filter((l) => l.agent === workspaceAgentName);
+  const followUpActions = getAgentFollowUpActions(workspaceAgentName, portalLeads).slice(0, 3);
   const views7d = agentListings.reduce((sum, l) => sum + (l.views7d ?? 0), 0);
 
   return (
@@ -71,7 +72,7 @@ export default async function Page() {
       </section>
 
       {/* Stats grid */}
-      <section className="px-4 py-6 sm:px-6 lg:px-8">
+      <section id="performance" className="px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
             <StatCard icon={<Home size={20} />} label="Active listings" value={stats.activeListings} color="#4A3AFF" />
@@ -87,6 +88,13 @@ export default async function Page() {
       <section className="px-4 pb-2 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <FollowUpPanel leads={agentLeads} />
+        </div>
+      </section>
+
+      {/* Agent tools */}
+      <section className="px-4 pb-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <AgentToolbox actions={followUpActions} newLeads={stats.newLeads} flaggedLeads={stats.flaggedLeads} />
         </div>
       </section>
 
@@ -167,6 +175,81 @@ export default async function Page() {
         </div>
       </section>
     </main>
+  );
+}
+
+function AgentToolbox({ actions, newLeads, flaggedLeads }: { actions: AgentFollowUpAction[]; newLeads: number; flaggedLeads: number }) {
+  return (
+    <div className="grid gap-4 rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm lg:grid-cols-[320px_1fr]">
+      <div className="rounded-2xl bg-[#1A1A2E] p-5 text-white">
+        <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Agent tools</p>
+        <h2 className="mt-2 text-2xl font-bold tracking-tight">CRM command centre</h2>
+        <p className="mt-3 text-sm font-bold leading-6 text-white/65">
+          Work the next lead, protect quality, and keep listing actions close to the agent workspace.
+        </p>
+        <div className="mt-5 grid grid-cols-2 gap-2">
+          <ToolMetric label="New leads" value={newLeads} />
+          <ToolMetric label="Quality review" value={flaggedLeads} tone={flaggedLeads > 0 ? 'warning' : 'calm'} />
+        </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
+        <div>
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-base font-bold text-[#1A1A2E]">Priority worklist</h3>
+            <a href="/dashboard/leads" className="text-xs font-bold text-[#4A3AFF] transition hover:text-[#3A2AE0]">Open CRM</a>
+          </div>
+          <div className="mt-3 space-y-2">
+            {actions.length > 0 ? (
+              actions.map((action) => <AgentActionRow key={action.leadId} action={action} />)
+            ) : (
+              <p className="rounded-xl bg-[#F7F8FA] p-4 text-sm font-bold text-[#6B7280]">No urgent CRM actions right now. New enquiries and quality checks will appear here.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
+          <ToolLink icon={<MessageCircle size={16} />} label="Lead queue" text="Open all enquiries" href="/dashboard/leads" />
+          <ToolLink icon={<ListPlus size={16} />} label="Listing tools" text="Edit active stock" href="/dashboard/listings" />
+          <ToolLink icon={<BarChart3 size={16} />} label="Performance" text="Review views and lead flow" href="/dashboard#performance" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ToolMetric({ label, value, tone = 'calm' }: { label: string; value: number; tone?: 'calm' | 'warning' }) {
+  return (
+    <div className="rounded-2xl bg-white/10 p-3">
+      <p className={tone === 'warning' ? 'text-2xl font-bold text-amber-200' : 'text-2xl font-bold text-white'}>{value}</p>
+      <p className="mt-1 text-[11px] font-bold uppercase tracking-[.12em] text-white/45">{label}</p>
+    </div>
+  );
+}
+
+function AgentActionRow({ action }: { action: AgentFollowUpAction }) {
+  const priorityClass = action.priority === 'high' ? 'bg-red-50 text-red-700' : action.priority === 'medium' ? 'bg-amber-50 text-amber-700' : 'bg-[#4A3AFF]/10 text-[#4A3AFF]';
+
+  return (
+    <a href={action.href} className="flex items-start justify-between gap-3 rounded-xl border border-[#F3F4F6] p-3 transition hover:border-[#4A3AFF]/30 hover:bg-[#F7F8FA]">
+      <span className="min-w-0">
+        <span className="block text-sm font-bold text-[#1A1A2E]">{action.label}</span>
+        <span className="mt-1 block text-xs font-bold leading-5 text-[#6B7280]">{action.detail}</span>
+      </span>
+      <span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold uppercase ${priorityClass}`}>{action.priority}</span>
+    </a>
+  );
+}
+
+function ToolLink({ icon, label, text, href }: { icon: ReactNode; label: string; text: string; href: string }) {
+  return (
+    <a href={href} className="flex items-start gap-3 rounded-xl bg-[#F7F8FA] p-3 transition hover:bg-white hover:ring-1 hover:ring-[#4A3AFF]/20">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#4A3AFF]/10 text-[#4A3AFF]">{icon}</span>
+      <span>
+        <span className="block text-sm font-bold text-[#1A1A2E]">{label}</span>
+        <span className="mt-0.5 block text-xs font-bold text-[#9CA3AF]">{text}</span>
+      </span>
+    </a>
   );
 }
 
