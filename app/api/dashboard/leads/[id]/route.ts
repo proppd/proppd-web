@@ -21,6 +21,28 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!body || typeof body !== 'object') return jsonError('Invalid JSON body');
 
   const note = typeof body.note === 'string' ? body.note : undefined;
+  const statusWasProvided = Object.prototype.hasOwnProperty.call(body, 'status');
+  const status = isLeadStatus(body.status) ? body.status : undefined;
+
+  if (statusWasProvided && !status) return jsonError('Provide a valid lead status.');
+
+  if (status) {
+    const statusResult = await updatePortalLeadWorkflow(id, access, { status });
+    if (statusResult.source === 'error' || statusResult.items.length === 0) {
+      return respondToError(statusResult.error);
+    }
+
+    if (note !== undefined && note.trim().length > 0) {
+      const noteResult = await addPortalLeadNote(id, access, note);
+      if (noteResult.source === 'error' || noteResult.items.length === 0) {
+        return respondToError(noteResult.error);
+      }
+      return NextResponse.json({ lead: noteResult.items[0] });
+    }
+
+    return NextResponse.json({ lead: statusResult.items[0] });
+  }
+
   if (note !== undefined) {
     const result = await addPortalLeadNote(id, access, note);
     if (result.source === 'error' || result.items.length === 0) {
@@ -29,14 +51,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ lead: result.items[0] });
   }
 
-  const status = isLeadStatus(body.status) ? body.status : undefined;
-  if (!status) return jsonError('Provide a valid lead status or a note.');
-
-  const result = await updatePortalLeadWorkflow(id, access, { status });
-  if (result.source === 'error' || result.items.length === 0) {
-    return respondToError(result.error);
-  }
-  return NextResponse.json({ lead: result.items[0] });
+  return jsonError('Provide a valid lead status or a note.');
 }
 
 function respondToError(error?: string) {
