@@ -34,9 +34,9 @@ describe('agent workspace helpers', () => {
     const actions = getAgentFollowUpActions('Lerato Mokoena', demoLeads);
 
     expect(actions).toHaveLength(2);
-    expect(actions[0]).toMatchObject({ label: 'Respond to new lead', priority: 'low' });
-    expect(actions[1]).toMatchObject({ label: 'Review flagged enquiry', priority: 'high' });
-    expect(actions.every((action) => action.href.startsWith('/property/'))).toBe(true);
+    expect(actions[0]).toMatchObject({ label: 'Respond to new lead', priority: 'low', href: '/dashboard/leads/lead-1004' });
+    expect(actions[1]).toMatchObject({ label: 'Review flagged enquiry', priority: 'high', href: '/dashboard/leads/lead-1001' });
+    expect(actions.every((action) => action.href.startsWith('/dashboard/leads/'))).toBe(true);
   });
 
   it('surfaces the right plain-English response signal', () => {
