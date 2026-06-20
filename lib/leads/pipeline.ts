@@ -55,6 +55,21 @@ export type LeadPipelineStats = {
   flagged: number;
 };
 
+export type LeadCrmStats = {
+  active: number;
+  needsFirstResponse: number;
+  viewingBooked: number;
+  qualified: number;
+  closed: number;
+  flagged: number;
+};
+
+export type LeadNextAction = {
+  label: string;
+  detail: string;
+  tone: 'urgent' | 'active' | 'positive' | 'muted' | 'danger';
+};
+
 export type LeadSourceStats = {
   launch: number;
   property: number;
@@ -81,6 +96,67 @@ export function getLeadPipelineStats(leads: LeadRecord[]): LeadPipelineStats {
     converted: leads.filter((lead) => lead.status === 'converted').length,
     flagged: leads.filter((lead) => lead.quality === 'flagged').length,
   };
+}
+
+export function getLeadCrmStats(leads: LeadRecord[]): LeadCrmStats {
+  return {
+    active: leads.filter((lead) => ['new', 'contacted', 'viewing_booked', 'qualified'].includes(lead.status)).length,
+    needsFirstResponse: leads.filter((lead) => lead.status === 'new').length,
+    viewingBooked: leads.filter((lead) => lead.status === 'viewing_booked').length,
+    qualified: leads.filter((lead) => lead.status === 'qualified').length,
+    closed: leads.filter((lead) => lead.status === 'converted' || lead.status === 'not_interested' || lead.status === 'fake_spam').length,
+    flagged: leads.filter((lead) => lead.quality === 'flagged').length,
+  };
+}
+
+export function getLeadNextAction(lead: LeadRecord): LeadNextAction {
+  if (lead.quality === 'flagged') {
+    return {
+      label: 'Review quality before routing',
+      detail: 'Check flags and source context before an agent spends time on this lead.',
+      tone: 'danger',
+    };
+  }
+
+  const actions: Record<LeadStatus, LeadNextAction> = {
+    new: {
+      label: 'Send first response',
+      detail: 'Reply from the agency inbox and move the lead to contacted after handoff.',
+      tone: 'urgent',
+    },
+    contacted: {
+      label: 'Book the next step',
+      detail: 'Confirm viewing intent, finance readiness, or whether the enquiry needs more qualification.',
+      tone: 'active',
+    },
+    viewing_booked: {
+      label: 'Confirm viewing outcome',
+      detail: 'After the appointment, mark the lead qualified, converted, or not interested.',
+      tone: 'active',
+    },
+    qualified: {
+      label: 'Prepare close handoff',
+      detail: 'Send shortlist, finance/valuation context, and next appointment details.',
+      tone: 'positive',
+    },
+    converted: {
+      label: 'Keep as won lead',
+      detail: 'Preserve the timeline for reporting and future agency performance reviews.',
+      tone: 'positive',
+    },
+    not_interested: {
+      label: 'No active follow-up',
+      detail: 'Keep visible for audit, but do not route into the active agent queue.',
+      tone: 'muted',
+    },
+    fake_spam: {
+      label: 'Suppress from handoff',
+      detail: 'Keep the record for quality review and spam-pattern tuning.',
+      tone: 'danger',
+    },
+  };
+
+  return actions[lead.status];
 }
 
 export function getLeadSourceStats(leads: LeadRecord[]): LeadSourceStats {

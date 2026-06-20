@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { LEAD_PIPELINE_STATUSES, formatLeadStatus, getLeadPipelineStats, groupLeadsByStatus, isLeadStatus, type LeadRecord } from '@/lib/leads/pipeline';
+import { LEAD_PIPELINE_STATUSES, formatLeadStatus, getLeadCrmStats, getLeadNextAction, getLeadPipelineStats, groupLeadsByStatus, isLeadStatus, type LeadRecord } from '@/lib/leads/pipeline';
 
-function lead(id: string, status: LeadRecord['status']): LeadRecord {
+function lead(id: string, status: LeadRecord['status'], quality: LeadRecord['quality'] = 'clean'): LeadRecord {
   return {
     id,
     name: `Lead ${id}`,
@@ -9,7 +9,7 @@ function lead(id: string, status: LeadRecord['status']): LeadRecord {
     phone: '+27 11',
     intent: 'viewing',
     status,
-    quality: 'clean',
+    quality,
     listingTitle: 'Home',
     listingSlug: 'home',
     agent: 'Agent',
@@ -69,5 +69,43 @@ describe('pipeline aggregation across the full lifecycle', () => {
     expect(grouped.converted).toHaveLength(1);
     expect(grouped.not_interested).toHaveLength(1);
     expect(grouped.fake_spam).toHaveLength(1);
+  });
+});
+
+describe('agent CRM action planning', () => {
+  it('summarises active, closed, and flagged workload for dashboard CRM cards', () => {
+    const stats = getLeadCrmStats([
+      lead('1', 'new'),
+      lead('2', 'contacted'),
+      lead('3', 'viewing_booked'),
+      lead('4', 'qualified', 'flagged'),
+      lead('5', 'converted'),
+      lead('6', 'fake_spam', 'flagged'),
+    ]);
+
+    expect(stats).toEqual({
+      active: 4,
+      needsFirstResponse: 1,
+      viewingBooked: 1,
+      qualified: 1,
+      closed: 2,
+      flagged: 2,
+    });
+  });
+
+  it('returns operational next-best actions by status and quality', () => {
+    expect(getLeadNextAction(lead('1', 'new')).label).toBe('Send first response');
+    expect(getLeadNextAction(lead('2', 'contacted')).label).toBe('Book the next step');
+    expect(getLeadNextAction(lead('3', 'viewing_booked')).label).toBe('Confirm viewing outcome');
+    expect(getLeadNextAction(lead('4', 'qualified')).label).toBe('Prepare close handoff');
+    expect(getLeadNextAction(lead('5', 'converted')).tone).toBe('positive');
+    expect(getLeadNextAction(lead('6', 'fake_spam')).label).toBe('Suppress from handoff');
+  });
+
+  it('prioritises quality review before normal pipeline actions', () => {
+    const action = getLeadNextAction(lead('7', 'new', 'flagged'));
+
+    expect(action.label).toBe('Review quality before routing');
+    expect(action.tone).toBe('danger');
   });
 });
