@@ -44,13 +44,15 @@ export function getAgentFollowUpActions(agentName: string, leads: LeadRecord[]):
   return getLeadQueue(leads.filter((lead) => lead.agent === agentName))
     .filter((lead) => lead.status === 'new' || lead.quality !== 'clean')
     .map((lead) => {
+      const href = `/dashboard/leads/${lead.id}`;
+
       if (lead.quality === 'flagged') {
         return {
           leadId: lead.id,
           label: 'Review flagged enquiry',
           priority: 'high',
           detail: `${lead.name} triggered ${lead.flags.join(', ') || 'quality'} checks before routing.`,
-          href: `/property/${lead.listingSlug}`,
+          href,
         };
       }
 
@@ -60,7 +62,7 @@ export function getAgentFollowUpActions(agentName: string, leads: LeadRecord[]):
           label: 'Check duplicate before reply',
           priority: 'medium',
           detail: `${lead.name} may already be in conversation about ${lead.listingTitle}.`,
-          href: `/property/${lead.listingSlug}`,
+          href,
         };
       }
 
@@ -69,7 +71,7 @@ export function getAgentFollowUpActions(agentName: string, leads: LeadRecord[]):
         label: 'Respond to new lead',
         priority: 'low',
         detail: `${lead.name} is waiting for a first response on ${lead.listingTitle}.`,
-        href: `/property/${lead.listingSlug}`,
+        href,
       };
     });
 }

@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { BarChart3, BellRing, Building2, CheckCircle2, ChevronRight, Eye, Home, ListPlus, MessageCircle, Phone, Plus, TrendingUp, Users } from 'lucide-react';
-import { SiteFooter } from '@/components/site/footer';
-import { SiteHeader } from '@/components/site/header';
 import { FollowUpPanel } from '@/components/dashboard/follow-up-panel';
 import { loadMyPortalListings, loadPortalLeadQueue, loadPortalListings, loadPortalUserAccess } from '../../lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
@@ -24,7 +22,6 @@ export default async function Page() {
   if (user && !access) {
     return (
       <main className="min-h-screen bg-[#F7F8FA]">
-        <SiteHeader />
         <section className="px-4 py-16 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl rounded-xl border border-[#E5E7EB] bg-white p-8 shadow-sm sm:p-12">
             <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">One quick step left</p>
@@ -38,7 +35,6 @@ export default async function Page() {
             </div>
           </div>
         </section>
-        <SiteFooter />
       </main>
     );
   }
@@ -53,8 +49,6 @@ export default async function Page() {
 
   return (
     <main className="min-h-screen bg-[#F7F8FA]">
-      <SiteHeader />
-
       {/* Hero banner */}
       <section className="bg-[#1A1A2E] px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         <div className="mx-auto max-w-7xl">
@@ -105,7 +99,7 @@ export default async function Page() {
             <div className="mt-4 grid grid-cols-2 gap-3">
               <QuickAction icon={<Plus size={18} />} label="New listing" href="/dashboard/listings/new" />
               <QuickAction icon={<ListPlus size={18} />} label="All listings" href="/dashboard/listings" />
-              <QuickAction icon={<MessageCircle size={18} />} label="Lead queue" href="/dashboard#leads" />
+              <QuickAction icon={<MessageCircle size={18} />} label="Lead queue" href="/dashboard/leads" />
               <QuickAction icon={<Building2 size={18} />} label="Admin panel" href="/admin" />
             </div>
           </div>
@@ -114,20 +108,20 @@ export default async function Page() {
           <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-[#1A1A2E]">Recent leads</h2>
-              <a href="/dashboard#leads" className="text-xs font-bold text-[#4A3AFF]">View all</a>
+              <a href="/dashboard/leads" className="text-xs font-bold text-[#4A3AFF]">View all</a>
             </div>
             <div className="mt-4 space-y-3">
               {agentLeads.length === 0 ? (
                 <p className="text-sm text-[#9CA3AF]">No leads yet. They&apos;ll appear here as buyers and tenants enquire.</p>
               ) : (
                 agentLeads.slice(0, 4).map((lead) => (
-                  <div key={lead.id} className="flex items-center justify-between rounded-lg border border-[#F3F4F6] px-3 py-2.5">
+                  <a key={lead.id} href={`/dashboard/leads/${lead.id}`} className="flex items-center justify-between rounded-lg border border-[#F3F4F6] px-3 py-2.5 transition hover:border-[#4A3AFF]/30 hover:bg-[#F7F8FA]">
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-bold text-[#1A1A2E] truncate">{lead.name}</p>
                       <p className="text-xs text-[#9CA3AF]">{lead.intent} · {lead.email}</p>
                     </div>
                     <ChevronRight size={14} className="shrink-0 text-[#9CA3AF]" />
-                  </div>
+                  </a>
                 ))
               )}
             </div>
@@ -172,8 +166,6 @@ export default async function Page() {
           </div>
         </div>
       </section>
-
-      <SiteFooter />
     </main>
   );
 }
