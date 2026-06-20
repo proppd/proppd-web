@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import { ArrowLeft, CalendarClock, Mail, MapPinned, Phone, MessageSquare } from 'lucide-react';
+import { ArrowLeft, CalendarClock, CheckCircle2, ExternalLink, Mail, MapPinned, Phone, MessageSquare, ShieldCheck } from 'lucide-react';
 import { notFound, redirect } from 'next/navigation';
 import { LeadPipelineControls } from '@/components/dashboard/lead-pipeline-controls';
 import { loadPortalLeadTimeline, loadPortalUserAccess } from '@/lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
-import { formatLeadIntent, formatLeadStatus } from '@/lib/leads/pipeline';
+import { formatLeadIntent, formatLeadStatus, getLeadNextAction, getLeadSourceLabel } from '@/lib/leads/pipeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,6 +40,8 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
 
   const controlsEnabled = timeline.source === 'database';
   const emailHref = `mailto:${lead.email}?subject=${encodeURIComponent(`Re: ${lead.listingTitle}`)}&body=${encodeURIComponent(`Hi ${lead.name.split(' ')[0]},\n\n`)}`;
+  const nextAction = getLeadNextAction(lead);
+  const latestEvent = timeline.events[0];
 
   return (
     <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
@@ -77,42 +79,86 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
             </div>
           </div>
 
-          <div className="mt-6 rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm sm:p-8">
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="flex items-center gap-2 text-lg font-bold text-[#1A1A2E]"><MessageSquare size={18} className="text-[#4A3AFF]" /> Activity timeline</h2>
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9CA3AF]">
-                <CalendarClock size={14} /> {timeline.events.length} event{timeline.events.length === 1 ? '' : 's'}
-              </span>
+          <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_340px] lg:items-start">
+            <div className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm sm:p-8">
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-[#1A1A2E]"><MessageSquare size={18} className="text-[#4A3AFF]" /> Activity timeline</h2>
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9CA3AF]">
+                  <CalendarClock size={14} /> {timeline.events.length} event{timeline.events.length === 1 ? '' : 's'}
+                </span>
+              </div>
+
+              {timeline.events.length === 0 ? (
+                <p className="mt-4 text-sm text-[#9CA3AF]">No activity yet. Update the stage or add a note above to start the history.</p>
+              ) : (
+                <ol className="mt-5 space-y-4">
+                  {timeline.events.map((event) => (
+                    <li key={event.id} className="relative border-l-2 border-[#E5E7EB] pl-5">
+                      <span className="absolute -left-[7px] top-1 h-3 w-3 rounded-full bg-[#4A3AFF]" />
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-sm font-bold text-[#1A1A2E]">{event.label}</p>
+                        <p className="text-xs font-semibold text-[#9CA3AF]">{new Date(event.createdAt).toLocaleString('en-ZA', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                      </div>
+                      {event.note ? <p className="mt-1 text-sm leading-6 text-[#6B7280]">{event.note}</p> : null}
+                      <p className="mt-1 text-xs font-semibold text-[#9CA3AF]">{event.actorName ?? 'System'}</p>
+                    </li>
+                  ))}
+                </ol>
+              )}
             </div>
 
-            {timeline.events.length === 0 ? (
-              <p className="mt-4 text-sm text-[#9CA3AF]">No activity yet. Update the stage or add a note above to start the history.</p>
-            ) : (
-              <ol className="mt-5 space-y-4">
-                {timeline.events.map((event) => (
-                  <li key={event.id} className="relative border-l-2 border-[#E5E7EB] pl-5">
-                    <span className="absolute -left-[7px] top-1 h-3 w-3 rounded-full bg-[#4A3AFF]" />
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-sm font-bold text-[#1A1A2E]">{event.label}</p>
-                      <p className="text-xs font-semibold text-[#9CA3AF]">{new Date(event.createdAt).toLocaleString('en-ZA', { dateStyle: 'medium', timeStyle: 'short' })}</p>
-                    </div>
-                    {event.note ? <p className="mt-1 text-sm leading-6 text-[#6B7280]">{event.note}</p> : null}
-                    <p className="mt-1 text-xs font-semibold text-[#9CA3AF]">{event.actorName ?? 'System'}</p>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </div>
+            <aside className="space-y-4">
+              <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${nextAction.tone === 'danger' ? 'bg-red-50 text-red-700' : nextAction.tone === 'urgent' ? 'bg-amber-50 text-amber-700' : nextAction.tone === 'positive' ? 'bg-[#E6FBF7] text-[#0a6b62]' : 'bg-[#4A3AFF]/10 text-[#4A3AFF]'}`}>
+                    <ShieldCheck size={18} />
+                  </span>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Next best action</p>
+                    <h2 className="mt-1 text-xl font-bold tracking-tight text-[#1A1A2E]">{nextAction.label}</h2>
+                  </div>
+                </div>
+                <p className="mt-4 text-sm font-bold leading-6 text-[#6B7280]">{nextAction.detail}</p>
+                <div className="mt-4 grid gap-2">
+                  <a href={emailHref} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#4A3AFF] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0]"><Mail size={15} /> Reply by email</a>
+                  {lead.listingSlug && (
+                    <a href={`/property/${lead.listingSlug}`} className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF]"><ExternalLink size={15} /> View listing</a>
+                  )}
+                </div>
+              </div>
 
-          <div className="mt-6 flex flex-wrap gap-3">
-            <a href={emailHref} className="inline-flex items-center gap-2 rounded-lg bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0]"><Mail size={15} /> Reply by email</a>
-            {lead.listingSlug && (
-              <a href={`/property/${lead.listingSlug}`} className="inline-flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-5 py-3 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF]">View listing</a>
-            )}
+              <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Routing snapshot</p>
+                <div className="mt-4 space-y-3 text-sm font-bold text-[#6B7280]">
+                  <SnapshotRow label="Source" value={getLeadSourceLabel(lead.sourcePage)} />
+                  <SnapshotRow label="Intent" value={formatLeadIntent(lead.intent)} />
+                  <SnapshotRow label="Status" value={formatLeadStatus(lead.status)} />
+                  <SnapshotRow label="Quality" value={lead.quality === 'clean' ? 'Clean' : lead.quality === 'duplicate' ? 'Duplicate' : 'Flagged'} />
+                  <SnapshotRow label="Latest" value={latestEvent ? latestEvent.label : 'No activity yet'} />
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-[#1A1A2E] p-5 text-white shadow-sm">
+                <CheckCircle2 size={24} className="text-[#00C9A7]" />
+                <h2 className="mt-3 text-lg font-bold">Agent handoff rule</h2>
+                <p className="mt-2 text-sm font-bold leading-6 text-white/65">
+                  Keep every reply, status change, and qualification note on this record so the agency can audit the follow-up path later.
+                </p>
+              </div>
+            </aside>
           </div>
         </div>
       </section>
     </main>
+  );
+}
+
+function SnapshotRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b border-[#F3F4F6] pb-3 last:border-0 last:pb-0">
+      <span className="text-[#9CA3AF]">{label}</span>
+      <span className="text-right text-[#1A1A2E]">{value}</span>
+    </div>
   );
 }
 
