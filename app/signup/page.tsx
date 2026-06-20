@@ -6,8 +6,8 @@ import { SignUpForm } from '@/components/auth/signup-form';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
 
 export const metadata: Metadata = {
-  title: 'Sign up | Proppd',
-  description: 'Create your Proppd agent account and start listing properties.',
+  title: 'Request access | Proppd',
+  description: 'Request invite-only Proppd agency access and continue with a passwordless login link.',
   alternates: { canonical: '/signup' },
 };
 
@@ -28,7 +28,7 @@ export default async function Page() {
               List your properties on Proppd
             </h1>
             <p className="mt-4 max-w-lg text-lg text-[#6B7280]">
-              Create an account to manage listings, track leads, and reach verified buyers and tenants.
+              Request invite-only agency access to manage listings, track leads, and reach verified buyers and tenants.
             </p>
 
             <div className="mt-10 space-y-4">
@@ -44,8 +44,8 @@ export default async function Page() {
               />
               <Benefit
                 icon={<Clock size={20} />}
-                title="Fast setup"
-                text="Sign up in under 2 minutes. No paperwork required."
+                title="Fast review"
+                text="Send the essentials now; approved users continue by secure login link."
               />
             </div>
 
@@ -59,9 +59,9 @@ export default async function Page() {
 
           {/* Right — signup form */}
           <div className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="text-xl font-bold text-[#1A1A2E]">Create your account</h2>
+            <h2 className="text-xl font-bold text-[#1A1A2E]">Request agency access</h2>
             <p className="mt-2 text-sm text-[#6B7280]">
-              We'll send you a login link — no password needed.
+              We&apos;ll send an approved login link — no password setup needed.
             </p>
 
             <div className="mt-6">
@@ -72,7 +72,7 @@ export default async function Page() {
             </div>
 
             <p className="mt-6 text-xs text-[#9CA3AF]">
-              By signing up you agree to our{' '}
+              By requesting access you agree to our{' '}
               <a href="/terms" className="font-bold text-[#4A3AFF]">Terms</a> and{' '}
               <a href="/privacy" className="font-bold text-[#4A3AFF]">Privacy Policy</a>.
             </p>

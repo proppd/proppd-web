@@ -32,7 +32,7 @@ export function AuthModal({ mode, onModeChange, onClose }: AuthModalProps) {
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-start justify-center overflow-y-auto px-4 py-8 sm:items-center" role="dialog" aria-modal="true" aria-label={mode === 'login' ? 'Sign in' : 'Create account'}>
+    <div className="fixed inset-0 z-[110] flex items-start justify-center overflow-y-auto px-4 py-8 sm:items-center" role="dialog" aria-modal="true" aria-label={mode === 'login' ? 'Sign in' : 'Request access'}>
       <div className="fixed inset-0 bg-black/50" onClick={onClose} />
 
       <div className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-2xl sm:p-8">
@@ -47,22 +47,22 @@ export function AuthModal({ mode, onModeChange, onClose }: AuthModalProps) {
 
         <div className="flex gap-2 rounded-lg bg-[#F7F8FA] p-1">
           <ModeTab active={mode === 'login'} onClick={() => onModeChange('login')}>Sign in</ModeTab>
-          <ModeTab active={mode === 'signup'} onClick={() => onModeChange('signup')}>Create account</ModeTab>
+          <ModeTab active={mode === 'signup'} onClick={() => onModeChange('signup')}>Request access</ModeTab>
         </div>
 
         <div className="mt-6">
           {mode === 'login' ? (
             <>
               <h2 className="text-xl font-bold text-[#1A1A2E]">Welcome back</h2>
-              <p className="mt-1 text-sm text-[#6B7280]">Sign in with your email and password.</p>
+              <p className="mt-1 text-sm text-[#6B7280]">Enter your approved email and we&apos;ll send a one-time login link.</p>
               <div className="mt-5">
                 <SupabaseLoginForm supabaseUrl={SUPABASE_URL} publishableKey={SUPABASE_PUBLISHABLE_KEY} nextPath="/dashboard" />
               </div>
             </>
           ) : (
             <>
-              <h2 className="text-xl font-bold text-[#1A1A2E]">Create your account</h2>
-              <p className="mt-1 text-sm text-[#6B7280]">Set an email and password to manage listings and leads.</p>
+              <h2 className="text-xl font-bold text-[#1A1A2E]">Request agency access</h2>
+              <p className="mt-1 text-sm text-[#6B7280]">Share your agency details. Approved users continue by magic link — no password setup.</p>
               <div className="mt-5">
                 <SignUpForm supabaseUrl={SUPABASE_URL} publishableKey={SUPABASE_PUBLISHABLE_KEY} />
               </div>
