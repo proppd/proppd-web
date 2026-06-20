@@ -61,7 +61,7 @@ export default async function Page() {
           <div className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm sm:p-8">
             <h2 className="text-xl font-bold text-[#1A1A2E]">Create your account</h2>
             <p className="mt-2 text-sm text-[#6B7280]">
-              Choose your email and password — you&apos;ll be in your dashboard in under two minutes.
+              We'll send you a login link — no password needed.
             </p>
 
             <div className="mt-6">
