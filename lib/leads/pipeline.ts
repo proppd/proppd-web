@@ -70,6 +70,12 @@ export type LeadNextAction = {
   tone: 'urgent' | 'active' | 'positive' | 'muted' | 'danger';
 };
 
+export type LeadStageSuggestion = {
+  status: LeadStatus;
+  label: string;
+  note: string;
+};
+
 export type LeadSourceStats = {
   launch: number;
   property: number;
@@ -157,6 +163,35 @@ export function getLeadNextAction(lead: LeadRecord): LeadNextAction {
   };
 
   return actions[lead.status];
+}
+
+export function getLeadStageSuggestion(lead: LeadRecord): LeadStageSuggestion | null {
+  if (lead.quality === 'flagged') return null;
+
+  const suggestions: Partial<Record<LeadStatus, LeadStageSuggestion>> = {
+    new: {
+      status: 'contacted',
+      label: 'Mark contacted',
+      note: 'First response sent to the lead.',
+    },
+    contacted: {
+      status: 'viewing_booked',
+      label: 'Book viewing',
+      note: 'Viewing or next appointment booked with the lead.',
+    },
+    viewing_booked: {
+      status: 'qualified',
+      label: 'Mark qualified',
+      note: 'Viewing outcome confirmed and the lead is qualified for follow-up.',
+    },
+    qualified: {
+      status: 'converted',
+      label: 'Mark converted',
+      note: 'Lead converted after agent follow-up.',
+    },
+  };
+
+  return suggestions[lead.status] ?? null;
 }
 
 export function getLeadSourceStats(leads: LeadRecord[]): LeadSourceStats {

@@ -2,9 +2,10 @@ import type { Metadata } from 'next';
 import { ArrowLeft, CalendarClock, CheckCircle2, ExternalLink, Mail, MapPinned, Phone, MessageSquare, ShieldCheck } from 'lucide-react';
 import { notFound, redirect } from 'next/navigation';
 import { LeadPipelineControls } from '@/components/dashboard/lead-pipeline-controls';
+import { LeadStageSuggestionControls } from '@/components/dashboard/lead-stage-suggestion-controls';
 import { loadPortalLeadTimeline, loadPortalUserAccess } from '@/lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
-import { formatLeadIntent, formatLeadStatus, getLeadNextAction, getLeadSourceLabel } from '@/lib/leads/pipeline';
+import { formatLeadIntent, formatLeadStatus, getLeadNextAction, getLeadSourceLabel, getLeadStageSuggestion } from '@/lib/leads/pipeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,6 +42,7 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
   const controlsEnabled = timeline.source === 'database';
   const emailHref = `mailto:${lead.email}?subject=${encodeURIComponent(`Re: ${lead.listingTitle}`)}&body=${encodeURIComponent(`Hi ${lead.name.split(' ')[0]},\n\n`)}`;
   const nextAction = getLeadNextAction(lead);
+  const stageSuggestion = getLeadStageSuggestion(lead);
   const latestEvent = timeline.events[0];
 
   return (
@@ -119,6 +121,9 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
                   </div>
                 </div>
                 <p className="mt-4 text-sm font-bold leading-6 text-[#6B7280]">{nextAction.detail}</p>
+                <div className="mt-4">
+                  <LeadStageSuggestionControls leadId={lead.id} suggestion={stageSuggestion} enabled={controlsEnabled} />
+                </div>
                 <div className="mt-4 grid gap-2">
                   <a href={emailHref} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#4A3AFF] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0]"><Mail size={15} /> Reply by email</a>
                   {lead.listingSlug && (

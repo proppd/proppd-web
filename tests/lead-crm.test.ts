@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LEAD_PIPELINE_STATUSES, formatLeadStatus, getLeadCrmStats, getLeadNextAction, getLeadPipelineStats, groupLeadsByStatus, isLeadStatus, type LeadRecord } from '@/lib/leads/pipeline';
+import { LEAD_PIPELINE_STATUSES, formatLeadStatus, getLeadCrmStats, getLeadNextAction, getLeadPipelineStats, getLeadStageSuggestion, groupLeadsByStatus, isLeadStatus, type LeadRecord } from '@/lib/leads/pipeline';
 
 function lead(id: string, status: LeadRecord['status'], quality: LeadRecord['quality'] = 'clean'): LeadRecord {
   return {
@@ -107,5 +107,19 @@ describe('agent CRM action planning', () => {
 
     expect(action.label).toBe('Review quality before routing');
     expect(action.tone).toBe('danger');
+  });
+
+  it('suggests safe one-click stage progressions for active clean leads', () => {
+    expect(getLeadStageSuggestion(lead('1', 'new'))).toMatchObject({ status: 'contacted', label: 'Mark contacted' });
+    expect(getLeadStageSuggestion(lead('2', 'contacted'))).toMatchObject({ status: 'viewing_booked', label: 'Book viewing' });
+    expect(getLeadStageSuggestion(lead('3', 'viewing_booked'))).toMatchObject({ status: 'qualified', label: 'Mark qualified' });
+    expect(getLeadStageSuggestion(lead('4', 'qualified'))).toMatchObject({ status: 'converted', label: 'Mark converted' });
+  });
+
+  it('does not suggest one-click progression for flagged or closed leads', () => {
+    expect(getLeadStageSuggestion(lead('1', 'new', 'flagged'))).toBeNull();
+    expect(getLeadStageSuggestion(lead('2', 'converted'))).toBeNull();
+    expect(getLeadStageSuggestion(lead('3', 'not_interested'))).toBeNull();
+    expect(getLeadStageSuggestion(lead('4', 'fake_spam'))).toBeNull();
   });
 });
