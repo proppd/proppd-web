@@ -130,9 +130,9 @@ export function SiteHeader() {
                 Sign in
               </button>
               <p className="mt-3 px-3 text-center text-xs text-[#9CA3AF]">
-                New here?{' '}
+                Need agency access?{' '}
                 <button type="button" onClick={() => openAuth('signup')} className="font-bold text-[#4A3AFF]">
-                  Create account
+                  Request access
                 </button>
               </p>
             </div>
