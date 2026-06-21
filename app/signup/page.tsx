@@ -6,7 +6,7 @@ import { SignUpForm } from '@/components/auth/signup-form';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
 
 export const metadata: Metadata = {
-  title: 'Request access | Proppd',
+  title: { absolute: 'Request access | Proppd' },
   description: 'Request invite-only Proppd agency access and continue with a passwordless login link.',
   alternates: { canonical: '/signup' },
 };
@@ -61,7 +61,7 @@ export default async function Page() {
           <div className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm sm:p-8">
             <h2 className="text-xl font-bold text-[#1A1A2E]">Request agency access</h2>
             <p className="mt-2 text-sm text-[#6B7280]">
-              We&apos;ll send an approved login link — no password setup needed.
+              We’ll send a passwordless link if your email is already approved for Proppd.
             </p>
 
             <div className="mt-6">
