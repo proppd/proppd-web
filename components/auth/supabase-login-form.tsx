@@ -1,6 +1,6 @@
 'use client';
 
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 import type React from 'react';
 import { useMemo, useState } from 'react';
 import { Mail, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
@@ -18,7 +18,7 @@ type SubmitState =
   | { status: 'success'; message: string }
   | { status: 'error'; message: string };
 
-export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/dashboard' }: LoginFormProps) {
+export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/dashboard/profile' }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [state, setState] = useState<SubmitState>({
     status: 'idle',
@@ -28,7 +28,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
 
   const supabase = useMemo(() => {
     if (!supabaseUrl || !publishableKey) return null;
-    return createClient(supabaseUrl, publishableKey, { auth: { persistSession: true, autoRefreshToken: true } });
+    return createBrowserClient(supabaseUrl, publishableKey);
   }, [publishableKey, supabaseUrl]);
 
   const cleanEmail = email.trim().toLowerCase();

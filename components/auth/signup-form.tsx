@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import { useMemo, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 import { ArrowRight, CheckCircle, Mail, Building2, User, MapPin } from 'lucide-react';
 import { buildAuthCallbackUrl } from '@/lib/auth/redirects';
 
@@ -28,7 +28,7 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
 
   const supabase = useMemo(() => {
     if (!supabaseUrl || !publishableKey) return null;
-    return createClient(supabaseUrl, publishableKey, { auth: { persistSession: true, autoRefreshToken: true } });
+    return createBrowserClient(supabaseUrl, publishableKey);
   }, [publishableKey, supabaseUrl]);
 
   const update = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
@@ -43,7 +43,7 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
       const { error: authError } = await supabase.auth.signInWithOtp({
         email: cleanEmail,
         options: {
-          emailRedirectTo: buildAuthCallbackUrl(window.location.origin, '/dashboard'),
+          emailRedirectTo: buildAuthCallbackUrl(window.location.origin, '/dashboard/profile'),
           shouldCreateUser: false,
           data: {
             first_name: form.firstName,
