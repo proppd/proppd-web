@@ -37,7 +37,7 @@ export function SiteHeader() {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-[#E5E7EB] bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3 sm:gap-4 sm:px-6 lg:px-8">
           {/* Mobile hamburger */}
           <button
             type="button"
@@ -65,13 +65,13 @@ export function SiteHeader() {
             <a href="/saved" className="flex h-9 w-9 items-center justify-center rounded-lg text-[#6B7280] transition hover:bg-[#F7F8FA] hover:text-[#1A1A2E]" aria-label="Saved homes">
               <Heart size={18} />
             </a>
-            <a className="rounded-lg bg-[#4A3AFF] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#3A2AE0]" href="/properties">
+            <a className="rounded-lg bg-[#4A3AFF] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#3A2AE0] sm:px-4" href="/properties">
               Search
             </a>
             <button
               type="button"
               onClick={() => openAuth('login')}
-              className="rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
+              className="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
             >
               Sign in
             </button>

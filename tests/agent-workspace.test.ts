@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { listings } from '@/lib/demo-data';
 import { demoLeads } from '@/lib/leads/demo-leads';
-import { formatAgentResponseSignal, getAgentFollowUpActions, getAgentWorkspaceStats } from '@/lib/agent/workspace';
+import { formatAgentResponseSignal, getAgentFollowUpActions, getAgentToolCards, getAgentWorkspaceStats } from '@/lib/agent/workspace';
 
 describe('agent workspace helpers', () => {
   it('summarises one agent workspace from listings and leads', () => {
@@ -43,5 +43,16 @@ describe('agent workspace helpers', () => {
     const stats = getAgentWorkspaceStats('Lerato Mokoena', listings, demoLeads);
 
     expect(formatAgentResponseSignal(stats)).toBe('Quality review needed before routing');
+  });
+
+  it('builds mobile-first CRM tool cards from live workspace state', () => {
+    const stats = getAgentWorkspaceStats('Lerato Mokoena', listings, demoLeads);
+    const cards = getAgentToolCards(stats);
+
+    expect(cards).toHaveLength(3);
+    expect(cards.map((card) => card.label)).toEqual(['Reply tool', 'Quality gate', 'Stock tool']);
+    expect(cards[0]).toMatchObject({ title: 'Work first responses', href: '/dashboard/leads', cta: 'Open reply queue' });
+    expect(cards[1]).toMatchObject({ title: 'Review before routing', tone: 'quality', cta: 'Review flagged leads' });
+    expect(cards[2]).toMatchObject({ title: 'Keep listings fresh', href: '/dashboard/listings' });
   });
 });

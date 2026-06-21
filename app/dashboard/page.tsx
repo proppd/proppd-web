@@ -4,7 +4,7 @@ import { BarChart3, BellRing, Building2, CheckCircle2, ChevronRight, Eye, Home, 
 import { FollowUpPanel } from '@/components/dashboard/follow-up-panel';
 import { loadMyPortalListings, loadPortalLeadQueue, loadPortalListings, loadPortalUserAccess } from '../../lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
-import { getAgentFollowUpActions, getAgentWorkspaceStats, formatAgentResponseSignal, type AgentFollowUpAction } from '@/lib/agent/workspace';
+import { getAgentFollowUpActions, getAgentToolCards, getAgentWorkspaceStats, formatAgentResponseSignal, type AgentFollowUpAction, type AgentToolCard } from '@/lib/agent/workspace';
 
 const agentName = 'Lerato Mokoena';
 
@@ -46,24 +46,25 @@ export default async function Page() {
   const agentListings = portalListings.filter((l) => l.agent === workspaceAgentName);
   const agentLeads = portalLeads.filter((l) => l.agent === workspaceAgentName);
   const followUpActions = getAgentFollowUpActions(workspaceAgentName, portalLeads).slice(0, 3);
+  const toolCards = getAgentToolCards(stats);
   const views7d = agentListings.reduce((sum, l) => sum + (l.views7d ?? 0), 0);
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA]">
+    <main className="min-h-screen overflow-x-hidden bg-white">
       {/* Hero banner */}
-      <section className="bg-[#1A1A2E] px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-        <div className="mx-auto max-w-7xl">
+      <section className="px-4 pt-8 pb-6 sm:px-6 sm:pt-10 lg:px-8">
+        <div className="mx-auto max-w-7xl rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Dashboard</p>
-              <h1 className="mt-2 text-3xl font-bold text-white sm:text-4xl">Welcome back, {stats.agentName.split(' ')[0]}</h1>
-              <p className="mt-2 text-sm text-white/60">{stats.agencyName} · {formatAgentResponseSignal(stats)}</p>
+            <div className="min-w-0">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Dashboard</p>
+              <h1 className="mt-2 text-2xl font-bold tracking-tight text-[#1A1A2E] sm:text-4xl">Welcome back, {stats.agentName.split(' ')[0]}</h1>
+              <p className="mt-2 text-sm font-semibold text-[#6B7280]">{stats.agencyName} · {formatAgentResponseSignal(stats)}</p>
             </div>
-            <div className="flex flex-wrap gap-3">
-              <a className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-bold text-[#1A1A2E] transition hover:bg-[#F7F8FA]" href="/dashboard/listings/new">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+              <a className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0] sm:w-auto" href="/dashboard/listings/new">
                 <Plus size={16} /> New listing
               </a>
-              <a className="inline-flex items-center gap-2 rounded-lg border border-white/20 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10" href="/dashboard/listings">
+              <a className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] px-5 py-3 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:w-auto" href="/dashboard/listings">
                 <ListPlus size={16} /> Manage listings
               </a>
             </div>
@@ -74,7 +75,7 @@ export default async function Page() {
       {/* Stats grid */}
       <section id="performance" className="px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-5">
             <StatCard icon={<Home size={20} />} label="Active listings" value={stats.activeListings} color="#4A3AFF" />
             <StatCard icon={<Eye size={20} />} label="Views (7 days)" value={views7d} color="#1A1A2E" />
             <StatCard icon={<BellRing size={20} />} label="New leads" value={stats.newLeads} color="#00C9A7" />
@@ -94,7 +95,7 @@ export default async function Page() {
       {/* Agent tools */}
       <section className="px-4 pb-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <AgentToolbox actions={followUpActions} newLeads={stats.newLeads} flaggedLeads={stats.flaggedLeads} />
+          <AgentToolbox actions={followUpActions} toolCards={toolCards} newLeads={stats.newLeads} flaggedLeads={stats.flaggedLeads} />
         </div>
       </section>
 
@@ -178,9 +179,9 @@ export default async function Page() {
   );
 }
 
-function AgentToolbox({ actions, newLeads, flaggedLeads }: { actions: AgentFollowUpAction[]; newLeads: number; flaggedLeads: number }) {
+function AgentToolbox({ actions, toolCards, newLeads, flaggedLeads }: { actions: AgentFollowUpAction[]; toolCards: AgentToolCard[]; newLeads: number; flaggedLeads: number }) {
   return (
-    <div className="grid gap-4 rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm lg:grid-cols-[320px_1fr]">
+    <div className="grid gap-4 rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm sm:p-5 lg:grid-cols-[320px_1fr]">
       <div className="rounded-2xl bg-[#1A1A2E] p-5 text-white">
         <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Agent tools</p>
         <h2 className="mt-2 text-2xl font-bold tracking-tight">CRM command centre</h2>
@@ -193,28 +194,51 @@ function AgentToolbox({ actions, newLeads, flaggedLeads }: { actions: AgentFollo
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
-        <div>
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="text-base font-bold text-[#1A1A2E]">Priority worklist</h3>
-            <a href="/dashboard/leads" className="text-xs font-bold text-[#4A3AFF] transition hover:text-[#3A2AE0]">Open CRM</a>
-          </div>
-          <div className="mt-3 space-y-2">
-            {actions.length > 0 ? (
-              actions.map((action) => <AgentActionRow key={action.leadId} action={action} />)
-            ) : (
-              <p className="rounded-xl bg-[#F7F8FA] p-4 text-sm font-bold text-[#6B7280]">No urgent CRM actions right now. New enquiries and quality checks will appear here.</p>
-            )}
-          </div>
+      <div className="grid gap-4">
+        <div className="grid gap-3 md:grid-cols-3">
+          {toolCards.map((card) => <AgentToolCardView key={card.label} card={card} />)}
         </div>
 
-        <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
-          <ToolLink icon={<MessageCircle size={16} />} label="Lead queue" text="Open all enquiries" href="/dashboard/leads" />
-          <ToolLink icon={<ListPlus size={16} />} label="Listing tools" text="Edit active stock" href="/dashboard/listings" />
-          <ToolLink icon={<BarChart3 size={16} />} label="Performance" text="Review views and lead flow" href="/dashboard#performance" />
+        <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
+          <div>
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-base font-bold text-[#1A1A2E]">Priority worklist</h3>
+              <a href="/dashboard/leads" className="text-xs font-bold text-[#4A3AFF] transition hover:text-[#3A2AE0]">Open CRM</a>
+            </div>
+            <div className="mt-3 space-y-2">
+              {actions.length > 0 ? (
+                actions.map((action) => <AgentActionRow key={action.leadId} action={action} />)
+              ) : (
+                <p className="rounded-xl bg-[#F7F8FA] p-4 text-sm font-bold text-[#6B7280]">No urgent CRM actions right now. New enquiries and quality checks will appear here.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
+            <ToolLink icon={<MessageCircle size={16} />} label="Lead queue" text="Open all enquiries" href="/dashboard/leads" />
+            <ToolLink icon={<ListPlus size={16} />} label="Listing tools" text="Edit active stock" href="/dashboard/listings" />
+            <ToolLink icon={<BarChart3 size={16} />} label="Performance" text="Review views and lead flow" href="/dashboard#performance" />
+          </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function AgentToolCardView({ card }: { card: AgentToolCard }) {
+  const toneClass = {
+    priority: 'border-[#4A3AFF]/20 bg-[#4A3AFF]/6 text-[#4A3AFF]',
+    quality: 'border-[#00C9A7]/25 bg-[#E6FBF7] text-[#057a70]',
+    listing: 'border-[#1A1A2E]/10 bg-[#F7F8FA] text-[#1A1A2E]',
+  }[card.tone];
+
+  return (
+    <a href={card.href} className="group rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-[#4A3AFF]/30 hover:shadow-md">
+      <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] ${toneClass}`}>{card.label}</span>
+      <h3 className="mt-3 text-base font-bold text-[#1A1A2E]">{card.title}</h3>
+      <p className="mt-2 text-xs font-bold leading-5 text-[#6B7280]">{card.detail}</p>
+      <span className="mt-3 inline-flex text-xs font-bold text-[#4A3AFF] transition group-hover:text-[#3A2AE0]">{card.cta} →</span>
+    </a>
   );
 }
 
