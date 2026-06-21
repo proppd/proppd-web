@@ -104,6 +104,7 @@ describe('lead pipeline helpers', () => {
     expect(buildLeadFilterHref({ source: 'launch' })).toBe('/admin?source=launch');
     expect(buildLeadFilterHref({ query: 'sandton', status: 'new', quality: 'flagged', source: 'property' })).toBe('/admin?q=sandton&status=new&quality=flagged&source=property');
     expect(buildLeadFilterHref({ source: 'all' })).toBe('/admin');
+    expect(buildLeadFilterHref({ status: 'new' }, '/dashboard/leads')).toBe('/dashboard/leads?status=new');
   });
 
   it('labels recent lead activity for queue rows and follow-up tracking', () => {

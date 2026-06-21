@@ -209,7 +209,7 @@ export function getLeadQueue(leads: LeadRecord[]): LeadRecord[] {
   return [...leads].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
 }
 
-export function buildLeadFilterHref(filters: LeadFilters = {}): string {
+export function buildLeadFilterHref(filters: LeadFilters = {}, basePath = '/admin'): string {
   const params = new URLSearchParams();
 
   const query = filters.query?.trim();
@@ -219,7 +219,7 @@ export function buildLeadFilterHref(filters: LeadFilters = {}): string {
   if (filters.source && filters.source !== 'all') params.set('source', filters.source);
 
   const search = params.toString();
-  return search ? `/admin?${search}` : '/admin';
+  return search ? `${basePath}?${search}` : basePath;
 }
 
 export function hasLeadFilters(filters: LeadFilters = {}): boolean {

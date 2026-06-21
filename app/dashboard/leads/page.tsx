@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { MessageCircle, Mail, Phone, Clock, CheckCircle, TrendingUp, ExternalLink } from 'lucide-react';
+import { MessageCircle, Mail, Phone, Clock, CheckCircle, TrendingUp, ExternalLink, Filter, ListChecks } from 'lucide-react';
 import { loadPortalLeadQueue, loadPortalUserAccess } from '@/lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
-import { formatLeadStatus, getLeadCrmStats, getLeadNextAction, getLeadQueue, type LeadRecord, type LeadStatus } from '@/lib/leads/pipeline';
+import { buildLeadFilterHref, filterLeads, formatLeadStatus, getLeadCrmStats, getLeadNextAction, getLeadQueue, hasLeadFilters, isLeadStatus, type LeadFilters, type LeadQuality, type LeadRecord, type LeadStatus } from '@/lib/leads/pipeline';
 import { LeadPipelineControls } from '@/components/dashboard/lead-pipeline-controls';
 
 export const metadata: Metadata = {
@@ -21,7 +21,12 @@ const intentStyles: Record<string, { bg: string; text: string }> = {
   general: { bg: 'bg-[#F3F4F6]', text: 'text-[#6B7280]' },
 };
 
-export default async function Page() {
+type PageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function Page({ searchParams }: PageProps) {
+  const params = await searchParams;
   const user = await getPortalServerUser();
   if (!user) {
     redirect('/login?next=%2Fdashboard%2Fleads');
@@ -31,6 +36,9 @@ export default async function Page() {
   const leadPayload = await loadPortalLeadQueue(access?.agentName ?? undefined);
   const leads = leadPayload.items;
   const controlsEnabled = leadPayload.source === 'database' || leadPayload.source === 'empty';
+  const activeFilters = parseLeadFilters(params);
+  const filteredLeads = filterLeads(leads, activeFilters);
+  const filtersActive = hasLeadFilters(activeFilters);
 
   const stats = {
     total: leads.length,
@@ -62,7 +70,30 @@ export default async function Page() {
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Leads</p>
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#1A1A2E]">Track your enquiries</h1>
-            <p className="mt-2 text-sm text-[#6B7280]">Manage buyer and tenant enquiries from Proppd.</p>
+            <p className="mt-2 text-sm text-[#6B7280]">Manage buyer and tenant enquiries from Proppd. Start with the first-response and quality-review lanes.</p>
+          </div>
+
+          <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_320px]">
+            <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+              <div className="flex items-start gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#4A3AFF]/10 text-[#4A3AFF]"><ListChecks size={18} /></span>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">How to work this queue</p>
+                  <h2 className="mt-1 text-xl font-bold tracking-tight text-[#1A1A2E]">Reply, then update the stage.</h2>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-[#6B7280]">
+                    Open the lead, use Reply/Call, then move it to Contacted, Viewing booked, Qualified, or Closed. Flagged leads should be checked before anyone wastes time.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-2xl bg-[#1A1A2E] p-5 text-white shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Queue shortcut</p>
+              <p className="mt-2 text-2xl font-bold">{crmStats.needsFirstResponse} first response{crmStats.needsFirstResponse === 1 ? '' : 's'}</p>
+              <p className="mt-2 text-sm font-bold leading-6 text-white/65">Open “Needs reply” when you only want the leads that need immediate action.</p>
+              <a href={buildLeadFilterHref({ status: 'new' }, '/dashboard/leads')} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-bold text-[#1A1A2E] transition hover:bg-white/90">
+                Needs reply
+              </a>
+            </div>
           </div>
 
           {/* Stats */}
@@ -73,18 +104,30 @@ export default async function Page() {
             <MiniStat icon={<TrendingUp size={16} />} label="Converted" value={stats.converted} color="#0a6b62" />
           </div>
 
+          <div className="mt-4 rounded-xl border border-[#E5E7EB] bg-white p-3 shadow-sm">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-2 text-xs font-bold uppercase tracking-widest text-[#9CA3AF]"><Filter size={13} /> Show</span>
+              <FilterChip label="All" href="/dashboard/leads" active={!filtersActive} />
+              <FilterChip label="Needs reply" href={buildLeadFilterHref({ status: 'new' }, '/dashboard/leads')} active={activeFilters.status === 'new'} count={stats.new} />
+              <FilterChip label="Quality review" href={buildLeadFilterHref({ quality: 'flagged' }, '/dashboard/leads')} active={activeFilters.quality === 'flagged'} count={crmStats.flagged} />
+              <FilterChip label="Viewings" href={buildLeadFilterHref({ status: 'viewing_booked' }, '/dashboard/leads')} active={activeFilters.status === 'viewing_booked'} count={crmStats.viewingBooked} />
+              <FilterChip label="Qualified" href={buildLeadFilterHref({ status: 'qualified' }, '/dashboard/leads')} active={activeFilters.status === 'qualified'} count={crmStats.qualified} />
+            </div>
+          </div>
+
           {/* Lead list */}
           <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_340px] lg:items-start">
             <div className="rounded-xl border border-[#E5E7EB] bg-white shadow-sm overflow-hidden">
-            {leads.length === 0 ? (
+            {filteredLeads.length === 0 ? (
               <div className="p-12 text-center">
                 <MessageCircle size={32} className="mx-auto text-[#9CA3AF]" />
-                <h2 className="mt-4 text-lg font-bold text-[#1A1A2E]">No leads yet</h2>
-                <p className="mt-2 text-sm text-[#6B7280]">Leads will appear here as buyers and tenants enquire about your listings.</p>
+                <h2 className="mt-4 text-lg font-bold text-[#1A1A2E]">{filtersActive ? 'No leads in this lane' : 'No leads yet'}</h2>
+                <p className="mt-2 text-sm text-[#6B7280]">{filtersActive ? 'Pick another lane or show all leads to keep working.' : 'Leads will appear here as buyers and tenants enquire about your listings.'}</p>
+                {filtersActive ? <a href="/dashboard/leads" className="mt-4 inline-flex rounded-lg bg-[#4A3AFF] px-4 py-2.5 text-sm font-bold text-white">Show all leads</a> : null}
               </div>
             ) : (
               <div className="divide-y divide-[#F3F4F6]">
-                {leads.map((lead) => {
+                {filteredLeads.map((lead) => {
                   const intent = intentStyles[lead.intent] || intentStyles.general;
                   return (
                     <div key={lead.id} className="flex items-start gap-4 px-4 py-4 transition hover:bg-[#F7F8FA] sm:px-6">
@@ -194,6 +237,33 @@ export default async function Page() {
       </section>
 
     </main>
+  );
+}
+
+function parseLeadFilters(params?: Record<string, string | string[] | undefined>): LeadFilters {
+  const status = firstParam(params?.status);
+  const quality = firstParam(params?.quality);
+
+  return {
+    status: isLeadStatus(status) ? status : 'all',
+    quality: isLeadQuality(quality) ? quality : 'all',
+  };
+}
+
+function firstParam(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function isLeadQuality(value: unknown): value is LeadQuality {
+  return value === 'clean' || value === 'duplicate' || value === 'flagged';
+}
+
+function FilterChip({ label, href, active, count }: { label: string; href: string; active: boolean; count?: number }) {
+  return (
+    <a href={href} className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-bold transition ${active ? 'bg-[#4A3AFF] text-white' : 'bg-[#F7F8FA] text-[#6B7280] hover:bg-[#4A3AFF]/10 hover:text-[#4A3AFF]'}`}>
+      {label}
+      {typeof count === 'number' ? <span className={active ? 'text-white/75' : 'text-[#9CA3AF]'}>{count}</span> : null}
+    </a>
   );
 }
 
