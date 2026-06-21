@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { Plus, Pencil, Eye, Trash2, ExternalLink, Home, Clock, CheckCircle } from 'lucide-react';
+import { Plus, Pencil, Eye, Home, Clock, CheckCircle, ListChecks } from 'lucide-react';
 import { loadMyPortalListings, loadPortalUserAccess } from '@/lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
+import { getListingHealthLabel, getListingWorkspaceActions, getListingWorkspaceStats, type ListingWorkspaceAction } from '@/lib/agent/listing-workspace';
 
 export const metadata: Metadata = {
   title: { absolute: 'Listings | Proppd' },
@@ -31,12 +32,8 @@ export default async function Page() {
   const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
   const { items: listings } = access ? await loadMyPortalListings(access) : { items: [] };
 
-  const stats = {
-    total: listings.length,
-    live: listings.length,
-    draft: 0,
-    underOffer: 0,
-  };
+  const stats = getListingWorkspaceStats(listings);
+  const actions = getListingWorkspaceActions(listings);
 
   return (
     <main className="min-h-screen bg-[#F7F8FA]">
@@ -48,18 +45,40 @@ export default async function Page() {
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Listings</p>
               <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#1A1A2E]">Manage your listings</h1>
+              <p className="mt-2 text-sm text-[#6B7280]">Keep live stock accurate, photo-ready, and easy for buyers to trust.</p>
             </div>
             <a href="/dashboard/listings/new" className="inline-flex items-center gap-2 rounded-lg bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0]">
               <Plus size={16} /> New listing
             </a>
           </div>
 
+          <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_340px]">
+            <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+              <div className="flex items-start gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#4A3AFF]/10 text-[#4A3AFF]"><ListChecks size={18} /></span>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">How to work listings</p>
+                  <h2 className="mt-1 text-xl font-bold tracking-tight text-[#1A1A2E]">Add stock, keep it fresh, then watch performance.</h2>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-[#6B7280]">
+                    Agents should not guess where to go: create new mandates here, edit live stock from the table, and use row health to spot what needs attention.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-2xl bg-[#1A1A2E] p-5 text-white shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Stock checklist</p>
+              <div className="mt-4 space-y-3">
+                {actions.map((action) => <ListingAction key={action.label} action={action} />)}
+              </div>
+            </div>
+          </div>
+
           {/* Stats */}
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <MiniStat icon={<Home size={16} />} label="Total" value={stats.total} />
-            <MiniStat icon={<CheckCircle size={16} />} label="Live" value={stats.live} color="#00C9A7" />
-            <MiniStat icon={<Clock size={16} />} label="Drafts" value={stats.draft} />
-            <MiniStat icon={<ExternalLink size={16} />} label="Under offer" value={stats.underOffer} color="#4A3AFF" />
+            <MiniStat icon={<CheckCircle size={16} />} label="For sale" value={stats.sale} color="#00C9A7" />
+            <MiniStat icon={<Clock size={16} />} label="To rent" value={stats.rent} />
+            <MiniStat icon={<Eye size={16} />} label="Views 7d" value={stats.views7d} color="#4A3AFF" />
           </div>
 
           {/* Listings table */}
@@ -116,8 +135,8 @@ export default async function Page() {
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="inline-flex rounded-full bg-[#E6FBF7] px-2.5 py-1 text-xs font-bold text-[#00C9A7]">
-                              Live
+                            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${listingHealthClass(getListingHealthLabel(listing))}`}>
+                              {getListingHealthLabel(listing)}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-right">
@@ -143,6 +162,24 @@ export default async function Page() {
 
     </main>
   );
+}
+
+function ListingAction({ action }: { action: ListingWorkspaceAction }) {
+  const toneClass = action.tone === 'urgent' ? 'bg-amber-200 text-amber-950' : action.tone === 'active' ? 'bg-white/15 text-white' : 'bg-[#00C9A7] text-[#1A1A2E]';
+  return (
+    <a href={action.href} className="block rounded-2xl bg-white/10 p-4 transition hover:bg-white/15">
+      <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${toneClass}`}>{action.tone}</span>
+      <p className="mt-3 text-sm font-bold text-white">{action.label}</p>
+      <p className="mt-1 text-xs font-bold leading-5 text-white/65">{action.detail}</p>
+    </a>
+  );
+}
+
+function listingHealthClass(label: string): string {
+  if (label === 'Needs photos') return 'bg-amber-50 text-amber-700';
+  if (label === 'Refresh details') return 'bg-[#4A3AFF]/10 text-[#4A3AFF]';
+  if (label === 'Needs exposure') return 'bg-slate-100 text-slate-600';
+  return 'bg-[#E6FBF7] text-[#00C9A7]';
 }
 
 function MiniStat({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color?: string }) {
