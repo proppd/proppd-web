@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { BarChart3, BellRing, Building2, CheckCircle2, ChevronRight, Eye, Home, ListPlus, MessageCircle, Plus, TrendingUp } from 'lucide-react';
+import { BarChart3, BellRing, CheckCircle2, ChevronRight, Eye, Home, ListChecks, ListPlus, MessageCircle, Plus, TrendingUp, User } from 'lucide-react';
 import { FollowUpPanel } from '@/components/dashboard/follow-up-panel';
 import { loadMyPortalListings, loadPortalLeadQueue, loadPortalListings, loadPortalUserAccess } from '../../lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
@@ -31,7 +31,7 @@ export default async function Page() {
   const views7d = agentListings.reduce((sum, l) => sum + (l.views7d ?? 0), 0);
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-white">
+    <main className="min-h-screen overflow-x-hidden bg-[#F7F8FA]">
       {/* Hero banner */}
       <section className="px-4 pt-8 pb-6 sm:px-6 sm:pt-10 lg:px-8">
         <div className="mx-auto max-w-7xl rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm sm:p-8">
@@ -49,6 +49,46 @@ export default async function Page() {
                 <ListPlus size={16} /> Manage listings
               </a>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Start-here CRM guide */}
+      <section className="px-4 pb-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl grid gap-4 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+          <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Start here</p>
+                <h2 className="mt-2 text-2xl font-bold tracking-tight text-[#1A1A2E]">What do you need to do?</h2>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-[#6B7280]">
+                  The CRM is split into plain tasks: reply to people, manage stock, and keep your public profile ready. If you are unsure, open leads first.
+                </p>
+              </div>
+              <a href="/dashboard/leads" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0]">
+                <MessageCircle size={16} /> Work leads
+              </a>
+            </div>
+
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              <CrmRouteCard icon={<MessageCircle size={18} />} label="1. Reply to enquiries" text="New, flagged, and qualified leads live here. This is the daily work queue." href="/dashboard/leads" cta="Open lead queue" tone="primary" />
+              <CrmRouteCard icon={<ListPlus size={18} />} label="2. Keep listings updated" text="Create stock, edit photos and prices, and check listing performance." href="/dashboard/listings" cta="Manage listings" />
+              <CrmRouteCard icon={<Plus size={18} />} label="3. Add a property" text="Use this when a new mandate or rental needs to go live." href="/dashboard/listings/new" cta="Create listing" />
+              <CrmRouteCard icon={<User size={18} />} label="4. Fix your profile" text="Update the public agent details buyers and tenants see." href="/dashboard/profile" cta="Edit profile" />
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-[#1A1A2E] p-5 text-white shadow-sm sm:p-6 lg:self-start">
+            <ListChecks size={24} className="text-[#00C9A7]" />
+            <h2 className="mt-4 text-2xl font-bold tracking-tight">Daily agent checklist</h2>
+            <div className="mt-5 space-y-3">
+              <ChecklistRow done={stats.newLeads === 0} label={stats.newLeads > 0 ? `${stats.newLeads} new lead${stats.newLeads === 1 ? '' : 's'} need a first reply` : 'No first replies waiting'} />
+              <ChecklistRow done={stats.flaggedLeads === 0} label={stats.flaggedLeads > 0 ? `${stats.flaggedLeads} lead${stats.flaggedLeads === 1 ? '' : 's'} need quality review` : 'Quality checks are clear'} />
+              <ChecklistRow done={stats.activeListings > 0} label={stats.activeListings > 0 ? `${stats.activeListings} active listing${stats.activeListings === 1 ? '' : 's'} available` : 'Add your first listing'} />
+            </div>
+            <p className="mt-5 rounded-2xl bg-white/10 p-4 text-sm font-bold leading-6 text-white/70">
+              Rule of thumb: answer leads first, then update listings, then check profile. The sidebar keeps those routes visible everywhere.
+            </p>
           </div>
         </div>
       </section>
@@ -90,7 +130,7 @@ export default async function Page() {
               <QuickAction icon={<Plus size={18} />} label="New listing" href="/dashboard/listings/new" />
               <QuickAction icon={<ListPlus size={18} />} label="All listings" href="/dashboard/listings" />
               <QuickAction icon={<MessageCircle size={18} />} label="Lead queue" href="/dashboard/leads" />
-              <QuickAction icon={<Building2 size={18} />} label="Admin panel" href="/admin" />
+              <QuickAction icon={<User size={18} />} label="Profile" href="/dashboard/profile" />
             </div>
           </div>
 
@@ -160,10 +200,32 @@ export default async function Page() {
   );
 }
 
+function CrmRouteCard({ icon, label, text, href, cta, tone = 'default' }: { icon: ReactNode; label: string; text: string; href: string; cta: string; tone?: 'default' | 'primary' }) {
+  return (
+    <a href={href} className={`group rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:shadow-md ${tone === 'primary' ? 'border-[#4A3AFF]/25 bg-[#4A3AFF]/5' : 'border-[#E5E7EB] bg-white hover:border-[#4A3AFF]/30'}`}>
+      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4A3AFF]/10 text-[#4A3AFF]">{icon}</span>
+      <h3 className="mt-3 text-base font-bold text-[#1A1A2E]">{label}</h3>
+      <p className="mt-2 text-sm font-semibold leading-6 text-[#6B7280]">{text}</p>
+      <span className="mt-3 inline-flex text-xs font-bold text-[#4A3AFF] transition group-hover:text-[#3A2AE0]">{cta} →</span>
+    </a>
+  );
+}
+
+function ChecklistRow({ done, label }: { done: boolean; label: string }) {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl bg-white/10 p-3">
+      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${done ? 'bg-[#00C9A7] text-[#1A1A2E]' : 'bg-amber-200 text-amber-950'}`}>
+        {done ? <CheckCircle2 size={15} /> : <BellRing size={15} />}
+      </span>
+      <span className="text-sm font-bold leading-5 text-white/80">{label}</span>
+    </div>
+  );
+}
+
 function AgentToolbox({ actions, toolCards, newLeads, flaggedLeads }: { actions: AgentFollowUpAction[]; toolCards: AgentToolCard[]; newLeads: number; flaggedLeads: number }) {
   return (
     <div className="grid gap-4 rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm sm:p-5 lg:grid-cols-[320px_1fr]">
-      <div className="rounded-2xl bg-[#1A1A2E] p-5 text-white">
+      <div className="rounded-2xl bg-[#1A1A2E] p-5 text-white lg:self-start">
         <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Agent tools</p>
         <h2 className="mt-2 text-2xl font-bold tracking-tight">CRM command centre</h2>
         <p className="mt-3 text-sm font-bold leading-6 text-white/65">
