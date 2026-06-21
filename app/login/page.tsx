@@ -86,7 +86,7 @@ export default async function Page() {
               <SupabaseLoginForm
                 supabaseUrl={supabase?.url}
                 publishableKey={supabase?.publishableKey}
-                nextPath="/dashboard/profile"
+                nextPath="/dashboard"
               />
             </div>
 

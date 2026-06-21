@@ -43,7 +43,7 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
       const { error: authError } = await supabase.auth.signInWithOtp({
         email: cleanEmail,
         options: {
-          emailRedirectTo: buildAuthCallbackUrl(window.location.origin, '/dashboard/profile'),
+          emailRedirectTo: buildAuthCallbackUrl(window.location.origin, '/dashboard'),
           shouldCreateUser: false,
           data: {
             first_name: form.firstName,

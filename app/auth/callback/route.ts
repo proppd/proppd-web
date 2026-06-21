@@ -5,7 +5,7 @@ import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
-  const nextPath = safeAuthRedirectPath(request.nextUrl.searchParams.get('next'), '/dashboard/profile');
+  const nextPath = safeAuthRedirectPath(request.nextUrl.searchParams.get('next'), '/dashboard');
 
   if (!code) {
     return NextResponse.redirect(new URL(`/login?message=${encodeURIComponent('Missing login code.')}`, request.url));
