@@ -1,9 +1,10 @@
 'use client';
 
 import type React from 'react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { ArrowRight, CheckCircle, Mail, Building2, User, MapPin } from 'lucide-react';
+import { buildAuthCallbackUrl } from '@/lib/auth/redirects';
 
 type Props = {
   supabaseUrl?: string;
@@ -25,9 +26,10 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
   });
   const [error, setError] = useState('');
 
-  const supabase = (supabaseUrl && publishableKey)
-    ? createClient(supabaseUrl, publishableKey)
-    : null;
+  const supabase = useMemo(() => {
+    if (!supabaseUrl || !publishableKey) return null;
+    return createClient(supabaseUrl, publishableKey, { auth: { persistSession: true, autoRefreshToken: true } });
+  }, [publishableKey, supabaseUrl]);
 
   const update = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
   const isValid = form.firstName.trim() && form.lastName.trim() && form.email.trim() && form.email.includes('@');
@@ -35,11 +37,13 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
   const handleSubmit = async () => {
     if (!isValid) return;
 
+    const cleanEmail = form.email.trim().toLowerCase();
+
     if (supabase) {
       const { error: authError } = await supabase.auth.signInWithOtp({
-        email: form.email.trim().toLowerCase(),
+        email: cleanEmail,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+          emailRedirectTo: buildAuthCallbackUrl(window.location.origin, '/dashboard'),
           shouldCreateUser: false,
           data: {
             first_name: form.firstName,
@@ -53,9 +57,21 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
       });
 
       if (authError) {
-        setError(authError.message);
+        setError('We could not send a login link for that email. If you are new to Proppd, email info@proppd.com so we can approve your agency first.');
         return;
       }
+    } else {
+      const subject = encodeURIComponent('Proppd agent access request');
+      const body = encodeURIComponent([
+        `Please approve Proppd access for: ${cleanEmail}`,
+        '',
+        `Name: ${form.firstName} ${form.lastName}`,
+        `Phone: ${form.phone || 'Not supplied'}`,
+        `Agency: ${form.agency || 'Not supplied'}`,
+        `Service area: ${form.area || 'Not supplied'}`,
+        `Role: ${form.role}`,
+      ].join('\n'));
+      window.location.href = `mailto:info@proppd.com?subject=${subject}&body=${body}`;
     }
 
     setStep('sent');
@@ -67,10 +83,10 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
         <CheckCircle size={32} className="mx-auto text-[#00C9A7]" />
         <h3 className="mt-3 text-lg font-bold text-[#1A1A2E]">Check your inbox</h3>
         <p className="mt-2 text-sm text-[#6B7280]">
-          We sent a login link to <span className="font-bold text-[#1A1A2E]">{form.email}</span>.
-          Click the link to continue your approved Proppd onboarding and access your dashboard.
+          If <span className="font-bold text-[#1A1A2E]">{form.email}</span> is approved, the secure link will open your dashboard.
+          New agency requests are reviewed before access is enabled.
         </p>
-        <p className="mt-3 text-xs text-[#9CA3AF]">Didn't receive it? Check your spam folder.</p>
+        <p className="mt-3 text-xs text-[#9CA3AF]">No link? Check spam/promotions or email info@proppd.com for approval help.</p>
       </div>
     );
   }
@@ -128,7 +144,7 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
               onClick={handleSubmit}
               className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0]"
             >
-              <Mail size={14} /> Send login link
+              <Mail size={14} /> Request access
             </button>
           </div>
         </div>

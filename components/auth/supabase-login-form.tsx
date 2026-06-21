@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import type React from 'react';
 import { useMemo, useState } from 'react';
 import { Mail, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
+import { buildAuthCallbackUrl } from '@/lib/auth/redirects';
 
 type LoginFormProps = {
   supabaseUrl?: string;
@@ -56,7 +57,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
     const { error } = await supabase.auth.signInWithOtp({
       email: cleanEmail,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
+        emailRedirectTo: buildAuthCallbackUrl(window.location.origin, nextPath),
       },
     });
 
