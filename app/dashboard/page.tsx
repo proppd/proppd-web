@@ -19,25 +19,6 @@ export const dynamic = 'force-dynamic';
 export default async function Page() {
   const user = await getPortalServerUser();
   const access = user ? await loadPortalUserAccess(user.id, user.email) : null;
-  if (user && !access) {
-    return (
-      <main className="min-h-screen bg-[#F7F8FA]">
-        <section className="px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl rounded-xl border border-[#E5E7EB] bg-white p-8 shadow-sm sm:p-12">
-            <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">One quick step left</p>
-            <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#1A1A2E]">Set up your agent profile to get started.</h1>
-            <p className="mt-4 text-sm text-[#6B7280]">
-              You&apos;re signed in. Add your name, agency, and the areas you serve, and you&apos;ll be ready to publish listings and receive leads. It takes under a minute.
-            </p>
-            <div className="mt-6 flex gap-3">
-              <a className="rounded-lg bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0]" href="/dashboard/profile">Set up my profile</a>
-              <a className="rounded-lg border border-[#E5E7EB] bg-white px-5 py-3 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF]" href="/agents">Browse agents</a>
-            </div>
-          </div>
-        </section>
-      </main>
-    );
-  }
 
   const portalListings = access ? (await loadMyPortalListings(access)).items : (await loadPortalListings()).items;
   const portalLeads = (await loadPortalLeadQueue(access?.agentName ?? undefined)).items;

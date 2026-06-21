@@ -8,11 +8,11 @@ describe('auth redirect helpers', () => {
   });
 
   it('falls back when next points outside the app', () => {
-    expect(safeAuthRedirectPath(null)).toBe('/dashboard/profile');
-    expect(safeAuthRedirectPath('https://evil.example/dashboard')).toBe('/dashboard/profile');
-    expect(safeAuthRedirectPath('//evil.example/dashboard')).toBe('/dashboard/profile');
-    expect(safeAuthRedirectPath('/\\evil.example')).toBe('/dashboard/profile');
-    expect(safeAuthRedirectPath('   ')).toBe('/dashboard/profile');
+    expect(safeAuthRedirectPath(null)).toBe('/dashboard');
+    expect(safeAuthRedirectPath('https://evil.example/dashboard')).toBe('/dashboard');
+    expect(safeAuthRedirectPath('//evil.example/dashboard')).toBe('/dashboard');
+    expect(safeAuthRedirectPath('/\\evil.example')).toBe('/dashboard');
+    expect(safeAuthRedirectPath('   ')).toBe('/dashboard');
     expect(safeAuthRedirectPath('https://evil.example/dashboard', '/dashboard/listings')).toBe('/dashboard/listings');
   });
 
@@ -21,7 +21,7 @@ describe('auth redirect helpers', () => {
       'https://proppd.com/auth/callback?next=%2Fdashboard%2Flistings',
     );
     expect(buildAuthCallbackUrl('https://proppd.com', 'https://evil.example')).toBe(
-      'https://proppd.com/auth/callback?next=%2Fdashboard%2Fprofile',
+      'https://proppd.com/auth/callback?next=%2Fdashboard',
     );
   });
 });

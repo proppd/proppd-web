@@ -123,8 +123,11 @@ export function AgentProfileEditor() {
       }
 
       setProfile((prev) => ({ ...prev, areasServed: payload.profile?.areasServed ?? prev.areasServed }));
-      setSave({ kind: 'saved', message: isNew ? 'Profile created — you can now publish listings.' : 'Profile saved.' });
+      setSave({ kind: 'saved', message: isNew ? 'Profile created — opening your dashboard…' : 'Profile saved.' });
       if (load.kind === 'ready') setLoad({ ...load, isNew: false });
+      if (isNew) {
+        window.location.assign('/dashboard');
+      }
     } catch {
       setSave({ kind: 'error', message: 'Could not reach the server. Try again.' });
     }

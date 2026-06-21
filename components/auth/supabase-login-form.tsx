@@ -18,7 +18,7 @@ type SubmitState =
   | { status: 'success'; message: string }
   | { status: 'error'; message: string };
 
-export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/dashboard/profile' }: LoginFormProps) {
+export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/dashboard' }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [state, setState] = useState<SubmitState>({
     status: 'idle',
