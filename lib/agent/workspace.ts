@@ -22,6 +22,15 @@ export type AgentFollowUpAction = {
   href: string;
 };
 
+export type AgentToolCard = {
+  label: string;
+  title: string;
+  detail: string;
+  href: string;
+  cta: string;
+  tone: 'priority' | 'quality' | 'listing';
+};
+
 export function getAgentWorkspaceStats(agentName: string, listings: Listing[], leads: LeadRecord[]): AgentWorkspaceStats {
   const agentListings = listings.filter((listing) => listing.agent === agentName && listing.isActive !== false);
   const agentLeads = leads.filter((lead) => lead.agent === agentName);
@@ -90,4 +99,41 @@ export function formatAgentResponseSignal(stats: AgentWorkspaceStats): string {
   }
 
   return 'Workspace clear';
+}
+
+export function getAgentToolCards(stats: AgentWorkspaceStats): AgentToolCard[] {
+  const firstResponseCount = Math.max(stats.newLeads - stats.flaggedLeads, 0);
+
+  return [
+    {
+      label: 'Reply tool',
+      title: firstResponseCount > 0 ? 'Work first responses' : 'Inbox ready',
+      detail: firstResponseCount > 0
+        ? `${firstResponseCount} clean lead${firstResponseCount === 1 ? '' : 's'} should get a fast, personal reply.`
+        : 'No clean first-response leads waiting. Keep the queue warm for the next enquiry.',
+      href: '/dashboard/leads',
+      cta: firstResponseCount > 0 ? 'Open reply queue' : 'View CRM queue',
+      tone: 'priority',
+    },
+    {
+      label: 'Quality gate',
+      title: stats.flaggedLeads > 0 ? 'Review before routing' : 'Quality clear',
+      detail: stats.flaggedLeads > 0
+        ? `${stats.flaggedLeads} flagged lead${stats.flaggedLeads === 1 ? '' : 's'} need source and message checks first.`
+        : 'Flagged enquiries are clear, so agents can focus on real buyer and tenant conversations.',
+      href: '/dashboard/leads',
+      cta: stats.flaggedLeads > 0 ? 'Review flagged leads' : 'Check queue health',
+      tone: 'quality',
+    },
+    {
+      label: 'Stock tool',
+      title: stats.activeListings > 0 ? 'Keep listings fresh' : 'Add your first listing',
+      detail: stats.activeListings > 0
+        ? `${stats.activeListings} active listing${stats.activeListings === 1 ? '' : 's'} can generate better leads with fresh photos and price notes.`
+        : 'Publish a verified listing so the CRM has live stock to route enquiries against.',
+      href: stats.activeListings > 0 ? '/dashboard/listings' : '/dashboard/listings/new',
+      cta: stats.activeListings > 0 ? 'Manage stock' : 'Create listing',
+      tone: 'listing',
+    },
+  ];
 }
