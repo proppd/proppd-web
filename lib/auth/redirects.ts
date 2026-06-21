@@ -1,4 +1,4 @@
-export const DEFAULT_AUTH_REDIRECT_PATH = '/dashboard';
+export const DEFAULT_AUTH_REDIRECT_PATH = '/dashboard/profile';
 
 export function safeAuthRedirectPath(
   value: string | null | undefined,

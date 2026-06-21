@@ -56,7 +56,7 @@ export function AuthModal({ mode, onModeChange, onClose }: AuthModalProps) {
               <h2 className="text-xl font-bold text-[#1A1A2E]">Welcome back</h2>
               <p className="mt-1 text-sm text-[#6B7280]">Enter your approved email and we&apos;ll send a one-time login link.</p>
               <div className="mt-5">
-                <SupabaseLoginForm supabaseUrl={SUPABASE_URL} publishableKey={SUPABASE_PUBLISHABLE_KEY} nextPath="/dashboard" />
+                <SupabaseLoginForm supabaseUrl={SUPABASE_URL} publishableKey={SUPABASE_PUBLISHABLE_KEY} nextPath="/dashboard/profile" />
               </div>
             </>
           ) : (
