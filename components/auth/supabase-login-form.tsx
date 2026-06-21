@@ -28,7 +28,9 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
 
   const supabase = useMemo(() => {
     if (!supabaseUrl || !publishableKey) return null;
-    return createClient(supabaseUrl, publishableKey, { auth: { persistSession: true, autoRefreshToken: true } });
+    return createClient(supabaseUrl, publishableKey, {
+      auth: { persistSession: true, autoRefreshToken: true, flowType: 'pkce' },
+    });
   }, [publishableKey, supabaseUrl]);
 
   const cleanEmail = email.trim().toLowerCase();
