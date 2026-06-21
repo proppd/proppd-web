@@ -28,7 +28,9 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
 
   const supabase = useMemo(() => {
     if (!supabaseUrl || !publishableKey) return null;
-    return createClient(supabaseUrl, publishableKey, { auth: { persistSession: true, autoRefreshToken: true } });
+    return createClient(supabaseUrl, publishableKey, {
+      auth: { persistSession: true, autoRefreshToken: true, flowType: 'pkce' },
+    });
   }, [publishableKey, supabaseUrl]);
 
   const update = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
