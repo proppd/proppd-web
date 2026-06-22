@@ -108,7 +108,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
 
       <section className="px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="overflow-hidden rounded-xl bg-[#1A1A2E] text-white shadow-sm">
+          <div className="overflow-hidden rounded-xl proppd-panel shadow-sm">
             <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[1fr_360px] lg:p-12">
               <div>
                 <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Lead operations</p>
@@ -157,7 +157,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                           href={buildLeadFilterHref({ query, status: selectedStatus, quality: selectedQuality, source: option.value })}
                         >
                           <span>{option.label}</span>
-                          <span className={`rounded-full px-2 py-0.5 text-[10px] ${isActive ? 'bg-[#1A1A2E] text-white' : 'bg-white/10 text-white/70'}`}>
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] ${isActive ? 'bg-[#4A3AFF] text-white' : 'bg-white/10 text-white/70'}`}>
                             {count}
                           </span>
                         </a>
@@ -297,7 +297,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                 </select>
 
                 <div className="flex gap-3">
-                  <button className="inline-flex flex-1 items-center justify-center rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]" type="submit">
+                  <button className="inline-flex flex-1 items-center justify-center rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]" type="submit">
                     Apply filters
                   </button>
                   {hasFilters ? (
@@ -388,7 +388,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                   <li>• Agent follow-up can move leads to contacted or qualified.</li>
                 </ul>
               </div>
-              <div className="rounded-xl bg-[#1A1A2E] p-6 text-white">
+              <div className="rounded-xl proppd-panel p-6 ">
                 <p className="text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">Moderation digest</p>
                 <div className="mt-4 space-y-3">
                   {moderationDigest.length > 0 ? (
@@ -431,7 +431,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                   </div>
                 </div>
                 <div className="mt-5">
-                  <a className="inline-flex items-center justify-center rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]" href="/admin/diagnostics">
+                  <a className="inline-flex items-center justify-center rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]" href="/admin/diagnostics">
                     Open backend diagnostics
                   </a>
                 </div>

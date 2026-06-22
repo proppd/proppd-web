@@ -44,7 +44,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             <ArrowLeft size={16} /> Back to queue
           </a>
 
-          <div className="mt-6 overflow-hidden rounded-xl bg-[#1A1A2E] text-white shadow-sm">
+          <div className="mt-6 overflow-hidden rounded-xl proppd-panel shadow-sm">
             <div className="grid gap-6 p-8 sm:p-10 lg:grid-cols-[1fr_320px] lg:p-12">
               <div>
                 <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Lead detail</p>
@@ -123,7 +123,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                 </ul>
               </div>
 
-              <div className="rounded-xl bg-[#1A1A2E] p-6 text-white">
+              <div className="rounded-xl proppd-panel p-6 ">
                 <Sparkles className="text-[#2563EB]" size={28} />
                 <h2 className="mt-4 text-2xl font-bold tracking-[-.04em]">Context</h2>
                 <p className="mt-3 text-sm leading-6 text-white/70">{lead.message}</p>
@@ -136,7 +136,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                   Open the source page, reply by email, and keep the listing context close by while the handoff is active.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <a className="inline-flex items-center justify-center rounded-full bg-[#1A1A2E] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#4A3AFF]" href={emailHref}>
+                  <a className="inline-flex items-center justify-center rounded-full bg-[#4A3AFF] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#4A3AFF]" href={emailHref}>
                     Reply by email
                   </a>
                   <a className="inline-flex items-center justify-center rounded-full border border-[#E5E7EB] bg-white px-4 py-2 text-xs font-bold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href={sourceHref}>

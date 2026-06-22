@@ -72,6 +72,67 @@ img {
   color: var(--proppd-text);
 }
 
+/* Light-blue gradient panel — replaces the former dark navy blocks.
+   "Lightish" blue so cards/forms inside still read as distinct surfaces.
+   Recolors the white-on-dark content these panels used to contain so the
+   container can be swapped without rewriting every nested element. */
+.proppd-panel {
+  background: linear-gradient(135deg, #DBEAFE 0%, #EFF6FF 46%, #ffffff 100%);
+  color: var(--proppd-text);
+  border: 1px solid #BFDBFE;
+}
+
+/* Headlines / primary copy that used solid white */
+.proppd-panel .text-white {
+  color: var(--proppd-text);
+}
+
+/* Secondary copy that used translucent white */
+.proppd-panel [class*='text-white\/'] {
+  color: var(--proppd-text-secondary);
+}
+
+/* Subtle dividers that used translucent white borders */
+.proppd-panel .border-white,
+.proppd-panel [class*='border-white\/1'],
+.proppd-panel [class*='border-white\/2'],
+.proppd-panel [class*='border-white\/3'],
+.proppd-panel [class*='border-white\/40'] {
+  border-color: #BFDBFE;
+}
+
+/* Frosted overlay cards that used low-opacity white fills */
+.proppd-panel [class*='bg-white\/5'],
+.proppd-panel [class*='bg-white\/6'],
+.proppd-panel [class*='bg-white\/8'],
+.proppd-panel [class*='bg-white\/10'],
+.proppd-panel [class*='bg-white\/12'],
+.proppd-panel [class*='bg-white\/15'],
+.proppd-panel [class*='bg-white\/20'],
+.proppd-panel [class*='bg-white\/25'] {
+  background-color: rgba(255, 255, 255, 0.65);
+}
+
+/* Pale accent text meant for dark backgrounds → readable blue on light */
+.proppd-panel .text-\[\#60A5FA\],
+.proppd-panel .text-\[\#93C5FD\],
+.proppd-panel .text-\[\#A5B4FC\],
+.proppd-panel .text-\[\#9BE8DC\],
+.proppd-panel .text-\[\#BFDBFE\],
+.proppd-panel .text-\[\#DBEAFE\] {
+  color: var(--proppd-accent);
+}
+
+/* Real CTAs / badges inside a panel keep a solid fill, so their label stays
+   white. Defined last so it wins over the white-text recolor rules above for
+   any element that carries both a solid background and a white-text class. */
+.proppd-panel .bg-\[\#4A3AFF\],
+.proppd-panel .bg-\[\#3A2AE0\],
+.proppd-panel .bg-\[\#2563EB\],
+.proppd-panel .bg-\[\#1A1A2E\] {
+  color: #fff;
+}
+
 /* Utility classes matching commercial portal style */
 .proppd-section {
   background: var(--proppd-background);

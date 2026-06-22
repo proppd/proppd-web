@@ -143,7 +143,7 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
                 </div>
               </div>
 
-              <div className="rounded-xl bg-[#1A1A2E] p-5 text-white shadow-sm">
+              <div className="rounded-xl proppd-panel p-5 shadow-sm">
                 <CheckCircle2 size={24} className="text-[#2563EB]" />
                 <h2 className="mt-3 text-lg font-bold">Agent handoff rule</h2>
                 <p className="mt-2 text-sm font-bold leading-6 text-white/65">

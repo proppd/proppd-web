@@ -26,7 +26,7 @@ const routes = [
 
 export function SupportStrip() {
   return (
-    <section className="bg-[#F7F8FA]">
+    <section>
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-[#1A1A2E] sm:text-3xl">
@@ -59,7 +59,7 @@ export function SupportStrip() {
         {/* Bottom CTA */}
         <div className="mx-auto mt-10 flex max-w-4xl flex-wrap items-center justify-between gap-4 rounded-xl border border-[#E5E7EB] bg-white px-6 py-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1A1A2E] text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#4A3AFF] text-white">
               <Home size={18} />
             </div>
             <p className="text-sm font-semibold text-[#6B7280]">

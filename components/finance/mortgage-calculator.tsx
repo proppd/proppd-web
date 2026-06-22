@@ -93,7 +93,7 @@ export function MortgageCalculator({ price }: MortgageCalculatorProps) {
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg bg-[#1A1A2E] p-4">
+      <div className="mt-4 rounded-lg bg-[#4A3AFF] p-4">
         <p className="text-xs font-bold uppercase tracking-wider text-white/50">Estimated monthly payment</p>
         <p className="mt-1 text-2xl font-bold text-white">{fmt(estimate.monthlyPayment)}</p>
         <div className="mt-3 grid grid-cols-2 gap-3 text-xs">

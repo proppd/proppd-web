@@ -11,7 +11,7 @@ const areas = [
 
 export function PopularAreas() {
   return (
-    <section className="bg-[#F7F8FA]">
+    <section>
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
         <div className="flex items-end justify-between gap-4">
           <div>

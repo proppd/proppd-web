@@ -47,7 +47,7 @@ export default function Page() {
 
       <section className="px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="overflow-hidden rounded-xl bg-[#1A1A2E] text-white shadow-sm">
+          <div className="overflow-hidden rounded-xl proppd-panel shadow-sm">
             <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[1fr_360px] lg:p-12">
               <div>
                 <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Request valuation</p>
@@ -56,7 +56,7 @@ export default function Page() {
                   Proppd’s valuation route is a readiness and handoff flow: capture the right property context, set expectations clearly, and route serious requests to suitable agents or agencies.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <a className="rounded-full bg-white px-6 py-3 text-sm font-bold !text-[#1A1A2E]" href="/home-values#instant-estimate">Get instant estimate</a>
+                  <a className="rounded-full bg-[#4A3AFF] px-6 py-3 text-sm font-bold !text-white" href="/home-values#instant-estimate">Get instant estimate</a>
                   <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white" href={buildValuationRequestMailto({ reason: 'selling' })}>Start manual request</a>
                 </div>
               </div>
@@ -97,7 +97,7 @@ export default function Page() {
                 <h2 className="mt-3 text-2xl font-bold tracking-[-.04em]">{reason.title}</h2>
                 <p className="mt-3 flex-1 text-sm font-bold leading-6 text-[#6B7280]">{reason.detail}</p>
                 <p className="mt-4 rounded-2xl bg-[#F7F8FA] p-3 text-sm font-bold text-[#6B7280]">Example: {reason.example}</p>
-                <a className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold !text-white" href={buildValuationRequestMailto({ reason: reason.id })}>
+                <a className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold !text-white" href={buildValuationRequestMailto({ reason: reason.id })}>
                   Request this route <ArrowRight size={16} />
                 </a>
               </article>

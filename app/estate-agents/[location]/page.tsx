@@ -139,7 +139,7 @@ export default async function EstateAgentsLocationPage({ params }: { params: Par
             </div>
           </section>
 
-          <section className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm">
+          <section className="rounded-xl proppd-panel p-6 shadow-sm">
             <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Work in {location.name}?</p>
             <h2 className="mt-2 text-2xl font-bold tracking-[-.04em]">Get verified leads without the noise.</h2>
             <p className="mt-4 text-sm font-semibold leading-6 text-white/72">

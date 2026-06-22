@@ -23,7 +23,7 @@ export default async function Page() {
 
       <section className="px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="overflow-hidden rounded-xl bg-[#1A1A2E] text-white shadow-sm">
+          <div className="overflow-hidden rounded-xl proppd-panel shadow-sm">
             <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[1fr_360px] lg:p-12">
               <div>
                 <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Backend diagnostics</p>

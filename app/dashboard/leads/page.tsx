@@ -86,7 +86,7 @@ export default async function Page({ searchParams }: PageProps) {
                 </div>
               </div>
             </div>
-            <div className="rounded-2xl bg-[#1A1A2E] p-5 text-white shadow-sm">
+            <div className="rounded-2xl proppd-panel p-5 shadow-sm">
               <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Queue shortcut</p>
               <p className="mt-2 text-2xl font-bold">{crmStats.needsFirstResponse} first response{crmStats.needsFirstResponse === 1 ? '' : 's'}</p>
               <p className="mt-2 text-sm font-bold leading-6 text-white/65">Open “Needs reply” when you only want the leads that need immediate action.</p>

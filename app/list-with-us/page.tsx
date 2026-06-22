@@ -80,7 +80,7 @@ export default function Page() {
 
       <section className="px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="overflow-hidden rounded-xl bg-[#1A1A2E] text-white shadow-sm">
+          <div className="overflow-hidden rounded-xl proppd-panel shadow-sm">
             <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[1fr_360px] lg:p-12">
               <div>
                 <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">List with Proppd</p>
@@ -89,7 +89,7 @@ export default function Page() {
                   Join the Proppd launch rollout with verified profiles, cleaner enquiry routing, and early access to agent workflow tools while the network grows deliberately.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <a className="rounded-full bg-white px-6 py-3 text-sm font-bold !text-[#1A1A2E]" href="#launch-application">Open launch application</a>
+                  <a className="rounded-full bg-[#4A3AFF] px-6 py-3 text-sm font-bold !text-white" href="#launch-application">Open launch application</a>
                   <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white" href="/dashboard">See the AgentOS workspace</a>
                 </div>
                 <div className="mt-8 rounded-lg border border-white/10 bg-white/6 p-4">
@@ -99,7 +99,7 @@ export default function Page() {
                   </div>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     {launchSignals.map(({ title, text, icon }) => (
-                      <div key={title} className="rounded-2xl border border-white/10 bg-[#1A1A2E]/65 p-5 shadow-[0_20px_50px_rgba(5,10,48,.18)]">
+                      <div key={title} className="rounded-2xl border border-white/10 bg-white/65 p-5 shadow-[0_20px_50px_rgba(5,10,48,.18)]">
                         <div className="inline-flex rounded-2xl bg-white/8 p-2 text-[#2563EB]">
                           {icon}
                         </div>
@@ -177,7 +177,7 @@ export default function Page() {
                     <li key={feature} className="flex gap-2"><CheckCircle2 className="mt-0.5 shrink-0 text-[#2563EB]" size={16} /> {feature}</li>
                   ))}
                 </ul>
-                <a className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold !text-white" href={buildAgencyApplicationMailto({ packageName: item.name })}>
+                <a className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold !text-white" href={buildAgencyApplicationMailto({ packageName: item.name })}>
                   Request {item.name} <ArrowRight size={16} />
                 </a>
               </article>

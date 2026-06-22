@@ -30,8 +30,8 @@ const STATUS_STYLES: Record<string, string> = {
   pending_review: 'bg-amber-50 text-amber-700',
   available: 'bg-[#EFF6FF] text-[#2563EB]',
   under_offer: 'bg-[#4A3AFF]/10 text-[#4A3AFF]',
-  sold: 'bg-[#1A1A2E]/10 text-[#1A1A2E]',
-  rented: 'bg-[#1A1A2E]/10 text-[#1A1A2E]',
+  sold: 'bg-[#4A3AFF]/10 text-[#4A3AFF]',
+  rented: 'bg-[#4A3AFF]/10 text-[#4A3AFF]',
   archived: 'bg-slate-100 text-slate-400',
 };
 
@@ -69,7 +69,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
 
       <section className="px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="rounded-xl bg-[#1A1A2E] p-8 text-white shadow-sm sm:p-10">
+          <div className="rounded-xl proppd-panel p-8 shadow-sm sm:p-10">
             <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Listing management</p>
             <h1 className="mt-3 text-4xl font-bold tracking-[-.06em] sm:text-5xl">Approve, feature, and moderate listings</h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-white/70">
@@ -105,7 +105,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                   <a
                     key={tab}
                     href={tab === 'all' ? '/admin/listings' : `/admin/listings?status=${tab}`}
-                    className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[.12em] transition ${isActive ? 'bg-[#1A1A2E] text-white' : 'border border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#4A3AFF] hover:text-[#4A3AFF]'}`}
+                    className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[.12em] transition ${isActive ? 'bg-[#4A3AFF] text-white' : 'border border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#4A3AFF] hover:text-[#4A3AFF]'}`}
                   >
                     {tab === 'all' ? 'All' : STATUS_LABELS[tab] ?? tab}
                   </a>

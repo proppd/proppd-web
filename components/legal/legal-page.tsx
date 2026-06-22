@@ -5,14 +5,14 @@ export function LegalPageTemplate({ page }: { page: LegalPage }) {
   return (
     <section className="px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <div className="overflow-hidden rounded-xl bg-[#1A1A2E] text-white shadow-sm">
+        <div className="overflow-hidden rounded-xl proppd-panel shadow-sm">
           <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[1fr_340px] lg:p-12">
             <div>
               <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">{page.label}</p>
               <h1 className="mt-4 max-w-4xl text-5xl font-bold tracking-[-.07em] sm:text-6xl">{page.title}</h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-white/70">{page.intro}</p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <a className="rounded-full bg-white px-6 py-3 text-sm font-bold !text-[#1A1A2E]" href={buildLegalContactMailto(page)}>Ask a question</a>
+                <a className="rounded-full bg-[#4A3AFF] px-6 py-3 text-sm font-bold !text-white" href={buildLegalContactMailto(page)}>Ask a question</a>
                 <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white" href="/list-with-us">List with Proppd</a>
               </div>
             </div>
@@ -53,7 +53,7 @@ export function LegalPageTemplate({ page }: { page: LegalPage }) {
             <p className="max-w-3xl text-sm font-bold leading-6">
               If any policy wording is unclear or you need access, correction, deletion, or consent support, contact Proppd with the page context included.
             </p>
-            <a className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold !text-white" href={buildLegalContactMailto(page)}>
+            <a className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold !text-white" href={buildLegalContactMailto(page)}>
               Contact info@proppd.com <ArrowRight size={16} />
             </a>
           </div>

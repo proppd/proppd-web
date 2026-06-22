@@ -34,7 +34,7 @@ export function RecentlyViewed() {
   if (viewed.length === 0) return null;
 
   return (
-    <section className="bg-white">
+    <section>
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
         <div className="flex items-center gap-2">
           <Clock size={18} className="text-[#9CA3AF]" />

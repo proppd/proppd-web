@@ -41,7 +41,7 @@ export function PropertyComparison({ listings, onRemove }: PropertyComparisonPro
                     <button
                       type="button"
                       onClick={() => onRemove(listing.slug)}
-                      className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#1A1A2E] text-white hover:bg-red-500"
+ className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#4A3AFF] text-white hover:bg-red-500"
                       aria-label={`Remove ${listing.title}`}
                     >
                       <X size={10} />

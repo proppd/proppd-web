@@ -68,14 +68,14 @@ export function InstantValuationForm() {
             <button
               type="button"
               onClick={() => update('purpose', 'sale')}
-              className={`rounded-full px-4 py-2 ${form.purpose === 'sale' ? 'bg-[#1A1A2E] text-white' : 'text-[#2563EB]'}`}
+              className={`rounded-full px-4 py-2 ${form.purpose === 'sale' ? 'bg-[#4A3AFF] text-white' : 'text-[#2563EB]'}`}
             >
               Sale
             </button>
             <button
               type="button"
               onClick={() => update('purpose', 'rent')}
-              className={`rounded-full px-4 py-2 ${form.purpose === 'rent' ? 'bg-[#1A1A2E] text-white' : 'text-[#2563EB]'}`}
+              className={`rounded-full px-4 py-2 ${form.purpose === 'rent' ? 'bg-[#4A3AFF] text-white' : 'text-[#2563EB]'}`}
             >
               Rental
             </button>

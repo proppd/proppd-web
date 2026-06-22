@@ -111,7 +111,7 @@ export default async function ForSalePage({ searchParams }: { searchParams: Sear
               <h1 className="mt-2 text-3xl font-bold tracking-[-.05em] sm:text-4xl">{headline}</h1>
               <p className="mt-2 text-sm font-semibold text-[#6B7280]">{filters.query ? 'Filtered across listing facts, areas, agents, and agencies.' : 'Price-first cards, verified status, and quick facts for buyers.'}</p>
             </div>
-            <a className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white" href={buildSavedSearchMailto(filters, { path: '/properties/for-sale', resultCount: saleListings.length })} aria-label="Request a saved for-sale search alert">
+            <a className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white" href={buildSavedSearchMailto(filters, { path: '/properties/for-sale', resultCount: saleListings.length })} aria-label="Request a saved for-sale search alert">
               <Bell size={15} /> <span className="text-white">Save search</span>
             </a>
           </div>
@@ -167,7 +167,7 @@ export default async function ForSalePage({ searchParams }: { searchParams: Sear
               </div>
             </section>
 
-            <section className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm lg:col-span-1">
+            <section className="rounded-xl proppd-panel p-6 shadow-sm lg:col-span-1">
               <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Search playbook</p>
               <h2 className="mt-2 text-2xl font-bold tracking-[-.04em]">Refine without losing the good homes.</h2>
               <ul className="mt-5 space-y-3 text-sm font-semibold leading-6 text-white/72">
@@ -182,7 +182,7 @@ export default async function ForSalePage({ searchParams }: { searchParams: Sear
               <h2 className="mt-2 text-2xl font-bold tracking-[-.04em] text-[#2563EB]">Turn the current for-sale set into a clean handoff.</h2>
               <p className="mt-4 text-sm font-bold leading-6 text-[#2563EB]">Save the search, then email it to a buyer or co-buyer with the filters already captured.</p>
               <div className="mt-5 flex flex-wrap gap-3">
-                <a className="rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white" href={buildSavedSearchMailto(filters, { path: '/properties/for-sale', resultCount: saleListings.length })}>Save search email</a>
+                <a className="rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white" href={buildSavedSearchMailto(filters, { path: '/properties/for-sale', resultCount: saleListings.length })}>Save search email</a>
                 <a className="rounded-full border border-[#BFDBFE] px-5 py-3 text-sm font-bold text-[#2563EB]" href="/request-valuation">Request valuation</a>
               </div>
             </section>

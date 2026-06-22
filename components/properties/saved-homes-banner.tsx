@@ -31,7 +31,7 @@ export function SavedHomesBanner() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <a href="/saved" className="inline-flex items-center gap-2 rounded-full bg-[#1A1A2E] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]">
+          <a href="/saved" className="inline-flex items-center gap-2 rounded-full bg-[#4A3AFF] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]">
             Open shortlist
           </a>
           <a href="/login?next=%2Fsaved" className="inline-flex items-center gap-2 rounded-full border border-[#BFDBFE] bg-white px-4 py-3 text-sm font-bold text-[#2563EB] transition hover:border-[#93C5FD] hover:text-[#1A1A2E]">

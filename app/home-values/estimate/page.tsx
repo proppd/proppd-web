@@ -107,7 +107,7 @@ function EstimateResult({ estimate, source }: { estimate: InstantValuationResult
           <SideFact icon={<TrendingUp size={17} />} title="Comparable-led" text="The range uses visible Proppd listings weighted by location, type and bedrooms." />
           <SideFact icon={<CheckCircle2 size={17} />} title="Human final step" text="A local agent should confirm condition, improvements, street position and timing." />
         </div>
-        <a href={appraisalHref} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold !text-white">
+        <a href={appraisalHref} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold !text-white">
           <Mail size={17} /> Request agent appraisal
         </a>
         <a href="/request-valuation" className="mt-3 inline-flex w-full items-center justify-center rounded-full border border-[#BFDBFE] px-5 py-3 text-sm font-bold !text-[#2563EB]">
@@ -179,7 +179,7 @@ function MissingEstimate() {
     <section className="mt-6 rounded-3xl border border-[#BFDBFE] bg-white p-8 shadow-sm">
       <h1 className="text-4xl font-bold tracking-[-.06em]">Start with the estimate form.</h1>
       <p className="mt-4 max-w-2xl text-sm font-bold leading-6 text-[#6B7280]">Enter the property basics first so Proppd can build a clean comparable range.</p>
-      <a href="/home-values#instant-estimate" className="mt-6 inline-flex rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white">Go to estimate form</a>
+      <a href="/home-values#instant-estimate" className="mt-6 inline-flex rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white">Go to estimate form</a>
     </section>
   );
 }

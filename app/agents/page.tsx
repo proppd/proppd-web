@@ -75,7 +75,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
               </label>
               <div className="flex flex-wrap gap-2">
                 <button className="inline-flex justify-center rounded-full bg-[#4A3AFF] px-6 py-4 text-sm font-bold text-white shadow-lg shadow-[#4A3AFF]/20" type="submit">Search</button>
-                <a className="inline-flex justify-center rounded-full bg-[#1A1A2E] px-6 py-4 text-sm font-bold !text-white" href="/list-with-us#launch-application">
+                <a className="inline-flex justify-center rounded-full bg-[#4A3AFF] px-6 py-4 text-sm font-bold !text-white" href="/list-with-us#launch-application">
                   List your agency
                 </a>
               </div>
@@ -147,7 +147,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                     ))}
                   </div>
                   <div className="mt-6 flex flex-wrap gap-3">
-                    <a className="inline-flex rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold !text-white shadow-lg" href="/list-with-us#launch-application">
+                    <a className="inline-flex rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold !text-white shadow-lg" href="/list-with-us#launch-application">
                       Request an agent
                     </a>
                     <a className="inline-flex rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-[#1A1A2E] shadow-sm transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href="/agencies">
@@ -239,7 +239,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                   </div>
 
                   <div className="mt-5 flex flex-wrap gap-2">
-                    <a href={profile.agentHref} className="inline-flex items-center rounded-full bg-[#1A1A2E] px-4 py-2 text-sm font-bold !text-white shadow-sm">
+                    <a href={profile.agentHref} className="inline-flex items-center rounded-full bg-[#4A3AFF] px-4 py-2 text-sm font-bold !text-white shadow-sm">
                       Open profile
                     </a>
                     <a href={profile.listingsHref} className="inline-flex items-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]">

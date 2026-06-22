@@ -23,7 +23,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
           
           {/* Purpose badge */}
-          <span className="absolute left-3 top-3 rounded-lg bg-[#1A1A2E] px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-lg">
+          <span className="absolute left-3 top-3 rounded-lg bg-[#4A3AFF] px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-lg">
             {listing.purpose}
           </span>
           

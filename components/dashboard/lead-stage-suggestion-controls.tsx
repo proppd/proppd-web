@@ -58,7 +58,7 @@ export function LeadStageSuggestionControls({ leadId, suggestion, enabled }: Pro
           onClick={applySuggestion}
           disabled={state.kind === 'saving' || !enabled}
           title={enabled ? suggestion.label : 'Connect a live database to apply this suggestion'}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#1A1A2E] px-3 py-2 text-xs font-bold text-white transition hover:bg-[#4A3AFF] disabled:opacity-50"
+ className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#4A3AFF] px-3 py-2 text-xs font-bold text-white transition hover:bg-[#4A3AFF] disabled:opacity-50"
         >
           {state.kind === 'saving' ? <Loader2 size={13} className="animate-spin" /> : <Wand2 size={13} />}
           {suggestion.label}

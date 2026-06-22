@@ -221,7 +221,7 @@ export function ValuationRequestForm({ reasons, initialReason = 'selling' }: Val
 
       <div className="mt-5 grid gap-3">
         <a
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-slate-900/10 disabled:opacity-60"
+ className="inline-flex items-center justify-center gap-2 rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-slate-900/10 disabled:opacity-60"
           href={form.popiaConsent ? mailtoHref : '#'}
           aria-disabled={!form.popiaConsent}
           tabIndex={form.popiaConsent ? 0 : -1}
