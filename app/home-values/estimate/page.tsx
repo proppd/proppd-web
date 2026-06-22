@@ -113,6 +113,9 @@ function EstimateResult({ estimate, source }: { estimate: InstantValuationResult
         <a href="/request-valuation" className="mt-3 inline-flex w-full items-center justify-center rounded-full border border-[#BFDBFE] px-5 py-3 text-sm font-bold !text-[#2563EB]">
           Open valuation handoff
         </a>
+        <a href="/my-properties" className="mt-3 inline-flex w-full items-center justify-center gap-1.5 text-sm font-bold text-[#4A3AFF] transition hover:text-[#3A2AE0]">
+          Save this to my property workspace →
+        </a>
       </aside>
     </div>
   );
