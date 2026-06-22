@@ -8,7 +8,7 @@ export function LegalPageTemplate({ page }: { page: LegalPage }) {
         <div className="overflow-hidden rounded-xl bg-[#1A1A2E] text-white shadow-sm">
           <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[1fr_340px] lg:p-12">
             <div>
-              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">{page.label}</p>
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">{page.label}</p>
               <h1 className="mt-4 max-w-4xl text-5xl font-bold tracking-[-.07em] sm:text-6xl">{page.title}</h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-white/70">{page.intro}</p>
               <div className="mt-8 flex flex-wrap gap-3">
@@ -17,7 +17,7 @@ export function LegalPageTemplate({ page }: { page: LegalPage }) {
               </div>
             </div>
             <aside className="rounded-xl border border-white/10 bg-white/10 p-6 backdrop-blur">
-              <ShieldCheck className="text-[#00C9A7]" size={34} />
+              <ShieldCheck className="text-[#2563EB]" size={34} />
               <h2 className="mt-5 text-3xl font-bold tracking-[-.05em]">Trust note</h2>
               <p className="mt-3 text-sm font-bold leading-6 text-white/65">
                 This page is written as a practical launch-stage policy foundation. It should be reviewed by a qualified South African legal professional before major production scale.
@@ -34,7 +34,7 @@ export function LegalPageTemplate({ page }: { page: LegalPage }) {
           {page.sections.map((section, index) => (
             <article key={section.title} className="rounded-xl bg-white p-6 shadow-sm">
               <div className="flex items-start gap-4">
-                <div className="rounded-2xl bg-[#E6FBF7] p-3 text-[#00C9A7]">
+                <div className="rounded-2xl bg-[#EFF6FF] p-3 text-[#2563EB]">
                   <FileText size={22} />
                 </div>
                 <div>
@@ -47,7 +47,7 @@ export function LegalPageTemplate({ page }: { page: LegalPage }) {
           ))}
         </div>
 
-        <div className="mt-8 rounded-xl border border-[#E5E7EB] bg-[#E6FBF7] p-6 text-[#00C9A7] shadow-sm sm:p-8">
+        <div className="mt-8 rounded-xl border border-[#E5E7EB] bg-[#EFF6FF] p-6 text-[#2563EB] shadow-sm sm:p-8">
           <p className="text-sm font-bold uppercase tracking-[.18em]">Need a correction?</p>
           <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <p className="max-w-3xl text-sm font-bold leading-6">

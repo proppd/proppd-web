@@ -237,7 +237,7 @@ export function AgentProfileEditor() {
 
       <div className="flex flex-col gap-3 rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2 text-sm font-bold">
-          {save.kind === 'saved' && <span className="text-[#00C9A7]">✓ {save.message}</span>}
+          {save.kind === 'saved' && <span className="text-[#2563EB]">✓ {save.message}</span>}
           {save.kind === 'error' && <span className="flex items-center gap-1.5 text-red-600"><AlertCircle size={15} /> {save.message}</span>}
           {save.kind === 'idle' && <span className="text-[#9CA3AF]">{canSave ? 'Ready to save.' : 'Name, agency, phone, and at least one area are required.'}</span>}
           {save.kind === 'saving' && <span className="flex items-center gap-1.5 text-[#4A3AFF]"><Loader2 size={15} className="animate-spin" /> Saving…</span>}

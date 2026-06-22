@@ -83,7 +83,7 @@ export default function Page() {
           <div className="overflow-hidden rounded-xl bg-[#1A1A2E] text-white shadow-sm">
             <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[1fr_360px] lg:p-12">
               <div>
-                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">List with Proppd</p>
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">List with Proppd</p>
                 <h1 className="mt-4 max-w-4xl text-5xl font-bold tracking-[-.07em] sm:text-6xl">Fair portal exposure for serious South African property professionals.</h1>
                 <p className="mt-5 max-w-2xl text-lg leading-8 text-white/70">
                   Join the Proppd launch rollout with verified profiles, cleaner enquiry routing, and early access to agent workflow tools while the network grows deliberately.
@@ -94,16 +94,16 @@ export default function Page() {
                 </div>
                 <div className="mt-8 rounded-lg border border-white/10 bg-white/6 p-4">
                   <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-white/45">
-                    <ShieldCheck size={14} className="text-[#00C9A7]" />
+                    <ShieldCheck size={14} className="text-[#2563EB]" />
                     Launch trust
                   </div>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     {launchSignals.map(({ title, text, icon }) => (
                       <div key={title} className="rounded-2xl border border-white/10 bg-[#1A1A2E]/65 p-5 shadow-[0_20px_50px_rgba(5,10,48,.18)]">
-                        <div className="inline-flex rounded-2xl bg-white/8 p-2 text-[#00C9A7]">
+                        <div className="inline-flex rounded-2xl bg-white/8 p-2 text-[#2563EB]">
                           {icon}
                         </div>
-                        <p className="mt-3 text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">{title}</p>
+                        <p className="mt-3 text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">{title}</p>
                         <p className="mt-2 text-sm font-bold leading-6 text-white/75">{text}</p>
                       </div>
                     ))}
@@ -111,7 +111,7 @@ export default function Page() {
                 </div>
               </div>
               <div className="rounded-xl border border-white/10 bg-white/10 p-6 backdrop-blur">
-                <Sparkles className="text-[#00C9A7]" size={32} />
+                <Sparkles className="text-[#2563EB]" size={32} />
                 <h2 className="mt-5 text-3xl font-bold tracking-[-.05em]">Launch partners first</h2>
                 <p className="mt-3 text-sm font-bold leading-6 text-white/65">
                   Proppd prioritises agencies with clean stock, fast lead response, and real feedback on the workflow.
@@ -119,7 +119,7 @@ export default function Page() {
                 <div className="mt-6 space-y-3">
                   {launchPromiseNotes.map(({ icon: Icon, title, text }) => (
                     <div key={title} className="rounded-2xl border border-white/10 bg-white/6 p-4">
-                      <div className="flex items-center gap-2 text-[#00C9A7]">
+                      <div className="flex items-center gap-2 text-[#2563EB]">
                         <Icon size={16} />
                         <p className="text-xs font-bold uppercase tracking-[.14em]">{title}</p>
                       </div>
@@ -154,10 +154,10 @@ export default function Page() {
                 ))}
               </div>
             </div>
-            <div className="rounded-xl border border-[#E5E7EB] bg-[#E6FBF7] p-6">
-              <Sparkles className="text-[#00C9A7]" size={30} />
-              <h2 className="mt-4 text-2xl font-bold tracking-[-.04em] text-[#00C9A7]">Who should apply?</h2>
-              <p className="mt-3 text-sm font-bold leading-6 text-[#00C9A7]">
+            <div className="rounded-xl border border-[#E5E7EB] bg-[#EFF6FF] p-6">
+              <Sparkles className="text-[#2563EB]" size={30} />
+              <h2 className="mt-4 text-2xl font-bold tracking-[-.04em] text-[#2563EB]">Who should apply?</h2>
+              <p className="mt-3 text-sm font-bold leading-6 text-[#2563EB]">
                 Agencies that already manage real stock, want a clearer enquiry handoff, and are comfortable giving direct feedback during rollout.
               </p>
             </div>
@@ -170,11 +170,11 @@ export default function Page() {
               <article key={item.id} className="flex flex-col rounded-xl bg-white p-6 shadow-sm">
                 <p className="text-sm font-bold uppercase tracking-[.18em] text-[#4A3AFF]">{item.bestFor}</p>
                 <h2 className="mt-3 text-3xl font-bold tracking-[-.05em]">{item.name}</h2>
-                <p className="mt-2 text-xl font-bold text-[#00C9A7]">{item.price}</p>
+                <p className="mt-2 text-xl font-bold text-[#2563EB]">{item.price}</p>
                 <p className="mt-4 text-sm font-bold leading-6 text-[#6B7280]">{item.summary}</p>
                 <ul className="mt-5 flex-1 space-y-3 text-sm font-bold leading-6 text-[#6B7280]">
                   {item.features.map((feature) => (
-                    <li key={feature} className="flex gap-2"><CheckCircle2 className="mt-0.5 shrink-0 text-[#00C9A7]" size={16} /> {feature}</li>
+                    <li key={feature} className="flex gap-2"><CheckCircle2 className="mt-0.5 shrink-0 text-[#2563EB]" size={16} /> {feature}</li>
                   ))}
                 </ul>
                 <a className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold !text-white" href={buildAgencyApplicationMailto({ packageName: item.name })}>
@@ -202,17 +202,17 @@ export default function Page() {
               </div>
             </div>
 
-            <aside className="rounded-xl border border-[#E5E7EB] bg-[#E6FBF7] p-6">
-              <ShieldCheck className="text-[#00C9A7]" size={30} />
-              <h2 className="mt-4 text-2xl font-bold tracking-[-.04em] text-[#00C9A7]">Who gets approved?</h2>
-              <p className="mt-3 text-sm font-bold leading-6 text-[#00C9A7]">
+            <aside className="rounded-xl border border-[#E5E7EB] bg-[#EFF6FF] p-6">
+              <ShieldCheck className="text-[#2563EB]" size={30} />
+              <h2 className="mt-4 text-2xl font-bold tracking-[-.04em] text-[#2563EB]">Who gets approved?</h2>
+              <p className="mt-3 text-sm font-bold leading-6 text-[#2563EB]">
                 Agencies with live stock, a reachable contact, and enough feedback to shape the pilot workflow.
               </p>
-              <div className="mt-5 rounded-2xl bg-white/80 p-4 text-sm font-bold leading-6 text-[#00C9A7]">
-                <span className="block text-xs font-bold uppercase tracking-[.14em] text-[#00C9A7]/70">Approval criteria</span>
+              <div className="mt-5 rounded-2xl bg-white/80 p-4 text-sm font-bold leading-6 text-[#2563EB]">
+                <span className="block text-xs font-bold uppercase tracking-[.14em] text-[#2563EB]/70">Approval criteria</span>
                 Enquiries need a clear fallback, and launch details should confirm the feed is real before the pilot is opened.
               </div>
-              <a className="mt-5 inline-flex items-center justify-center rounded-full border border-[#00C9A7]/20 bg-white px-5 py-3 text-sm font-bold text-[#00C9A7] shadow-sm transition hover:border-[#00C9A7]" href={buildAgencyApplicationMailto({ packageName: 'Agency Growth' })}>
+              <a className="mt-5 inline-flex items-center justify-center rounded-full border border-[#BFDBFE] bg-white px-5 py-3 text-sm font-bold text-[#2563EB] shadow-sm transition hover:border-[#93C5FD]" href={buildAgencyApplicationMailto({ packageName: 'Agency Growth' })}>
                 Send launch details →
               </a>
             </aside>
@@ -228,7 +228,7 @@ export default function Page() {
 function TrustCard({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
   return (
     <div className="rounded-xl bg-white p-5 shadow-sm">
-      <div className="inline-flex rounded-2xl bg-[#E6FBF7] p-3 text-[#00C9A7]">{icon}</div>
+      <div className="inline-flex rounded-2xl bg-[#EFF6FF] p-3 text-[#2563EB]">{icon}</div>
       <h2 className="mt-4 text-xl font-bold tracking-[-.03em]">{title}</h2>
       <p className="mt-2 text-sm font-bold leading-6 text-[#9CA3AF]">{text}</p>
     </div>

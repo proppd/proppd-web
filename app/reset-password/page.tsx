@@ -31,7 +31,7 @@ export default async function Page() {
               You followed a secure reset link. Choose a new password and you&apos;ll be signed straight into your dashboard.
             </p>
             <div className="mt-8 flex items-start gap-3 rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-5">
-              <ShieldCheck size={20} className="mt-0.5 shrink-0 text-[#00C9A7]" />
+              <ShieldCheck size={20} className="mt-0.5 shrink-0 text-[#2563EB]" />
               <p className="text-sm text-[#6B7280]">
                 For your security, reset links expire after a short time, can only be used once, and must be opened in the same browser you requested them from.
               </p>

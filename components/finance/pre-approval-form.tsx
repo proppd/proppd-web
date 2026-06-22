@@ -43,8 +43,8 @@ export function PreApprovalForm({ listingPrice, listingTitle }: PreApprovalFormP
 
   if (submitted) {
     return (
-      <div className="rounded-xl border border-[#E6FBF7] bg-[#E6FBF7] p-6 text-center">
-        <CheckCircle size={32} className="mx-auto text-[#00C9A7]" />
+      <div className="rounded-xl border border-[#EFF6FF] bg-[#EFF6FF] p-6 text-center">
+        <CheckCircle size={32} className="mx-auto text-[#2563EB]" />
         <h3 className="mt-3 text-lg font-bold text-[#1A1A2E]">Application received</h3>
         <p className="mt-2 text-sm text-[#6B7280]">
           We'll review your pre-approval application and get back to you within 2 business days.

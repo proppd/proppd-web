@@ -44,7 +44,7 @@ export function SupportStrip() {
               href={href}
               className="group rounded-xl border border-[#E5E7EB] bg-white p-6 transition hover:shadow-lg hover:shadow-black/5"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6FBF7] text-[#00C9A7]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#2563EB]">
                 <Icon size={20} />
               </div>
               <h3 className="mt-4 text-lg font-bold text-[#1A1A2E]">{title}</h3>

@@ -124,7 +124,7 @@ export function LocationLandingPage({ purpose, location, listings, otherCities }
           </section>
 
           <section className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm">
-            <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Selling in {location.name}?</p>
+            <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Selling in {location.name}?</p>
             <h2 className="mt-2 text-2xl font-bold tracking-[-.04em]">List with verified Proppd agents.</h2>
             <p className="mt-4 text-sm font-semibold leading-6 text-white/72">
               Get a valuation and connect with agents who know the {location.name} market — real listings, verified enquiries, no fake leads.

@@ -43,7 +43,7 @@ export function FeaturedAgents() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="truncate text-base font-bold text-[#1A1A2E]">{agent.name}</h3>
-                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#E6FBF7] px-2 py-0.5 text-[10px] font-bold text-[#00C9A7]">
+                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#EFF6FF] px-2 py-0.5 text-[10px] font-bold text-[#2563EB]">
                       <BadgeCheck size={10} /> Verified
                     </span>
                   </div>

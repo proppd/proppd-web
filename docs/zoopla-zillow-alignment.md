@@ -27,7 +27,7 @@
 #### Proposed Proppd palette (blended):
 - **Primary:** `#4A3AFF` — A rich indigo that bridges Zoopla's purple warmth + Zillow's blue trust
 - **Dark:** `#1A1A2E` — Softer than current navy, more modern
-- **Accent:** `#00C9A7` — Clean teal retained for verified/trust signals
+- **Accent:** light blue/white gradient treatment — replaces the older teal verified/trust accent.
 - **Background:** `#FFFFFF` — Pure white, no gradients
 - **Surface:** `#F7F8FA` — Subtle off-white for sections
 - **Text:** `#1A1A2E` primary, `#6B7280` secondary

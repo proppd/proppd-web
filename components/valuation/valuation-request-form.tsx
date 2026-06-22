@@ -197,9 +197,9 @@ export function ValuationRequestForm({ reasons, initialReason = 'selling' }: Val
           />
         </label>
 
-        <label className="flex items-start gap-3 rounded-2xl bg-[#E6FBF7] p-4 text-xs font-bold leading-5 text-[#00C9A7]">
+        <label className="flex items-start gap-3 rounded-2xl bg-[#EFF6FF] p-4 text-xs font-bold leading-5 text-[#2563EB]">
           <input
-            className="mt-1 h-4 w-4 accent-[#00C9A7]"
+            className="mt-1 h-4 w-4 accent-[#2563EB]"
             type="checkbox"
             checked={form.popiaConsent}
             onChange={(event) => updateField('popiaConsent', event.target.checked)}
@@ -242,7 +242,7 @@ export function ValuationRequestForm({ reasons, initialReason = 'selling' }: Val
       </div>
 
       <div className="mt-5 rounded-2xl border border-[#E5E7EB] bg-white p-4 text-xs font-bold leading-5 text-[#6B7280]">
-        <div className="flex items-center gap-2 font-bold text-[#1A1A2E]"><ShieldCheck size={15} className="text-[#00C9A7]" /> POPIA-aware handoff</div>
+        <div className="flex items-center gap-2 font-bold text-[#1A1A2E]"><ShieldCheck size={15} className="text-[#2563EB]" /> POPIA-aware handoff</div>
         <p className="mt-2">The request stays human-readable with owner consent, property context, and a clear route for follow-up.</p>
       </div>
 

@@ -59,7 +59,7 @@ export default async function Page() {
           <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Start here</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Start here</p>
                 <h2 className="mt-2 text-2xl font-bold tracking-tight text-[#1A1A2E]">What do you need to do?</h2>
                 <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-[#6B7280]">
                   The CRM is split into plain tasks: reply to people, manage stock, and keep your public profile ready. If you are unsure, open leads first.
@@ -79,7 +79,7 @@ export default async function Page() {
           </div>
 
           <div className="rounded-2xl bg-[#1A1A2E] p-5 text-white shadow-sm sm:p-6 lg:self-start">
-            <ListChecks size={24} className="text-[#00C9A7]" />
+            <ListChecks size={24} className="text-[#2563EB]" />
             <h2 className="mt-4 text-2xl font-bold tracking-tight">Daily agent checklist</h2>
             <div className="mt-5 space-y-3">
               <ChecklistRow done={stats.newLeads === 0} label={stats.newLeads > 0 ? `${stats.newLeads} new lead${stats.newLeads === 1 ? '' : 's'} need a first reply` : 'No first replies waiting'} />
@@ -99,9 +99,9 @@ export default async function Page() {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-5">
             <StatCard icon={<Home size={20} />} label="Active listings" value={stats.activeListings} color="#4A3AFF" />
             <StatCard icon={<Eye size={20} />} label="Views (7 days)" value={views7d} color="#1A1A2E" />
-            <StatCard icon={<BellRing size={20} />} label="New leads" value={stats.newLeads} color="#00C9A7" />
+            <StatCard icon={<BellRing size={20} />} label="New leads" value={stats.newLeads} color="#2563EB" />
             <StatCard icon={<CheckCircle2 size={20} />} label="Qualified" value={stats.qualifiedLeads} color="#4A3AFF" />
-            <StatCard icon={<TrendingUp size={20} />} label="Total leads" value={stats.totalLeads} color="#00C9A7" />
+            <StatCard icon={<TrendingUp size={20} />} label="Total leads" value={stats.totalLeads} color="#2563EB" />
           </div>
         </div>
       </section>
@@ -185,7 +185,7 @@ export default async function Page() {
                     <span className="hidden items-center gap-1 text-xs font-bold text-[#9CA3AF] sm:inline-flex" title="Total views">
                       <Eye size={13} /> {listing.viewsTotal ?? 0}
                     </span>
-                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${listing.purpose === 'For sale' ? 'bg-[#4A3AFF]/10 text-[#4A3AFF]' : 'bg-[#00C9A7]/10 text-[#00C9A7]'}`}>
+                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${listing.purpose === 'For sale' ? 'bg-[#4A3AFF]/10 text-[#4A3AFF]' : 'bg-[#DBEAFE] text-[#2563EB]'}`}>
                       {listing.purpose}
                     </span>
                     <a href={`/dashboard/listings/${listing.slug}/edit`} className="text-xs font-bold text-[#4A3AFF]">Edit</a>
@@ -214,7 +214,7 @@ function CrmRouteCard({ icon, label, text, href, cta, tone = 'default' }: { icon
 function ChecklistRow({ done, label }: { done: boolean; label: string }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl bg-white/10 p-3">
-      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${done ? 'bg-[#00C9A7] text-[#1A1A2E]' : 'bg-amber-200 text-amber-950'}`}>
+      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${done ? 'bg-[#DBEAFE] text-[#1A1A2E]' : 'bg-amber-200 text-amber-950'}`}>
         {done ? <CheckCircle2 size={15} /> : <BellRing size={15} />}
       </span>
       <span className="text-sm font-bold leading-5 text-white/80">{label}</span>
@@ -226,7 +226,7 @@ function AgentToolbox({ actions, toolCards, newLeads, flaggedLeads }: { actions:
   return (
     <div className="grid gap-4 rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm sm:p-5 lg:grid-cols-[320px_1fr]">
       <div className="rounded-2xl bg-[#1A1A2E] p-5 text-white lg:self-start">
-        <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Agent tools</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Agent tools</p>
         <h2 className="mt-2 text-2xl font-bold tracking-tight">CRM command centre</h2>
         <p className="mt-3 text-sm font-bold leading-6 text-white/65">
           Work the next lead, protect quality, and keep listing actions close to the agent workspace.
@@ -271,7 +271,7 @@ function AgentToolbox({ actions, toolCards, newLeads, flaggedLeads }: { actions:
 function AgentToolCardView({ card }: { card: AgentToolCard }) {
   const toneClass = {
     priority: 'border-[#4A3AFF]/20 bg-[#4A3AFF]/6 text-[#4A3AFF]',
-    quality: 'border-[#00C9A7]/25 bg-[#E6FBF7] text-[#057a70]',
+    quality: 'border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB]',
     listing: 'border-[#1A1A2E]/10 bg-[#F7F8FA] text-[#1A1A2E]',
   }[card.tone];
 

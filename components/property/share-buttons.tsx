@@ -28,7 +28,7 @@ export function ShareButtons({ url, title, price, location }: ShareButtonsProps)
         onClick={copyLink}
         className="inline-flex items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-xs font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]"
       >
-        {copied ? <Check size={14} className="text-[#00C9A7]" /> : <Copy size={14} />}
+        {copied ? <Check size={14} className="text-[#2563EB]" /> : <Copy size={14} />}
         {copied ? 'Copied' : 'Copy link'}
       </button>
       <a

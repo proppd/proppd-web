@@ -79,7 +79,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
           <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
             <div className="rounded-xl border border-[#E5E7EB] bg-white p-8 shadow-sm sm:p-12">
               <div className="flex flex-wrap items-center gap-4">
-                <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-gradient-to-br from-[#4A3AFF] to-[#00C9A7] text-3xl font-bold text-white">
+                <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-gradient-to-br from-[#4A3AFF] to-[#60A5FA] text-3xl font-bold text-white">
                   {agent.name.split(' ').map((part: string) => part[0]).join('').slice(0, 2)}
                 </div>
                 <div>
@@ -103,7 +103,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
               </div>
             </div>
             <aside className="rounded-xl bg-[#1A1A2E] p-7 text-white shadow-2xl shadow-slate-300/50">
-              <p className="text-sm font-bold uppercase tracking-[.18em] text-[#00C9A7]">Contact agent</p>
+              <p className="text-sm font-bold uppercase tracking-[.18em] text-[#2563EB]">Contact agent</p>
               <h2 className="mt-3 text-3xl font-bold tracking-[-.05em]">Send a verified enquiry</h2>
               <p className="mt-4 text-sm leading-7 text-white/70">
                 Best for viewing requests, valuation follow-ups, and direct questions about this agent&apos;s active listings.
@@ -141,7 +141,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
           <div className="mt-8 grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
             <AgentReviews agentName={agent.name} agentArea={agent.area} />
             <div className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm">
-              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Need a shortlist?</p>
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Need a shortlist?</p>
               <p className="mt-2 text-2xl font-bold tracking-[-.04em]">Focus on the right local stock.</p>
               <p className="mt-3 text-sm font-bold leading-6 text-white/70">
                 {activeListings.length} verified listing{activeListings.length === 1 ? '' : 's'} are currently tied to {agent.name}. Save the agent, compare the cards, and send a structured enquiry when you are ready.
@@ -180,7 +180,7 @@ function ProfileStat({ label, value, icon }: { label: string; value: string; ico
 function SnapshotPill({ label, value, dark = false }: { label: string; value: string; dark?: boolean }) {
   return (
     <div className={`rounded-3xl p-4 ${dark ? 'bg-white/8' : 'bg-white'}`}>
-      <div className={`text-xs font-bold uppercase tracking-[.14em] ${dark ? 'text-[#00C9A7]' : 'text-[#9CA3AF]'}`}>{label}</div>
+      <div className={`text-xs font-bold uppercase tracking-[.14em] ${dark ? 'text-[#2563EB]' : 'text-[#9CA3AF]'}`}>{label}</div>
       <div className={`mt-2 text-sm font-bold leading-6 ${dark ? 'text-white' : 'text-[#1A1A2E]'}`}>{value}</div>
     </div>
   );

@@ -76,7 +76,7 @@ export function LeadPipelineControls({ leadId, currentStatus, enabled }: Props) 
 
       <span className="flex items-center gap-1 text-[11px] font-bold">
         {state.kind === 'saving' && <span className="flex items-center gap-1 text-[#4A3AFF]"><Loader2 size={11} className="animate-spin" /> Saving…</span>}
-        {state.kind === 'saved' && <span className="flex items-center gap-1 text-[#00C9A7]"><Check size={11} /> {state.message}</span>}
+        {state.kind === 'saved' && <span className="flex items-center gap-1 text-[#2563EB]"><Check size={11} /> {state.message}</span>}
         {state.kind === 'error' && <span className="flex items-center gap-1 text-red-600"><AlertCircle size={11} /> {state.message}</span>}
       </span>
 

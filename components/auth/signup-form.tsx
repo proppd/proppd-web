@@ -79,8 +79,8 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
 
   if (step === 'sent') {
     return (
-      <div className="rounded-xl border border-[#E6FBF7] bg-[#E6FBF7] p-6 text-center">
-        <CheckCircle size={32} className="mx-auto text-[#00C9A7]" />
+      <div className="rounded-xl border border-[#EFF6FF] bg-[#EFF6FF] p-6 text-center">
+        <CheckCircle size={32} className="mx-auto text-[#2563EB]" />
         <h3 className="mt-3 text-lg font-bold text-[#1A1A2E]">Check your inbox</h3>
         <p className="mt-2 text-sm text-[#6B7280]">
           If <span className="font-bold text-[#1A1A2E]">{form.email}</span> is approved, the secure link will open your dashboard.

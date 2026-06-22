@@ -51,14 +51,14 @@ export default async function Page() {
 
             <div className="mt-10 rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-6">
               <div className="flex items-center gap-3">
-                <ShieldCheck size={20} className="text-[#00C9A7]" />
+                <ShieldCheck size={20} className="text-[#2563EB]" />
                 <h3 className="text-sm font-bold text-[#1A1A2E]">Secure, passwordless login</h3>
               </div>
               <p className="mt-2 text-sm text-[#6B7280]">
                 We send a one-time login link to your email. No passwords to remember, no weak credentials to steal.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <span className="rounded-full bg-[#E6FBF7] px-3 py-1.5 text-xs font-bold text-[#00C9A7]">Magic link</span>
+                <span className="rounded-full bg-[#EFF6FF] px-3 py-1.5 text-xs font-bold text-[#2563EB]">Magic link</span>
                 <span className="rounded-full bg-[#F3F4F6] px-3 py-1.5 text-xs font-bold text-[#6B7280]">Invite-only</span>
                 <span className="rounded-full bg-[#F3F4F6] px-3 py-1.5 text-xs font-bold text-[#6B7280]">No passwords</span>
               </div>

@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 const qualityStyles: Record<LeadQuality, string> = {
-  clean: 'bg-[#E6FBF7] text-[#00C9A7]',
+  clean: 'bg-[#EFF6FF] text-[#2563EB]',
   duplicate: 'bg-amber-50 text-amber-700',
   flagged: 'bg-red-50 text-red-700',
 };
@@ -111,7 +111,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
           <div className="overflow-hidden rounded-xl bg-[#1A1A2E] text-white shadow-sm">
             <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[1fr_360px] lg:p-12">
               <div>
-                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Lead operations</p>
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Lead operations</p>
                 <h1 className="mt-4 max-w-4xl text-5xl font-bold tracking-[-.07em] sm:text-6xl">Lead quality, listing trust, and agent follow-up in one queue.</h1>
                 <p className="mt-5 max-w-2xl text-lg leading-8 text-white/70">
                   Proppd’s operations layer separates real enquiries from duplicates and suspicious traffic before agents waste time.
@@ -379,7 +379,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
 
             <aside className="space-y-5">
               <div className="rounded-xl bg-white p-6 shadow-sm">
-                <ShieldCheck className="text-[#00C9A7]" size={28} />
+                <ShieldCheck className="text-[#2563EB]" size={28} />
                 <h2 className="mt-4 text-2xl font-bold tracking-[-.04em]">Lead trust rules</h2>
                 <ul className="mt-4 space-y-3 text-sm font-bold leading-6 text-[#6B7280]">
                   <li>• POPIA consent required before routing.</li>
@@ -389,7 +389,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                 </ul>
               </div>
               <div className="rounded-xl bg-[#1A1A2E] p-6 text-white">
-                <p className="text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">Moderation digest</p>
+                <p className="text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">Moderation digest</p>
                 <div className="mt-4 space-y-3">
                   {moderationDigest.length > 0 ? (
                     moderationDigest.map((item) => (
@@ -409,23 +409,23 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                 </div>
               </div>
 
-              <div className="rounded-xl border border-[#E5E7EB] bg-[#E6FBF7] p-6">
-                <p className="text-sm font-bold uppercase tracking-[.16em] text-[#00C9A7]">Queue health</p>
-                <p className="mt-3 text-sm font-bold leading-6 text-[#00C9A7]">
+              <div className="rounded-xl border border-[#E5E7EB] bg-[#EFF6FF] p-6">
+                <p className="text-sm font-bold uppercase tracking-[.16em] text-[#2563EB]">Queue health</p>
+                <p className="mt-3 text-sm font-bold leading-6 text-[#2563EB]">
                   {diagnostics.databaseConfigured
                     ? `Supabase is wired for backend reads${diagnostics.canReadDatabase ? ' and the live queue is reachable.' : ', but the database check is currently failing.'}`
                     : 'Supabase is not connected yet, so the admin queue is running on demo data.'}
                 </p>
                 <div className="mt-4 grid gap-3">
-                  <div className="rounded-2xl bg-white/75 p-4 text-[#00C9A7]">
+                  <div className="rounded-2xl bg-white/75 p-4 text-[#2563EB]">
                     <p className="text-xs font-bold uppercase tracking-[.14em]">Moderation loop</p>
                     <p className="mt-2 text-sm font-bold leading-6">Review the newest lead, open the property, reply by email, then update the status once the handoff is complete.</p>
                   </div>
-                  <div className="rounded-2xl bg-white/75 p-4 text-[#00C9A7]">
+                  <div className="rounded-2xl bg-white/75 p-4 text-[#2563EB]">
                     <p className="text-xs font-bold uppercase tracking-[.14em]">What stays visible</p>
                     <p className="mt-2 text-sm font-bold leading-6">Duplicates, spam, and flagged enquiries remain in the queue so the team can see why a lead needs attention.</p>
                   </div>
-                  <div className="rounded-2xl bg-white/75 p-4 text-[#00C9A7]">
+                  <div className="rounded-2xl bg-white/75 p-4 text-[#2563EB]">
                     <p className="text-xs font-bold uppercase tracking-[.14em]">Next backend gate</p>
                     <p className="mt-2 text-sm font-bold leading-6">Persist moderation actions, route notifications, and expose audit events in the diagnostics view.</p>
                   </div>
@@ -483,7 +483,7 @@ function SourceChip({ label, value }: { label: string; value: number }) {
 function StatusCard({ icon, label, value, detail, warning = false }: { icon: React.ReactNode; label: string; value: number; detail: string; warning?: boolean }) {
   return (
     <div className="rounded-xl bg-white p-5 shadow-sm">
-      <div className={`inline-flex rounded-2xl p-3 ${warning ? 'bg-red-50 text-red-600' : 'bg-[#E6FBF7] text-[#00C9A7]'}`}>{icon}</div>
+      <div className={`inline-flex rounded-2xl p-3 ${warning ? 'bg-red-50 text-red-600' : 'bg-[#EFF6FF] text-[#2563EB]'}`}>{icon}</div>
       <p className="mt-4 text-3xl font-bold">{value}</p>
       <h2 className="mt-1 font-bold">{label}</h2>
       <p className="mt-1 text-sm font-bold text-[#9CA3AF]">{detail}</p>
@@ -493,7 +493,7 @@ function StatusCard({ icon, label, value, detail, warning = false }: { icon: Rea
 
 function AdminNote({ title, text }: { title: string; text: string }) {
   return (
-    <div className="rounded-2xl bg-white/75 p-4 text-[#00C9A7]">
+    <div className="rounded-2xl bg-white/75 p-4 text-[#2563EB]">
       <p className="text-xs font-bold uppercase tracking-[.14em]">{title}</p>
       <p className="mt-2 text-sm font-bold leading-6">{text}</p>
     </div>

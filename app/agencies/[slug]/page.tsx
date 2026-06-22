@@ -85,7 +85,7 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
       <section className="px-4 py-14 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-            <div className="bg-gradient-to-br from-[#1A1A2E] via-[#4A3AFF] to-[#00C9A7] p-8 text-white sm:p-12">
+            <div className="bg-gradient-to-br from-[#1A1A2E] via-[#4A3AFF] to-[#60A5FA] p-8 text-white sm:p-12">
               <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-white/15 backdrop-blur">
                 <Building2 size={36} />
               </div>
@@ -117,7 +117,7 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
                     <a key={agent.name} href={`/agents/${slugifyDirectoryName(agent.name)}`} className="rounded-3xl border border-[#E5E7EB] p-5 transition hover:border-[#4A3AFF]/40 hover:bg-[#F7F8FA]">
                       <div className="text-lg font-bold">{agent.name}</div>
                       <div className="mt-2 text-sm font-bold text-[#9CA3AF]">{agent.area}</div>
-                      <div className="mt-4 text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">{formatDirectoryCount(agent.listings, 'portfolio listing')}</div>
+                      <div className="mt-4 text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">{formatDirectoryCount(agent.listings, 'portfolio listing')}</div>
                     </a>
                   ))}
                 </div>
@@ -140,7 +140,7 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
             </div>
 
             <aside className="h-fit rounded-xl bg-[#1A1A2E] p-7 text-white shadow-2xl shadow-slate-300/50">
-              <p className="text-sm font-bold uppercase tracking-[.18em] text-[#00C9A7]">Agency enquiry</p>
+              <p className="text-sm font-bold uppercase tracking-[.18em] text-[#2563EB]">Agency enquiry</p>
               <h2 className="mt-3 text-3xl font-bold tracking-[-.05em]">Contact {agency.name}</h2>
               <p className="mt-4 text-sm leading-7 text-white/70">
                 Best for agency onboarding, branch updates, mandate requests, or listing corrections for this agency.
@@ -182,7 +182,7 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
               </div>
             </div>
             <div className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm">
-              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Need a shortlist?</p>
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Need a shortlist?</p>
               <p className="mt-2 text-2xl font-bold tracking-[-.04em]">Keep browsing in {agency.city}.</p>
               <p className="mt-3 text-sm font-bold leading-6 text-white/70">
                 {team.length} verified agent{team.length === 1 ? '' : 's'} and {activeListings.length} active listing{activeListings.length === 1 ? '' : 's'} are currently tied to {agency.name}.
@@ -221,7 +221,7 @@ function AgencyMetric({ icon, label, value }: { icon: React.ReactNode; label: st
 function AgencySnapshotPill({ label, value, dark = false }: { label: string; value: string; dark?: boolean }) {
   return (
     <div className={`rounded-3xl p-4 ${dark ? 'bg-white/8' : 'bg-white'}`}>
-      <div className={`text-xs font-bold uppercase tracking-[.14em] ${dark ? 'text-[#00C9A7]' : 'text-[#9CA3AF]'}`}>{label}</div>
+      <div className={`text-xs font-bold uppercase tracking-[.14em] ${dark ? 'text-[#2563EB]' : 'text-[#9CA3AF]'}`}>{label}</div>
       <div className={`mt-2 text-sm font-bold leading-6 ${dark ? 'text-white' : 'text-[#1A1A2E]'}`}>{value}</div>
     </div>
   );

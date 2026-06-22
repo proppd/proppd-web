@@ -155,13 +155,13 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
             </div>
 
             {hasListings ? (
-              <div className="mt-4 rounded-[1.25rem] border border-[#00C9A7]/30 bg-[#E6FBF7] p-4 shadow-sm">
+              <div className="mt-4 rounded-[1.25rem] border border-[#BFDBFE] bg-[#EFF6FF] p-4 shadow-sm">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div className="flex items-start gap-3">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#00C9A7] text-[#1A1A2E]"><ShieldCheck size={18} /></div>
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#DBEAFE] text-[#1A1A2E]"><ShieldCheck size={18} /></div>
                     <div>
-                      <p className="text-sm font-bold uppercase tracking-[.16em] text-[#00C9A7]">Verified on Proppd</p>
-                      <p className="mt-1 text-sm font-semibold leading-6 text-[#00C9A7]">Each visible listing includes an agency name, mandate context, and a clear enquiry route before you send personal details.</p>
+                      <p className="text-sm font-bold uppercase tracking-[.16em] text-[#2563EB]">Verified on Proppd</p>
+                      <p className="mt-1 text-sm font-semibold leading-6 text-[#2563EB]">Each visible listing includes an agency name, mandate context, and a clear enquiry route before you send personal details.</p>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 text-xs font-bold text-[#1A1A2E]">
@@ -246,9 +246,9 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                         <p className="text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">Map preview</p>
                         <h2 className="mt-1 text-lg font-bold tracking-[-.03em] text-[#1A1A2E]">See where the result set clusters.</h2>
                       </div>
-                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#00C9A7]/15 text-[#00C9A7]"><MapIcon size={18} /></div>
+                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#DBEAFE] text-[#2563EB]"><MapIcon size={18} /></div>
                     </div>
-                    <div className="relative mt-4 h-56 overflow-hidden rounded-lg border border-[#E5E7EB] bg-[radial-gradient(circle_at_24%_24%,rgba(59,73,255,.22),transparent_8rem),radial-gradient(circle_at_78%_68%,rgba(18,214,197,.28),transparent_9rem),linear-gradient(135deg,#f8fbff,#E6FBF7)]">
+                    <div className="relative mt-4 h-56 overflow-hidden rounded-lg border border-[#E5E7EB] bg-[radial-gradient(circle_at_24%_24%,rgba(59,73,255,.22),transparent_8rem),radial-gradient(circle_at_78%_68%,rgba(18,214,197,.28),transparent_9rem),linear-gradient(135deg,#f8fbff,#EFF6FF)]">
                       <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(#1A1A2E_1px,transparent_1px),linear-gradient(90deg,#1A1A2E_1px,transparent_1px)] [background-size:32px_32px]" />
                       <div className="absolute left-4 top-4 rounded-full border border-[#E5E7EB] bg-white/90 px-3 py-1 text-xs font-bold text-[#1A1A2E] shadow-sm">{mapPreview.summary}</div>
                       {mapPreview.pins.length > 0 ? (
@@ -296,7 +296,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                   </div>
 
                   <div className="rounded-2xl bg-[#1A1A2E] p-4 text-white shadow-2xl">
-                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">Search shortcut</p>
+                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">Search shortcut</p>
                     <p className="mt-2 text-sm font-semibold leading-6 text-white/72">Save this search, or narrow by purpose to make the result list more focused.</p>
                     <div className="mt-4 flex flex-wrap gap-2">
                       <a className="rounded-full bg-white px-4 py-2 text-xs font-bold text-[#1A1A2E]" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })}>Save search</a>
@@ -348,41 +348,41 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
               </section>
 
               <section className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm lg:col-span-1">
-                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Result mix</p>
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Result mix</p>
                 <h2 className="mt-2 text-2xl font-bold tracking-[-.04em]">What this result set is made of.</h2>
                 <p className="mt-2 text-sm font-semibold leading-6 text-white/72">A quick read on the current market split helps you decide whether to tighten by purpose, type, or location.</p>
                 <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">For sale</p>
+                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">For sale</p>
                     <p className="mt-2 text-3xl font-bold">{resultMix.saleCount}</p>
                     <p className="mt-1 text-sm font-semibold text-white/65">Homes in the current set</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">To rent</p>
+                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">To rent</p>
                     <p className="mt-2 text-3xl font-bold">{resultMix.rentCount}</p>
                     <p className="mt-1 text-sm font-semibold text-white/65">Rental homes in the current set</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">Top type</p>
+                    <p className="text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">Top type</p>
                     <p className="mt-2 text-2xl font-bold">{resultMix.topType}</p>
                     <p className="mt-1 text-sm font-semibold text-white/65">Most common property type</p>
                   </div>
                 </div>
               </section>
 
-              <section className="rounded-xl border border-[#E5E7EB] bg-[#E6FBF7] p-6 shadow-sm">
-                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Need a shortlist?</p>
-                <h2 className="mt-2 text-2xl font-bold tracking-[-.04em] text-[#00C9A7]">Turn the current result set into a clean handoff.</h2>
-                <p className="mt-4 text-sm font-bold leading-6 text-[#00C9A7]">Save the search email, then send it to a buyer, tenant, or co-buyer with the filters already captured.</p>
-                <div className="mt-4 rounded-2xl border border-[#00C9A7]/15 bg-white/75 p-4 text-xs font-bold uppercase tracking-[.14em] text-[#00C9A7]/70">
+              <section className="rounded-xl border border-[#E5E7EB] bg-[#EFF6FF] p-6 shadow-sm">
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Need a shortlist?</p>
+                <h2 className="mt-2 text-2xl font-bold tracking-[-.04em] text-[#2563EB]">Turn the current result set into a clean handoff.</h2>
+                <p className="mt-4 text-sm font-bold leading-6 text-[#2563EB]">Save the search email, then send it to a buyer, tenant, or co-buyer with the filters already captured.</p>
+                <div className="mt-4 rounded-2xl border border-[#BFDBFE] bg-white/75 p-4 text-xs font-bold uppercase tracking-[.14em] text-[#2563EB]/70">
                   Includes the search path, result count, and active filters.
                 </div>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <a className="inline-flex items-center justify-center rounded-full border border-[#00C9A7]/20 bg-white px-5 py-3 text-sm font-bold text-[#00C9A7] shadow-sm" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })}>Save search email</a>
+                  <a className="inline-flex items-center justify-center rounded-full border border-[#BFDBFE] bg-white px-5 py-3 text-sm font-bold text-[#2563EB] shadow-sm" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })}>Save search email</a>
                   <a className="inline-flex items-center justify-center rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white shadow-sm" href="/saved">Open saved homes</a>
                 </div>
-                <p className="mt-3 text-xs font-semibold leading-6 text-[#00C9A7]/80">
-                  Saved homes stay on this device until you sign in. <a className="font-bold text-[#00C9A7] underline decoration-[#00C9A7]/30 underline-offset-2" href="/login?next=%2Fsaved">Sync across devices</a> when you’re ready.
+                <p className="mt-3 text-xs font-semibold leading-6 text-[#2563EB]/80">
+                  Saved homes stay on this device until you sign in. <a className="font-bold text-[#2563EB] underline decoration-[#93C5FD] underline-offset-2" href="/login?next=%2Fsaved">Sync across devices</a> when you’re ready.
                 </p>
               </section>
             </div>

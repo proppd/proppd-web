@@ -47,7 +47,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           <div className="mt-6 overflow-hidden rounded-xl bg-[#1A1A2E] text-white shadow-sm">
             <div className="grid gap-6 p-8 sm:p-10 lg:grid-cols-[1fr_320px] lg:p-12">
               <div>
-                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Lead detail</p>
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Lead detail</p>
                 <h1 className="mt-4 text-4xl font-bold tracking-[-.06em] sm:text-5xl">{lead.name}</h1>
                 <p className="mt-4 max-w-2xl text-lg leading-8 text-white/70">{lead.listingTitle}</p>
                 <div className="mt-6 flex flex-wrap gap-2">
@@ -100,7 +100,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
 
             <aside className="space-y-5">
               <div className="rounded-xl bg-white p-6 shadow-sm">
-                <ShieldCheck className="text-[#00C9A7]" size={28} />
+                <ShieldCheck className="text-[#2563EB]" size={28} />
                 <h2 className="mt-4 text-2xl font-bold tracking-[-.04em]">Moderation</h2>
                 <p className="mt-2 text-sm font-bold leading-6 text-[#6B7280]">Review and move this lead through the queue without leaving the portal.</p>
                 <div className="mt-4">
@@ -124,7 +124,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               </div>
 
               <div className="rounded-xl bg-[#1A1A2E] p-6 text-white">
-                <Sparkles className="text-[#00C9A7]" size={28} />
+                <Sparkles className="text-[#2563EB]" size={28} />
                 <h2 className="mt-4 text-2xl font-bold tracking-[-.04em]">Context</h2>
                 <p className="mt-3 text-sm leading-6 text-white/70">{lead.message}</p>
               </div>
@@ -192,7 +192,7 @@ function Badge({ children }: { children: string }) {
 function DetailLine({ icon, label, value, href }: { icon: React.ReactNode; label: string; value: string; href: string }) {
   return (
     <a href={href} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:bg-white/10">
-      <span className="mt-0.5 text-[#00C9A7]">{icon}</span>
+      <span className="mt-0.5 text-[#2563EB]">{icon}</span>
       <span className="min-w-0">
         <span className="block text-[11px] font-bold uppercase tracking-[.14em] text-white/45">{label}</span>
         <span className="block break-words text-white">{value}</span>

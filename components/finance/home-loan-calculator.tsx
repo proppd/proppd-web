@@ -27,7 +27,7 @@ export function HomeLoanCalculator() {
   return (
     <div className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-2xl shadow-slate-200/70">
       <div className="flex items-center gap-3 rounded-lg bg-[#1A1A2E] p-6 text-white">
-        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#00C9A7]/20 text-[#00C9A7]">
+        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#DBEAFE] text-[#2563EB]">
           <Calculator size={22} />
         </div>
         <div>

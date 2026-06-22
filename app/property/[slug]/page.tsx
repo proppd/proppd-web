@@ -171,7 +171,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,48,.12)_0%,rgba(5,10,48,.08)_42%,rgba(5,10,48,.82)_100%)]" />
               <div className="relative flex gap-2">
                 <span className="rounded-md bg-white px-3 py-1 text-xs font-bold uppercase tracking-[.08em] text-[#1A1A2E]">{listing.purpose}</span>
-                <a href="#verification" className="rounded-md bg-[#00C9A7] px-3 py-1 text-xs font-bold uppercase tracking-[.08em] text-[#1A1A2E] transition hover:bg-white">Verified</a>
+                <a href="#verification" className="rounded-md bg-[#DBEAFE] px-3 py-1 text-xs font-bold uppercase tracking-[.08em] text-[#1A1A2E] transition hover:bg-white">Verified</a>
               </div>
               <div className="relative mt-20 max-w-3xl sm:mt-48">
                 <p className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold backdrop-blur sm:px-4 sm:py-2 sm:text-sm"><MapPin size={14} /> {listing.location}</p>
@@ -223,7 +223,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                 <div className="mt-8 grid gap-3 sm:grid-cols-3">
                   {listing.highlights.map((highlight) => (
                     <div key={highlight} className="rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] p-4 text-sm font-bold">
-                      <ShieldCheck className="mb-3 text-[#00C9A7]" size={20} /> {highlight}
+                      <ShieldCheck className="mb-3 text-[#2563EB]" size={20} /> {highlight}
                     </div>
                   ))}
                 </div>
@@ -234,7 +234,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   {listing.features.map((feature) => (
                     <div key={feature} className="flex items-center gap-3 text-sm font-bold text-[#6B7280]">
-                      <CheckCircle2 className="text-[#00C9A7]" size={19} /> {feature}
+                      <CheckCircle2 className="text-[#2563EB]" size={19} /> {feature}
                     </div>
                   ))}
                 </div>
@@ -264,12 +264,12 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                 <PriceHistory listingPrice={listing.priceValue} listedAt={listing.listedAt} />
               </section>
 
-              <section id="verification" className="rounded-xl border border-[#00C9A7]/30 bg-[#E6FBF7] p-6 shadow-sm sm:p-8">
-                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">How verification works</p>
+              <section id="verification" className="rounded-xl border border-[#BFDBFE] bg-[#EFF6FF] p-6 shadow-sm sm:p-8">
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">How verification works</p>
                 <div className="mt-4 grid gap-4 lg:grid-cols-[.95fr_1.05fr] lg:items-start">
                   <div>
                     <h2 className="text-2xl font-bold tracking-[-.04em] text-[#1A1A2E]">A clearer handoff before you enquire.</h2>
-                    <p className="mt-3 text-sm font-semibold leading-6 text-[#00C9A7]">
+                    <p className="mt-3 text-sm font-semibold leading-6 text-[#2563EB]">
                       Proppd marks a listing as verified when the listing has enough agency, mandate, and property context for a buyer or tenant to make the next click with confidence.
                     </p>
                   </div>
@@ -279,7 +279,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                     <VerificationPoint title="Handoff route" text={leadRoutingLive ? 'Portal enquiry route' : 'Email enquiry route'} />
                   </div>
                 </div>
-                <div className="mt-5 border-t border-[#00C9A7]/20 pt-4">
+                <div className="mt-5 border-t border-[#BFDBFE] pt-4">
                   <ReportListingButton listing={{ slug: listing.slug, title: listing.title, agent: listing.agent, agency: listing.agency }} />
                 </div>
               </section>
@@ -295,7 +295,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                   </div>
                 </div>
                 <div className="mt-4 grid gap-2 text-sm font-bold text-[#6B7280]">
-                  <span className="flex items-center gap-2"><ShieldCheck size={16} className="text-[#00C9A7]" /> {listing.mandate}</span>
+                  <span className="flex items-center gap-2"><ShieldCheck size={16} className="text-[#2563EB]" /> {listing.mandate}</span>
                   <span className="flex items-center gap-2"><CalendarDays size={16} /> Listed {formatDate(listing.listedAt)}</span>
                 </div>
               </div>
@@ -381,7 +381,7 @@ function buildShareMailto(listing: { title: string; slug: string }) {
 function VerificationPoint({ title, text }: { title: string; text: string }) {
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm">
-      <div className="flex items-center gap-2 text-sm font-bold text-[#1A1A2E]"><ShieldCheck size={16} className="text-[#00C9A7]" /> {title}</div>
+      <div className="flex items-center gap-2 text-sm font-bold text-[#1A1A2E]"><ShieldCheck size={16} className="text-[#2563EB]" /> {title}</div>
       <p className="mt-2 text-sm font-bold leading-5 text-[#6B7280]">{text}</p>
     </div>
   );
@@ -402,7 +402,7 @@ function getRelatedSourceLabel(source: 'database' | 'demo' | 'empty' | 'error') 
 }
 
 function SourceBadge({ children, tone }: { children: ReactNode; tone: 'sky' | 'emerald' }) {
-  const toneClasses = tone === 'sky' ? 'bg-[#4A3AFF]/10 text-[#4A3AFF] ring-[#4A3AFF]/15' : 'bg-[#00C9A7]/15 text-[#0a6b62] ring-[#00C9A7]/20';
+  const toneClasses = tone === 'sky' ? 'bg-[#4A3AFF]/10 text-[#4A3AFF] ring-[#4A3AFF]/15' : 'bg-[#DBEAFE] text-[#2563EB] ring-[#2563EB]/20';
 
   return (
     <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[.12em] ring-1 ${toneClasses}`}>

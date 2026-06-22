@@ -50,7 +50,7 @@ export default function Page() {
           <div className="overflow-hidden rounded-xl bg-[#1A1A2E] text-white shadow-sm">
             <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[1fr_360px] lg:p-12">
               <div>
-                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Request valuation</p>
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Request valuation</p>
                 <h1 className="mt-4 max-w-4xl text-5xl font-bold tracking-[-.07em] sm:text-6xl">A cleaner first step for sellers and landlords.</h1>
                 <p className="mt-5 max-w-2xl text-lg leading-8 text-white/70">
                   Proppd’s valuation route is a readiness and handoff flow: capture the right property context, set expectations clearly, and route serious requests to suitable agents or agencies.
@@ -61,7 +61,7 @@ export default function Page() {
                 </div>
               </div>
               <div className="rounded-xl border border-white/10 bg-white/10 p-6 backdrop-blur">
-                <BarChart3 className="text-[#00C9A7]" size={34} />
+                <BarChart3 className="text-[#2563EB]" size={34} />
                 <h2 className="mt-5 text-3xl font-bold tracking-[-.05em]">Indicative, not a bank valuation</h2>
                 <p className="mt-3 text-sm font-bold leading-6 text-white/65">
                   This page does not promise an automated valuation model. It prepares the information an agent needs for a responsible market opinion.
@@ -72,11 +72,11 @@ export default function Page() {
                 </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs font-bold uppercase tracking-[.14em] text-[#00C9A7]">Handoff style</p>
+                    <p className="text-xs font-bold uppercase tracking-[.14em] text-[#2563EB]">Handoff style</p>
                     <p className="mt-2 text-sm font-bold leading-6 text-white/78">Clear summary first, then route to a suitable agent or Proppd review.</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs font-bold uppercase tracking-[.14em] text-[#00C9A7]">Best for</p>
+                    <p className="text-xs font-bold uppercase tracking-[.14em] text-[#2563EB]">Best for</p>
                     <p className="mt-2 text-sm font-bold leading-6 text-white/78">Owners who want a realistic starting point before listing or holding.</p>
                   </div>
                 </div>
@@ -117,8 +117,8 @@ export default function Page() {
                   </div>
                 ))}
               </div>
-              <div className="mt-5 rounded-lg border border-[#E6FBF7] bg-[#f8fffd] p-5">
-                <p className="text-xs font-bold uppercase tracking-[.14em] text-[#00C9A7]">What happens next</p>
+              <div className="mt-5 rounded-lg border border-[#EFF6FF] bg-[#F8FBFF] p-5">
+                <p className="text-xs font-bold uppercase tracking-[.14em] text-[#2563EB]">What happens next</p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-3">
                   <div className="rounded-2xl bg-white p-4 text-sm font-bold text-[#6B7280] shadow-sm">
                     <p className="font-bold text-[#1A1A2E]">1. Draft email</p>
@@ -133,7 +133,7 @@ export default function Page() {
                     <p className="mt-2 leading-6">The request can be sent to a suitable agent or reviewed internally.</p>
                   </div>
                 </div>
-                <p className="mt-4 text-sm font-bold leading-6 text-[#00C9A7]">
+                <p className="mt-4 text-sm font-bold leading-6 text-[#2563EB]">
                   If the timing is urgent, mention it in the note so the right partner can prioritise the response.
                 </p>
               </div>
@@ -151,8 +151,8 @@ export default function Page() {
                   </div>
                 </div>
               </div>
-              <div className="mt-4 rounded-lg border border-[#E6FBF7] bg-[#f8fffd] p-5">
-                <p className="text-xs font-bold uppercase tracking-[.14em] text-[#00C9A7]">Sample request wording</p>
+              <div className="mt-4 rounded-lg border border-[#EFF6FF] bg-[#F8FBFF] p-5">
+                <p className="text-xs font-bold uppercase tracking-[.14em] text-[#2563EB]">Sample request wording</p>
                 <p className="mt-3 text-sm font-bold leading-6 text-[#6B7280]">
                   “I’d like an indicative market range for a 3-bedroom house in Sandton. The owner consents to a follow-up from a suitable agent and can be reached by email.”
                 </p>
@@ -241,7 +241,7 @@ function MiniFact({ title, body }: { title: string; body: string }) {
 function TrustCard({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
   return (
     <div className="rounded-xl bg-white p-5 shadow-sm">
-      <div className="inline-flex rounded-2xl bg-[#E6FBF7] p-3 text-[#00C9A7]">{icon}</div>
+      <div className="inline-flex rounded-2xl bg-[#EFF6FF] p-3 text-[#2563EB]">{icon}</div>
       <h2 className="mt-4 text-xl font-bold tracking-[-.03em]">{title}</h2>
       <p className="mt-2 text-sm font-bold leading-6 text-[#9CA3AF]">{text}</p>
     </div>

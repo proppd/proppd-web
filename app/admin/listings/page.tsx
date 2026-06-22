@@ -28,7 +28,7 @@ const STATUS_LABELS: Record<string, string> = {
 const STATUS_STYLES: Record<string, string> = {
   draft: 'bg-slate-100 text-slate-600',
   pending_review: 'bg-amber-50 text-amber-700',
-  available: 'bg-[#E6FBF7] text-[#00C9A7]',
+  available: 'bg-[#EFF6FF] text-[#2563EB]',
   under_offer: 'bg-[#4A3AFF]/10 text-[#4A3AFF]',
   sold: 'bg-[#1A1A2E]/10 text-[#1A1A2E]',
   rented: 'bg-[#1A1A2E]/10 text-[#1A1A2E]',
@@ -70,7 +70,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
       <section className="px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="rounded-xl bg-[#1A1A2E] p-8 text-white shadow-sm sm:p-10">
-            <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Listing management</p>
+            <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Listing management</p>
             <h1 className="mt-3 text-4xl font-bold tracking-[-.06em] sm:text-5xl">Approve, feature, and moderate listings</h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-white/70">
               Review what agents publish, approve pending listings, feature the best stock, and archive anything that should come down.
@@ -186,7 +186,7 @@ function Th({ children }: { children: React.ReactNode }) {
 function StatCard({ icon, label, value, warning = false }: { icon: React.ReactNode; label: string; value: number; warning?: boolean }) {
   return (
     <div className="rounded-xl bg-white p-5 shadow-sm">
-      <div className={`inline-flex rounded-2xl p-3 ${warning ? 'bg-amber-50 text-amber-600' : 'bg-[#E6FBF7] text-[#00C9A7]'}`}>{icon}</div>
+      <div className={`inline-flex rounded-2xl p-3 ${warning ? 'bg-amber-50 text-amber-600' : 'bg-[#EFF6FF] text-[#2563EB]'}`}>{icon}</div>
       <p className="mt-4 text-3xl font-bold">{value}</p>
       <p className="mt-1 text-sm font-bold text-[#9CA3AF]">{label}</p>
     </div>

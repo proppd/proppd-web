@@ -39,7 +39,7 @@ export function ValueProps() {
         <div className="mx-auto mt-10 grid max-w-4xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {values.map(({ title, text, icon: Icon }) => (
             <div key={title} className="rounded-xl border border-[#E5E7EB] bg-white p-5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6FBF7] text-[#00C9A7]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#2563EB]">
                 <Icon size={20} />
               </div>
               <h3 className="mt-4 text-base font-bold text-[#1A1A2E]">{title}</h3>

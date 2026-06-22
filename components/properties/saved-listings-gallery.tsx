@@ -65,9 +65,9 @@ export function SavedListingsGallery({ listings }: { listings: Listing[] }) {
               </div>
             </div>
 
-            <div className="rounded-xl border border-[#00C9A7]/30 bg-[#E6FBF7] p-6 shadow-sm sm:p-8">
-              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">How saving works</p>
-              <div className="mt-4 space-y-4 text-sm font-semibold leading-6 text-[#00C9A7]">
+            <div className="rounded-xl border border-[#BFDBFE] bg-[#EFF6FF] p-6 shadow-sm sm:p-8">
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">How saving works</p>
+              <div className="mt-4 space-y-4 text-sm font-semibold leading-6 text-[#2563EB]">
                 <div className="flex gap-3">
                   <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-[#1A1A2E]">1</span>
                   Tap Save on any property card or detail page.

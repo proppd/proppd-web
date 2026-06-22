@@ -76,7 +76,7 @@ export function LeadStageSuggestionControls({ leadId, suggestion, enabled }: Pro
       </label>
       <div className="mt-2 min-h-4 text-[11px] font-bold">
         {!enabled ? <span className="text-[#9CA3AF]">Live database required to apply this shortcut.</span> : null}
-        {state.kind === 'saved' ? <span className="inline-flex items-center gap-1 text-[#00C9A7]"><Check size={11} /> {state.message}</span> : null}
+        {state.kind === 'saved' ? <span className="inline-flex items-center gap-1 text-[#2563EB]"><Check size={11} /> {state.message}</span> : null}
         {state.kind === 'error' ? <span className="inline-flex items-center gap-1 text-red-600"><AlertCircle size={11} /> {state.message}</span> : null}
       </div>
     </div>

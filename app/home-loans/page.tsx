@@ -81,7 +81,7 @@ export default function HomeLoansPage() {
           <div className="grid gap-5 md:grid-cols-3">
             {steps.map(([title, body], index) => (
               <div key={title} className="rounded-[1.75rem] border border-[#E5E7EB] bg-white p-6 shadow-sm">
-                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#00C9A7]/15 text-[#057a70]">
+                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#DBEAFE] text-[#2563EB]">
                   {index === 0 ? <FileCheck2 size={22} /> : <CheckCircle2 size={22} />}
                 </div>
                 <h2 className="mt-5 text-2xl font-bold tracking-[-.04em]">{title}</h2>
@@ -162,7 +162,7 @@ export default function HomeLoansPage() {
             <ul className="mt-6 space-y-4">
               {trustPoints.map((point) => (
                 <li key={point} className="flex gap-3 rounded-[1.25rem] bg-[#F7F8FA] p-4">
-                  <div className="mt-1 flex h-7 w-7 flex-none items-center justify-center rounded-full bg-[#00C9A7]/20 text-[#057a70]">
+                  <div className="mt-1 flex h-7 w-7 flex-none items-center justify-center rounded-full bg-[#DBEAFE] text-[#2563EB]">
                     <ShieldCheck size={16} />
                   </div>
                   <p className="text-sm font-semibold leading-6 text-[#6B7280]">{point}</p>

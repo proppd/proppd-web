@@ -56,7 +56,7 @@ export function HomeTrustStrip() {
 function StatCard({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
     <div className="text-center">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#E6FBF7] text-[#00C9A7]">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#EFF6FF] text-[#2563EB]">
         {icon}
       </div>
       <p className="mt-4 text-3xl font-bold text-[#1A1A2E]">{value}</p>

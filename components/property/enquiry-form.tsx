@@ -117,7 +117,7 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
 
       <div className="mt-5 rounded-lg border border-[#E5E7EB] bg-white p-4 text-xs font-bold leading-5 text-[#6B7280] shadow-sm">
         <div className="flex items-center gap-2 font-bold text-[#1A1A2E]">
-          <ShieldCheck size={15} className="text-[#00C9A7]" /> {routingLabel}
+          <ShieldCheck size={15} className="text-[#2563EB]" /> {routingLabel}
         </div>
         <p className="mt-2 text-sm leading-6 text-[#6B7280]">{routingDetail}</p>
       </div>
@@ -189,16 +189,16 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
           />
         </label>
 
-        <label className="flex items-start gap-3 rounded-2xl bg-[#E6FBF7] p-4 text-xs font-bold leading-5 text-[#00C9A7]">
+        <label className="flex items-start gap-3 rounded-2xl bg-[#EFF6FF] p-4 text-xs font-bold leading-5 text-[#2563EB]">
           <input
-            className="mt-1 h-4 w-4 accent-[#00C9A7]"
+            className="mt-1 h-4 w-4 accent-[#2563EB]"
             type="checkbox"
             checked={form.popiaConsent}
             onChange={(event) => updateField('popiaConsent', event.target.checked)}
           />
           <span>
             I consent to Proppd processing my details for this property enquiry and sharing them with the relevant agent or agency.
-            {!form.popiaConsent && <span className="mt-1 block font-bold text-[#00C9A7]">Required before sending.</span>}
+            {!form.popiaConsent && <span className="mt-1 block font-bold text-[#2563EB]">Required before sending.</span>}
           </span>
         </label>
 
@@ -215,7 +215,7 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
 
         {status && (
           <p className="flex items-start gap-2 rounded-2xl border border-[#E5E7EB] p-4 text-xs font-bold leading-5 text-[#6B7280]">
-            {isReady ? <CheckCircle2 className="mt-0.5 text-[#00C9A7]" size={16} /> : <ShieldCheck className="mt-0.5 text-[#4A3AFF]" size={16} />}
+            {isReady ? <CheckCircle2 className="mt-0.5 text-[#2563EB]" size={16} /> : <ShieldCheck className="mt-0.5 text-[#4A3AFF]" size={16} />}
             {status}
           </p>
         )}
@@ -241,7 +241,7 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
       </a>
 
       <div className="mt-5 rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] p-4 text-xs font-bold leading-5 text-[#6B7280]">
-        <div className="flex items-center gap-2 font-bold text-[#1A1A2E]"><ShieldCheck size={15} className="text-[#00C9A7]" /> POPIA-aware handoff</div>
+        <div className="flex items-center gap-2 font-bold text-[#1A1A2E]"><ShieldCheck size={15} className="text-[#2563EB]" /> POPIA-aware handoff</div>
         <p className="mt-2">Your enquiry includes your consent, listing context, and a clear route to the relevant agent or agency.</p>
       </div>
     </aside>

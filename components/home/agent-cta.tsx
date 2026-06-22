@@ -3,7 +3,7 @@ export function AgentCta() {
     <section className="bg-[#1A1A2E] px-4 py-12 text-white sm:px-6 sm:py-16 lg:px-8">
       <div className="mx-auto grid max-w-7xl gap-8 rounded-xl border border-white/10 bg-white/5 p-8 lg:grid-cols-[1fr_auto] lg:items-center lg:p-12">
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">For agents and agencies</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">For agents and agencies</p>
           <h2 className="mt-3 max-w-3xl text-3xl font-bold sm:text-4xl">
             Built for modern property professionals.
           </h2>

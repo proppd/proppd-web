@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     <style>
       body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #F7F8FA; color: #1A1A2E; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
       .card { max-width: 36rem; margin: 1rem; border-radius: 2rem; background: white; padding: 2rem; box-shadow: 0 10px 30px rgba(5,10,48,.08); }
-      .badge { display: inline-flex; border-radius: 999px; background: #E6FBF7; color: #00C9A7; font-weight: 800; font-size: .75rem; letter-spacing: .16em; text-transform: uppercase; padding: .5rem .9rem; }
+      .badge { display: inline-flex; border-radius: 999px; background: #EFF6FF; color: #2563EB; font-weight: 800; font-size: .75rem; letter-spacing: .16em; text-transform: uppercase; padding: .5rem .9rem; }
       h1 { margin: 1rem 0 .75rem; font-size: clamp(2rem, 4vw, 3rem); line-height: .95; letter-spacing: -.06em; }
       p { margin: 0; color: #475569; font-size: 1rem; line-height: 1.7; }
       a { display: inline-flex; margin-top: 1.5rem; border-radius: 999px; background: #1A1A2E; color: white; text-decoration: none; font-weight: 800; padding: .9rem 1.25rem; }
