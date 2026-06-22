@@ -17,7 +17,7 @@ export function HeroSearch() {
         {/* Headline */}
         <div className="mx-auto max-w-3xl text-center">
           <h1 className="text-3xl font-bold tracking-tight text-[#1A1A2E] sm:text-5xl lg:text-[3.5rem]">
-            Find your next home
+            Find your way home
           </h1>
           <p className="mt-3 text-base text-[#6B7280] sm:text-lg">
             Search verified properties across South Africa
@@ -49,7 +49,8 @@ export function HeroSearch() {
               <div className="flex flex-1 items-center gap-3 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] px-3 py-2.5 sm:px-4 sm:py-3">
                 <SearchAutocomplete
                   name="q"
-                  placeholder="Enter a suburb, city, or address"
+                  placeholder="Enter a suburb"
+                  rotatingPlaceholders={['Enter a suburb', 'Enter a city', 'Enter an area']}
                 />
               </div>
               <div className="flex gap-2.5">

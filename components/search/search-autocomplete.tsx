@@ -30,6 +30,7 @@ interface SearchAutocompleteProps {
   name?: string;
   defaultValue?: string;
   placeholder?: string;
+  rotatingPlaceholders?: string[];
   onSelect?: (value: string) => void;
 }
 
@@ -37,9 +38,11 @@ export function SearchAutocomplete({
   name = 'q',
   defaultValue = '',
   placeholder = 'Enter a suburb, city, or address',
+  rotatingPlaceholders,
   onSelect,
 }: SearchAutocompleteProps) {
   const [query, setQuery] = useState(defaultValue);
+  const [typedPlaceholder, setTypedPlaceholder] = useState(placeholder);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -71,6 +74,48 @@ export function SearchAutocomplete({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!rotatingPlaceholders?.length) {
+      setTypedPlaceholder(placeholder);
+      return;
+    }
+
+    let phraseIndex = 0;
+    let characterIndex = 0;
+    let isDeleting = false;
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const tick = () => {
+      const phrase = rotatingPlaceholders[phraseIndex];
+
+      if (!isDeleting) {
+        characterIndex += 1;
+        setTypedPlaceholder(phrase.slice(0, characterIndex));
+
+        if (characterIndex === phrase.length) {
+          isDeleting = true;
+          timeoutId = setTimeout(tick, 1200);
+          return;
+        }
+      } else {
+        characterIndex -= 1;
+        setTypedPlaceholder(phrase.slice(0, characterIndex));
+
+        if (characterIndex === 0) {
+          isDeleting = false;
+          phraseIndex = (phraseIndex + 1) % rotatingPlaceholders.length;
+        }
+      }
+
+      timeoutId = setTimeout(tick, isDeleting ? 45 : 85);
+    };
+
+    setTypedPlaceholder('');
+    timeoutId = setTimeout(tick, 250);
+
+    return () => clearTimeout(timeoutId);
+  }, [placeholder, rotatingPlaceholders]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) return;
@@ -107,7 +152,7 @@ export function SearchAutocomplete({
         onFocus={() => suggestions.length > 0 && setIsOpen(true)}
         onKeyDown={handleKeyDown}
         className="w-full bg-transparent text-sm text-[#1A1A2E] outline-none placeholder:text-[#9CA3AF] sm:text-base"
-        placeholder={placeholder}
+        placeholder={typedPlaceholder}
         aria-label="Search properties"
         aria-autocomplete="list"
         aria-expanded={isOpen}
