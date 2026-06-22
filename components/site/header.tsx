@@ -47,6 +47,13 @@ export function SiteHeader() {
     };
   }, []);
 
+  async function signOut() {
+    setMobileOpen(false);
+    await getBrowserSupabaseClient()?.auth.signOut();
+    // Full reset so any gated page (dashboard/admin) re-evaluates server-side.
+    window.location.assign('/');
+  }
+
   useEffect(() => {
     if (!mobileOpen) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -126,12 +133,21 @@ export function SiteHeader() {
               Search
             </a>
             {signedIn ? (
-              <a
-                href="/dashboard"
-                className="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
-              >
-                Dashboard
-              </a>
+              <>
+                <a
+                  href="/dashboard"
+                  className="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
+                >
+                  Dashboard
+                </a>
+                <button
+                  type="button"
+                  onClick={signOut}
+                  className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-[#6B7280] transition hover:text-[#1A1A2E] sm:inline-flex"
+                >
+                  Sign out
+                </button>
+              </>
             ) : (
               <button
                 type="button"
@@ -207,13 +223,22 @@ export function SiteHeader() {
 
             <div className="border-t border-[#E5E7EB] px-3 py-3">
               {signedIn ? (
-                <a
-                  href="/dashboard"
-                  onClick={() => setMobileOpen(false)}
-                  className="block w-full rounded-lg bg-[#4A3AFF] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#3A2AE0]"
-                >
-                  Go to dashboard
-                </a>
+                <>
+                  <a
+                    href="/dashboard"
+                    onClick={() => setMobileOpen(false)}
+                    className="block w-full rounded-lg bg-[#4A3AFF] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#3A2AE0]"
+                  >
+                    Go to dashboard
+                  </a>
+                  <button
+                    type="button"
+                    onClick={signOut}
+                    className="mt-2 block w-full rounded-lg border border-[#E5E7EB] px-4 py-3 text-center text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]"
+                  >
+                    Sign out
+                  </button>
+                </>
               ) : (
                 <>
                   <button
