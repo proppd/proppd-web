@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Menu, X, Heart, ChevronDown, Users, Building2, LayoutDashboard, Wrench, Calculator } from 'lucide-react';
 import { AuthModal, type AuthMode } from '@/components/auth/auth-modal';
+import { getBrowserSupabaseClient } from '@/lib/supabase/client';
 import { ProppdLogo } from './logo';
 
 const primaryNav = [
@@ -22,11 +23,29 @@ const agentMenu = [
 export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode | null>(null);
+  const [signedIn, setSignedIn] = useState(false);
 
   const openAuth = (mode: AuthMode) => {
     setMobileOpen(false);
     setAuthMode(mode);
   };
+
+  // Track auth so the Sign in control disappears once signed in.
+  useEffect(() => {
+    const supabase = getBrowserSupabaseClient();
+    if (!supabase) return;
+    let active = true;
+    supabase.auth.getUser().then(({ data }) => {
+      if (active) setSignedIn(Boolean(data.user));
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSignedIn(Boolean(session?.user));
+    });
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -106,13 +125,22 @@ export function SiteHeader() {
             <a className="rounded-lg bg-[#4A3AFF] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#3A2AE0] sm:px-4" href="/properties">
               Search
             </a>
-            <button
-              type="button"
-              onClick={() => openAuth('login')}
-              className="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
-            >
-              Sign in
-            </button>
+            {signedIn ? (
+              <a
+                href="/dashboard"
+                className="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
+              >
+                Dashboard
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openAuth('login')}
+                className="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
+              >
+                Sign in
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -178,19 +206,31 @@ export function SiteHeader() {
             </div>
 
             <div className="border-t border-[#E5E7EB] px-3 py-3">
-              <button
-                type="button"
-                onClick={() => openAuth('login')}
-                className="block w-full rounded-lg bg-[#4A3AFF] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#3A2AE0]"
-              >
-                Sign in
-              </button>
-              <p className="mt-3 px-3 text-center text-xs text-[#9CA3AF]">
-                Need agency access?{' '}
-                <button type="button" onClick={() => openAuth('signup')} className="font-bold text-[#4A3AFF]">
-                  Request access
-                </button>
-              </p>
+              {signedIn ? (
+                <a
+                  href="/dashboard"
+                  onClick={() => setMobileOpen(false)}
+                  className="block w-full rounded-lg bg-[#4A3AFF] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#3A2AE0]"
+                >
+                  Go to dashboard
+                </a>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => openAuth('login')}
+                    className="block w-full rounded-lg bg-[#4A3AFF] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#3A2AE0]"
+                  >
+                    Sign in
+                  </button>
+                  <p className="mt-3 px-3 text-center text-xs text-[#9CA3AF]">
+                    Need agency access?{' '}
+                    <button type="button" onClick={() => openAuth('signup')} className="font-bold text-[#4A3AFF]">
+                      Request access
+                    </button>
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
