@@ -4,7 +4,7 @@ import { SearchAutocomplete } from '@/components/search/search-autocomplete';
 const tabs = [
   { label: 'Buy', href: '/properties/for-sale' },
   { label: 'Rent', href: '/properties/to-rent' },
-  { label: 'Sell', href: '/home-values' },
+  { label: 'Sell', href: '/my-properties' },
   { label: 'Agents', href: '/agents' },
 ];
 
