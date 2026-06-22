@@ -58,6 +58,7 @@ export default function Page() {
                 <div className="mt-8 flex flex-wrap gap-3">
                   <a className="rounded-full bg-[#4A3AFF] px-6 py-3 text-sm font-bold !text-white" href="/home-values#instant-estimate">Get instant estimate</a>
                   <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white" href={buildValuationRequestMailto({ reason: 'selling' })}>Start manual request</a>
+                  <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white" href="/my-properties">My property workspace</a>
                 </div>
               </div>
               <div className="rounded-xl border border-white/10 bg-white/10 p-6 backdrop-blur">

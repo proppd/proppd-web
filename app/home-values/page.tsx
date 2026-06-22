@@ -39,6 +39,7 @@ export default function Page() {
                     Start estimate <ArrowRight size={16} />
                   </a>
                   <a className="rounded-full border border-[#E5E7EB] px-6 py-3 text-sm font-bold text-[#1A1A2E]" href="/request-valuation">Request agent valuation</a>
+                  <a className="rounded-full border border-[#E5E7EB] px-6 py-3 text-sm font-bold text-[#1A1A2E]" href="/my-properties">Track in my workspace</a>
                 </div>
               </div>
               <div className="rounded-3xl border border-[#BFDBFE] bg-gradient-to-br from-[#EFF6FF] via-white to-white p-6 text-[#1A1A2E]">
