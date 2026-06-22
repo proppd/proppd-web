@@ -5,6 +5,8 @@ import {
   ArrowRight,
   BarChart3,
   Building2,
+  CheckCircle2,
+  Cloud,
   Home,
   Loader2,
   MapPin,
@@ -16,6 +18,15 @@ import {
 } from 'lucide-react';
 import { formatValuationAmount, type InstantValuationResult } from '@/lib/valuation/instant';
 import { buildValuationRequestMailto } from '@/lib/valuation/request';
+import { SupabaseLoginForm } from '@/components/auth/supabase-login-form';
+import { getBrowserSupabaseClient } from '@/lib/supabase/client';
+import {
+  cloudCreateProperty,
+  cloudImportProperties,
+  cloudListProperties,
+  cloudRemoveProperty,
+  cloudUpdateProperty,
+} from '@/lib/owner/cloud';
 import {
   OWNER_PROPERTY_TYPES,
   OWNER_STAGES,
@@ -25,12 +36,16 @@ import {
   removeOwnerProperty,
   subscribeOwnerProperties,
   upsertOwnerProperty,
+  writeOwnerProperties,
   type OwnerIntent,
   type OwnerProperty,
   type OwnerStage,
 } from '@/lib/owner/properties';
 
 type EstimateState = { status: 'loading' | 'done' | 'error'; result?: InstantValuationResult; error?: string };
+type AuthStatus = 'unknown' | 'in' | 'out';
+
+type OwnerCrmProps = { supabaseUrl?: string; supabaseKey?: string };
 
 const blankForm = {
   nickname: '',
@@ -45,19 +60,74 @@ const blankForm = {
   notes: '',
 };
 
-export function OwnerCrm() {
+export function OwnerCrm({ supabaseUrl, supabaseKey }: OwnerCrmProps) {
   const [hydrated, setHydrated] = useState(false);
   const [properties, setProperties] = useState<OwnerProperty[]>([]);
   const [estimates, setEstimates] = useState<Record<string, EstimateState>>({});
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(blankForm);
   const [error, setError] = useState('');
+  const [auth, setAuth] = useState<AuthStatus>('unknown');
+  const [showSignIn, setShowSignIn] = useState(false);
+  const [syncError, setSyncError] = useState('');
 
+  const cloudEnabled = auth === 'in';
+
+  // Track auth so the workspace can sync to the owner's account when signed in.
   useEffect(() => {
-    setProperties(readOwnerProperties());
-    setHydrated(true);
-    return subscribeOwnerProperties(() => setProperties(readOwnerProperties()));
+    const supabase = getBrowserSupabaseClient();
+    if (!supabase) {
+      setAuth('out');
+      return;
+    }
+    let active = true;
+    supabase.auth.getUser().then(({ data }) => active && setAuth(data.user ? 'in' : 'out'));
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuth(session?.user ? 'in' : 'out');
+    });
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
+
+  // Load the workspace: from the account when signed in (migrating any device
+  // copy on first login), otherwise from localStorage.
+  useEffect(() => {
+    if (auth === 'unknown') return;
+
+    if (auth === 'out') {
+      setProperties(readOwnerProperties());
+      setHydrated(true);
+      return subscribeOwnerProperties(() => setProperties(readOwnerProperties()));
+    }
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const local = readOwnerProperties();
+        const list = local.length ? await cloudImportProperties(local) : await cloudListProperties();
+        if (cancelled) return;
+        if (local.length) writeOwnerProperties([]);
+        setProperties(list);
+        setSyncError('');
+      } catch {
+        if (!cancelled) {
+          setProperties(readOwnerProperties());
+          setSyncError('We could not reach your account, so changes are saved on this device for now.');
+        }
+      } finally {
+        if (!cancelled) setHydrated(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [auth]);
+
+  async function signOut() {
+    await getBrowserSupabaseClient()?.auth.signOut();
+  }
 
   const fetchEstimate = useCallback(async (property: OwnerProperty) => {
     setEstimates((current) => ({ ...current, [property.id]: { status: 'loading' } }));
@@ -115,7 +185,7 @@ export function OwnerCrm() {
     setError('');
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!form.suburb.trim() || !form.city.trim() || !form.propertyType.trim() || !form.bedrooms.trim()) {
       setError('Add a suburb, city, property type, and bedrooms so we can value it.');
@@ -136,21 +206,48 @@ export function OwnerCrm() {
       notes: form.notes.trim(),
       createdAt: new Date().toISOString(),
     };
-    setProperties(upsertOwnerProperty(property));
     resetForm();
+    if (cloudEnabled) {
+      try {
+        setProperties(await cloudCreateProperty(property));
+        setSyncError('');
+        return;
+      } catch {
+        setSyncError('Saved on this device — we could not reach your account.');
+      }
+    }
+    setProperties(upsertOwnerProperty(property));
   }
 
-  function changeStage(property: OwnerProperty, stage: OwnerStage) {
-    setProperties(upsertOwnerProperty({ ...property, stage }));
+  async function changeStage(property: OwnerProperty, stage: OwnerStage) {
+    setProperties((current) => current.map((entry) => (entry.id === property.id ? { ...entry, stage } : entry)));
+    if (cloudEnabled) {
+      try {
+        setProperties(await cloudUpdateProperty(property.id, { stage }));
+        return;
+      } catch {
+        setSyncError('Stage saved on this device — we could not reach your account.');
+      }
+    }
+    upsertOwnerProperty({ ...property, stage });
   }
 
-  function remove(id: string) {
-    setProperties(removeOwnerProperty(id));
+  async function remove(id: string) {
+    setProperties((current) => current.filter((entry) => entry.id !== id));
     setEstimates((current) => {
       const next = { ...current };
       delete next[id];
       return next;
     });
+    if (cloudEnabled) {
+      try {
+        setProperties(await cloudRemoveProperty(id));
+        return;
+      } catch {
+        setSyncError('Removed on this device — we could not reach your account.');
+      }
+    }
+    removeOwnerProperty(id);
   }
 
   return (
@@ -188,6 +285,45 @@ export function OwnerCrm() {
           </div>
         )}
       </div>
+
+      {/* Account / sync banner */}
+      {auth === 'in' ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#BFDBFE] bg-[#EFF6FF] px-4 py-3">
+          <p className="flex items-center gap-2 text-sm font-bold text-[#1A1A2E]">
+            <CheckCircle2 size={16} className="text-[#2563EB]" /> Synced to your account across devices.
+          </p>
+          <button type="button" onClick={signOut} className="text-sm font-bold text-[#4A3AFF] transition hover:text-[#3A2AE0]">
+            Sign out
+          </button>
+        </div>
+      ) : auth === 'out' ? (
+        <div className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="flex items-center gap-2 text-sm font-semibold text-[#6B7280]">
+              <Cloud size={16} className="text-[#9CA3AF]" /> Saved on this device. Sign in to sync across devices.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowSignIn((open) => !open)}
+              className="rounded-full border border-[#E5E7EB] px-4 py-2 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]"
+            >
+              {showSignIn ? 'Close' : 'Sign in to sync'}
+            </button>
+          </div>
+          {showSignIn && (
+            <div className="mt-4 max-w-md border-t border-[#F3F4F6] pt-4">
+              <p className="mb-3 text-sm font-semibold text-[#6B7280]">
+                Enter your email and we&apos;ll send a secure link — your saved properties move into your account automatically.
+              </p>
+              <SupabaseLoginForm supabaseUrl={supabaseUrl} publishableKey={supabaseKey} nextPath="/my-properties" allowSignUp />
+            </div>
+          )}
+        </div>
+      ) : null}
+
+      {syncError && (
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700">{syncError}</p>
+      )}
 
       {/* Add property form */}
       {showForm && (

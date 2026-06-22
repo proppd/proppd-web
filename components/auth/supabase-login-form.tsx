@@ -10,6 +10,8 @@ type LoginFormProps = {
   supabaseUrl?: string;
   publishableKey?: string;
   nextPath?: string;
+  /** Allow new accounts to be created on sign-in (open self-serve, e.g. owners). */
+  allowSignUp?: boolean;
 };
 
 type SubmitState =
@@ -18,7 +20,7 @@ type SubmitState =
   | { status: 'success'; message: string }
   | { status: 'error'; message: string };
 
-export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/dashboard' }: LoginFormProps) {
+export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/dashboard', allowSignUp = false }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [state, setState] = useState<SubmitState>({
     status: 'idle',
@@ -57,6 +59,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
     const { error } = await supabase.auth.signInWithOtp({
       email: cleanEmail,
       options: {
+        shouldCreateUser: allowSignUp,
         emailRedirectTo: buildAuthCallbackUrl(window.location.origin, nextPath),
       },
     });
