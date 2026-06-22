@@ -27,6 +27,7 @@ export function SiteFooter() {
               ['Properties', '/properties'],
               ['For sale', '/properties/for-sale'],
               ['To rent', '/properties/to-rent'],
+              ['Sell or rent it out', '/my-properties'],
               ['Saved homes', '/saved'],
               ['Home loans', '/home-loans'],
             ]}

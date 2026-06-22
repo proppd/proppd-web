@@ -9,7 +9,7 @@ import { ProppdLogo } from './logo';
 const primaryNav = [
   ['Buy', '/properties/for-sale'],
   ['Rent', '/properties/to-rent'],
-  ['Sell', '/home-values'],
+  ['Sell', '/my-properties'],
 ];
 
 const agentMenu = [
