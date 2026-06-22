@@ -127,3 +127,100 @@ export function removeOwnerProperty(id: string): OwnerProperty[] {
   writeOwnerProperties(next);
   return next;
 }
+
+// ---------------------------------------------------------------------------
+// Database row mapping (account-synced workspace)
+// ---------------------------------------------------------------------------
+
+export type OwnerPropertyRow = {
+  id: string;
+  nickname: string | null;
+  suburb: string;
+  city: string;
+  property_type: string;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  floor_size: number | null;
+  intent: string;
+  asking_price: number | string | null;
+  stage: string;
+  notes: string | null;
+  created_at: string;
+};
+
+export type OwnerPropertyRowInput = {
+  nickname: string;
+  suburb: string;
+  city: string;
+  property_type: string;
+  bedrooms: number;
+  bathrooms: number | null;
+  floor_size: number | null;
+  intent: OwnerIntent;
+  asking_price: number | null;
+  stage: OwnerStage;
+  notes: string;
+};
+
+export function ownerPropertyFromRow(row: OwnerPropertyRow): OwnerProperty {
+  const intent: OwnerIntent = row.intent === 'rent' ? 'rent' : 'sell';
+  const stage = OWNER_STAGES.some((entry) => entry.value === row.stage) ? (row.stage as OwnerStage) : 'researching';
+  return {
+    id: row.id,
+    nickname: row.nickname ?? '',
+    suburb: row.suburb,
+    city: row.city,
+    propertyType: row.property_type,
+    bedrooms: toPositiveNumber(row.bedrooms) ?? 1,
+    bathrooms: toPositiveNumber(row.bathrooms),
+    floorSize: toPositiveNumber(row.floor_size),
+    intent,
+    askingPrice: toPositiveNumber(row.asking_price),
+    stage,
+    notes: row.notes ?? '',
+    createdAt: row.created_at,
+  };
+}
+
+// Validates an incoming (untrusted) property payload into a row-ready insert.
+export function ownerRowInputFromPayload(value: unknown): OwnerPropertyRowInput | null {
+  if (!value || typeof value !== 'object') return null;
+  const raw = value as Record<string, unknown>;
+  const suburb = typeof raw.suburb === 'string' ? raw.suburb.trim() : '';
+  const city = typeof raw.city === 'string' ? raw.city.trim() : '';
+  const propertyType = typeof raw.propertyType === 'string' ? raw.propertyType.trim() : '';
+  if (!suburb || !city || !propertyType) return null;
+
+  return {
+    nickname: typeof raw.nickname === 'string' ? raw.nickname.trim() : '',
+    suburb,
+    city,
+    property_type: propertyType,
+    bedrooms: toPositiveNumber(raw.bedrooms) ?? 1,
+    bathrooms: toPositiveNumber(raw.bathrooms) ?? null,
+    floor_size: toPositiveNumber(raw.floorSize) ?? null,
+    intent: raw.intent === 'rent' ? 'rent' : 'sell',
+    asking_price: toPositiveNumber(raw.askingPrice) ?? null,
+    stage: OWNER_STAGES.some((entry) => entry.value === raw.stage) ? (raw.stage as OwnerStage) : 'researching',
+    notes: typeof raw.notes === 'string' ? raw.notes.trim() : '',
+  };
+}
+
+// Maps a partial change set (untrusted) to allowed snake_case column updates.
+export function ownerRowChangesFromPayload(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object') return {};
+  const raw = value as Record<string, unknown>;
+  const updates: Record<string, unknown> = {};
+  if (typeof raw.nickname === 'string') updates.nickname = raw.nickname.trim();
+  if (typeof raw.suburb === 'string' && raw.suburb.trim()) updates.suburb = raw.suburb.trim();
+  if (typeof raw.city === 'string' && raw.city.trim()) updates.city = raw.city.trim();
+  if (typeof raw.propertyType === 'string' && raw.propertyType.trim()) updates.property_type = raw.propertyType.trim();
+  if (toPositiveNumber(raw.bedrooms)) updates.bedrooms = toPositiveNumber(raw.bedrooms);
+  if (raw.bathrooms !== undefined) updates.bathrooms = toPositiveNumber(raw.bathrooms) ?? null;
+  if (raw.floorSize !== undefined) updates.floor_size = toPositiveNumber(raw.floorSize) ?? null;
+  if (raw.intent === 'sell' || raw.intent === 'rent') updates.intent = raw.intent;
+  if (raw.askingPrice !== undefined) updates.asking_price = toPositiveNumber(raw.askingPrice) ?? null;
+  if (OWNER_STAGES.some((entry) => entry.value === raw.stage)) updates.stage = raw.stage;
+  if (typeof raw.notes === 'string') updates.notes = raw.notes.trim();
+  return updates;
+}
