@@ -21,7 +21,7 @@ export default async function Page() {
   const user = await getPortalServerUser();
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="proppd-page">
       <SiteHeader />
       <section className="px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_.9fr] lg:items-start">

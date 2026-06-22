@@ -51,7 +51,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
   const hasListings = visibleListings.length > 0;
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="proppd-page">
       <SiteHeader />
 
       <section className="border-b border-[#E5E7EB] bg-white px-4 py-4 sm:px-6 lg:px-8">

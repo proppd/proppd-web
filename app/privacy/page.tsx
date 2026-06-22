@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="proppd-page">
       <SiteHeader />
       <LegalPageTemplate page={getLegalPage('privacy')} />
       <SiteFooter />

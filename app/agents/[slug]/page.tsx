@@ -72,7 +72,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
           : 'Listings unavailable';
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="proppd-page">
       <SiteHeader />
       <section className="px-4 py-14 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">

@@ -42,7 +42,7 @@ const reasons: { id: ValuationReason; title: string; detail: string; example: st
 
 export default function Page() {
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="proppd-page">
       <SiteHeader />
 
       <section className="px-4 py-10 sm:px-6 lg:px-8">

@@ -59,7 +59,7 @@ const revenue = [
 
 export default function BusinessPage() {
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="proppd-page">
       <SiteHeader />
 
       <section className="overflow-hidden bg-[#1A1A2E] px-4 py-20 text-white sm:px-6 lg:px-8">

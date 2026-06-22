@@ -18,7 +18,7 @@ export default async function SavedHomesPage() {
   const portalListings = await loadPortalListings();
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="proppd-page">
       <SiteHeader />
       <SavedListingsGallery listings={portalListings.items} />
       <SiteFooter />

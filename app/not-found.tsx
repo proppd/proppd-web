@@ -4,7 +4,7 @@ import { SiteFooter } from '@/components/site/footer';
 
 export default function NotFound() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="proppd-page">
       <SiteHeader />
       <section className="flex flex-col items-center justify-center px-4 py-20 text-center sm:py-28">
         <p className="text-8xl font-bold tracking-tight text-[#4A3AFF]/10 sm:text-9xl">404</p>

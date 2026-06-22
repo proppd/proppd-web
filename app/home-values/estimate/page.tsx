@@ -23,7 +23,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   const estimate = input ? estimateInstantValuation(input, portalListings.items) : null;
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#EFF6FF] via-white to-[#F7F8FA] text-[#1A1A2E]">
+    <main className="proppd-page">
       <SiteHeader />
       <section className="px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">

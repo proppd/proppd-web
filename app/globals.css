@@ -65,6 +65,13 @@ img {
   color: var(--proppd-dark);
 }
 
+/* Uniform page background — light blue to white gradient (mobile-first) */
+.proppd-page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, var(--proppd-accent-light) 0%, #ffffff 38%, var(--proppd-surface) 100%);
+  color: var(--proppd-text);
+}
+
 /* Utility classes matching commercial portal style */
 .proppd-section {
   background: var(--proppd-background);

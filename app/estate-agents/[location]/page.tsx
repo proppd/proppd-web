@@ -61,7 +61,7 @@ export default async function EstateAgentsLocationPage({ params }: { params: Par
   }
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="proppd-page">
       <SiteHeader />
 
       <div className="border-b border-[#E5E7EB] bg-white px-4 py-2 sm:px-6 lg:px-8">

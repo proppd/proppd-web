@@ -17,7 +17,7 @@ export default async function Page() {
   const supabase = getSupabaseBrowserConfig();
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="proppd-page">
       <SiteHeader />
 
       <section className="px-4 py-12 sm:px-6 lg:px-8">
