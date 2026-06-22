@@ -17,23 +17,23 @@ export function HomeValueSection() {
               </div>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-[#6B7280]">
-              Get an indicative home valuation based on recent sales, market trends, and property features in your area.
+              Get an instant indicative market range from comparable Proppd listings, then request a local agent appraisal when you are ready.
             </p>
             <div className="mt-5 flex items-center gap-3">
               <input
                 type="text"
-                placeholder="Enter your address"
+                placeholder="Enter suburb or city"
                 className="flex-1 rounded-lg border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#1A1A2E] outline-none transition focus:border-[#4A3AFF] focus:ring-2 focus:ring-[#4A3AFF]/10 placeholder:text-[#9CA3AF]"
               />
               <a
-                href="/request-valuation"
+                href="/home-values#instant-estimate"
                 className="shrink-0 rounded-lg bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0]"
               >
                 Get estimate
               </a>
             </div>
             <p className="mt-3 text-xs text-[#9CA3AF]">
-              Free indicative estimate. Full valuation available on request.
+              Free indicative estimate. Formal pricing still belongs with a local property professional.
             </p>
           </div>
 
