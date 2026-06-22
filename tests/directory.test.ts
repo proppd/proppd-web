@@ -4,21 +4,21 @@ import { filterAgencies, filterAgents, findAgencyBySlug, findAgentBySlug, format
 
 describe('directory helpers', () => {
   it('creates stable profile slugs from agency and agent names', () => {
-    expect(slugifyDirectoryName('Atlantic Property Co.')).toBe('atlantic-property-co');
-    expect(slugifyDirectoryName('Lerato Mokoena')).toBe('lerato-mokoena');
+    expect(slugifyDirectoryName('Sakstons (Pty) Ltd')).toBe('sakstons-pty-ltd');
+    expect(slugifyDirectoryName('Mark Chait')).toBe('mark-chait');
   });
 
   it('finds agents and agencies by their profile slugs', () => {
-    expect(findAgentBySlug(agents, 'mia-jacobs')?.name).toBe('Mia Jacobs');
-    expect(findAgencyBySlug(agencies, 'coastal-living')?.name).toBe('Coastal Living');
+    expect(findAgentBySlug(agents, 'liz-marx')?.name).toBe('Liz Marx');
+    expect(findAgencyBySlug(agencies, 'sakstons')?.name).toBe('Sakstons');
   });
 
   it('connects agency profiles to their agents and listings', () => {
-    const agency = findAgencyBySlug(agencies, 'atlantic-property-co');
+    const agency = findAgencyBySlug(agencies, 'sakstons');
 
     expect(agency).toBeDefined();
-    expect(getAgencyAgents(agents, agency!.name).map((agent) => agent.name)).toEqual(['Mia Jacobs']);
-    expect(getAgencyListings(listings, agency!.name).map((listing) => listing.slug)).toEqual(['sea-point-apartment-with-parking-20401']);
+    expect(getAgencyAgents(agents, agency!.name).map((agent) => agent.name)).toEqual(['Graham Donald', 'Liz Marx', 'Mark Chait']);
+    expect(getAgencyListings(listings, agency!.name).length).toBe(38);
   });
 
   it('includes Sakstons as the live agency in active directory results', () => {
@@ -32,10 +32,11 @@ describe('directory helpers', () => {
   });
 
   it('connects agent profiles to active listings', () => {
-    const agent = findAgentBySlug(agents, 'aiden-naidoo');
+    const agent = findAgentBySlug(agents, 'graham-donald');
 
     expect(agent).toBeDefined();
-    expect(getAgentListings(listings, agent!.name).map((listing) => listing.slug)).toEqual(['family-townhouse-in-umhlanga-77120']);
+    expect(getAgentListings(listings, agent!.name).length).toBe(6);
+    expect(getAgentListings(listings, agent!.name).every((listing) => listing.agency === 'Sakstons')).toBe(true);
   });
 
   it('formats singular and plural directory counts clearly', () => {
@@ -46,14 +47,14 @@ describe('directory helpers', () => {
   });
 
   it('filters agent directory results by agent, agency, and area', () => {
-    expect(filterAgents(agents, 'atlantic').map((agent) => agent.name)).toEqual(['Mia Jacobs']);
-    expect(filterAgents(agents, 'Durban North').map((agent) => agent.name)).toEqual(['Aiden Naidoo']);
+    expect(filterAgents(agents, 'liz').map((agent) => agent.name)).toEqual(['Liz Marx']);
+    expect(filterAgents(agents, 'sakstons').map((agent) => agent.name)).toEqual(['Graham Donald', 'Liz Marx', 'Mark Chait']);
     expect(filterAgents(agents, 'missing')).toEqual([]);
   });
 
   it('filters agency directory results by agency and city', () => {
-    expect(filterAgencies(agencies, 'cape town').map((agency) => agency.name)).toEqual(['Atlantic Property Co.']);
-    expect(filterAgencies(agencies, 'Coastal').map((agency) => agency.name)).toEqual(['Coastal Living']);
+    expect(filterAgencies(agencies, 'sandton').map((agency) => agency.name)).toEqual(['Sakstons']);
+    expect(filterAgencies(agencies, 'sakstons').map((agency) => agency.name)).toEqual(['Sakstons']);
     expect(filterAgencies(agencies, 'missing')).toEqual([]);
   });
 

@@ -177,15 +177,9 @@ export const listings: Listing[] = [
 ];
 
 export const agents = [
-  { name: 'Lerato Mokoena', agency: 'Proppd Verified Realty', area: 'Johannesburg North', listings: 18 },
-  { name: 'Mia Jacobs', agency: 'Atlantic Property Co.', area: 'Atlantic Seaboard', listings: 11 },
-  { name: 'Aiden Naidoo', agency: 'Coastal Living', area: 'Durban North Coast', listings: 14 },
   ...sakstonsAgents,
 ];
 
 export const agencies = [
-  { name: 'Proppd Verified Realty', city: 'Johannesburg', agents: 8, listings: 48 },
-  { name: 'Atlantic Property Co.', city: 'Cape Town', agents: 5, listings: 31 },
-  { name: 'Coastal Living', city: 'Durban', agents: 6, listings: 36 },
   ...sakstonsAgencies,
 ];
