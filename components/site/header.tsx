@@ -1,15 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Menu, X, Heart } from 'lucide-react';
+import { Menu, X, Heart, ChevronDown, Users, Building2, LayoutDashboard, Wrench, Calculator } from 'lucide-react';
 import { AuthModal, type AuthMode } from '@/components/auth/auth-modal';
 import { ProppdLogo } from './logo';
 
-const nav = [
+const primaryNav = [
   ['Buy', '/properties/for-sale'],
   ['Rent', '/properties/to-rent'],
-  ['Sell', '/list-with-us'],
-  ['Agents', '/agents'],
+  ['Sell', '/home-values'],
+];
+
+const agentMenu = [
+  { label: 'Agents', helper: 'Browse verified agents', href: '/agents', icon: Users },
+  { label: 'Agencies', helper: 'Agency directory', href: '/agencies', icon: Building2 },
+  { label: 'CRM', helper: 'Leads & workspace', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Tools', helper: 'AgentOS & workflow', href: '/list-with-us', icon: Wrench },
+  { label: 'Valuations', helper: 'Request a valuation', href: '/request-valuation', icon: Calculator },
 ];
 
 export function SiteHeader() {
@@ -55,9 +62,40 @@ export function SiteHeader() {
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-6 text-sm font-semibold text-[#6B7280] lg:flex">
-            {nav.map(([label, href]) => (
+            {primaryNav.map(([label, href]) => (
               <a key={href} className="transition hover:text-[#1A1A2E]" href={href}>{label}</a>
             ))}
+
+            {/* Agents dropdown — hover on desktop, keyboard via focus-within */}
+            <div className="relative group">
+              <a
+                href="/agents"
+                className="inline-flex items-center gap-1 transition hover:text-[#1A1A2E] group-hover:text-[#1A1A2E]"
+              >
+                Agents
+                <ChevronDown size={14} className="transition group-hover:rotate-180" />
+              </a>
+              <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-3 opacity-0 transition duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                <div className="w-72 overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white p-2 shadow-xl shadow-black/5">
+                  <p className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">For agents &amp; agencies</p>
+                  {agentMenu.map(({ label, helper, href, icon: Icon }) => (
+                    <a
+                      key={href}
+                      href={href}
+                      className="flex items-start gap-3 rounded-xl px-3 py-2.5 transition hover:bg-[#F7F8FA]"
+                    >
+                      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#2563EB]">
+                        <Icon size={16} />
+                      </span>
+                      <span>
+                        <span className="block text-sm font-bold text-[#1A1A2E]">{label}</span>
+                        <span className="block text-xs font-semibold text-[#9CA3AF]">{helper}</span>
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
           </nav>
 
           {/* Right side — clean, minimal */}
@@ -84,7 +122,7 @@ export function SiteHeader() {
         <div className="fixed inset-0 z-[100] lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
 
-          <div className="absolute inset-y-0 left-0 w-80 max-w-[85vw] bg-white shadow-xl">
+          <div className="absolute inset-y-0 left-0 w-80 max-w-[85vw] overflow-y-auto bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-[#E5E7EB] px-4 py-4">
               <a href="/" aria-label="Proppd home" onClick={() => setMobileOpen(false)}>
                 <ProppdLogo compact />
@@ -100,7 +138,7 @@ export function SiteHeader() {
             </div>
 
             <nav className="px-3 py-3">
-              {nav.map(([label, href]) => (
+              {primaryNav.map(([label, href]) => (
                 <a
                   key={href}
                   href={href}
@@ -112,12 +150,30 @@ export function SiteHeader() {
               ))}
             </nav>
 
+            {/* Agents group */}
+            <div className="border-t border-[#E5E7EB] px-3 py-3">
+              <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">For agents &amp; agencies</p>
+              {agentMenu.map(({ label, helper, href, icon: Icon }) => (
+                <a
+                  key={href}
+                  href={href}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-[#1A1A2E] transition hover:bg-[#F7F8FA]"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#2563EB]">
+                    <Icon size={16} />
+                  </span>
+                  <span>
+                    <span className="block">{label}</span>
+                    <span className="block text-[11px] font-semibold text-[#9CA3AF]">{helper}</span>
+                  </span>
+                </a>
+              ))}
+            </div>
+
             <div className="border-t border-[#E5E7EB] px-3 py-3">
               <a href="/saved" onClick={() => setMobileOpen(false)} className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-[#1A1A2E] transition hover:bg-[#F7F8FA]">
                 Saved homes
-              </a>
-              <a href="/agents" onClick={() => setMobileOpen(false)} className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-[#1A1A2E] transition hover:bg-[#F7F8FA]">
-                Agents
               </a>
             </div>
 
