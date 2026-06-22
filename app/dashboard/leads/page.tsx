@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
 
 const intentStyles: Record<string, { bg: string; text: string }> = {
   buy: { bg: 'bg-[#4A3AFF]/10', text: 'text-[#4A3AFF]' },
-  rent: { bg: 'bg-[#00C9A7]/10', text: 'text-[#00C9A7]' },
+  rent: { bg: 'bg-[#DBEAFE]', text: 'text-[#2563EB]' },
   valuation: { bg: 'bg-amber-50', text: 'text-amber-700' },
   general: { bg: 'bg-[#F3F4F6]', text: 'text-[#6B7280]' },
 };
@@ -55,8 +55,8 @@ export default async function Page({ searchParams }: PageProps) {
     new: 'bg-[#4A3AFF]/10 text-[#4A3AFF]',
     contacted: 'bg-amber-50 text-amber-700',
     viewing_booked: 'bg-[#4A3AFF]/10 text-[#4A3AFF]',
-    qualified: 'bg-[#E6FBF7] text-[#00C9A7]',
-    converted: 'bg-[#00C9A7]/15 text-[#0a6b62]',
+    qualified: 'bg-[#EFF6FF] text-[#2563EB]',
+    converted: 'bg-[#DBEAFE] text-[#2563EB]',
     not_interested: 'bg-slate-100 text-slate-500',
     fake_spam: 'bg-red-50 text-red-700',
   };
@@ -87,7 +87,7 @@ export default async function Page({ searchParams }: PageProps) {
               </div>
             </div>
             <div className="rounded-2xl bg-[#1A1A2E] p-5 text-white shadow-sm">
-              <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Queue shortcut</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Queue shortcut</p>
               <p className="mt-2 text-2xl font-bold">{crmStats.needsFirstResponse} first response{crmStats.needsFirstResponse === 1 ? '' : 's'}</p>
               <p className="mt-2 text-sm font-bold leading-6 text-white/65">Open “Needs reply” when you only want the leads that need immediate action.</p>
               <a href={buildLeadFilterHref({ status: 'new' }, '/dashboard/leads')} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-bold text-[#1A1A2E] transition hover:bg-white/90">
@@ -100,8 +100,8 @@ export default async function Page({ searchParams }: PageProps) {
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <MiniStat icon={<MessageCircle size={16} />} label="Total leads" value={stats.total} />
             <MiniStat icon={<Clock size={16} />} label="New" value={stats.new} color="#4A3AFF" />
-            <MiniStat icon={<CheckCircle size={16} />} label="Contacted" value={stats.contacted} color="#00C9A7" />
-            <MiniStat icon={<TrendingUp size={16} />} label="Converted" value={stats.converted} color="#0a6b62" />
+            <MiniStat icon={<CheckCircle size={16} />} label="Contacted" value={stats.contacted} color="#2563EB" />
+            <MiniStat icon={<TrendingUp size={16} />} label="Converted" value={stats.converted} color="#2563EB" />
           </div>
 
           <div className="mt-4 rounded-xl border border-[#E5E7EB] bg-white p-3 shadow-sm">
@@ -171,7 +171,7 @@ export default async function Page({ searchParams }: PageProps) {
                             <Mail size={12} /> Reply
                           </a>
                           {lead.phone && (
-                            <a href={`tel:${lead.phone}`} className="inline-flex items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs font-bold text-[#1A1A2E] transition hover:border-[#00C9A7] hover:text-[#00C9A7]">
+                            <a href={`tel:${lead.phone}`} className="inline-flex items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs font-bold text-[#1A1A2E] transition hover:border-[#93C5FD] hover:text-[#2563EB]">
                               <Phone size={12} /> Call
                             </a>
                           )}
@@ -220,7 +220,7 @@ export default async function Page({ searchParams }: PageProps) {
               </div>
 
               <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Next best actions</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Next best actions</p>
                 <div className="mt-4 space-y-3">
                   {crmFocusLeads.length > 0 ? (
                     crmFocusLeads.map((lead) => <CrmActionCard key={lead.id} lead={lead} />)
@@ -280,7 +280,7 @@ function MiniStat({ icon, label, value, color }: { icon: React.ReactNode; label:
 }
 
 function CrmMetric({ label, value, tone = 'default' }: { label: string; value: number; tone?: 'default' | 'urgent' | 'positive' }) {
-  const toneClass = tone === 'urgent' ? 'text-amber-700' : tone === 'positive' ? 'text-[#0a6b62]' : 'text-[#1A1A2E]';
+  const toneClass = tone === 'urgent' ? 'text-amber-700' : tone === 'positive' ? 'text-[#2563EB]' : 'text-[#1A1A2E]';
 
   return (
     <div className="rounded-2xl bg-[#F7F8FA] p-3">
@@ -295,7 +295,7 @@ function CrmActionCard({ lead }: { lead: LeadRecord }) {
   const toneClass = {
     urgent: 'bg-amber-50 text-amber-800 ring-amber-100',
     active: 'bg-[#4A3AFF]/10 text-[#4A3AFF] ring-[#4A3AFF]/10',
-    positive: 'bg-[#E6FBF7] text-[#0a6b62] ring-[#00C9A7]/10',
+    positive: 'bg-[#EFF6FF] text-[#2563EB] ring-[#BFDBFE]',
     muted: 'bg-slate-100 text-slate-600 ring-slate-200',
     danger: 'bg-red-50 text-red-700 ring-red-100',
   }[action.tone];

@@ -109,7 +109,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
 
       {state.status !== 'idle' && state.message && (
         <div className={`mt-4 flex items-start gap-2.5 rounded-lg p-3 text-sm font-bold ${
-          state.status === 'error' ? 'bg-red-50 text-red-600' : 'bg-[#E6FBF7] text-[#00C9A7]'
+          state.status === 'error' ? 'bg-red-50 text-red-600' : 'bg-[#EFF6FF] text-[#2563EB]'
         }`}>
           {state.status === 'error' ? <AlertCircle size={16} className="mt-0.5 shrink-0" /> : <CheckCircle size={16} className="mt-0.5 shrink-0" />}
           <span>{state.message}</span>

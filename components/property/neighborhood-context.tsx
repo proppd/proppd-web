@@ -25,7 +25,7 @@ function ScoreRing({ score, label }: { score: number; label: string }) {
   const radius = 28;
   const circumference = 2 * Math.PI * radius;
   const progress = (score / 100) * circumference;
-  const color = score >= 70 ? '#00C9A7' : score >= 50 ? '#F59E0B' : '#EF4444';
+  const color = score >= 70 ? '#2563EB' : score >= 50 ? '#F59E0B' : '#EF4444';
 
   return (
     <div className="text-center">
@@ -81,7 +81,7 @@ export function NeighborhoodContext({ location, city }: NeighborhoodContextProps
                 <span className="text-sm font-bold text-[#1A1A2E]">{school.name}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="rounded-full bg-[#E6FBF7] px-2 py-0.5 text-[10px] font-bold text-[#00C9A7]">{school.rating}</span>
+                <span className="rounded-full bg-[#EFF6FF] px-2 py-0.5 text-[10px] font-bold text-[#2563EB]">{school.rating}</span>
                 <span className="text-xs text-[#9CA3AF]">{school.distance}</span>
               </div>
             </div>

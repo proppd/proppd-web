@@ -41,10 +41,10 @@ export default function Page() {
                   <a className="rounded-full border border-[#E5E7EB] px-6 py-3 text-sm font-bold text-[#1A1A2E]" href="/request-valuation">Request agent valuation</a>
                 </div>
               </div>
-              <div className="rounded-3xl bg-[#1A1A2E] p-6 text-white">
-                <BarChart3 className="text-[#00C9A7]" size={34} />
+              <div className="rounded-3xl border border-[#BFDBFE] bg-gradient-to-br from-[#EFF6FF] via-white to-white p-6 text-[#1A1A2E]">
+                <BarChart3 className="text-[#2563EB]" size={34} />
                 <h2 className="mt-5 text-3xl font-bold tracking-[-.05em]">Indicative, not formal.</h2>
-                <p className="mt-3 text-sm font-bold leading-6 text-white/65">
+                <p className="mt-3 text-sm font-bold leading-6 text-[#6B7280]">
                   The range is a starting point. Proppd keeps bank valuations, legal valuations and final pricing decisions with qualified professionals.
                 </p>
                 <div className="mt-6 grid gap-3">
@@ -87,8 +87,8 @@ export default function Page() {
 
 function TrustPill({ icon, text }: { icon: ReactNode; text: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 text-sm font-bold text-white/80">
-      <span className="text-[#00C9A7]">{icon}</span>
+    <div className="flex items-center gap-3 rounded-2xl border border-[#BFDBFE] bg-white/70 p-3 text-sm font-bold text-[#1A1A2E]">
+      <span className="text-[#2563EB]">{icon}</span>
       {text}
     </div>
   );

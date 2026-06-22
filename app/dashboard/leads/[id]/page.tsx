@@ -112,7 +112,7 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
             <aside className="space-y-4">
               <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
                 <div className="flex items-start gap-3">
-                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${nextAction.tone === 'danger' ? 'bg-red-50 text-red-700' : nextAction.tone === 'urgent' ? 'bg-amber-50 text-amber-700' : nextAction.tone === 'positive' ? 'bg-[#E6FBF7] text-[#0a6b62]' : 'bg-[#4A3AFF]/10 text-[#4A3AFF]'}`}>
+                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${nextAction.tone === 'danger' ? 'bg-red-50 text-red-700' : nextAction.tone === 'urgent' ? 'bg-amber-50 text-amber-700' : nextAction.tone === 'positive' ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-[#4A3AFF]/10 text-[#4A3AFF]'}`}>
                     <ShieldCheck size={18} />
                   </span>
                   <div>
@@ -133,7 +133,7 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
               </div>
 
               <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Routing snapshot</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Routing snapshot</p>
                 <div className="mt-4 space-y-3 text-sm font-bold text-[#6B7280]">
                   <SnapshotRow label="Source" value={getLeadSourceLabel(lead.sourcePage)} />
                   <SnapshotRow label="Intent" value={formatLeadIntent(lead.intent)} />
@@ -144,7 +144,7 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
               </div>
 
               <div className="rounded-xl bg-[#1A1A2E] p-5 text-white shadow-sm">
-                <CheckCircle2 size={24} className="text-[#00C9A7]" />
+                <CheckCircle2 size={24} className="text-[#2563EB]" />
                 <h2 className="mt-3 text-lg font-bold">Agent handoff rule</h2>
                 <p className="mt-2 text-sm font-bold leading-6 text-white/65">
                   Keep every reply, status change, and qualification note on this record so the agency can audit the follow-up path later.

@@ -36,7 +36,7 @@ export function MarketPulse() {
 function StatCard({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
     <div className="flex items-center gap-4 rounded-xl border border-[#E5E7EB] bg-white p-5">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#E6FBF7] text-[#00C9A7]">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#2563EB]">
         {icon}
       </div>
       <div>

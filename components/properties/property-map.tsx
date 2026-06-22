@@ -215,7 +215,7 @@ export function PropertyMap({ properties, selectedSlug, onSelect }: PropertyMapP
             <span className="h-2 w-2 rounded-full bg-[#4A3AFF]" /> For sale
           </span>
           <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-[#00C9A7]" /> To rent
+            <span className="h-2 w-2 rounded-full bg-[#DBEAFE]" /> To rent
           </span>
         </div>
       </div>

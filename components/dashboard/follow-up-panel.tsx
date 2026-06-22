@@ -11,11 +11,11 @@ export function FollowUpPanel({ leads }: { leads: LeadRecord[] }) {
     <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <AlarmClock size={18} className={overdue > 0 ? 'text-amber-600' : 'text-[#00C9A7]'} />
+          <AlarmClock size={18} className={overdue > 0 ? 'text-amber-600' : 'text-[#2563EB]'} />
           <h2 className="text-base font-bold text-[#1A1A2E]">Needs follow-up</h2>
         </div>
         {followUps.length > 0 && (
-          <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${overdue > 0 ? 'bg-amber-50 text-amber-700' : 'bg-[#E6FBF7] text-[#00C9A7]'}`}>
+          <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${overdue > 0 ? 'bg-amber-50 text-amber-700' : 'bg-[#EFF6FF] text-[#2563EB]'}`}>
             {overdue > 0 ? `${overdue} overdue` : `${followUps.length} due soon`}
           </span>
         )}
@@ -23,7 +23,7 @@ export function FollowUpPanel({ leads }: { leads: LeadRecord[] }) {
 
       {followUps.length === 0 ? (
         <div className="mt-4 flex items-center gap-2 rounded-lg bg-[#F7F8FA] p-4 text-sm font-semibold text-[#6B7280]">
-          <CheckCircle2 size={16} className="text-[#00C9A7]" /> You&apos;re all caught up — no leads waiting on a reply.
+          <CheckCircle2 size={16} className="text-[#2563EB]" /> You&apos;re all caught up — no leads waiting on a reply.
         </div>
       ) : (
         <div className="mt-4 space-y-2">

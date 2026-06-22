@@ -172,12 +172,12 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
           {steps.map((step, i) => (
             <div key={step.id} className="flex items-center gap-2">
               <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition ${
-                i < currentStep ? 'bg-[#00C9A7] text-white' : i === currentStep ? 'bg-[#4A3AFF] text-white' : 'bg-[#F3F4F6] text-[#9CA3AF]'
+                i < currentStep ? 'bg-[#DBEAFE] text-white' : i === currentStep ? 'bg-[#4A3AFF] text-white' : 'bg-[#F3F4F6] text-[#9CA3AF]'
               }`}>
                 {i < currentStep ? <Check size={14} /> : i + 1}
               </div>
               {i < steps.length - 1 && (
-                <div className={`h-px w-8 sm:w-12 ${i < currentStep ? 'bg-[#00C9A7]' : 'bg-[#E5E7EB]'}`} />
+                <div className={`h-px w-8 sm:w-12 ${i < currentStep ? 'bg-[#DBEAFE]' : 'bg-[#E5E7EB]'}`} />
               )}
             </div>
           ))}
@@ -313,7 +313,7 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
         {/* Status message */}
         {status.kind !== 'idle' && (
           <div className={`mt-4 rounded-lg p-3 text-sm font-bold ${
-            status.kind === 'error' ? 'bg-red-50 text-red-600' : status.kind === 'success' ? 'bg-[#E6FBF7] text-[#00C9A7]' : 'bg-[#F7F8FA] text-[#6B7280]'
+            status.kind === 'error' ? 'bg-red-50 text-red-600' : status.kind === 'success' ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-[#F7F8FA] text-[#6B7280]'
           }`}>
             {status.message}
           </div>

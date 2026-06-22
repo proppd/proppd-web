@@ -168,7 +168,7 @@ export default async function ForSalePage({ searchParams }: { searchParams: Sear
             </section>
 
             <section className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm lg:col-span-1">
-              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Search playbook</p>
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Search playbook</p>
               <h2 className="mt-2 text-2xl font-bold tracking-[-.04em]">Refine without losing the good homes.</h2>
               <ul className="mt-5 space-y-3 text-sm font-semibold leading-6 text-white/72">
                 <li className="rounded-2xl border border-white/10 bg-white/5 p-4">Search by suburb, city, agent, school, or listing ID.</li>
@@ -177,13 +177,13 @@ export default async function ForSalePage({ searchParams }: { searchParams: Sear
               </ul>
             </section>
 
-            <section className="rounded-xl border border-[#E5E7EB] bg-[#E6FBF7] p-6 shadow-sm">
-              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Need a shortlist?</p>
-              <h2 className="mt-2 text-2xl font-bold tracking-[-.04em] text-[#00C9A7]">Turn the current for-sale set into a clean handoff.</h2>
-              <p className="mt-4 text-sm font-bold leading-6 text-[#00C9A7]">Save the search, then email it to a buyer or co-buyer with the filters already captured.</p>
+            <section className="rounded-xl border border-[#E5E7EB] bg-[#EFF6FF] p-6 shadow-sm">
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Need a shortlist?</p>
+              <h2 className="mt-2 text-2xl font-bold tracking-[-.04em] text-[#2563EB]">Turn the current for-sale set into a clean handoff.</h2>
+              <p className="mt-4 text-sm font-bold leading-6 text-[#2563EB]">Save the search, then email it to a buyer or co-buyer with the filters already captured.</p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <a className="rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white" href={buildSavedSearchMailto(filters, { path: '/properties/for-sale', resultCount: saleListings.length })}>Save search email</a>
-                <a className="rounded-full border border-[#00C9A7]/20 px-5 py-3 text-sm font-bold text-[#00C9A7]" href="/request-valuation">Request valuation</a>
+                <a className="rounded-full border border-[#BFDBFE] px-5 py-3 text-sm font-bold text-[#2563EB]" href="/request-valuation">Request valuation</a>
               </div>
             </section>
           </div>

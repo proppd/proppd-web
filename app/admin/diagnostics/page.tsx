@@ -26,7 +26,7 @@ export default async function Page() {
           <div className="overflow-hidden rounded-xl bg-[#1A1A2E] text-white shadow-sm">
             <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[1fr_360px] lg:p-12">
               <div>
-                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Backend diagnostics</p>
+                <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Backend diagnostics</p>
                 <h1 className="mt-4 max-w-4xl text-5xl font-bold tracking-[-.07em] sm:text-6xl">See whether Proppd is ready for live listings, login, and lead persistence.</h1>
                 <p className="mt-5 max-w-2xl text-lg leading-8 text-white/70">
                   This page shows the current database mode, browser auth config, and the live record counts the backend can read right now.
@@ -90,7 +90,7 @@ function StatCard({ label, value }: { label: string; value: number | string }) {
 function CheckCard({ icon, label, value, tone }: { icon: ReactNode; label: string; value: string; tone: 'good' | 'warn' }) {
   return (
     <div className="rounded-xl bg-white p-5 shadow-sm">
-      <div className={`inline-flex rounded-2xl p-3 ${tone === 'good' ? 'bg-[#E6FBF7] text-[#00C9A7]' : 'bg-amber-50 text-amber-700'}`}>{icon}</div>
+      <div className={`inline-flex rounded-2xl p-3 ${tone === 'good' ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-amber-50 text-amber-700'}`}>{icon}</div>
       <p className="mt-4 text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">{label}</p>
       <p className="mt-2 text-lg font-bold text-[#1A1A2E]">{value}</p>
     </div>

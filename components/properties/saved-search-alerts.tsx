@@ -39,9 +39,9 @@ export function SavedSearchAlerts({ searchParams }: SavedSearchAlertsProps) {
 
   if (submitted) {
     return (
-      <div className="rounded-xl border border-[#E6FBF7] bg-[#E6FBF7] p-5">
+      <div className="rounded-xl border border-[#EFF6FF] bg-[#EFF6FF] p-5">
         <div className="flex items-center gap-3">
-          <CheckCircle size={20} className="text-[#00C9A7]" />
+          <CheckCircle size={20} className="text-[#2563EB]" />
           <div>
             <p className="text-sm font-bold text-[#1A1A2E]">Alert saved!</p>
             <p className="text-xs text-[#6B7280]">

@@ -205,7 +205,7 @@ export function AgentReviews({ agentName, agentArea }: AgentReviewsProps) {
       )}
 
       {submitted && (
-        <div className="mt-3 rounded-lg bg-[#E6FBF7] px-4 py-3 text-sm font-bold text-[#00C9A7]">
+        <div className="mt-3 rounded-lg bg-[#EFF6FF] px-4 py-3 text-sm font-bold text-[#2563EB]">
           Review submitted! Thank you for your feedback.
         </div>
       )}

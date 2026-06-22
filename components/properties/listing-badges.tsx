@@ -50,7 +50,7 @@ function Badge({ badge }: { badge: ListingBadge }) {
   const styles: Record<BadgeType, string> = {
     'new': 'bg-[#4A3AFF] text-white',
     'price-drop': 'bg-red-500 text-white',
-    'open-house': 'bg-[#00C9A7] text-[#1A1A2E]',
+    'open-house': 'bg-[#DBEAFE] text-[#1A1A2E]',
     'featured': 'bg-[#F59E0B] text-white',
     'verified': 'bg-[#1A1A2E] text-white',
   };

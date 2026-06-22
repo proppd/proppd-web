@@ -53,7 +53,7 @@ export default async function Page({ params }: PageProps) {
       <section className="px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl">
           <div className="rounded-xl bg-[#1A1A2E] p-8 text-white shadow-sm sm:p-10">
-            <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Edit listing</p>
+            <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Edit listing</p>
             <h1 className="mt-4 text-5xl font-bold tracking-[-.07em]">Update the live listing record.</h1>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-white/70">
               Changes are saved straight into the database and tied to your authenticated account.

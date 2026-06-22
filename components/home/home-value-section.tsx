@@ -40,11 +40,11 @@ export function HomeValueSection() {
           {/* Mortgage rates */}
           <div className="rounded-xl border border-[#E5E7EB] bg-white p-6 sm:p-8">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6FBF7] text-[#00C9A7]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#2563EB]">
                 <Calculator size={20} />
               </div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Mortgage rates</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Mortgage rates</p>
                 <h2 className="text-xl font-bold text-[#1A1A2E]">Current bond rates</h2>
               </div>
             </div>
@@ -76,7 +76,7 @@ function RateRow({ term, rate, change }: { term: string; rate: string; change: s
       <span className="text-sm font-bold text-[#1A1A2E]">{term}</span>
       <div className="flex items-center gap-3">
         <span className="text-lg font-bold text-[#1A1A2E]">{rate}</span>
-        <span className={`text-xs font-bold ${isDown ? 'text-[#00C9A7]' : 'text-red-500'}`}>{change}</span>
+        <span className={`text-xs font-bold ${isDown ? 'text-[#2563EB]' : 'text-red-500'}`}>{change}</span>
       </div>
     </div>
   );

@@ -100,7 +100,7 @@ export default async function EstateAgentsLocationPage({ params }: { params: Par
                   </div>
                   <div>
                     <p className="flex items-center gap-2 text-sm font-bold text-[#1A1A2E]">
-                      {agent.name} <BadgeCheck size={15} className="text-[#00C9A7]" />
+                      {agent.name} <BadgeCheck size={15} className="text-[#2563EB]" />
                     </p>
                     <p className="text-xs font-bold text-[#9CA3AF]">{agent.agency}</p>
                   </div>
@@ -140,7 +140,7 @@ export default async function EstateAgentsLocationPage({ params }: { params: Par
           </section>
 
           <section className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm">
-            <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Work in {location.name}?</p>
+            <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Work in {location.name}?</p>
             <h2 className="mt-2 text-2xl font-bold tracking-[-.04em]">Get verified leads without the noise.</h2>
             <p className="mt-4 text-sm font-semibold leading-6 text-white/72">
               Proppd routes verified enquiries straight to you — fair pricing, modern tools, and a profile buyers can trust.

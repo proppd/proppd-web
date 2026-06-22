@@ -19,7 +19,7 @@ const baseListing = (overrides: Partial<Listing>): Listing => ({
   type: overrides.type ?? 'House',
   agency: overrides.agency ?? 'Proppd Realty',
   agent: overrides.agent ?? 'Agent One',
-  gradient: 'from-[#1A1A2E] via-[#4A3AFF] to-[#00C9A7]',
+  gradient: 'from-[#1A1A2E] via-[#4A3AFF] to-[#60A5FA]',
   photos: [],
   description: 'Test listing',
   features: [],

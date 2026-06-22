@@ -107,10 +107,10 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                 href={`/agents/${slugifyDirectoryName(agent.name)}`}
                 className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-200/80"
               >
-                <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[#4A3AFF] to-[#00C9A7] text-2xl font-bold text-white">
+                <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[#4A3AFF] to-[#60A5FA] text-2xl font-bold text-white">
                   {agent.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}
                 </div>
-                <div className="mt-5 flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">
+                <div className="mt-5 flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">
                   <BadgeCheck size={16} /> Verified agent
                 </div>
                 <h2 className="mt-3 text-2xl font-bold tracking-[-.04em]">{agent.name}</h2>
@@ -166,7 +166,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                     ].map(([title, body]) => (
                       <div key={title} className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm">
                         <div className="flex items-start gap-3">
-                          <div className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[#00C9A7]/12 text-[#057a70]">
+                          <div className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[#DBEAFE] text-[#2563EB]">
                             <Search size={16} />
                           </div>
                           <div>
@@ -221,7 +221,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                 <article key={profile.agentName} className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">Live stock</p>
+                      <p className="text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">Live stock</p>
                       <h3 className="mt-2 text-2xl font-bold tracking-[-.04em] text-[#1A1A2E]">{profile.agentName}</h3>
                     </div>
                     <div className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#4A3AFF] shadow-sm">

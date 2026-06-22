@@ -187,9 +187,9 @@ export type LeadTimeline = {
 };
 
 const FALLBACK_GRADIENTS = [
-  'from-[#1A1A2E] via-[#4A3AFF] to-[#00C9A7]',
-  'from-[#1A1A2E] via-[#4A3AFF] to-[#00C9A7]',
-  'from-[#1A1A2E] via-[#4A3AFF] to-[#00C9A7]',
+  'from-[#1A1A2E] via-[#4A3AFF] to-[#60A5FA]',
+  'from-[#1A1A2E] via-[#4A3AFF] to-[#60A5FA]',
+  'from-[#1A1A2E] via-[#4A3AFF] to-[#60A5FA]',
 ];
 
 const FALLBACK_PHOTOS = [

@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
 const statusStyles: Record<string, { bg: string; text: string; label: string }> = {
   draft: { bg: 'bg-[#F3F4F6]', text: 'text-[#6B7280]', label: 'Draft' },
   pending_review: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Pending' },
-  available: { bg: 'bg-[#E6FBF7]', text: 'text-[#00C9A7]', label: 'Live' },
+  available: { bg: 'bg-[#EFF6FF]', text: 'text-[#2563EB]', label: 'Live' },
   under_offer: { bg: 'bg-[#4A3AFF]/10', text: 'text-[#4A3AFF]', label: 'Under offer' },
   sold: { bg: 'bg-[#1A1A2E]/10', text: 'text-[#1A1A2E]', label: 'Sold' },
   rented: { bg: 'bg-[#1A1A2E]/10', text: 'text-[#1A1A2E]', label: 'Rented' },
@@ -66,7 +66,7 @@ export default async function Page() {
               </div>
             </div>
             <div className="rounded-2xl bg-[#1A1A2E] p-5 text-white shadow-sm">
-              <p className="text-xs font-bold uppercase tracking-widest text-[#00C9A7]">Stock checklist</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Stock checklist</p>
               <div className="mt-4 space-y-3">
                 {actions.map((action) => <ListingAction key={action.label} action={action} />)}
               </div>
@@ -76,7 +76,7 @@ export default async function Page() {
           {/* Stats */}
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <MiniStat icon={<Home size={16} />} label="Total" value={stats.total} />
-            <MiniStat icon={<CheckCircle size={16} />} label="For sale" value={stats.sale} color="#00C9A7" />
+            <MiniStat icon={<CheckCircle size={16} />} label="For sale" value={stats.sale} color="#2563EB" />
             <MiniStat icon={<Clock size={16} />} label="To rent" value={stats.rent} />
             <MiniStat icon={<Eye size={16} />} label="Views 7d" value={stats.views7d} color="#4A3AFF" />
           </div>
@@ -165,7 +165,7 @@ export default async function Page() {
 }
 
 function ListingAction({ action }: { action: ListingWorkspaceAction }) {
-  const toneClass = action.tone === 'urgent' ? 'bg-amber-200 text-amber-950' : action.tone === 'active' ? 'bg-white/15 text-white' : 'bg-[#00C9A7] text-[#1A1A2E]';
+  const toneClass = action.tone === 'urgent' ? 'bg-amber-200 text-amber-950' : action.tone === 'active' ? 'bg-white/15 text-white' : 'bg-[#DBEAFE] text-[#1A1A2E]';
   return (
     <a href={action.href} className="block rounded-2xl bg-white/10 p-4 transition hover:bg-white/15">
       <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${toneClass}`}>{action.tone}</span>
@@ -179,7 +179,7 @@ function listingHealthClass(label: string): string {
   if (label === 'Needs photos') return 'bg-amber-50 text-amber-700';
   if (label === 'Refresh details') return 'bg-[#4A3AFF]/10 text-[#4A3AFF]';
   if (label === 'Needs exposure') return 'bg-slate-100 text-slate-600';
-  return 'bg-[#E6FBF7] text-[#00C9A7]';
+  return 'bg-[#EFF6FF] text-[#2563EB]';
 }
 
 function MiniStat({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color?: string }) {

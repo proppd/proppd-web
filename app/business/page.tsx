@@ -65,7 +65,7 @@ export default function BusinessPage() {
       <section className="overflow-hidden bg-[#1A1A2E] px-4 py-20 text-white sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.1fr_.9fr] lg:items-center">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[.24em] text-[#00C9A7]">Business concept</p>
+            <p className="text-sm font-bold uppercase tracking-[.24em] text-[#2563EB]">Business concept</p>
             <h1 className="mt-5 max-w-4xl text-5xl font-bold tracking-[-.075em] sm:text-7xl">
               The operating system for African real estate.
             </h1>
@@ -109,16 +109,16 @@ export default function BusinessPage() {
           <div className="grid gap-4 md:grid-cols-2">
             {problems.map((problem) => (
               <div key={problem} className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
-                <CheckCircle2 className="text-[#00C9A7]" />
+                <CheckCircle2 className="text-[#2563EB]" />
                 <p className="mt-4 text-sm font-bold leading-6 text-[#6B7280]">{problem}</p>
               </div>
             ))}
           </div>
         </div>
-        <div className="mx-auto mt-6 max-w-7xl rounded-xl border border-[#E6FBF7] bg-[#f8fffd] p-5 shadow-sm">
+        <div className="mx-auto mt-6 max-w-7xl rounded-xl border border-[#EFF6FF] bg-[#F8FBFF] p-5 shadow-sm">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[.2em] text-[#00C9A7]">Why it matters</p>
+              <p className="text-xs font-bold uppercase tracking-[.2em] text-[#2563EB]">Why it matters</p>
               <p className="mt-2 max-w-3xl text-sm font-bold leading-6 text-[#6B7280]">
                 Less spam, faster responses, clearer routing, and a better consumer experience across listings, agents, and agency workflows.
               </p>
@@ -141,7 +141,7 @@ export default function BusinessPage() {
           <div className="mt-8 grid gap-5 lg:grid-cols-3">
             {phases.map((phase) => (
               <article key={phase.title} className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-6">
-                <p className="text-xs font-bold uppercase tracking-[.2em] text-[#00C9A7]">{phase.title}</p>
+                <p className="text-xs font-bold uppercase tracking-[.2em] text-[#2563EB]">{phase.title}</p>
                 <h3 className="mt-3 text-2xl font-bold tracking-[-.04em]">{phase.label}</h3>
                 <p className="mt-4 text-sm leading-6 text-[#6B7280]">{phase.text}</p>
                 <ul className="mt-5 grid gap-2 text-sm font-bold text-[#6B7280]">
@@ -153,7 +153,7 @@ export default function BusinessPage() {
 
           <div className="mt-8 grid gap-4 lg:grid-cols-[1.15fr_.85fr]">
             <div className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-lg shadow-slate-900/10">
-              <p className="text-xs font-bold uppercase tracking-[.2em] text-[#00C9A7]">Commercial snapshot</p>
+              <p className="text-xs font-bold uppercase tracking-[.2em] text-[#2563EB]">Commercial snapshot</p>
               <h3 className="mt-3 text-3xl font-bold tracking-[-.05em]">Build trust first, then widen the monetisation stack.</h3>
               <div className="mt-6 grid gap-3 md:grid-cols-3">
                 <Snapshot value="Live now" label="Marketplace, directory, and lead capture" />
@@ -161,7 +161,7 @@ export default function BusinessPage() {
                 <Snapshot value="Later" label="AI tooling, partner revenue, and automation" />
               </div>
               <div className="mt-5 rounded-3xl border border-white/12 bg-white/8 p-4">
-                <p className="text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">Launch order</p>
+                <p className="text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">Launch order</p>
                 <p className="mt-2 text-sm font-bold leading-6 text-white/76">
                   Marketplace first, then verified lead routing, then AgentOS automation once the user journey is already earning trust.
                 </p>
@@ -183,7 +183,7 @@ export default function BusinessPage() {
         <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-5">
           {advantages.map(([title, text, Icon]) => (
             <article key={title as string} className="rounded-xl bg-[#1A1A2E] p-5 text-white">
-              <Icon className="text-[#00C9A7]" />
+              <Icon className="text-[#2563EB]" />
               <h3 className="mt-4 text-lg font-bold">{title}</h3>
               <p className="mt-3 text-sm leading-6 text-white/68">{text}</p>
             </article>
@@ -219,7 +219,7 @@ export default function BusinessPage() {
       </section>
 
       <section className="px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl rounded-[2.75rem] bg-gradient-to-br from-[#1A1A2E] via-[#1b2cff] to-[#00C9A7] p-8 text-white shadow-2xl shadow-slate-900/10 sm:p-10">
+        <div className="mx-auto max-w-7xl rounded-[2.75rem] bg-gradient-to-br from-[#1A1A2E] via-[#1b2cff] to-[#60A5FA] p-8 text-white shadow-2xl shadow-slate-900/10 sm:p-10">
           <div className="max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-[.2em] text-white/65">Long-term opportunity</p>
             <h2 className="mt-3 text-4xl font-bold tracking-[-.06em]">Not another listing portal. The infrastructure layer for modern real estate.</h2>
@@ -286,14 +286,14 @@ function GuardrailCard({ title, text }: { title: string; text: string }) {
 function MiniSignal({ title, text }: { title: string; text: string }) {
   return (
     <div className="rounded-3xl border border-white/12 bg-white/10 p-4">
-      <p className="text-xs font-bold uppercase tracking-[.16em] text-[#00C9A7]">{title}</p>
+      <p className="text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">{title}</p>
       <p className="mt-2 text-sm font-bold leading-6 text-white/72">{text}</p>
     </div>
   );
 }
 
 function Pill({ children }: { children: React.ReactNode }) {
-  return <span className="rounded-full bg-white px-4 py-2 text-xs font-bold uppercase tracking-[.14em] text-[#00C9A7]">{children}</span>;
+  return <span className="rounded-full bg-white px-4 py-2 text-xs font-bold uppercase tracking-[.14em] text-[#2563EB]">{children}</span>;
 }
 
 function BannerSignal({ title, text }: { title: string; text: string }) {

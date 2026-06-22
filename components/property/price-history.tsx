@@ -24,7 +24,7 @@ export function PriceHistory({ listingPrice, listedAt }: PriceHistoryProps) {
     ? ((change / history[0].price) * 100).toFixed(1)
     : '0.0';
   const TrendIcon = change > 0 ? TrendingUp : change < 0 ? TrendingDown : Minus;
-  const trendColor = change > 0 ? 'text-red-500' : change < 0 ? 'text-[#00C9A7]' : 'text-[#9CA3AF]';
+  const trendColor = change > 0 ? 'text-red-500' : change < 0 ? 'text-[#2563EB]' : 'text-[#9CA3AF]';
 
   return (
     <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 sm:p-5">

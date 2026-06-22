@@ -131,7 +131,7 @@ export function AgencyApplicationForm({ id = 'launch-application' }: Props) {
   return (
     <section id={id} className="mt-8 rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm sm:p-8">
       <div className="flex flex-wrap items-center gap-3">
-        <ShieldCheck className="text-[#00C9A7]" size={24} />
+        <ShieldCheck className="text-[#2563EB]" size={24} />
         <div>
           <p className="text-sm font-bold uppercase tracking-[.18em] text-[#4A3AFF]">Launch application</p>
           <h2 className="mt-1 text-3xl font-bold tracking-[-.05em]">Start the agency onboarding flow.</h2>
@@ -229,16 +229,16 @@ export function AgencyApplicationForm({ id = 'launch-application' }: Props) {
           />
         </label>
 
-        <label className="flex items-start gap-3 rounded-2xl bg-[#E6FBF7] p-4 text-xs font-bold leading-5 text-[#00C9A7] lg:col-span-2">
+        <label className="flex items-start gap-3 rounded-2xl bg-[#EFF6FF] p-4 text-xs font-bold leading-5 text-[#2563EB] lg:col-span-2">
           <input
-            className="mt-1 h-4 w-4 accent-[#00C9A7]"
+            className="mt-1 h-4 w-4 accent-[#2563EB]"
             type="checkbox"
             checked={popiaConsent}
             onChange={(event) => setPopiaConsent(event.target.checked)}
           />
           <span>
             I consent to Proppd processing these details for agency onboarding and sharing them with the relevant internal team.
-            {!popiaConsent && <span className="mt-1 block font-bold text-[#00C9A7]">Required before sending.</span>}
+            {!popiaConsent && <span className="mt-1 block font-bold text-[#2563EB]">Required before sending.</span>}
           </span>
         </label>
 
@@ -255,7 +255,7 @@ export function AgencyApplicationForm({ id = 'launch-application' }: Props) {
 
         {status && (
           <p className="flex items-start gap-2 rounded-2xl border border-[#E5E7EB] p-4 text-xs font-bold leading-5 text-[#6B7280] lg:col-span-2">
-            {isReady ? <CheckCircle2 className="mt-0.5 text-[#00C9A7]" size={16} /> : <ShieldCheck className="mt-0.5 text-[#4A3AFF]" size={16} />}
+            {isReady ? <CheckCircle2 className="mt-0.5 text-[#2563EB]" size={16} /> : <ShieldCheck className="mt-0.5 text-[#4A3AFF]" size={16} />}
             {status}
           </p>
         )}

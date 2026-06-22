@@ -94,7 +94,7 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
                 href={`/agencies/${slugifyDirectoryName(agency.name)}`}
                 className="overflow-hidden rounded-xl border border-[#E5E7EB] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-200/80"
               >
-                <div className="bg-gradient-to-br from-[#1A1A2E] via-[#4A3AFF] to-[#00C9A7] p-6 text-white">
+                <div className="bg-gradient-to-br from-[#1A1A2E] via-[#4A3AFF] to-[#60A5FA] p-6 text-white">
                   <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/15 backdrop-blur">
                     <Building2 size={30} />
                   </div>

@@ -179,7 +179,7 @@ export function DiagnosticsClient({ diagnostics }: { diagnostics: PortalBackendD
           </div>
         </div>
 
-        <div id="login-delivery-checklist" className="rounded-xl bg-[#E6FBF7] p-6 text-[#00C9A7] shadow-sm">
+        <div id="login-delivery-checklist" className="rounded-xl bg-[#EFF6FF] p-6 text-[#2563EB] shadow-sm">
           <p className="text-sm font-bold uppercase tracking-[.2em]">Login delivery checklist</p>
           <ul className="mt-4 space-y-3 text-sm font-bold leading-6">
             <li>• Use the agency inbox that was invited for Proppd access.</li>
@@ -192,7 +192,7 @@ export function DiagnosticsClient({ diagnostics }: { diagnostics: PortalBackendD
         </div>
 
         <div className="rounded-xl bg-[#1A1A2E] p-6 text-white">
-          <p className="text-sm font-bold uppercase tracking-[.2em] text-[#00C9A7]">Export shape</p>
+          <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Export shape</p>
           <ul className="mt-4 space-y-2 text-sm font-bold leading-6 text-white/70">
             <li>• Database configuration and read access.</li>
             <li>• Record counts for listings, leads, agents, and agencies.</li>
@@ -218,7 +218,7 @@ function probeLocalStorage() {
 function InfoCard({ icon, label, value, tone }: { icon: ReactNode; label: string; value: string; tone: 'good' | 'warn' | 'neutral' }) {
   const toneClasses =
     tone === 'good'
-      ? 'bg-[#E6FBF7] text-[#00C9A7]'
+      ? 'bg-[#EFF6FF] text-[#2563EB]'
       : tone === 'warn'
         ? 'bg-amber-50 text-amber-700'
         : 'bg-slate-100 text-[#6B7280]';
