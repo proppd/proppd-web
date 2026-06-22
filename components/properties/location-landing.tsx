@@ -23,7 +23,7 @@ export function LocationLandingPage({ purpose, location, listings, otherCities }
   const canonicalPath = `/properties/${purposePath}/${location.slug}`;
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="proppd-page">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

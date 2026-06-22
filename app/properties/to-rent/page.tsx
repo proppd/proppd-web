@@ -39,7 +39,7 @@ export default async function ToRentPage({ searchParams }: { searchParams: Searc
   const headline = `${rentListings.length} ${resultLabel} ${filters.query ? `matching “${filters.query}”` : 'in South Africa'}`;
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="proppd-page">
       <SiteHeader />
       <section className="border-b border-[#E5E7EB] bg-white px-4 py-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">

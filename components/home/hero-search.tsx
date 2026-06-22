@@ -12,7 +12,7 @@ const popularAreas = ['Sandton', 'Sea Point', 'Umhlanga', 'Rosebank', 'Waterfron
 
 export function HeroSearch() {
   return (
-    <section className="bg-white">
+    <section>
       <div className="mx-auto max-w-7xl px-4 pt-8 pb-6 sm:px-6 sm:pt-14 sm:pb-8 lg:px-8 lg:pt-20 lg:pb-12">
         {/* Headline */}
         <div className="mx-auto max-w-3xl text-center">

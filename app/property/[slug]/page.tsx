@@ -82,7 +82,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
     : 'Your enquiry can open in email so the agent still receives a clear handoff.';
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="proppd-page">
       {/* Structured data for SEO */}
       <script
         type="application/ld+json"

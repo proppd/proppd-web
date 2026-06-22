@@ -18,7 +18,7 @@ export function ListingCardSkeleton() {
 
 export function PropertyDetailSkeleton() {
   return (
-    <main className="min-h-screen bg-[#F7F8FA]">
+    <main className="proppd-page">
       <div className="px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-3 overflow-hidden rounded-xl bg-white p-3 lg:grid-cols-[1.35fr_.65fr]">

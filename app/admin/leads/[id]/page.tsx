@@ -35,7 +35,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   const emailHref = `mailto:${lead.email}?subject=${encodeURIComponent(`Proppd follow-up for ${lead.listingTitle}`)}`;
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="proppd-page">
       <SiteHeader />
 
       <section className="px-4 py-10 sm:px-6 lg:px-8">

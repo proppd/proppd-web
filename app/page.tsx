@@ -11,7 +11,7 @@ import { SiteHeader } from '@/components/site/header';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="proppd-page">
       {/* Structured data for SEO */}
       <script
         type="application/ld+json"

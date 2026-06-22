@@ -38,7 +38,7 @@ const trustPoints = [
 
 export default function HomeLoansPage() {
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="proppd-page">
       <SiteHeader />
 
       <section className="relative isolate overflow-hidden bg-white px-4 py-20 sm:px-6 lg:px-8">

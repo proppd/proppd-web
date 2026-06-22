@@ -31,7 +31,7 @@ export default async function Page() {
   const views7d = agentListings.reduce((sum, l) => sum + (l.views7d ?? 0), 0);
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#F7F8FA]">
+    <main className="proppd-page overflow-x-hidden">
       {/* Hero banner */}
       <section className="px-4 pt-8 pb-6 sm:px-6 sm:pt-10 lg:px-8">
         <div className="mx-auto max-w-7xl rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm sm:p-8">

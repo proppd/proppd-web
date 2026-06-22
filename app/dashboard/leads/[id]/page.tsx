@@ -46,7 +46,7 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
   const latestEvent = timeline.events[0];
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="proppd-page">
       <section className="px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl">
           <a className="inline-flex items-center gap-2 text-sm font-bold text-[#6B7280] transition hover:text-[#4A3AFF]" href="/dashboard/leads">

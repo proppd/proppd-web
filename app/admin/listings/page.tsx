@@ -64,7 +64,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   const statusTabs = ['all', 'pending_review', 'available', 'draft', 'under_offer', 'archived'];
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#1A1A2E]">
+    <main className="proppd-page">
       <SiteHeader />
 
       <section className="px-4 py-10 sm:px-6 lg:px-8">
@@ -195,7 +195,7 @@ function StatCard({ icon, label, value, warning = false }: { icon: React.ReactNo
 
 function AdminGate({ title, message, href, cta }: { title: string; message: string; href: string; cta: string }) {
   return (
-    <main className="min-h-screen bg-[#F7F8FA]">
+    <main className="proppd-page">
       <SiteHeader />
       <section className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl rounded-xl border border-[#E5E7EB] bg-white p-8 shadow-sm sm:p-12">

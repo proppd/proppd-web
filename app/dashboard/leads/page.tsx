@@ -62,7 +62,7 @@ export default async function Page({ searchParams }: PageProps) {
   };
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA]">
+    <main className="proppd-page">
 
       <section className="px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
