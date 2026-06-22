@@ -4,7 +4,7 @@ import { SearchAutocomplete } from '@/components/search/search-autocomplete';
 const tabs = [
   { label: 'Buy', href: '/properties/for-sale' },
   { label: 'Rent', href: '/properties/to-rent' },
-  { label: 'Sell', href: '/list-with-us' },
+  { label: 'Sell', href: '/home-values' },
   { label: 'Agents', href: '/agents' },
 ];
 
@@ -12,14 +12,17 @@ const popularAreas = ['Sandton', 'Sea Point', 'Umhlanga', 'Rosebank', 'Waterfron
 
 export function HeroSearch() {
   return (
-    <section>
-      <div className="mx-auto max-w-7xl px-4 pt-8 pb-6 sm:px-6 sm:pt-14 sm:pb-8 lg:px-8 lg:pt-20 lg:pb-12">
+    <section className="relative border-b border-[#D7E3F4] bg-gradient-to-b from-[#CFE0FB] via-[#E6EFFE] to-white">
+      <div className="mx-auto max-w-7xl px-4 pt-12 pb-10 sm:px-6 sm:pt-20 sm:pb-14 lg:px-8 lg:pt-28 lg:pb-20">
         {/* Headline */}
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-[#1A1A2E] sm:text-5xl lg:text-[3.5rem]">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#BFD3F2] bg-white/70 px-3 py-1 text-xs font-bold uppercase tracking-widest text-[#2563EB]">
+            South Africa&apos;s property portal
+          </span>
+          <h1 className="mt-5 text-4xl font-bold tracking-tight text-[#1A1A2E] sm:text-6xl lg:text-[4rem] lg:leading-[1.05]">
             Find your way home
           </h1>
-          <p className="mt-3 text-base text-[#6B7280] sm:text-lg">
+          <p className="mt-4 text-base text-[#4B5563] sm:text-xl">
             Search verified properties across South Africa
           </p>
         </div>
@@ -93,8 +96,8 @@ export function HeroSearch() {
           <a href="/properties/to-rent" className="font-semibold text-[#4A3AFF] transition hover:text-[#3A2AE0]">
             Find rentals →
           </a>
-          <a href="/list-with-us" className="font-semibold text-[#4A3AFF] transition hover:text-[#3A2AE0]">
-            List your property →
+          <a href="/home-values" className="font-semibold text-[#4A3AFF] transition hover:text-[#3A2AE0]">
+            What&apos;s my home worth? →
           </a>
         </div>
       </div>

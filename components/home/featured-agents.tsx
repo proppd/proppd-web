@@ -11,19 +11,19 @@ export function FeaturedAgents() {
         {/* Header */}
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Network</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Find an agent</p>
             <h2 className="mt-2 text-2xl font-bold text-[#1A1A2E] sm:text-3xl">
-              Featured agents
+              Connect with a local agent
             </h2>
             <p className="mt-2 text-[#6B7280]">
-              Local professionals with active verified stock.
+              Verified agents who know your area and can help you buy or rent.
             </p>
           </div>
           <a
             href="/agents"
             className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[#4A3AFF] transition hover:text-[#3A2AE0]"
           >
-            View all <ArrowRight size={15} />
+            Browse all agents <ArrowRight size={15} />
           </a>
         </div>
 
