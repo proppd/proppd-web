@@ -26,7 +26,7 @@ export function HomeLoanCalculator() {
 
   return (
     <div className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-2xl shadow-slate-200/70">
-      <div className="flex items-center gap-3 rounded-lg bg-[#1A1A2E] p-6 text-white">
+      <div className="flex items-center gap-3 rounded-lg proppd-panel p-6 ">
         <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#DBEAFE] text-[#2563EB]">
           <Calculator size={22} />
         </div>
@@ -76,7 +76,7 @@ export function HomeLoanCalculator() {
       </div>
 
       <div className="mt-5 flex flex-wrap gap-3">
-        <a className="inline-flex items-center justify-center gap-2 rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-[#4A3AFF]/20 transition hover:bg-[#1A1A2E]" href="mailto:info@proppd.com?subject=Home%20loan%20readiness">
+        <a className="inline-flex items-center justify-center gap-2 rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-[#4A3AFF]/20 transition hover:bg-[#4A3AFF]" href="mailto:info@proppd.com?subject=Home%20loan%20readiness">
           <Mail size={15} /> Register finance interest
         </a>
         <a className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href="/properties/for-sale">
@@ -106,7 +106,7 @@ function Field({ label, value, onChange }: { label: string; value: number; onCha
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-[#1A1A2E] p-4 text-white">
+    <div className="rounded-2xl proppd-panel p-4 ">
       <p className="text-[.7rem] font-bold uppercase tracking-[.14em] text-white/50">{label}</p>
       <p className="mt-1 text-lg font-bold tracking-[-.03em]">{value}</p>
     </div>

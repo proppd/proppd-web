@@ -18,8 +18,8 @@ const statusStyles: Record<string, { bg: string; text: string; label: string }> 
   pending_review: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Pending' },
   available: { bg: 'bg-[#EFF6FF]', text: 'text-[#2563EB]', label: 'Live' },
   under_offer: { bg: 'bg-[#4A3AFF]/10', text: 'text-[#4A3AFF]', label: 'Under offer' },
-  sold: { bg: 'bg-[#1A1A2E]/10', text: 'text-[#1A1A2E]', label: 'Sold' },
-  rented: { bg: 'bg-[#1A1A2E]/10', text: 'text-[#1A1A2E]', label: 'Rented' },
+  sold: { bg: 'bg-[#4A3AFF]/10', text: 'text-[#4A3AFF]', label: 'Sold' },
+  rented: { bg: 'bg-[#4A3AFF]/10', text: 'text-[#4A3AFF]', label: 'Rented' },
   archived: { bg: 'bg-[#F3F4F6]', text: 'text-[#9CA3AF]', label: 'Archived' },
 };
 
@@ -65,7 +65,7 @@ export default async function Page() {
                 </div>
               </div>
             </div>
-            <div className="rounded-2xl bg-[#1A1A2E] p-5 text-white shadow-sm">
+            <div className="rounded-2xl proppd-panel p-5 shadow-sm">
               <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Stock checklist</p>
               <div className="mt-4 space-y-3">
                 {actions.map((action) => <ListingAction key={action.label} action={action} />)}

@@ -55,7 +55,7 @@ export default function HomeLoansPage() {
               Proppd is preparing a buyer-friendly home loan handoff: practical affordability guidance, document readiness, and partner routing before the enquiry becomes a dead lead.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a className="inline-flex rounded-full bg-[#4A3AFF] px-6 py-3 font-bold text-white shadow-xl shadow-[#4A3AFF]/20 transition hover:bg-[#1A1A2E]" href="mailto:info@proppd.com?subject=Home%20loan%20readiness">
+              <a className="inline-flex rounded-full bg-[#4A3AFF] px-6 py-3 font-bold text-white shadow-xl shadow-[#4A3AFF]/20 transition hover:bg-[#4A3AFF]" href="mailto:info@proppd.com?subject=Home%20loan%20readiness">
                 Register finance interest
               </a>
               <a className="inline-flex rounded-full border border-slate-300 bg-white px-6 py-3 font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]" href="/properties/for-sale">
@@ -129,7 +129,7 @@ export default function HomeLoansPage() {
 
       <section className="px-4 pb-20 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.1fr_.9fr]">
-          <div className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-[0_30px_80px_rgba(5,10,48,.16)] sm:p-8">
+          <div className="rounded-xl proppd-panel p-6 shadow-[0_30px_80px_rgba(5,10,48,.16)] sm:p-8">
             <p className="text-sm font-bold uppercase tracking-[.2em] text-cyan-300">What happens next</p>
             <h2 className="mt-3 max-w-2xl text-4xl font-bold tracking-[-.06em]">A clear handoff after the calculator.</h2>
             <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-white/70">

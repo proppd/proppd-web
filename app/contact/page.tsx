@@ -59,7 +59,7 @@ export default function ContactPage() {
 
       <section className="px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="overflow-hidden rounded-xl bg-[#1A1A2E] text-white shadow-sm">
+          <div className="overflow-hidden rounded-xl proppd-panel shadow-sm">
             <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[1fr_360px] lg:p-12">
               <div>
                 <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Contact Proppd</p>
@@ -68,7 +68,7 @@ export default function ContactPage() {
                   Use this page when you want property support, agency onboarding, valuation routing, or a quicker path to the right route on Proppd.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <a className="rounded-full bg-white px-6 py-3 text-sm font-bold !text-[#1A1A2E]" href="mailto:info@proppd.com?subject=Contact%20Proppd">
+                  <a className="rounded-full bg-[#4A3AFF] px-6 py-3 text-sm font-bold !text-white" href="mailto:info@proppd.com?subject=Contact%20Proppd">
                     Email info@proppd.com
                   </a>
                   <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white" href="/properties">
@@ -137,7 +137,7 @@ export default function ContactPage() {
                   If you are enquiring about a specific property, include the address or slug and we can route it to the listing or directory profile without extra back-and-forth.
                 </p>
               </div>
-              <div className="mt-4 rounded-lg border border-[#E5E7EB] bg-[#1A1A2E] p-5 text-white">
+              <div className="mt-4 rounded-lg border border-[#E5E7EB] proppd-panel p-5 ">
                 <p className="text-xs font-bold uppercase tracking-[.14em] text-[#2563EB]">Example note</p>
                 <p className="mt-2 text-sm font-bold leading-6 text-white/78">
                   “I’m enquiring about 12 Example Road, Sandton. We are planning to launch within 30 days and need the right route for a seller appraisal.”
@@ -145,7 +145,7 @@ export default function ContactPage() {
               </div>
             </div>
 
-            <aside className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm sm:p-8">
+            <aside className="rounded-xl proppd-panel p-6 shadow-sm sm:p-8">
               <UsersRound className="text-[#2563EB]" size={30} />
               <h2 className="mt-4 text-2xl font-bold tracking-[-.04em]">Response guide</h2>
               <p className="mt-3 text-sm font-bold leading-6 text-white/68">

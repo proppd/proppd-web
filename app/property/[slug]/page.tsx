@@ -152,7 +152,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
             <SaveListingButton
               slug={listing.slug}
               title={listing.title}
-              className="inline-flex items-center gap-2 rounded-full bg-[#1A1A2E] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#3A2AE0]"
+ className="inline-flex items-center gap-2 rounded-full bg-[#4A3AFF] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#3A2AE0]"
             />
           </div>
         </div>

@@ -102,7 +102,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
                 <ProfileStat label="Active listings" value={formatDirectoryCount(activeListings.length, 'listing')} icon={<BadgeCheck size={18} />} />
               </div>
             </div>
-            <aside className="rounded-xl bg-[#1A1A2E] p-7 text-white shadow-2xl shadow-slate-300/50">
+            <aside className="rounded-xl proppd-panel p-7 shadow-2xl shadow-slate-300/50">
               <p className="text-sm font-bold uppercase tracking-[.18em] text-[#2563EB]">Contact agent</p>
               <h2 className="mt-3 text-3xl font-bold tracking-[-.05em]">Send a verified enquiry</h2>
               <p className="mt-4 text-sm leading-7 text-white/70">
@@ -140,7 +140,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
 
           <div className="mt-8 grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
             <AgentReviews agentName={agent.name} agentArea={agent.area} />
-            <div className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm">
+            <div className="rounded-xl proppd-panel p-6 shadow-sm">
               <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Need a shortlist?</p>
               <p className="mt-2 text-2xl font-bold tracking-[-.04em]">Focus on the right local stock.</p>
               <p className="mt-3 text-sm font-bold leading-6 text-white/70">

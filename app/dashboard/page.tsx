@@ -78,7 +78,7 @@ export default async function Page() {
             </div>
           </div>
 
-          <div className="rounded-2xl bg-[#1A1A2E] p-5 text-white shadow-sm sm:p-6 lg:self-start">
+          <div className="rounded-2xl proppd-panel p-5 shadow-sm sm:p-6 lg:self-start">
             <ListChecks size={24} className="text-[#2563EB]" />
             <h2 className="mt-4 text-2xl font-bold tracking-tight">Daily agent checklist</h2>
             <div className="mt-5 space-y-3">
@@ -225,7 +225,7 @@ function ChecklistRow({ done, label }: { done: boolean; label: string }) {
 function AgentToolbox({ actions, toolCards, newLeads, flaggedLeads }: { actions: AgentFollowUpAction[]; toolCards: AgentToolCard[]; newLeads: number; flaggedLeads: number }) {
   return (
     <div className="grid gap-4 rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm sm:p-5 lg:grid-cols-[320px_1fr]">
-      <div className="rounded-2xl bg-[#1A1A2E] p-5 text-white lg:self-start">
+      <div className="rounded-2xl proppd-panel p-5 lg:self-start">
         <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Agent tools</p>
         <h2 className="mt-2 text-2xl font-bold tracking-tight">CRM command centre</h2>
         <p className="mt-3 text-sm font-bold leading-6 text-white/65">

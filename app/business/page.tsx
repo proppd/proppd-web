@@ -62,7 +62,7 @@ export default function BusinessPage() {
     <main className="proppd-page">
       <SiteHeader />
 
-      <section className="overflow-hidden bg-[#1A1A2E] px-4 py-20 text-white sm:px-6 lg:px-8">
+      <section className="overflow-hidden proppd-panel px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.1fr_.9fr] lg:items-center">
           <div>
             <p className="text-sm font-bold uppercase tracking-[.24em] text-[#2563EB]">Business concept</p>
@@ -152,7 +152,7 @@ export default function BusinessPage() {
           </div>
 
           <div className="mt-8 grid gap-4 lg:grid-cols-[1.15fr_.85fr]">
-            <div className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-lg shadow-slate-900/10">
+            <div className="rounded-xl proppd-panel p-6 shadow-lg shadow-slate-900/10">
               <p className="text-xs font-bold uppercase tracking-[.2em] text-[#2563EB]">Commercial snapshot</p>
               <h3 className="mt-3 text-3xl font-bold tracking-[-.05em]">Build trust first, then widen the monetisation stack.</h3>
               <div className="mt-6 grid gap-3 md:grid-cols-3">
@@ -182,7 +182,7 @@ export default function BusinessPage() {
       <section className="px-4 pb-16 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-5">
           {advantages.map(([title, text, Icon]) => (
-            <article key={title as string} className="rounded-xl bg-[#1A1A2E] p-5 text-white">
+            <article key={title as string} className="rounded-xl proppd-panel p-5 ">
               <Icon className="text-[#2563EB]" />
               <h3 className="mt-4 text-lg font-bold">{title}</h3>
               <p className="mt-3 text-sm leading-6 text-white/68">{text}</p>
@@ -219,7 +219,7 @@ export default function BusinessPage() {
       </section>
 
       <section className="px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl rounded-[2.75rem] bg-gradient-to-br from-[#1A1A2E] via-[#1b2cff] to-[#60A5FA] p-8 text-white shadow-2xl shadow-slate-900/10 sm:p-10">
+        <div className="mx-auto max-w-7xl rounded-[2.75rem] proppd-panel p-8 shadow-2xl shadow-slate-900/10 sm:p-10">
           <div className="max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-[.2em] text-white/65">Long-term opportunity</p>
             <h2 className="mt-3 text-4xl font-bold tracking-[-.06em]">Not another listing portal. The infrastructure layer for modern real estate.</h2>

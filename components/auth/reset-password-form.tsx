@@ -23,7 +23,7 @@ export function ResetPasswordForm({ authenticated }: Props) {
         <p className="mt-2 text-sm font-semibold text-amber-700">
           Password reset links can only be used once, expire after a short time, and must be opened in the same browser you requested them from. Request a fresh one from the sign-in screen.
         </p>
-        <a href="/login" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]">
+        <a href="/login" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]">
           Back to sign in <ArrowRight size={14} />
         </a>
       </div>

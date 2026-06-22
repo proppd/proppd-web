@@ -221,7 +221,7 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
         )}
 
         <button
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#1A1A2E] px-5 py-3 font-bold text-white shadow-lg shadow-slate-900/10 disabled:cursor-not-allowed disabled:opacity-60"
+ className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#4A3AFF] px-5 py-3 font-bold text-white shadow-lg shadow-slate-900/10 disabled:cursor-not-allowed disabled:opacity-60"
           type="submit"
           disabled={isSubmitting || !form.popiaConsent}
           aria-disabled={isSubmitting || !form.popiaConsent}

@@ -85,7 +85,7 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
       <section className="px-4 py-14 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-            <div className="bg-gradient-to-br from-[#1A1A2E] via-[#4A3AFF] to-[#60A5FA] p-8 text-white sm:p-12">
+            <div className="proppd-panel p-8 sm:p-12">
               <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-white/15 backdrop-blur">
                 <Building2 size={36} />
               </div>
@@ -139,7 +139,7 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
               </div>
             </div>
 
-            <aside className="h-fit rounded-xl bg-[#1A1A2E] p-7 text-white shadow-2xl shadow-slate-300/50">
+            <aside className="h-fit rounded-xl proppd-panel p-7 shadow-2xl shadow-slate-300/50">
               <p className="text-sm font-bold uppercase tracking-[.18em] text-[#2563EB]">Agency enquiry</p>
               <h2 className="mt-3 text-3xl font-bold tracking-[-.05em]">Contact {agency.name}</h2>
               <p className="mt-4 text-sm leading-7 text-white/70">
@@ -181,7 +181,7 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
                 </p>
               </div>
             </div>
-            <div className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm">
+            <div className="rounded-xl proppd-panel p-6 shadow-sm">
               <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Need a shortlist?</p>
               <p className="mt-2 text-2xl font-bold tracking-[-.04em]">Keep browsing in {agency.city}.</p>
               <p className="mt-3 text-sm font-bold leading-6 text-white/70">

@@ -37,7 +37,7 @@ export function SavedListingsGallery({ listings }: { listings: Listing[] }) {
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <a href="/login?next=%2Fsaved" className="inline-flex items-center gap-2 rounded-full bg-[#1A1A2E] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]">
+              <a href="/login?next=%2Fsaved" className="inline-flex items-center gap-2 rounded-full bg-[#4A3AFF] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]">
                 <Lock size={15} /> Sign in to sync
               </a>
               <button type="button" onClick={clearSavedHomes} className="inline-flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-bold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]">
@@ -56,7 +56,7 @@ export function SavedListingsGallery({ listings }: { listings: Listing[] }) {
                 Once you tap Save, the property will appear here on this device. If you sign in, Proppd can keep the shortlist with you across sessions and devices.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <a href="/properties" className="inline-flex items-center gap-2 rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]">
+                <a href="/properties" className="inline-flex items-center gap-2 rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]">
                   <Search size={15} /> Browse homes
                 </a>
                 <a href="/properties/for-sale" className="inline-flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-5 py-3 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]">

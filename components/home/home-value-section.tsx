@@ -2,7 +2,7 @@ import { Calculator, TrendingUp, ArrowRight } from 'lucide-react';
 
 export function HomeValueSection() {
   return (
-    <section className="bg-white">
+    <section>
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-2">
           {/* Home value estimator */}

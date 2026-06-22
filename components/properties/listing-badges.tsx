@@ -52,7 +52,7 @@ function Badge({ badge }: { badge: ListingBadge }) {
     'price-drop': 'bg-red-500 text-white',
     'open-house': 'bg-[#DBEAFE] text-[#1A1A2E]',
     'featured': 'bg-[#F59E0B] text-white',
-    'verified': 'bg-[#1A1A2E] text-white',
+    'verified': 'bg-[#4A3AFF] text-white',
   };
 
   const icons: Record<BadgeType, React.ReactNode> = {

@@ -261,7 +261,7 @@ export function AgencyApplicationForm({ id = 'launch-application' }: Props) {
         )}
 
         <button
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#1A1A2E] px-5 py-3 font-bold text-white shadow-lg shadow-slate-900/10 disabled:cursor-not-allowed disabled:opacity-60 lg:col-span-2"
+ className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#4A3AFF] px-5 py-3 font-bold text-white shadow-lg shadow-slate-900/10 disabled:cursor-not-allowed disabled:opacity-60 lg:col-span-2"
           type="submit"
           disabled={isSubmitting || !popiaConsent}
         >

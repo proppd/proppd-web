@@ -74,7 +74,7 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
               </label>
               <div className="flex flex-wrap gap-2">
                 <button className="inline-flex justify-center rounded-full bg-[#4A3AFF] px-6 py-4 text-sm font-bold text-white shadow-lg shadow-[#4A3AFF]/20" type="submit">Search</button>
-                <a className="inline-flex justify-center rounded-full bg-[#1A1A2E] px-6 py-4 text-sm font-bold !text-white" href="mailto:info@proppd.com?subject=Add my agency to Proppd">
+                <a className="inline-flex justify-center rounded-full bg-[#4A3AFF] px-6 py-4 text-sm font-bold !text-white" href="mailto:info@proppd.com?subject=Add my agency to Proppd">
                   List your agency
                 </a>
               </div>
@@ -94,7 +94,7 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
                 href={`/agencies/${slugifyDirectoryName(agency.name)}`}
                 className="overflow-hidden rounded-xl border border-[#E5E7EB] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-200/80"
               >
-                <div className="bg-gradient-to-br from-[#1A1A2E] via-[#4A3AFF] to-[#60A5FA] p-6 text-white">
+                <div className="proppd-panel p-6 ">
                   <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/15 backdrop-blur">
                     <Building2 size={30} />
                   </div>
@@ -113,7 +113,7 @@ export default async function AgenciesPage({ searchParams }: { searchParams: Sea
             <div className="mt-8 rounded-xl border border-[#E5E7EB] bg-white p-8 shadow-sm">
               <h2 className="text-2xl font-bold tracking-[-.04em]">No agencies match that search yet.</h2>
               <p className="mt-2 text-sm font-bold leading-6 text-[#6B7280]">Try a wider city or agency search — or ask Proppd to open agency onboarding for that market.</p>
-              <a className="mt-5 inline-flex rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold !text-white" href="mailto:info@proppd.com?subject=Agency directory request">Request an agency</a>
+              <a className="mt-5 inline-flex rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold !text-white" href="mailto:info@proppd.com?subject=Agency directory request">Request an agency</a>
             </div>
           )}
 

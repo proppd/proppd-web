@@ -94,7 +94,7 @@ export function DiagnosticsClient({ diagnostics }: { diagnostics: PortalBackendD
               <button
                 type="button"
                 onClick={downloadDiagnostics}
-                className="inline-flex items-center justify-center rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]"
+ className="inline-flex items-center justify-center rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]"
               >
                 <Download size={16} className="mr-2" />
                 Download JSON
@@ -191,7 +191,7 @@ export function DiagnosticsClient({ diagnostics }: { diagnostics: PortalBackendD
           </a>
         </div>
 
-        <div className="rounded-xl bg-[#1A1A2E] p-6 text-white">
+        <div className="rounded-xl proppd-panel p-6 ">
           <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Export shape</p>
           <ul className="mt-4 space-y-2 text-sm font-bold leading-6 text-white/70">
             <li>• Database configuration and read access.</li>

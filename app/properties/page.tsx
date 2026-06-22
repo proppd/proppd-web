@@ -256,7 +256,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                           <a
                             key={pin.label}
                             href={buildPropertiesHref(params, { location: pin.label, q: null, page: null })}
-                            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#1A1A2E] px-3 py-2 text-xs font-bold text-white shadow-lg shadow-slate-900/20 ring-4 ring-white/80 transition hover:bg-[#4A3AFF]"
+ className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#4A3AFF] px-3 py-2 text-xs font-bold text-white shadow-lg shadow-slate-900/20 ring-4 ring-white/80 transition hover:bg-[#4A3AFF]"
                             style={getMapPinPosition(index)}
                             aria-label={`View homes around ${pin.label}`}
                           >
@@ -295,7 +295,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-[#1A1A2E] p-4 text-white shadow-2xl">
+                  <div className="rounded-2xl proppd-panel p-4 shadow-2xl">
                     <p className="text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">Search shortcut</p>
                     <p className="mt-2 text-sm font-semibold leading-6 text-white/72">Save this search, or narrow by purpose to make the result list more focused.</p>
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -347,7 +347,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                 </div>
               </section>
 
-              <section className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm lg:col-span-1">
+              <section className="rounded-xl proppd-panel p-6 shadow-sm lg:col-span-1">
                 <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Result mix</p>
                 <h2 className="mt-2 text-2xl font-bold tracking-[-.04em]">What this result set is made of.</h2>
                 <p className="mt-2 text-sm font-semibold leading-6 text-white/72">A quick read on the current market split helps you decide whether to tighten by purpose, type, or location.</p>
@@ -379,7 +379,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
                 </div>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   <a className="inline-flex items-center justify-center rounded-full border border-[#BFDBFE] bg-white px-5 py-3 text-sm font-bold text-[#2563EB] shadow-sm" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: visibleListings.length })}>Save search email</a>
-                  <a className="inline-flex items-center justify-center rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white shadow-sm" href="/saved">Open saved homes</a>
+                  <a className="inline-flex items-center justify-center rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white shadow-sm" href="/saved">Open saved homes</a>
                 </div>
                 <p className="mt-3 text-xs font-semibold leading-6 text-[#2563EB]/80">
                   Saved homes stay on this device until you sign in. <a className="font-bold text-[#2563EB] underline decoration-[#93C5FD] underline-offset-2" href="/login?next=%2Fsaved">Sync across devices</a> when you’re ready.
@@ -456,7 +456,7 @@ function EmptyResults({ filters, params }: { filters: ReturnType<typeof parseLis
           </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <a className="inline-flex items-center justify-center rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white shadow-lg" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: 0 })}>
+            <a className="inline-flex items-center justify-center rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white shadow-lg" href={buildSavedSearchMailto(filters, { path: '/properties', resultCount: 0 })}>
               Save this search
             </a>
             {hasActiveFilters ? (

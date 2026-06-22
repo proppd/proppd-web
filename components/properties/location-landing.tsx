@@ -68,7 +68,7 @@ export function LocationLandingPage({ purpose, location, listings, otherCities }
               </p>
             </div>
             <a
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#1A1A2E] px-5 py-3 text-sm font-bold text-white"
+ className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white"
               href={buildSavedSearchMailto(
                 { purpose, query: location.name, page: 1, pageSize: 12, sort: 'featured' },
                 { path: `/properties/${purposePath}`, resultCount: listings.length },
@@ -123,7 +123,7 @@ export function LocationLandingPage({ purpose, location, listings, otherCities }
             </div>
           </section>
 
-          <section className="rounded-xl bg-[#1A1A2E] p-6 text-white shadow-sm">
+          <section className="rounded-xl proppd-panel p-6 shadow-sm">
             <p className="text-sm font-bold uppercase tracking-[.2em] text-[#2563EB]">Selling in {location.name}?</p>
             <h2 className="mt-2 text-2xl font-bold tracking-[-.04em]">List with verified Proppd agents.</h2>
             <p className="mt-4 text-sm font-semibold leading-6 text-white/72">
