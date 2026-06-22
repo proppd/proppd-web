@@ -14,6 +14,7 @@ const CORE_ROUTES: Array<{ path: string; priority: number; changeFrequency: Meta
   { path: '/agents', priority: 0.7, changeFrequency: 'weekly' },
   { path: '/agencies', priority: 0.7, changeFrequency: 'weekly' },
   { path: '/list-with-us', priority: 0.6, changeFrequency: 'monthly' },
+  { path: '/home-values', priority: 0.7, changeFrequency: 'weekly' },
   { path: '/request-valuation', priority: 0.6, changeFrequency: 'monthly' },
   { path: '/home-loans', priority: 0.5, changeFrequency: 'monthly' },
   { path: '/business', priority: 0.4, changeFrequency: 'monthly' },

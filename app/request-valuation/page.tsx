@@ -56,8 +56,8 @@ export default function Page() {
                   Proppd’s valuation route is a readiness and handoff flow: capture the right property context, set expectations clearly, and route serious requests to suitable agents or agencies.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <a className="rounded-full bg-white px-6 py-3 text-sm font-bold !text-[#1A1A2E]" href={buildValuationRequestMailto({ reason: 'selling' })}>Start valuation request</a>
-                  <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white" href="/properties/for-sale">Browse sale stock</a>
+                  <a className="rounded-full bg-white px-6 py-3 text-sm font-bold !text-[#1A1A2E]" href="/home-values#instant-estimate">Get instant estimate</a>
+                  <a className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white" href={buildValuationRequestMailto({ reason: 'selling' })}>Start manual request</a>
                 </div>
               </div>
               <div className="rounded-xl border border-white/10 bg-white/10 p-6 backdrop-blur">
