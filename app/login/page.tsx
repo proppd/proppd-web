@@ -13,8 +13,20 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function Page() {
+type SearchParams = Promise<{ next?: string | string[] }>;
+
+function safeNextPath(next: string | string[] | undefined): string {
+  const value = Array.isArray(next) ? next[0] : next;
+  // Only allow internal, single-slash paths to avoid open redirects.
+  if (typeof value === 'string' && value.startsWith('/') && !value.startsWith('//')) {
+    return value;
+  }
+  return '/dashboard';
+}
+
+export default async function Page({ searchParams }: { searchParams: SearchParams }) {
   const supabase = getSupabaseBrowserConfig();
+  const nextPath = safeNextPath((await searchParams).next);
 
   return (
     <main className="proppd-page">
@@ -86,7 +98,7 @@ export default async function Page() {
               <SupabaseLoginForm
                 supabaseUrl={supabase?.url}
                 publishableKey={supabase?.publishableKey}
-                nextPath="/dashboard"
+                nextPath={nextPath}
               />
             </div>
 
