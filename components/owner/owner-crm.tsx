@@ -17,8 +17,8 @@ import {
   X,
 } from 'lucide-react';
 import { formatValuationAmount, type InstantValuationResult } from '@/lib/valuation/instant';
-import { buildValuationRequestMailto } from '@/lib/valuation/request';
 import { SupabaseLoginForm } from '@/components/auth/supabase-login-form';
+import { ValuationRequestDialog } from '@/components/owner/valuation-request-dialog';
 import { getBrowserSupabaseClient } from '@/lib/supabase/client';
 import {
   cloudCreateProperty,
@@ -68,8 +68,10 @@ export function OwnerCrm({ supabaseUrl, supabaseKey }: OwnerCrmProps) {
   const [form, setForm] = useState(blankForm);
   const [error, setError] = useState('');
   const [auth, setAuth] = useState<AuthStatus>('unknown');
+  const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
   const [showSignIn, setShowSignIn] = useState(false);
   const [syncError, setSyncError] = useState('');
+  const [requesting, setRequesting] = useState<OwnerProperty | null>(null);
 
   const cloudEnabled = auth === 'in';
 
@@ -81,9 +83,14 @@ export function OwnerCrm({ supabaseUrl, supabaseKey }: OwnerCrmProps) {
       return;
     }
     let active = true;
-    supabase.auth.getUser().then(({ data }) => active && setAuth(data.user ? 'in' : 'out'));
+    supabase.auth.getUser().then(({ data }) => {
+      if (!active) return;
+      setAuth(data.user ? 'in' : 'out');
+      setUserEmail(data.user?.email ?? undefined);
+    });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setAuth(session?.user ? 'in' : 'out');
+      setUserEmail(session?.user?.email ?? undefined);
     });
     return () => {
       active = false;
@@ -414,6 +421,7 @@ export function OwnerCrm({ supabaseUrl, supabaseKey }: OwnerCrmProps) {
               onStageChange={changeStage}
               onRemove={remove}
               onRetry={() => fetchEstimate(property)}
+              onRequestValuation={setRequesting}
             />
           ))}
         </div>
@@ -422,8 +430,19 @@ export function OwnerCrm({ supabaseUrl, supabaseKey }: OwnerCrmProps) {
       {/* Privacy note */}
       {hydrated && properties.length > 0 && (
         <p className="px-1 text-xs font-semibold text-[#9CA3AF]">
-          Your workspace is saved privately on this device. Nothing is shared until you choose to request an agent valuation.
+          {cloudEnabled
+            ? 'Your workspace is saved to your account. Nothing is shared with an agent until you request a valuation.'
+            : 'Your workspace is saved privately on this device. Nothing is shared until you choose to request an agent valuation.'}
         </p>
+      )}
+
+      {requesting && (
+        <ValuationRequestDialog
+          property={requesting}
+          estimate={estimates[requesting.id]?.result}
+          defaultEmail={userEmail}
+          onClose={() => setRequesting(null)}
+        />
       )}
     </div>
   );
@@ -435,23 +454,18 @@ function PropertyCard({
   onStageChange,
   onRemove,
   onRetry,
+  onRequestValuation,
 }: {
   property: OwnerProperty;
   estimate: EstimateState | undefined;
   onStageChange: (property: OwnerProperty, stage: OwnerStage) => void;
   onRemove: (id: string) => void;
   onRetry: () => void;
+  onRequestValuation: (property: OwnerProperty) => void;
 }) {
   const title = property.nickname || `${property.propertyType} in ${property.suburb}`;
   const purpose = property.intent === 'rent' ? 'rent' : 'sale';
   const progress = ((ownerStageIndex(property.stage) + 1) / OWNER_STAGES.length) * 100;
-  const mailto = buildValuationRequestMailto({
-    reason: property.intent === 'rent' ? 'renting' : 'selling',
-    propertyType: property.propertyType,
-    suburb: property.suburb,
-    city: property.city,
-    bedrooms: String(property.bedrooms),
-  });
 
   return (
     <article className="flex flex-col rounded-3xl border border-[#E5E7EB] bg-white p-5 shadow-sm sm:p-6">
@@ -525,9 +539,13 @@ function PropertyCard({
 
       {/* Actions */}
       <div className="mt-5 flex flex-wrap gap-2 border-t border-[#F3F4F6] pt-4">
-        <a href={mailto} className="inline-flex items-center gap-2 rounded-full bg-[#1A1A2E] px-4 py-2.5 text-sm font-bold !text-white transition hover:bg-[#3A2AE0]">
+        <button
+          type="button"
+          onClick={() => onRequestValuation(property)}
+          className="inline-flex items-center gap-2 rounded-full bg-[#4A3AFF] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#3A2AE0]"
+        >
           <ShieldCheck size={15} /> Request agent valuation
-        </a>
+        </button>
         <a href="/agents" className="inline-flex items-center gap-2 rounded-full border border-[#E5E7EB] px-4 py-2.5 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]">
           <Building2 size={15} /> Connect with an agent
         </a>
