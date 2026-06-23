@@ -1,24 +1,39 @@
 /**
  * PPRA (Property Practitioners Regulatory Authority) FFC verification.
  *
- * Queries the public PPRA practitioner-search AJAX endpoint to verify that a
- * submitted Fidelity Fund Certificate number belongs to a real, currently
- * registered property practitioner.
+ * The PPRA practitioner search is a TWO-STEP process:
  *
- * Endpoint: https://theppra.org.za/wp-admin/admin-ajax.php
- * Payload:  action=check_agent_status&agent_cardcode=<FFC>&query_type=agent|firm
+ *   1. SEARCH via Gravity Forms AJAX (action=gravityforms, form_id=3)
+ *      Search by Practitioner Name or Reference Number.
+ *      Returns a list of practitioners with short "cardcodes" (e.g. SMITHJH6).
  *
- * This is an official-site public AJAX endpoint, not a documented partner API.
- * We treat it as best-effort and fall back to manual review on any ambiguity.
+ *   2. STATUS CHECK via admin AJAX (action=check_agent_status)
+ *      Takes a cardcode + query_type (agent|firm).
+ *      Returns the full record including FFCNum, ISVALID, name, firm, etc.
+ *
+ * The FFC number is NOT a search parameter — it only appears in the step 2
+ * response. So verification must search by name first, then match FFC.
  */
 
-const PPRA_ENDPOINT = 'https://theppra.org.za/wp-admin/admin-ajax.php';
+const PPRA_AJAX_ENDPOINT = 'https://theppra.org.za/wp-admin/admin-ajax.php';
 const PPRA_REFERER = 'https://theppra.org.za/practitioner-search/';
-const REQUEST_TIMEOUT_MS = 12_000;
+const REQUEST_TIMEOUT_MS = 15_000;
+
+// Gravity Forms hidden fields fetched once per session
+type GFormSession = {
+  state: string;
+  currency: string;
+  hash: string;
+  fetchedAt: number;
+};
+
+let cachedSession: GFormSession | null = null;
+const SESSION_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 export type PPRAQueryType = 'agent' | 'firm';
 
 export type PPRAPractitionerRecord = {
+  cardcode: string;
   ffcNumber: string;
   isValid: boolean;
   cardFirstName?: string;
@@ -40,7 +55,6 @@ export type PPRAVerificationStatus =
 export type PPRAVerificationResult = {
   status: PPRAVerificationStatus;
   ffcNumber: string;
-  queryType: PPRAQueryType;
   record: PPRAPractitionerRecord | null;
   checkedAt: string;
   reason?: string;
@@ -48,11 +62,12 @@ export type PPRAVerificationResult = {
 
 export type PPRAVerificationInput = {
   ffcNumber: string;
-  /** Submitted first + last name for matching against the PPRA record. */
+  /** Submitted first name for PPRA search. */
+  firstName?: string;
+  /** Submitted last name for PPRA search. */
+  lastName?: string;
+  /** Full submitted name (alternative to firstName/lastName). */
   submittedName?: string;
-  /** Submitted agency/firm name for matching against the PPRA record. */
-  submittedAgency?: string;
-  queryType?: PPRAQueryType;
 };
 
 /**
@@ -70,8 +85,7 @@ export function normaliseFFC(value: string): string {
 /**
  * Lightweight name similarity — tokenises both strings, lowercases them,
  * and checks whether every token in the submitted name appears in the
- * PPRA record name. Handles "John Smith" vs "JOHN  SMITH" and missing
- * middle names gracefully.
+ * PPRA record name.
  */
 export function namesMatch(submitted: string, record: string): boolean {
   const submittedTokens = normaliseNameTokens(submitted);
@@ -88,39 +102,159 @@ function normaliseNameTokens(value: string): string[] {
     .filter((t) => t.length >= 2);
 }
 
-function buildFullName(record: PPRAAgentResponseData): string | undefined {
-  const parts = [record.CardFName, record.CardName].filter(Boolean).map(String);
-  return parts.length > 0 ? parts.join(' ').trim() : undefined;
+// ─── Gravity Forms session helpers ─────────────────────────────────────
+
+async function fetchGFormSession(fetcher: typeof fetch): Promise<GFormSession | null> {
+  if (cachedSession && Date.now() - cachedSession.fetchedAt < SESSION_TTL_MS) {
+    return cachedSession;
+  }
+
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    const response = await fetcher(PPRA_REFERER, {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+    });
+    clearTimeout(timer);
+
+    if (!response.ok) return null;
+    const html = await response.text();
+
+    const stateMatch = html.match(/name='state_3'[^>]*value='([^']*)'/);
+    const currencyMatch = html.match(/name='gform_currency'[^>]*value='([^']*)'/);
+    const hashMatch = html.match(/hash=([a-f0-9]+)/);
+
+    if (!stateMatch || !currencyMatch || !hashMatch) return null;
+
+    cachedSession = {
+      state: stateMatch[1],
+      currency: currencyMatch[1],
+      hash: hashMatch[1],
+      fetchedAt: Date.now(),
+    };
+    return cachedSession;
+  } catch {
+    return null;
+  }
 }
 
-type PPRAAgentResponseData = {
-  NO_VAL?: string;
-  FFCNum?: string | number;
-  ISVALID?: string | number;
-  CardFName?: string;
-  CardName?: string;
-  RoleName?: string;
-  FirmName?: string;
-  TradeName?: string;
-  Category?: string;
-};
+// ─── Step 1: Search PPRA register by name ─────────────────────────────
 
-type PPRAEnvelope = {
-  success?: boolean;
-  data?: PPRAAgentResponseData;
+type SearchResult = {
+  name: string;
+  cardcode: string;
+  type: PPRAQueryType;
 };
 
 /**
- * Parse the raw PPRA AJAX response into a structured practitioner record.
- * Returns null when no matching practitioner was found.
+ * Parse the Gravity Forms AJAX HTML response to extract practitioner results.
  */
-export function parsePPRAResponse(
-  body: PPRAEnvelope,
-): PPRAPractitionerRecord | 'not_found' | 'unparseable' {
+export function parseSearchResults(html: string): SearchResult[] {
+  const results: SearchResult[] = [];
+  // Each result row has a button with data-id and data-type
+  const rowRegex = /<td[^>]*>([^<]+)<\/td>[\s\S]*?data-id="([^"]+)"[\s\S]*?data-type="(agent|firm)"/g;
+  let match;
+  while ((match = rowRegex.exec(html)) !== null) {
+    results.push({
+      name: match[1].trim(),
+      cardcode: match[2].trim(),
+      type: match[3] as PPRAQueryType,
+    });
+  }
+  return results;
+}
+
+/**
+ * Search the PPRA register by practitioner name.
+ * Returns a list of matching practitioners with their cardcodes.
+ */
+export async function searchByName(
+  firstName: string,
+  lastName: string,
+  fetcher: typeof fetch = fetch,
+): Promise<SearchResult[]> {
+  const session = await fetchGFormSession(fetcher);
+  if (!session) return [];
+
+  const payload = new URLSearchParams({
+    action: 'gravityforms',
+    'gform_ajax': `form_id=3&title=&description=&tabindex=0&theme=gravity-theme&hash=${session.hash}`,
+    'is_submit_3': '1',
+    'gform_submit': '3',
+    'gform_currency': session.currency,
+    'gform_unique_id': '',
+    'state_3': session.state,
+    'gform_target_page_number_3': '0',
+    'gform_source_page_number_3': '1',
+    'gform_field_values': '',
+    'gform_theme': 'gravity-theme',
+    'gform_submission_method': 'iframe',
+    'input_4': 'Practitioner Name',
+    'input_3.3': firstName,
+    'input_3.6': lastName,
+  });
+
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    const response = await fetcher(PPRA_AJAX_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Referer': PPRA_REFERER,
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: payload.toString(),
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+
+    if (!response.ok) return [];
+    const html = await response.text();
+    return parseSearchResults(html);
+  } catch {
+    return [];
+  }
+}
+
+// ─── Step 2: Check status for a specific cardcode ─────────────────────
+
+type PPRAStatusResponse = {
+  success?: boolean;
+  data?: {
+    NO_VAL?: string;
+    FFCNum?: string | number;
+    ISVALID?: string | number;
+    CardFName?: string;
+    CardName?: string;
+    RoleName?: string;
+    FirmName?: string;
+    TradeName?: string;
+    Category?: string;
+  };
+};
+
+export type PPRAStatusRecord =
+  | PPRAPractitionerRecord
+  | 'not_found'
+  | 'unparseable';
+
+function buildFullName(cardFName?: string, cardName?: string): string | undefined {
+  const parts = [cardFName, cardName].filter(Boolean).map((s) => s!.trim());
+  return parts.length > 0 ? parts.join(' ') : undefined;
+}
+
+/**
+ * Parse the check_agent_status response into a structured record.
+ */
+export function parseStatusResponse(
+  body: PPRAStatusResponse,
+  cardcode: string,
+): PPRAStatusRecord {
   const data = body?.data;
   if (!data || typeof data !== 'object') return 'unparseable';
 
-  // No-records sentinel
   if (data.NO_VAL && String(data.NO_VAL).includes('No Records')) {
     return 'not_found';
   }
@@ -129,11 +263,12 @@ export function parsePPRAResponse(
   if (!ffcNumber) return 'unparseable';
 
   return {
+    cardcode,
     ffcNumber: normaliseFFC(ffcNumber),
     isValid: String(data.ISVALID ?? '') === '1' || String(data.ISVALID ?? '').toLowerCase() === 'true',
     cardFirstName: data.CardFName?.trim() || undefined,
     cardLastName: data.CardName?.trim() || undefined,
-    fullName: buildFullName(data),
+    fullName: buildFullName(data.CardFName, data.CardName),
     roleName: data.RoleName?.trim() || undefined,
     firmName: data.FirmName?.trim() || undefined,
     tradeName: data.TradeName?.trim() || undefined,
@@ -142,147 +277,136 @@ export function parsePPRAResponse(
 }
 
 /**
- * Core verification logic — given a parsed PPRA record and the submitted
- * details, determine the verification status.
- *
- * Auto-approve (verified) only when ALL of:
- *   - FFC number matches the returned FFCNum
- *   - ISVALID === 1/true
- *   - Submitted name matches the PPRA record name
- *
- * Any ambiguity falls through to manual review (name_mismatch /
- * invalid_certificate / not_found / endpoint_error).
+ * Query the PPRA status endpoint for a specific practitioner cardcode.
  */
-export function evaluateVerification(
-  input: PPRAVerificationInput,
-  record: PPRAPractitionerRecord | null,
-  status: PPRAVerificationStatus,
-): PPRAVerificationResult {
-  const ffcNumber = normaliseFFC(input.ffcNumber);
-  const checkedAt = new Date().toISOString();
-
-  if (status === 'endpoint_error' || !record) {
-    return {
-      status,
-      ffcNumber: input.ffcNumber,
-      queryType: input.queryType ?? 'agent',
-      record,
-      checkedAt,
-      reason: status === 'not_found'
-        ? 'No practitioner found for this FFC number on the PPRA register.'
-        : status === 'endpoint_error'
-          ? 'The PPRA verification service did not respond. This request has been queued for manual review.'
-          : undefined,
-    };
-  }
-
-  // FFC number mismatch
-  if (normaliseFFC(record.ffcNumber) !== ffcNumber) {
-    return {
-      status: 'name_mismatch',
-      ffcNumber: input.ffcNumber,
-      queryType: input.queryType ?? 'agent',
-      record,
-      checkedAt,
-      reason: 'The FFC number returned by PPRA does not match the submitted number.',
-    };
-  }
-
-  // Certificate not valid / lapsed
-  if (!record.isValid) {
-    return {
-      status: 'invalid_certificate',
-      ffcNumber: input.ffcNumber,
-      queryType: input.queryType ?? 'agent',
-      record,
-      checkedAt,
-      reason: 'The PPRA record shows this certificate is not currently valid.',
-    };
-  }
-
-  // Name match (only fail if a name was submitted and it doesn't match)
-  if (input.submittedName && record.fullName && !namesMatch(input.submittedName, record.fullName)) {
-    return {
-      status: 'name_mismatch',
-      ffcNumber: input.ffcNumber,
-      queryType: input.queryType ?? 'agent',
-      record,
-      checkedAt,
-      reason: `The name on the PPRA register (${record.fullName}) does not match the submitted name (${input.submittedName}).`,
-    };
-  }
-
-  return {
-    status: 'verified',
-    ffcNumber: input.ffcNumber,
-    queryType: input.queryType ?? 'agent',
-    record,
-    checkedAt,
-  };
-}
-
-/**
- * Verify a fidelity fund certificate against the PPRA register.
- *
- * This function makes a live HTTP call to the PPRA website. In tests, inject
- * a mock `fetcher` to avoid network calls.
- */
-export async function verifyWithPPRA(
-  input: PPRAVerificationInput,
+export async function checkStatus(
+  cardcode: string,
+  queryType: PPRAQueryType,
   fetcher: typeof fetch = fetch,
-): Promise<PPRAVerificationResult> {
-  const ffcNumber = normaliseFFC(input.ffcNumber);
-  if (!ffcNumber) {
-    return {
-      status: 'endpoint_error',
-      ffcNumber: input.ffcNumber,
-      queryType: input.queryType ?? 'agent',
-      record: null,
-      checkedAt: new Date().toISOString(),
-      reason: 'No FFC number was provided.',
-    };
-  }
-
-  const queryType: PPRAQueryType = input.queryType ?? 'agent';
+): Promise<PPRAStatusRecord> {
   const params = new URLSearchParams({
     action: 'check_agent_status',
-    agent_cardcode: ffcNumber,
+    agent_cardcode: cardcode,
     query_type: queryType,
   });
 
-  let body: PPRAEnvelope;
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-    const response = await fetcher(PPRA_ENDPOINT, {
+    const response = await fetcher(PPRA_AJAX_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Referer: PPRA_REFERER,
+        'Referer': PPRA_REFERER,
       },
       body: params.toString(),
       signal: controller.signal,
     });
     clearTimeout(timer);
 
-    if (!response.ok) {
-      return evaluateVerification(input, null, 'endpoint_error');
-    }
-
-    body = (await response.json()) as PPRAEnvelope;
+    if (!response.ok) return 'unparseable';
+    const body = (await response.json()) as PPRAStatusResponse;
+    return parseStatusResponse(body, cardcode);
   } catch {
-    return evaluateVerification(input, null, 'endpoint_error');
+    return 'unparseable';
+  }
+}
+
+// ─── Full verification flow ───────────────────────────────────────────
+
+/**
+ * Verify a fidelity fund certificate against the PPRA register.
+ *
+ * Flow:
+ *   1. Search PPRA by the agent's name
+ *   2. For each match, check their status to get the FFC number
+ *   3. Find the one whose FFC matches what was submitted
+ *   4. Verify the certificate is valid
+ *
+ * In tests, inject a mock `fetcher` to avoid network calls.
+ */
+export async function verifyWithPPRA(
+  input: PPRAVerificationInput,
+  fetcher: typeof fetch = fetch,
+): Promise<PPRAVerificationResult> {
+  const targetFFC = normaliseFFC(input.ffcNumber);
+  if (!targetFFC) {
+    return {
+      status: 'endpoint_error',
+      ffcNumber: input.ffcNumber,
+      record: null,
+      checkedAt: new Date().toISOString(),
+      reason: 'No FFC number was provided.',
+    };
   }
 
-  const parsed = parsePPRAResponse(body);
-  if (parsed === 'not_found') {
-    return evaluateVerification(input, null, 'not_found');
-  }
-  if (parsed === 'unparseable') {
-    return evaluateVerification(input, null, 'endpoint_error');
+  // Resolve first/last name
+  let firstName = input.firstName?.trim() || '';
+  let lastName = input.lastName?.trim() || '';
+  if ((!firstName || !lastName) && input.submittedName) {
+    const parts = input.submittedName.trim().split(/\s+/);
+    firstName = firstName || parts[0] || '';
+    lastName = lastName || parts.slice(1).join(' ') || '';
   }
 
-  return evaluateVerification(input, parsed, 'verified');
+  if (!firstName || !lastName) {
+    return {
+      status: 'endpoint_error',
+      ffcNumber: input.ffcNumber,
+      record: null,
+      checkedAt: new Date().toISOString(),
+      reason: 'Agent name is required to search the PPRA register.',
+    };
+  }
+
+  // Step 1: Search by name
+  const searchResults = await searchByName(firstName, lastName, fetcher);
+  if (searchResults.length === 0) {
+    return {
+      status: 'not_found',
+      ffcNumber: input.ffcNumber,
+      record: null,
+      checkedAt: new Date().toISOString(),
+      reason: 'No practitioner found with that name on the PPRA register.',
+    };
+  }
+
+  // Step 2: Check status for each result, looking for matching FFC
+  for (const result of searchResults) {
+    const status = await checkStatus(result.cardcode, result.type, fetcher);
+    if (status === 'not_found' || status === 'unparseable') continue;
+
+    // Check if FFC number matches
+    if (normaliseFFC(status.ffcNumber) === targetFFC) {
+      // FFC matches — now check validity
+      if (!status.isValid) {
+        return {
+          status: 'invalid_certificate',
+          ffcNumber: input.ffcNumber,
+          record: status,
+          checkedAt: new Date().toISOString(),
+          reason: 'The PPRA record shows this certificate is not currently valid.',
+        };
+      }
+
+      // Verified!
+      return {
+        status: 'verified',
+        ffcNumber: input.ffcNumber,
+        record: status,
+        checkedAt: new Date().toISOString(),
+      };
+    }
+  }
+
+  // Name found but no FFC match
+  return {
+    status: 'name_mismatch',
+    ffcNumber: input.ffcNumber,
+    record: null,
+    checkedAt: new Date().toISOString(),
+    reason: `Found ${searchResults.length} practitioner(s) with that name, but none have FFC number ${input.ffcNumber}.`,
+  };
 }
 
 /**
@@ -293,8 +417,7 @@ export function isAutoApprovable(result: PPRAVerificationResult): boolean {
 }
 
 /**
- * Human-readable label for each verification status, suitable for showing
- * to users and admins.
+ * Human-readable label for each verification status.
  */
 export function verificationStatusLabel(status: PPRAVerificationStatus): string {
   switch (status) {
@@ -305,8 +428,14 @@ export function verificationStatusLabel(status: PPRAVerificationStatus): string 
     case 'invalid_certificate':
       return 'Certificate not valid';
     case 'name_mismatch':
-      return 'Details do not match PPRA';
+      return 'FFC does not match PPRA record';
     case 'endpoint_error':
       return 'PPRA check unavailable';
   }
+}
+
+// ─── Test helper: reset cached session ────────────────────────────────
+
+export function _resetGFormSession(): void {
+  cachedSession = null;
 }
