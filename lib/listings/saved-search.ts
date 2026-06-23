@@ -43,7 +43,7 @@ export function buildSavedSearchPath(filters: ListingFilters, path: SavedSearchM
   return query ? `${path}?${query}` : path;
 }
 
-function savedSearchName(filters: ListingFilters, path: SavedSearchMailtoOptions['path']): string {
+export function savedSearchName(filters: ListingFilters, path: SavedSearchMailtoOptions['path']): string {
   const purpose = path === '/properties/for-sale' ? 'homes for sale' : path === '/properties/to-rent' ? 'rental homes' : filters.purpose === 'sale' ? 'homes for sale' : filters.purpose === 'rent' ? 'rental homes' : 'homes';
   const query = filters.query ? ` matching “${filters.query}”` : '';
   const location = filters.location ? ` around ${filters.location}` : ' in South Africa';

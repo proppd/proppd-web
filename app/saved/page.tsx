@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { SavedListingsGallery } from '@/components/properties/saved-listings-gallery';
+import { SavedSearchList } from '@/components/properties/saved-search-list';
 import { loadPortalListings } from '@/lib/proppd/backend';
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ export default async function SavedHomesPage() {
     <main className="proppd-page">
       <SiteHeader />
       <SavedListingsGallery listings={portalListings.items} />
+      <SavedSearchList />
       <SiteFooter />
     </main>
   );

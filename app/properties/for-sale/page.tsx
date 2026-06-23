@@ -6,7 +6,8 @@ import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { listings } from '@/lib/demo-data';
 import { applyListingFilters, parseListingFilters } from '@/lib/listings/filters';
-import { buildSavedSearchMailto } from '@/lib/listings/saved-search';
+import { buildSavedSearchMailto, buildSavedSearchPath, savedSearchName } from '@/lib/listings/saved-search';
+import { SaveSearchButton } from '@/components/properties/save-search-button';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -34,6 +35,9 @@ export default async function ForSalePage({ searchParams }: { searchParams: Sear
   const params = await searchParams;
   const filters = parseListingFilters(toURLSearchParams({ ...params, purpose: 'sale' }));
   const saleListings = applyListingFilters(listings, filters);
+  const savedSearchUrl = buildSavedSearchPath(filters, '/properties/for-sale');
+  const savedSearchQuery = savedSearchUrl.includes('?') ? savedSearchUrl.slice(savedSearchUrl.indexOf('?') + 1) : '';
+  const hasActiveFilters = Boolean(filters.query || filters.propertyType || filters.minPrice !== undefined || filters.maxPrice !== undefined || filters.bedrooms || filters.bathrooms || filters.parking || filters.sort !== 'featured');
   const areaWatchlist = buildAreaWatchlist(saleListings);
   const resultLabel = saleListings.length === 1 ? 'home for sale' : 'homes for sale';
   const headline = `${saleListings.length} ${resultLabel} ${filters.query ? `matching “${filters.query}”` : 'in South Africa'}`;
@@ -126,6 +130,11 @@ export default async function ForSalePage({ searchParams }: { searchParams: Sear
               </a>
             ) : null}
           </div>
+          {hasActiveFilters ? (
+            <div className="mt-3">
+              <SaveSearchButton label={savedSearchName(filters, '/properties/for-sale')} path="/properties/for-sale" queryString={savedSearchQuery} />
+            </div>
+          ) : null}
         </div>
       </section>
 
