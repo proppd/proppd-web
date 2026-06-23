@@ -3,6 +3,19 @@ import { NextResponse, type NextRequest } from 'next/server';
 type RequestLike = Pick<Request, 'headers' | 'url'> | NextRequest;
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+const BASELINE_CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "form-action 'self'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "connect-src 'self' https: wss:",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "style-src 'self' 'unsafe-inline'",
+  'upgrade-insecure-requests',
+].join('; ');
 
 export function isSafeHttpMethod(method: string): boolean {
   return SAFE_METHODS.has(method.toUpperCase());
@@ -48,6 +61,7 @@ export function rejectCrossOriginMutation(request: RequestLike): NextResponse | 
 }
 
 export function withSecurityHeaders(response: NextResponse): NextResponse {
+  response.headers.set('Content-Security-Policy', BASELINE_CONTENT_SECURITY_POLICY);
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
