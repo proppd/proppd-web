@@ -1,20 +1,27 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { ImageOff } from 'lucide-react';
 
 // Renders a listing photo with a clean, branded fallback when the image is
 // missing or fails to load — so cards never show a broken/empty box.
+// Uses next/image (fill) for automatic resizing, WebP/AVIF, and lazy loading.
+// The parent element must be positioned (relative/absolute) for fill to work.
 export function ListingImage({
   src,
   alt,
   gradient,
   className,
+  sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
+  priority = false,
 }: {
   src?: string;
   alt: string;
   gradient?: string;
   className?: string;
+  sizes?: string;
+  priority?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
 
@@ -30,12 +37,13 @@ export function ListingImage({
   }
 
   return (
-    <img
+    <Image
       src={src}
       alt={alt}
+      fill
+      sizes={sizes}
+      priority={priority}
       onError={() => setFailed(true)}
-      loading="lazy"
-      decoding="async"
       className={className}
     />
   );
