@@ -2,6 +2,7 @@ import type { Listing } from './demo-data';
 
 export const sakstonsAgents = [
   { name: 'Graham Donald', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 6 },
+  { name: 'James Saks', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 0 },
   { name: 'Liz Marx', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 12 },
   { name: 'Mark Chait', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 20 },
 ].map((agent) => ({ ...agent, isActive: true, isVerified: true }));

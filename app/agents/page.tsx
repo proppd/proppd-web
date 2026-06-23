@@ -3,7 +3,7 @@ import { BadgeCheck, Building2, MapPin, Search } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { PpraVerifiedBadge } from '@/components/agent/ppra-verified-badge';
-import { agencies as demoAgencies, agents as demoAgents, listings as demoListings } from '@/lib/demo-data';
+import { sakstonsAgents, sakstonsAgencies, sakstonsListings } from '@/lib/sakstons-data';
 import { loadPortalAgencies, loadPortalAgents, loadPortalListings } from '../../lib/proppd/backend';
 import { filterAgents, formatDirectorySearchSummary, parseDirectoryQuery, slugifyDirectoryName } from '@/lib/directory';
 
@@ -41,9 +41,9 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
   ]);
   const filteredAgents = filterAgents(portalAgents.items, query);
   const hasSearch = Boolean(query);
-  const visibleAgents = !hasSearch && filteredAgents.length === 0 ? demoAgents : filteredAgents;
-  const visibleAgencies = !hasSearch && portalAgencies.items.length === 0 ? demoAgencies : portalAgencies.items;
-  const visibleListings = !hasSearch && portalListings.items.length === 0 ? demoListings : portalListings.items;
+  const visibleAgents = !hasSearch && filteredAgents.length === 0 ? sakstonsAgents : filteredAgents;
+  const visibleAgencies = !hasSearch && portalAgencies.items.length === 0 ? sakstonsAgencies : portalAgencies.items;
+  const visibleListings = !hasSearch && portalListings.items.length === 0 ? sakstonsListings : portalListings.items;
   const agentWatchlist = buildAgentWatchlist(visibleAgents);
   const directoryPulse = buildDirectoryPulse(visibleAgents, visibleAgencies, visibleListings);
   const agencyLeaders = buildAgencyLeaders(visibleAgents);

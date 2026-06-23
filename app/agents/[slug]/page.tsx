@@ -7,17 +7,17 @@ import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { loadPortalAgentBySlug, loadPortalListings } from '../../../lib/proppd/backend';
-import { agents as demoAgents, listings as demoListings } from '@/lib/demo-data';
+import { sakstonsAgents, sakstonsListings } from '@/lib/sakstons-data';
 import { formatDirectoryCount, getAgentListings, slugifyDirectoryName } from '@/lib/directory';
 
 export function generateStaticParams() {
-  return demoAgents.map((agent) => ({ slug: slugifyDirectoryName(agent.name) }));
+  return sakstonsAgents.map((agent) => ({ slug: slugifyDirectoryName(agent.name) }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const portalAgent = await loadPortalAgentBySlug(slug);
-  const agent = portalAgent.items[0] ?? demoAgents.find((entry) => slugifyDirectoryName(entry.name) === slug);
+  const agent = portalAgent.items[0] ?? sakstonsAgents.find((entry) => slugifyDirectoryName(entry.name) === slug);
 
   if (!agent) {
     return { title: 'Agent not found' };
@@ -49,11 +49,11 @@ export const dynamic = 'force-dynamic';
 export default async function AgentProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const portalAgent = await loadPortalAgentBySlug(slug);
-  const agent = portalAgent.items[0] ?? demoAgents.find((entry) => slugifyDirectoryName(entry.name) === slug);
+  const agent = portalAgent.items[0] ?? sakstonsAgents.find((entry) => slugifyDirectoryName(entry.name) === slug);
   if (!agent) notFound();
 
   const portalListings = await loadPortalListings();
-  const activeListings = getAgentListings(portalListings.source === 'demo' ? demoListings : portalListings.items, agent.name);
+  const activeListings = getAgentListings(portalListings.items.length > 0 ? portalListings.items : sakstonsListings, agent.name);
   const agentMarketSummary = buildAgentMarketSummary(activeListings);
   const directoryStateLabel =
     portalAgent.source === 'database'
