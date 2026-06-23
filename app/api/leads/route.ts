@@ -12,6 +12,7 @@ import { notifyOnNewLead } from '@/lib/notifications/lead-notifications';
 import type { ExistingLeadFingerprint, LeadInput } from '@/lib/leads/validation';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 import { rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
+import { logServerError } from '@/lib/security/logging';
 
 export const runtime = 'nodejs';
 
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
       intent: prepared.data.intent,
     });
   } catch (error) {
-    console.error('[leads] notification failed:', error instanceof Error ? error.message : error);
+    logServerError('[leads] notification failed', error);
   }
 
   return NextResponse.json({ ok: true, lead: result }, { status: 201 });

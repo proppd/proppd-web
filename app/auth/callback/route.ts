@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { safeAuthRedirectPath } from '@/lib/auth/redirects';
+import { logServerError } from '@/lib/security/logging';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
 
 export async function GET(request: NextRequest) {
@@ -36,7 +37,8 @@ export async function GET(request: NextRequest) {
 
   const { error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
-    return NextResponse.redirect(new URL(`/login?message=${encodeURIComponent(error.message || 'Could not complete login.')}`, request.url));
+    logServerError('[auth] callback exchange failed', error);
+    return NextResponse.redirect(new URL(`/login?message=${encodeURIComponent('Could not complete login. Please request a fresh link.')}`, request.url));
   }
 
   return response;

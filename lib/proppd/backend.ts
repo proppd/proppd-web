@@ -2,7 +2,8 @@ import { Pool, type PoolClient } from 'pg';
 import { agencies as demoAgencies, agents as demoAgents, listings as demoListings, type Listing } from '../demo-data';
 import { demoLeads } from '../leads/demo-leads';
 import { getLeadQueue, getLeadActivityLabel, getLeadSourceLabel, isLeadStatus, type LeadRecord, type LeadQuality, type LeadStatus, type LeadIntent } from '../leads/pipeline';
-import { getSupabaseBrowserConfig } from '../supabase/env';
+import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
+import { logServerError } from '@/lib/security/logging';
 import type { DirectoryAgency, DirectoryAgent } from '../directory';
 import { slugifyAgentName } from '../agents/profile';
 import { portalPropertyTypeOptions, slugifyListingTitle } from './listing-editor';
@@ -291,10 +292,9 @@ export async function loadPortalListings(env: PortalEnv = process.env): Promise<
     }
     return { source: 'database', items: rows.map(mapListingRow) };
   } catch (error) {
-    const message = errorMessage(error);
-    console.error('[proppd] loadPortalListings error:', message);
+    logServerError('[proppd] loadPortalListings error', error);
     // Fall back to demo on any database error, not just connectivity errors
-    return { source: 'demo', items: demoListings, error: `Database error, using demo fallback: ${message}` };
+    return { source: 'demo', items: demoListings, error: 'Database error, using verified launch fallback.' };
   }
 }
 
@@ -1394,7 +1394,6 @@ async function queryListings(databaseUrl: string, slug?: string): Promise<Listin
   `;
 
   const result = await pool.query<ListingRow>(sql, values);
-  console.log(`[proppd] queryListings returned ${result.rows.length} rows`);
   return result.rows;
 }
 

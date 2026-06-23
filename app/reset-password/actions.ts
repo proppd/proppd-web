@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
 import { validatePassword } from '@/lib/auth/validation';
+import { logServerError } from '@/lib/security/logging';
 import { rateLimitHeaders, rateLimitPolicies } from '@/lib/security/rate-limit';
 
 export type ResetPasswordState = { error?: string };
@@ -32,7 +33,8 @@ export async function updatePasswordAction(_prev: ResetPasswordState, formData: 
 
   const { error } = await supabase.auth.updateUser({ password });
   if (error) {
-    return { error: error.message || 'Could not update your password.' };
+    logServerError('[auth] password update failed', error);
+    return { error: 'Could not update your password. Please request a fresh reset link and try again.' };
   }
 
   redirect('/dashboard');
