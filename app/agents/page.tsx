@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { BadgeCheck, Building2, MapPin, Search } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
+import { PpraVerifiedBadge } from '@/components/agent/ppra-verified-badge';
 import { agencies as demoAgencies, agents as demoAgents, listings as demoListings } from '@/lib/demo-data';
 import { loadPortalAgencies, loadPortalAgents, loadPortalListings } from '../../lib/proppd/backend';
 import { filterAgents, formatDirectorySearchSummary, parseDirectoryQuery, slugifyDirectoryName } from '@/lib/directory';
@@ -110,8 +111,12 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                 <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[#4A3AFF] to-[#60A5FA] text-2xl font-bold text-white">
                   {agent.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}
                 </div>
-                <div className="mt-5 flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">
-                  <BadgeCheck size={16} /> Verified agent
+                <div className="mt-5 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">
+                  {agent.isVerified ? (
+                    <PpraVerifiedBadge size="sm" />
+                  ) : (
+                    <span className="inline-flex items-center gap-2"><BadgeCheck size={16} /> Verified agent</span>
+                  )}
                 </div>
                 <h2 className="mt-3 text-2xl font-bold tracking-[-.04em]">{agent.name}</h2>
                 <p className="mt-2 flex items-center gap-2 text-sm font-bold text-[#9CA3AF]"><Building2 size={16} /> {agent.agency}</p>

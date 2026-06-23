@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BadgeCheck, Building2, Mail, MapPin } from 'lucide-react';
 import { AgentReviews } from '@/components/agent/agent-reviews';
+import { PpraVerifiedBadge } from '@/components/agent/ppra-verified-badge';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
@@ -83,8 +84,11 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
                   {agent.name.split(' ').map((part: string) => part[0]).join('').slice(0, 2)}
                 </div>
                 <div>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-[#E9FFFC] px-4 py-2 text-xs font-bold uppercase tracking-[.14em] text-[#087d75]">
-                    <BadgeCheck size={15} /> Verified profile
+                  <div className="flex flex-wrap items-center gap-2">
+                    {agent.isVerified ? <PpraVerifiedBadge /> : null}
+                    <div className="inline-flex items-center gap-2 rounded-full bg-[#E9FFFC] px-4 py-2 text-xs font-bold uppercase tracking-[.14em] text-[#087d75]">
+                      <BadgeCheck size={15} /> Verified profile
+                    </div>
                   </div>
                   <h1 className="mt-3 text-5xl font-bold tracking-[-.07em] sm:text-6xl">{agent.name}</h1>
                 </div>

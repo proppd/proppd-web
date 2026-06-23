@@ -6,6 +6,8 @@ export type DirectoryAgent = {
   area: string;
   listings: number;
   isActive?: boolean;
+  /** Passed PPRA / Fidelity Fund validation (agents.is_verified). */
+  isVerified?: boolean;
 };
 
 export type DirectoryAgency = {
