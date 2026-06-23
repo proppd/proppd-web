@@ -1562,7 +1562,7 @@ async function queryDirectoryAgents(databaseUrl: string): Promise<DirectoryAgent
     left join public.agencies ag on ag.id = a.agency_id
     left join public.listings l on l.agent_id = a.id and l.status in ('available', 'under_offer', 'sold', 'rented')
     where a.is_active = true
-    group by a.name, a.slug, a.is_verified, ag.name, ag.city
+    group by a.id, ag.name, ag.city
     order by a.name asc
   `;
 
