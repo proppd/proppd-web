@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
-import { loadPortalUserAccess } from '@/lib/proppd/backend';
+import { AGENT_WORKSPACE_FORBIDDEN_MESSAGE, canAccessAgentWorkspace, loadPortalUserAccess } from '@/lib/proppd/backend';
 import { generateListingDescription, isAiConfigured, parseListingFactsFromBody } from '@/lib/ai/listing-description';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 import { rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
@@ -33,8 +33,8 @@ export async function POST(request: NextRequest) {
   }
 
   const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
-  if (!access) {
-    return jsonError('Set up your agent profile first.', 403);
+  if (!canAccessAgentWorkspace(access)) {
+    return jsonError(AGENT_WORKSPACE_FORBIDDEN_MESSAGE, 403);
   }
 
   const body = await request.json().catch(() => null);

@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
 import {
+  AGENT_WORKSPACE_FORBIDDEN_MESSAGE,
+  canAccessAgentWorkspace,
   loadPortalListingDraftBySlug,
   loadPortalUserAccess,
   updatePortalListingBySlug,
@@ -26,8 +28,8 @@ export async function GET(_request: NextRequest, { params }: Params) {
   }
 
   const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
-  if (!access) {
-    return NextResponse.json({ error: 'Your account is not linked to a Proppd profile yet.' }, { status: 403 });
+  if (!canAccessAgentWorkspace(access)) {
+    return NextResponse.json({ error: AGENT_WORKSPACE_FORBIDDEN_MESSAGE }, { status: 403 });
   }
 
   const listing = await loadPortalListingDraftBySlug(slug, access);
@@ -60,8 +62,8 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   }
 
   const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
-  if (!access) {
-    return NextResponse.json({ error: 'Your account is not linked to a Proppd profile yet.' }, { status: 403 });
+  if (!canAccessAgentWorkspace(access)) {
+    return NextResponse.json({ error: AGENT_WORKSPACE_FORBIDDEN_MESSAGE }, { status: 403 });
   }
 
   const payload = await request.json().catch(() => null);

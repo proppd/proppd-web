@@ -43,6 +43,13 @@ export type PortalUserAccess = {
   agencyName: string | null;
 };
 
+export const AGENT_WORKSPACE_FORBIDDEN_MESSAGE = 'AgentOS and CRM are only available to approved agents and agencies.';
+
+export function canAccessAgentWorkspace(access: PortalUserAccess | null | undefined): access is PortalUserAccess {
+  if (!access) return false;
+  return access.role === 'super_admin' || access.role === 'agency_admin' || access.role === 'agent';
+}
+
 const ADMIN_EMAIL = 'info@proppd.com';
 
 export type PortalListingDraft = {
