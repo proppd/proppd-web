@@ -43,7 +43,7 @@ export async function uploadListingPhoto(client: SupabaseClient, userId: string,
   });
 
   if (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: 'Photo upload failed. Please try again.' };
   }
 
   const { data } = client.storage.from(LISTING_PHOTO_BUCKET).getPublicUrl(path);

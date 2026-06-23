@@ -9,8 +9,8 @@ import { sendEmail } from '@/lib/notifications/email';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-// Triggered by a scheduler (e.g. Vercel Cron). Guarded by CRON_SECRET — Vercel
-// sends `Authorization: Bearer <CRON_SECRET>` automatically when it's set.
+// Triggered by a scheduler (e.g. Vercel Cron). Guarded by CRON_SECRET through
+// the Authorization header only, so secrets do not appear in logged URLs.
 export async function GET(request: NextRequest) {
   return runAlerts(request);
 }
@@ -23,9 +23,7 @@ async function runAlerts(request: NextRequest) {
   if (!secret) {
     return NextResponse.json({ ok: false, error: 'Alerts are not configured (set CRON_SECRET).' }, { status: 503 });
   }
-  const header = request.headers.get('authorization');
-  const query = request.nextUrl.searchParams.get('secret');
-  if (header !== `Bearer ${secret}` && query !== secret) {
+  if (!isAuthorizedCronRequest(request.headers, secret)) {
     return NextResponse.json({ ok: false, error: 'Unauthorized.' }, { status: 401 });
   }
 
@@ -67,6 +65,10 @@ async function runAlerts(request: NextRequest) {
   }
 
   return NextResponse.json({ ok: true, searches: (rows ?? []).length, matches: totalMatches, emailed });
+}
+
+export function isAuthorizedCronRequest(headers: Headers, secret: string): boolean {
+  return headers.get('authorization') === `Bearer ${secret}`;
 }
 
 function appBase(): string {
