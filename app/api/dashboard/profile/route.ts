@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
 import { buildProfilePrefill, validateAgentProfileInput } from '@/lib/agents/profile';
 import { getPortalBackendMode, loadPortalAgentProfile, upsertPortalAgentProfile } from '@/lib/proppd/backend';
+import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 
 export async function GET() {
   const supabase = await createPortalSupabaseServerClient();
@@ -27,6 +28,9 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
+  const rejectedOrigin = rejectCrossOriginMutation(request);
+  if (rejectedOrigin) return rejectedOrigin;
+
   const supabase = await createPortalSupabaseServerClient();
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase is not configured.' }, { status: 503 });

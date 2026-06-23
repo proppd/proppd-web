@@ -6,6 +6,7 @@ import {
   loadPortalUserAccess,
 } from '@/lib/proppd/backend';
 import { validatePortalListingInput } from '@/lib/proppd/listing-editor';
+import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 
 export async function GET() {
   const supabase = await createPortalSupabaseServerClient();
@@ -28,6 +29,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const rejectedOrigin = rejectCrossOriginMutation(request);
+  if (rejectedOrigin) return rejectedOrigin;
+
   const supabase = await createPortalSupabaseServerClient();
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase is not configured.' }, { status: 503 });

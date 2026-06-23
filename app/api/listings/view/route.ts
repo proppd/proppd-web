@@ -3,12 +3,16 @@ import { Pool } from 'pg';
 import { NextResponse, type NextRequest } from 'next/server';
 import { getPortalDatabaseUrl } from '@/lib/proppd/backend';
 import { buildVisitorHash, isWithinDedupeWindow, normaliseViewSource, VIEW_DEDUPE_WINDOW_MS } from '@/lib/listings/view-tracking';
+import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 
 export const runtime = 'nodejs';
 
 let viewPool: Pool | undefined;
 
 export async function POST(request: NextRequest) {
+  const rejectedOrigin = rejectCrossOriginMutation(request);
+  if (rejectedOrigin) return rejectedOrigin;
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const databaseUrl = getPortalDatabaseUrl();

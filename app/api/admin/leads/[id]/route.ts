@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getPortalServerUser } from '../../../../../lib/supabase/server';
 import { loadPortalLeadById, loadPortalUserAccess, updatePortalLeadWorkflow } from '../../../../../lib/proppd/backend';
 import { isLeadStatus } from '@/lib/leads/pipeline';
+import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 
 export const runtime = 'nodejs';
 
@@ -25,6 +26,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const rejectedOrigin = rejectCrossOriginMutation(request);
+  if (rejectedOrigin) return rejectedOrigin;
+
   const { id } = await params;
   const user = await getPortalServerUser();
   if (!user) return jsonError('Unauthorized', 401);

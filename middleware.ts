@@ -1,10 +1,11 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSupabaseBrowserConfig } from './lib/supabase/env';
+import { withSecurityHeaders } from './lib/security/request-guards';
 
 export async function middleware(request: NextRequest) {
   const config = getSupabaseBrowserConfig();
-  const response = NextResponse.next({ request });
+  const response = withSecurityHeaders(NextResponse.next({ request }));
 
   if (!config) {
     return response;

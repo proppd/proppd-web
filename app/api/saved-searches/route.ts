@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
 import { savedSearchFromRow, savedSearchRowFromPayload, type SavedSearch } from '@/lib/search/saved';
+import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -51,6 +52,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const rejectedOrigin = rejectCrossOriginMutation(request);
+  if (rejectedOrigin) return rejectedOrigin;
+
   const auth = await authenticate();
   if (auth.kind !== 'ok') return authError(auth.kind);
 
@@ -70,6 +74,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const rejectedOrigin = rejectCrossOriginMutation(request);
+  if (rejectedOrigin) return rejectedOrigin;
+
   const auth = await authenticate();
   if (auth.kind !== 'ok') return authError(auth.kind);
 

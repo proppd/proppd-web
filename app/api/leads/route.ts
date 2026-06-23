@@ -10,6 +10,7 @@ import {
 import { getPortalDatabaseUrl } from '@/lib/proppd/backend';
 import { notifyOnNewLead } from '@/lib/notifications/lead-notifications';
 import type { ExistingLeadFingerprint, LeadInput } from '@/lib/leads/validation';
+import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 
 export const runtime = 'nodejs';
 
@@ -26,6 +27,9 @@ type SavedLead = { id: string; status: string; quality: string; flags: string[] 
 let postgresPool: Pool | undefined;
 
 export async function POST(request: NextRequest) {
+  const rejectedOrigin = rejectCrossOriginMutation(request);
+  if (rejectedOrigin) return rejectedOrigin;
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const databaseUrl = getPortalDatabaseUrl();

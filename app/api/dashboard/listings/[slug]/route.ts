@@ -6,6 +6,7 @@ import {
   updatePortalListingBySlug,
 } from '@/lib/proppd/backend';
 import { validatePortalListingInput } from '@/lib/proppd/listing-editor';
+import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 
 type Params = {
   params: Promise<{ slug: string }>;
@@ -40,6 +41,9 @@ export async function GET(_request: NextRequest, { params }: Params) {
 }
 
 export async function PATCH(request: NextRequest, { params }: Params) {
+  const rejectedOrigin = rejectCrossOriginMutation(request);
+  if (rejectedOrigin) return rejectedOrigin;
+
   const { slug } = await params;
   const supabase = await createPortalSupabaseServerClient();
   if (!supabase) {

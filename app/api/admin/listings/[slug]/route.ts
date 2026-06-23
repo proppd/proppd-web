@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getPortalServerUser } from '@/lib/supabase/server';
 import { loadPortalUserAccess, setPortalListingModeration } from '@/lib/proppd/backend';
 import { isListingStatus } from '@/lib/proppd/listing-editor';
+import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 
 export const runtime = 'nodejs';
 
@@ -10,6 +11,9 @@ function jsonError(message: string, status = 400) {
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ slug: string }> }) {
+  const rejectedOrigin = rejectCrossOriginMutation(request);
+  if (rejectedOrigin) return rejectedOrigin;
+
   const { slug } = await params;
   const user = await getPortalServerUser();
   if (!user) return jsonError('Unauthorized', 401);
