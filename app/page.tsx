@@ -8,6 +8,10 @@ import { RecentlyViewed } from '@/components/properties/recently-viewed';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 
+// Render on each request so live agent/listing changes (e.g. a profile
+// name update) appear immediately instead of being frozen at build time.
+export const dynamic = 'force-dynamic';
+
 export default function Home() {
   return (
     <main className="proppd-page">
