@@ -1,19 +1,15 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
-import {
-  verifyWithPPRA,
-  normaliseFFC,
-  type PPRAQueryType,
-} from '@/lib/ppra/verification';
+import { verifyWithPPRA, normaliseFFC } from '@/lib/ppra/verification';
 
 export const runtime = 'nodejs';
 
 type VerifyFFCBody = {
   ffcNumber?: unknown;
+  firstName?: unknown;
+  lastName?: unknown;
   submittedName?: unknown;
-  submittedAgency?: unknown;
-  queryType?: unknown;
 };
 
 export async function POST(request: NextRequest) {
@@ -37,18 +33,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const firstName =
+    typeof body.firstName === 'string' ? body.firstName.trim() : undefined;
+  const lastName =
+    typeof body.lastName === 'string' ? body.lastName.trim() : undefined;
   const submittedName =
     typeof body.submittedName === 'string' ? body.submittedName.trim() : undefined;
-  const submittedAgency =
-    typeof body.submittedAgency === 'string' ? body.submittedAgency.trim() : undefined;
-  const queryType: PPRAQueryType =
-    body.queryType === 'firm' ? 'firm' : 'agent';
 
   const result = await verifyWithPPRA({
     ffcNumber,
+    firstName,
+    lastName,
     submittedName,
-    submittedAgency,
-    queryType,
   });
 
   return NextResponse.json({ ok: true, verification: result });

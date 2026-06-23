@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
   normaliseFFC,
   namesMatch,
-  parsePPRAResponse,
-  evaluateVerification,
+  parseSearchResults,
+  parseStatusResponse,
   verifyWithPPRA,
   isAutoApprovable,
   verificationStatusLabel,
-  type PPRAVerificationInput,
+  _resetGFormSession,
 } from '@/lib/ppra/verification';
 
 describe('normaliseFFC', () => {
@@ -21,6 +21,10 @@ describe('normaliseFFC', () => {
 
   it('handles lowercase', () => {
     expect(normaliseFFC('ffc 1234567')).toBe('1234567');
+  });
+
+  it('preserves long FFC numbers', () => {
+    expect(normaliseFFC('202623026100000')).toBe('202623026100000');
   });
 });
 
@@ -41,63 +45,100 @@ describe('namesMatch', () => {
     expect(namesMatch('', 'John Smith')).toBe(false);
     expect(namesMatch('John Smith', '')).toBe(false);
   });
+});
 
-  it('ignores single-char tokens', () => {
-    expect(namesMatch('A Smith', 'Adam Smith')).toBe(true);
+describe('parseSearchResults', () => {
+  it('extracts practitioner rows from Gravity Forms HTML', () => {
+    const html = `
+      <table>
+        <tr>
+          <td>John Henry Smith</td>
+          <td><button class="check-status-btn" data-id="SMITHJH6" data-type="agent">Check Status</button></td>
+        </tr>
+        <tr>
+          <td>John David Smith</td>
+          <td><button class="check-status-btn" data-id="SMITHJD2" data-type="agent">Check Status</button></td>
+        </tr>
+      </table>`;
+    const results = parseSearchResults(html);
+    expect(results).toHaveLength(2);
+    expect(results[0]).toEqual({
+      name: 'John Henry Smith',
+      cardcode: 'SMITHJH6',
+      type: 'agent',
+    });
+    expect(results[1]).toEqual({
+      name: 'John David Smith',
+      cardcode: 'SMITHJD2',
+      type: 'agent',
+    });
+  });
+
+  it('returns empty array for no results', () => {
+    const html = '<div>No results found matching your criteria.</div>';
+    expect(parseSearchResults(html)).toEqual([]);
+  });
+
+  it('handles firm results', () => {
+    const html = `
+      <tr>
+        <td>Seeff Independent Agency (pty) Ltd</td>
+        <td>Seeff</td>
+        <td><button data-id="SEEFF.I01" data-type="firm">Check Status</button></td>
+      </tr>`;
+    const results = parseSearchResults(html);
+    expect(results).toHaveLength(1);
+    expect(results[0].type).toBe('firm');
+    expect(results[0].cardcode).toBe('SEEFF.I01');
   });
 });
 
-describe('parsePPRAResponse', () => {
+describe('parseStatusResponse', () => {
   it('parses a valid agent record', () => {
     const body = {
       success: true,
       data: {
-        FFCNum: '1234567',
+        FFCNum: '202623026100000',
         ISVALID: '1',
         CardFName: 'John',
         CardName: 'Smith',
         RoleName: 'Agent',
         FirmName: 'Example Estates',
         TradeName: 'Example',
-        Category: 'Estate Agent',
+        Category: 'Estate Agency',
       },
     };
-
-    const result = parsePPRAResponse(body);
+    const result = parseStatusResponse(body, 'SMITHJH6');
     expect(result).not.toBe('not_found');
     expect(result).not.toBe('unparseable');
     expect(result).toEqual(
       expect.objectContaining({
-        ffcNumber: '1234567',
+        cardcode: 'SMITHJH6',
+        ffcNumber: '202623026100000',
         isValid: true,
-        cardFirstName: 'John',
-        cardLastName: 'Smith',
         fullName: 'John Smith',
-        roleName: 'Agent',
         firmName: 'Example Estates',
       }),
     );
   });
 
   it('detects the no-records sentinel', () => {
-    const body = {
-      success: true,
-      data: { NO_VAL: 'GET_VALID_AGENT:No Records' },
-    };
-    expect(parsePPRAResponse(body)).toBe('not_found');
+    expect(
+      parseStatusResponse({ success: true, data: { NO_VAL: 'GET_VALID_AGENT:No Records' } }, 'TEST'),
+    ).toBe('not_found');
   });
 
   it('returns unparseable when data is missing', () => {
-    expect(parsePPRAResponse({ success: true })).toBe('unparseable');
-    expect(parsePPRAResponse({ success: true, data: {} })).toBe('unparseable');
+    expect(parseStatusResponse({ success: true }, 'TEST')).toBe('unparseable');
+    expect(parseStatusResponse({ success: true, data: {} }, 'TEST')).toBe('unparseable');
   });
 
-  it('accepts ISVALID as boolean-like', () => {
+  it('accepts ISVALID as boolean-like string', () => {
     const body = {
       success: true,
-      data: { FFCNum: '1234567', ISVALID: 'true', CardFName: 'Jane', CardName: 'Doe' },
+      data: { FFCNum: '123', ISVALID: 'true', CardFName: 'Jane', CardName: 'Doe' },
     };
-    const result = parsePPRAResponse(body);
+    const result = parseStatusResponse(body, 'DOEJ1');
     expect(result).not.toBe('not_found');
     if (result !== 'not_found' && result !== 'unparseable') {
       expect(result.isValid).toBe(true);
@@ -105,197 +146,199 @@ describe('parsePPRAResponse', () => {
   });
 });
 
-describe('evaluateVerification', () => {
-  const baseInput: PPRAVerificationInput = {
-    ffcNumber: 'FFC 1234567',
-    submittedName: 'John Smith',
-    submittedAgency: 'Example Estates',
-  };
+// ─── verifyWithPPRA with mocked fetch ──────────────────────────────────
 
-  it('returns verified when everything matches', () => {
-    const record = {
-      ffcNumber: '1234567',
-      isValid: true,
-      fullName: 'John Smith',
-      firmName: 'Example Estates',
-    };
-    const result = evaluateVerification(baseInput, record, 'verified');
-    expect(result.status).toBe('verified');
-    expect(result.record).toEqual(record);
-  });
+/**
+ * Build a mock fetch that simulates the two-step PPRA flow:
+ *   1. GET to practitioner-search page → returns HTML with gform hidden fields
+ *   2. POST to admin-ajax with action=gravityforms → returns search results HTML
+ *   3. POST to admin-ajax with action=check_agent_status → returns JSON status
+ */
+function buildMockFetch(opts: {
+  searchHtml?: string;
+  statusResponses?: Record<string, object>;
+}): typeof fetch {
+  const defaultSearchHtml = `
+    <input type='hidden' name='state_3' value='FAKE_STATE_VALUE' />
+    <input type='hidden' name='gform_currency' value='FAKE_CURRENCY' />
+    hash=abc123def456
+  `;
 
-  it('returns invalid_certificate when ISVALID is false', () => {
-    const record = {
-      ffcNumber: '1234567',
-      isValid: false,
-      fullName: 'John Smith',
-    };
-    const result = evaluateVerification(baseInput, record, 'verified');
-    expect(result.status).toBe('invalid_certificate');
-  });
+  return ((input: string | URL | Request, init?: RequestInit) => {
+    const url = typeof input === 'string' ? input : input.toString();
 
-  it('returns name_mismatch when the FFC numbers differ', () => {
-    const record = {
-      ffcNumber: '9999999',
-      isValid: true,
-      fullName: 'John Smith',
-    };
-    const result = evaluateVerification(baseInput, record, 'verified');
-    expect(result.status).toBe('name_mismatch');
-  });
+    // Step 0: Fetch the search page (GET)
+    if (!init?.method || init.method === 'GET') {
+      return Promise.resolve(
+        new Response(opts.searchHtml ?? defaultSearchHtml, {
+          status: 200,
+          headers: { 'content-type': 'text/html' },
+        }),
+      );
+    }
 
-  it('returns name_mismatch when names do not match', () => {
-    const record = {
-      ffcNumber: '1234567',
-      isValid: true,
-      fullName: 'Sarah Jones',
-    };
-    const result = evaluateVerification(baseInput, record, 'verified');
-    expect(result.status).toBe('name_mismatch');
-  });
+    const bodyStr = typeof init.body === 'string' ? init.body : '';
 
-  it('returns not_found when record is null and status is not_found', () => {
-    const result = evaluateVerification(baseInput, null, 'not_found');
-    expect(result.status).toBe('not_found');
-  });
+    // Step 1: Gravity Forms search
+    if (bodyStr.includes('action=gravityforms')) {
+      const searchResultHtml = opts.searchHtml?.includes('data-id')
+        ? opts.searchHtml
+        : `
+          <tr><td>John Henry Smith</td>
+          <td><button data-id="SMITHJH6" data-type="agent">Check Status</button></td></tr>`;
+      return Promise.resolve(
+        new Response(searchResultHtml, {
+          status: 200,
+          headers: { 'content-type': 'text/html' },
+        }),
+      );
+    }
 
-  it('returns endpoint_error when status is endpoint_error', () => {
-    const result = evaluateVerification(baseInput, null, 'endpoint_error');
-    expect(result.status).toBe('endpoint_error');
-    expect(result.reason).toContain('did not respond');
-  });
+    // Step 2: check_agent_status
+    if (bodyStr.includes('action=check_agent_status')) {
+      const cardcodeMatch = bodyStr.match(/agent_cardcode=([^&]+)/);
+      const cardcode = cardcodeMatch ? decodeURIComponent(cardcodeMatch[1]) : '';
+      const statusData = opts.statusResponses?.[cardcode];
 
-  it('skips name match when no submitted name', () => {
-    const record = {
-      ffcNumber: '1234567',
-      isValid: true,
-      fullName: 'Completely Different',
-    };
-    const result = evaluateVerification(
-      { ffcNumber: 'FFC 1234567' },
-      record,
-      'verified',
-    );
-    expect(result.status).toBe('verified');
-  });
-});
-
-describe('verifyWithPPRA (mocked fetch)', () => {
-  it('returns verified on a valid PPRA response', async () => {
-    const mockFetch = (() =>
-      Promise.resolve(
-        new Response(
-          JSON.stringify({
-            success: true,
-            data: {
-              FFCNum: '1234567',
-              ISVALID: '1',
-              CardFName: 'John',
-              CardName: 'Smith',
-              FirmName: 'Example Estates',
-            },
+      if (statusData) {
+        return Promise.resolve(
+          new Response(JSON.stringify(statusData), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
           }),
+        );
+      }
+
+      // Default: no records
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({ success: true, data: { NO_VAL: 'GET_VALID_AGENT:No Records' } }),
           { status: 200, headers: { 'content-type': 'application/json' } },
         ),
-      )) as typeof fetch;
+      );
+    }
+
+    return Promise.resolve(new Response('', { status: 404 }));
+  }) as typeof fetch;
+}
+
+describe('verifyWithPPRA (mocked fetch)', () => {
+  it('returns verified when name search + FFC match + valid', async () => {
+    _resetGFormSession();
+    const mockFetch = buildMockFetch({
+      statusResponses: {
+        SMITHJH6: {
+          success: true,
+          data: {
+            FFCNum: '202623026100000',
+            ISVALID: '1',
+            CardFName: 'John',
+            CardName: 'Smith',
+            FirmName: 'Example Estates',
+          },
+        },
+      },
+    });
 
     const result = await verifyWithPPRA(
-      { ffcNumber: 'FFC 1234567', submittedName: 'John Smith' },
+      { ffcNumber: '202623026100000', firstName: 'John', lastName: 'Smith' },
       mockFetch,
     );
     expect(result.status).toBe('verified');
     expect(result.record?.fullName).toBe('John Smith');
+    expect(result.record?.ffcNumber).toBe('202623026100000');
   });
 
-  it('returns not_found when PPRA says no records', async () => {
-    const mockFetch = (() =>
-      Promise.resolve(
-        new Response(
-          JSON.stringify({
-            success: true,
-            data: { NO_VAL: 'GET_VALID_AGENT:No Records' },
-          }),
-          { status: 200, headers: { 'content-type': 'application/json' } },
-        ),
-      )) as typeof fetch;
+  it('returns not_found when name search returns no results', async () => {
+    _resetGFormSession();
+    const mockFetch = buildMockFetch({
+      searchHtml: '<div>No results found matching your criteria.</div>',
+    });
 
     const result = await verifyWithPPRA(
-      { ffcNumber: '9999999' },
+      { ffcNumber: '202623026100000', firstName: 'Nobody', lastName: 'Here' },
       mockFetch,
     );
     expect(result.status).toBe('not_found');
   });
 
-  it('returns endpoint_error on network failure', async () => {
-    const mockFetch = (() => Promise.reject(new Error('network down'))) as typeof fetch;
+  it('returns name_mismatch when FFC does not match any search result', async () => {
+    _resetGFormSession();
+    const mockFetch = buildMockFetch({
+      statusResponses: {
+        SMITHJH6: {
+          success: true,
+          data: {
+            FFCNum: '9999999',
+            ISVALID: '1',
+            CardFName: 'John',
+            CardName: 'Smith',
+          },
+        },
+      },
+    });
+
     const result = await verifyWithPPRA(
-      { ffcNumber: '1234567' },
+      { ffcNumber: '202623026100000', firstName: 'John', lastName: 'Smith' },
       mockFetch,
     );
-    expect(result.status).toBe('endpoint_error');
+    expect(result.status).toBe('name_mismatch');
   });
 
-  it('returns endpoint_error on non-200 status', async () => {
-    const mockFetch = (() =>
-      Promise.resolve(new Response('Server Error', { status: 500 }))) as typeof fetch;
-    const result = await verifyWithPPRA(
-      { ffcNumber: '1234567' },
-      mockFetch,
-    );
-    expect(result.status).toBe('endpoint_error');
-  });
-
-  it('returns endpoint_error when FFC is empty', async () => {
-    const result = await verifyWithPPRA({ ffcNumber: '' });
-    expect(result.status).toBe('endpoint_error');
-  });
-
-  it('returns invalid_certificate when PPRA shows not valid', async () => {
-    const mockFetch = (() =>
-      Promise.resolve(
-        new Response(
-          JSON.stringify({
-            success: true,
-            data: {
-              FFCNum: '1234567',
-              ISVALID: '0',
-              CardFName: 'John',
-              CardName: 'Smith',
-            },
-          }),
-          { status: 200, headers: { 'content-type': 'application/json' } },
-        ),
-      )) as typeof fetch;
+  it('returns invalid_certificate when FFC matches but ISVALID is 0', async () => {
+    _resetGFormSession();
+    const mockFetch = buildMockFetch({
+      statusResponses: {
+        SMITHJH6: {
+          success: true,
+          data: {
+            FFCNum: '202623026100000',
+            ISVALID: '0',
+            CardFName: 'John',
+            CardName: 'Smith',
+          },
+        },
+      },
+    });
 
     const result = await verifyWithPPRA(
-      { ffcNumber: 'FFC 1234567', submittedName: 'John Smith' },
+      { ffcNumber: '202623026100000', firstName: 'John', lastName: 'Smith' },
       mockFetch,
     );
     expect(result.status).toBe('invalid_certificate');
   });
 
-  it('returns name_mismatch when names differ', async () => {
-    const mockFetch = (() =>
-      Promise.resolve(
-        new Response(
-          JSON.stringify({
-            success: true,
-            data: {
-              FFCNum: '1234567',
-              ISVALID: '1',
-              CardFName: 'Sarah',
-              CardName: 'Jones',
-            },
-          }),
-          { status: 200, headers: { 'content-type': 'application/json' } },
-        ),
-      )) as typeof fetch;
+  it('returns endpoint_error on empty FFC', async () => {
+    const result = await verifyWithPPRA({ ffcNumber: '' });
+    expect(result.status).toBe('endpoint_error');
+  });
+
+  it('returns endpoint_error when name is missing', async () => {
+    const result = await verifyWithPPRA({ ffcNumber: '1234567' });
+    expect(result.status).toBe('endpoint_error');
+  });
+
+  it('handles submittedName as fallback for first/last', async () => {
+    _resetGFormSession();
+    const mockFetch = buildMockFetch({
+      statusResponses: {
+        SMITHJH6: {
+          success: true,
+          data: {
+            FFCNum: '202623026100000',
+            ISVALID: '1',
+            CardFName: 'John',
+            CardName: 'Smith',
+          },
+        },
+      },
+    });
 
     const result = await verifyWithPPRA(
-      { ffcNumber: 'FFC 1234567', submittedName: 'John Smith' },
+      { ffcNumber: '202623026100000', submittedName: 'John Smith' },
       mockFetch,
     );
-    expect(result.status).toBe('name_mismatch');
+    expect(result.status).toBe('verified');
   });
 });
 
@@ -304,8 +347,7 @@ describe('isAutoApprovable', () => {
     expect(
       isAutoApprovable({
         status: 'verified',
-        ffcNumber: '1234567',
-        queryType: 'agent',
+        ffcNumber: '123',
         record: null,
         checkedAt: '2026-06-23T00:00:00Z',
       }),
@@ -314,8 +356,7 @@ describe('isAutoApprovable', () => {
     expect(
       isAutoApprovable({
         status: 'not_found',
-        ffcNumber: '1234567',
-        queryType: 'agent',
+        ffcNumber: '123',
         record: null,
         checkedAt: '2026-06-23T00:00:00Z',
       }),
@@ -328,7 +369,7 @@ describe('verificationStatusLabel', () => {
     expect(verificationStatusLabel('verified')).toBe('PPRA verified');
     expect(verificationStatusLabel('not_found')).toBe('Not found on PPRA register');
     expect(verificationStatusLabel('invalid_certificate')).toBe('Certificate not valid');
-    expect(verificationStatusLabel('name_mismatch')).toBe('Details do not match PPRA');
+    expect(verificationStatusLabel('name_mismatch')).toBe('FFC does not match PPRA record');
     expect(verificationStatusLabel('endpoint_error')).toBe('PPRA check unavailable');
   });
 });

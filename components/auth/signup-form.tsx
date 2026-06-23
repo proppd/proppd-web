@@ -54,8 +54,8 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           ffcNumber: ffc,
-          submittedName: `${form.firstName} ${form.lastName}`.trim() || undefined,
-          submittedAgency: form.agency || undefined,
+          firstName: form.firstName || undefined,
+          lastName: form.lastName || undefined,
         }),
       });
 
