@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { loadPortalListings } from '@/lib/proppd/backend';
 import { estimateInstantValuation, type InstantValuationInput } from '@/lib/valuation/instant';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
+import { rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -10,6 +11,9 @@ type EstimateRequestBody = Partial<InstantValuationInput>;
 export async function POST(request: NextRequest) {
   const rejectedOrigin = rejectCrossOriginMutation(request);
   if (rejectedOrigin) return rejectedOrigin;
+
+  const limited = rateLimitRequest(request, rateLimitPolicies.valuation);
+  if (limited) return limited;
 
   const body = (await request.json()) as EstimateRequestBody;
   const input = parseInput(body);

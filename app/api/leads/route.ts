@@ -11,6 +11,7 @@ import { getPortalDatabaseUrl } from '@/lib/proppd/backend';
 import { notifyOnNewLead } from '@/lib/notifications/lead-notifications';
 import type { ExistingLeadFingerprint, LeadInput } from '@/lib/leads/validation';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
+import { rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -29,6 +30,9 @@ let postgresPool: Pool | undefined;
 export async function POST(request: NextRequest) {
   const rejectedOrigin = rejectCrossOriginMutation(request);
   if (rejectedOrigin) return rejectedOrigin;
+
+  const limited = rateLimitRequest(request, rateLimitPolicies.leadForm);
+  if (limited) return limited;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

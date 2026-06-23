@@ -3,6 +3,7 @@ import { getPortalServerUser } from '@/lib/supabase/server';
 import { addPortalLeadNote, loadPortalUserAccess, updatePortalLeadWorkflow } from '@/lib/proppd/backend';
 import { isLeadStatus } from '@/lib/leads/pipeline';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
+import { rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -13,6 +14,9 @@ function jsonError(message: string, status = 400) {
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const rejectedOrigin = rejectCrossOriginMutation(request);
   if (rejectedOrigin) return rejectedOrigin;
+
+  const limited = rateLimitRequest(request, rateLimitPolicies.dashboardMutation);
+  if (limited) return limited;
 
   const { id } = await params;
   const user = await getPortalServerUser();

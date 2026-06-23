@@ -70,9 +70,17 @@ describe('photo upload client helpers', () => {
   it('rejects non-images and oversized files', () => {
     const tooBig = new File([new Uint8Array(11 * 1024 * 1024)], 'big.jpg', { type: 'image/jpeg' });
     const notImage = new File([new Uint8Array(10)], 'doc.pdf', { type: 'application/pdf' });
+    const unsupportedImage = new File([new Uint8Array(10)], 'vector.svg', { type: 'image/svg+xml' });
     const ok = new File([new Uint8Array(10)], 'ok.jpg', { type: 'image/jpeg' });
     expect(isUploadableImage(tooBig)).toBe(false);
     expect(isUploadableImage(notImage)).toBe(false);
+    expect(isUploadableImage(unsupportedImage)).toBe(false);
     expect(isUploadableImage(ok)).toBe(true);
+  });
+
+  it('normalizes storage paths by user id and content type', () => {
+    const path = buildPhotoPath('user/../123', 'listing.svg', 'image/webp');
+    expect(path.startsWith('user123/')).toBe(true);
+    expect(path.endsWith('.webp')).toBe(true);
   });
 });
