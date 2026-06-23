@@ -112,11 +112,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
                   {agent.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}
                 </div>
                 <div className="mt-5 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">
-                  {agent.isVerified ? (
-                    <PpraVerifiedBadge size="sm" />
-                  ) : (
-                    <span className="inline-flex items-center gap-2"><BadgeCheck size={16} /> Verified agent</span>
-                  )}
+                  {agent.isVerified ? <PpraVerifiedBadge size="sm" /> : null}
                 </div>
                 <h2 className="mt-3 text-2xl font-bold tracking-[-.04em]">{agent.name}</h2>
                 <p className="mt-2 flex items-center gap-2 text-sm font-bold text-[#9CA3AF]"><Building2 size={16} /> {agent.agency}</p>

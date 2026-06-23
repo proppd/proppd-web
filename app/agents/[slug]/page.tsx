@@ -86,9 +86,6 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     {agent.isVerified ? <PpraVerifiedBadge /> : null}
-                    <div className="inline-flex items-center gap-2 rounded-full bg-[#E9FFFC] px-4 py-2 text-xs font-bold uppercase tracking-[.14em] text-[#087d75]">
-                      <BadgeCheck size={15} /> Verified profile
-                    </div>
                   </div>
                   <h1 className="mt-3 text-5xl font-bold tracking-[-.07em] sm:text-6xl">{agent.name}</h1>
                 </div>
