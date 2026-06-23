@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
 import { buildProfilePrefill, validateAgentProfileInput } from '@/lib/agents/profile';
-import { getPortalBackendMode, loadPortalAgentProfile, upsertPortalAgentProfile } from '@/lib/proppd/backend';
+import { AGENT_WORKSPACE_FORBIDDEN_MESSAGE, canAccessAgentWorkspace, getPortalBackendMode, loadPortalAgentProfile, loadPortalUserAccess, upsertPortalAgentProfile } from '@/lib/proppd/backend';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 import { rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
 
@@ -14,6 +14,11 @@ export async function GET() {
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
+  if (!canAccessAgentWorkspace(access)) {
+    return NextResponse.json({ error: AGENT_WORKSPACE_FORBIDDEN_MESSAGE }, { status: 403 });
   }
 
   const profile = await loadPortalAgentProfile(user.id);
@@ -43,6 +48,11 @@ export async function PUT(request: NextRequest) {
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
+  if (!canAccessAgentWorkspace(access)) {
+    return NextResponse.json({ error: AGENT_WORKSPACE_FORBIDDEN_MESSAGE }, { status: 403 });
   }
 
   const payload = await request.json().catch(() => null);

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { DashboardNav } from '@/components/dashboard/dashboard-nav';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
+import { canAccessAgentWorkspace, loadPortalUserAccess } from '@/lib/proppd/backend';
 import { isSupabaseBrowserConfigured } from '@/lib/supabase/env';
 import { getPortalServerUser } from '@/lib/supabase/server';
 
@@ -10,10 +11,19 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Require sign-in for the agent workspace. When Supabase isn't configured
-  // (e.g. preview/demo), fall through so the showcase still renders.
-  if (isSupabaseBrowserConfigured() && !(await getPortalServerUser())) {
-    redirect('/login?next=/dashboard');
+  // Require an approved agent/agency profile for AgentOS/CRM. Owners and normal
+  // signed-in users have their own workspace at /my-properties and must not see
+  // or access the agent dashboard.
+  if (isSupabaseBrowserConfigured()) {
+    const user = await getPortalServerUser();
+    if (!user) {
+      redirect('/login?next=/dashboard');
+    }
+
+    const access = await loadPortalUserAccess(user.id, user.email);
+    if (!canAccessAgentWorkspace(access)) {
+      redirect('/my-properties');
+    }
   }
 
   return (
