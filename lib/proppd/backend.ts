@@ -1,5 +1,6 @@
 import { Pool, type PoolClient } from 'pg';
-import { agencies as demoAgencies, agents as demoAgents, listings as demoListings, type Listing } from '../demo-data';
+import { type Listing } from '../demo-data';
+import { sakstonsAgents, sakstonsAgencies, sakstonsListings } from '../sakstons-data';
 import { demoLeads } from '../leads/demo-leads';
 import { getLeadQueue, getLeadActivityLabel, getLeadSourceLabel, isLeadStatus, type LeadRecord, type LeadQuality, type LeadStatus, type LeadIntent } from '../leads/pipeline';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
@@ -289,26 +290,25 @@ export function getPortalBackendDiagnostics(env: PortalEnv = process.env): Porta
 export async function loadPortalListings(env: PortalEnv = process.env): Promise<PortalPayload<Listing>> {
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
-    return { source: 'demo', items: demoListings };
+    return { source: 'demo', items: sakstonsListings };
   }
 
   try {
     const rows = await queryListings(databaseUrl);
     if (rows.length === 0) {
-      return fallbackToDemoOnEmptySource(demoListings, 'No published database listings yet, using verified launch stock.');
+      return fallbackToDemoOnEmptySource(sakstonsListings, 'No published database listings yet, using verified launch stock.');
     }
     return { source: 'database', items: rows.map(mapListingRow) };
   } catch (error) {
     logServerError('[proppd] loadPortalListings error', error);
-    // Fall back to demo on any database error, not just connectivity errors
-    return { source: 'demo', items: demoListings, error: 'Database error, using verified launch fallback.' };
+    return { source: 'demo', items: sakstonsListings, error: 'Database error, using verified launch fallback.' };
   }
 }
 
 export async function loadPortalListingBySlug(slug: string, env: PortalEnv = process.env): Promise<PortalPayload<Listing>> {
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
-    const item = demoListings.find((listing) => listing.slug === slug);
+    const item = sakstonsListings.find((listing) => listing.slug === slug);
     return { source: 'demo', items: item ? [item] : [] };
   }
 
@@ -316,7 +316,7 @@ export async function loadPortalListingBySlug(slug: string, env: PortalEnv = pro
     const rows = await queryListings(databaseUrl, slug);
     return { source: rows.length > 0 ? 'database' : 'empty', items: rows.map(mapListingRow) };
   } catch (error) {
-    const fallback = demoListings.find((listing) => listing.slug === slug);
+    const fallback = sakstonsListings.find((listing) => listing.slug === slug);
     return fallbackToDemoOnDatabaseConnectivityError(error, fallback ? [fallback] : []);
   }
 }
@@ -524,34 +524,34 @@ export function buildLeadWorkflowEventNotes(previousStatus: LeadStatus, nextStat
 export async function loadPortalAgents(env: PortalEnv = process.env): Promise<PortalPayload<DirectoryAgent>> {
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
-    return { source: 'demo', items: demoAgents };
+    return { source: 'demo', items: sakstonsAgents };
   }
 
   try {
     const rows = await queryDirectoryAgents(databaseUrl);
     if (rows.length === 0) {
-      return fallbackToDemoOnEmptySource(demoAgents, 'No database agent profiles yet, using verified launch profiles.');
+      return fallbackToDemoOnEmptySource(sakstonsAgents, 'No database agent profiles yet, using verified launch profiles.');
     }
     return { source: 'database', items: rows };
   } catch (error) {
-    return fallbackToDemoOnDatabaseConnectivityError(error, demoAgents);
+    return fallbackToDemoOnDatabaseConnectivityError(error, sakstonsAgents);
   }
 }
 
 export async function loadPortalAgencies(env: PortalEnv = process.env): Promise<PortalPayload<DirectoryAgency>> {
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
-    return { source: 'demo', items: demoAgencies };
+    return { source: 'demo', items: sakstonsAgencies };
   }
 
   try {
     const rows = await queryDirectoryAgencies(databaseUrl);
     if (rows.length === 0) {
-      return fallbackToDemoOnEmptySource(demoAgencies, 'No database agency profiles yet, using verified launch agencies.');
+      return fallbackToDemoOnEmptySource(sakstonsAgencies, 'No database agency profiles yet, using verified launch agencies.');
     }
     return { source: 'database', items: rows };
   } catch (error) {
-    return fallbackToDemoOnDatabaseConnectivityError(error, demoAgencies);
+    return fallbackToDemoOnDatabaseConnectivityError(error, sakstonsAgencies);
   }
 }
 
@@ -969,7 +969,7 @@ async function logAdminActivity(
 export async function loadMyPortalListings(access: PortalUserAccess, env: PortalEnv = process.env): Promise<PortalPayload<Listing>> {
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
-    return { source: 'demo', items: demoListings.filter((listing) => listing.agent === access.agentName || access.role === 'super_admin') };
+    return { source: 'demo', items: sakstonsListings.filter((listing) => listing.agent === access.agentName || access.role === 'super_admin') };
   }
 
   try {
@@ -979,6 +979,7 @@ export async function loadMyPortalListings(access: PortalUserAccess, env: Portal
     return { source: 'error', items: [], error: errorMessage(error) };
   }
 }
+
 
 export async function loadPortalListingDraftBySlug(slug: string, access: PortalUserAccess, env: PortalEnv = process.env): Promise<PortalPayload<PortalListingDraft>> {
   const databaseUrl = getPortalDatabaseUrl(env);

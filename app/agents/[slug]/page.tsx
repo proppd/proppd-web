@@ -7,17 +7,17 @@ import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { loadPortalAgentBySlug, loadPortalListings } from '../../../lib/proppd/backend';
-import { agents as demoAgents, listings as demoListings } from '@/lib/demo-data';
+import { sakstonsAgents, sakstonsListings } from '@/lib/sakstons-data';
 import { formatDirectoryCount, getAgentListings, slugifyDirectoryName } from '@/lib/directory';
 
 export function generateStaticParams() {
-  return demoAgents.map((agent) => ({ slug: slugifyDirectoryName(agent.name) }));
+  return sakstonsAgents.map((agent) => ({ slug: slugifyDirectoryName(agent.name) }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const portalAgent = await loadPortalAgentBySlug(slug);
-  const agent = portalAgent.items[0] ?? demoAgents.find((entry) => slugifyDirectoryName(entry.name) === slug);
+  const agent = portalAgent.items[0] ?? sakstonsAgents.find((entry) => slugifyDirectoryName(entry.name) === slug);
 
   if (!agent) {
     return { title: 'Agent not found' };
@@ -49,11 +49,11 @@ export const dynamic = 'force-dynamic';
 export default async function AgentProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const portalAgent = await loadPortalAgentBySlug(slug);
-  const agent = portalAgent.items[0] ?? demoAgents.find((entry) => slugifyDirectoryName(entry.name) === slug);
+  const agent = portalAgent.items[0] ?? sakstonsAgents.find((entry) => slugifyDirectoryName(entry.name) === slug);
   if (!agent) notFound();
 
   const portalListings = await loadPortalListings();
-  const activeListings = getAgentListings(portalListings.source === 'demo' ? demoListings : portalListings.items, agent.name);
+  const activeListings = getAgentListings(portalListings.items.length > 0 ? portalListings.items : sakstonsListings, agent.name);
   const agentMarketSummary = buildAgentMarketSummary(activeListings);
   const directoryStateLabel =
     portalAgent.source === 'database'
@@ -86,9 +86,6 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     {agent.isVerified ? <PpraVerifiedBadge /> : null}
-                    <div className="inline-flex items-center gap-2 rounded-full bg-[#E9FFFC] px-4 py-2 text-xs font-bold uppercase tracking-[.14em] text-[#087d75]">
-                      <BadgeCheck size={15} /> Verified profile
-                    </div>
                   </div>
                   <h1 className="mt-3 text-5xl font-bold tracking-[-.07em] sm:text-6xl">{agent.name}</h1>
                 </div>
