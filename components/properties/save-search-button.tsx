@@ -1,15 +1,21 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Bell, Check, Loader2, LogIn } from 'lucide-react';
+import { Bell, Check, Loader2, LogIn, X } from 'lucide-react';
 import { getBrowserSupabaseClient } from '@/lib/supabase/client';
+import { SupabaseLoginForm } from '@/components/auth/supabase-login-form';
 import { cloudSaveSearch } from '@/lib/search/cloud';
 import { savedSearchHref, type SavedSearchPath } from '@/lib/search/saved';
+
+// NEXT_PUBLIC_* must be referenced as literal property accesses to be inlined.
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export function SaveSearchButton({ label, path, queryString }: { label: string; path: SavedSearchPath; queryString: string }) {
   const [auth, setAuth] = useState<'unknown' | 'in' | 'out'>('unknown');
   const [state, setState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const [showSignIn, setShowSignIn] = useState(false);
 
   useEffect(() => {
     const supabase = getBrowserSupabaseClient();
@@ -28,14 +34,28 @@ export function SaveSearchButton({ label, path, queryString }: { label: string; 
 
   const baseClass =
     'inline-flex items-center gap-2 rounded-full border border-[#BFDBFE] bg-[#EFF6FF] px-4 py-2 text-sm font-bold text-[#2563EB] transition hover:border-[#4A3AFF] hover:bg-[#DBEAFE]';
+  const href = savedSearchHref({ path, queryString });
 
-  // Until auth resolves (and when signed out) offer a sign-in path that returns here.
+  // Signed out (or still resolving): offer inline, open self-serve sign-in that
+  // returns to this search and creates an account automatically for new buyers.
   if (auth !== 'in') {
-    const nextParam = encodeURIComponent(savedSearchHref({ path, queryString }));
     return (
-      <a href={`/login?next=${nextParam}`} className={baseClass}>
-        <LogIn size={15} /> Sign in to save this search
-      </a>
+      <div className="inline-block">
+        <button type="button" onClick={() => setShowSignIn((open) => !open)} className={baseClass}>
+          {showSignIn ? <X size={15} /> : <LogIn size={15} />} {showSignIn ? 'Close' : 'Save this search'}
+        </button>
+        {showSignIn && (
+          <div className="mt-3 w-full max-w-sm rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-lg">
+            <p className="text-sm font-bold text-[#1A1A2E]">Save this search to your account</p>
+            <p className="mt-1 text-xs font-semibold text-[#6B7280]">
+              Enter your email — we&apos;ll send a secure link. New here? Your account is created automatically, no password.
+            </p>
+            <div className="mt-3">
+              <SupabaseLoginForm supabaseUrl={SUPABASE_URL} publishableKey={SUPABASE_PUBLISHABLE_KEY} nextPath={href} allowSignUp />
+            </div>
+          </div>
+        )}
+      </div>
     );
   }
 
