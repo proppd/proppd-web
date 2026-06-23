@@ -1,18 +1,40 @@
+// Mirrors the real ListingCard layout (image, price, location, facts, footer)
+// so the grid reserves space and avoids pop-in while data loads.
 export function ListingCardSkeleton() {
   return (
-    <article className="overflow-hidden rounded-xl border border-[#E5E7EB] bg-white">
-      <div className="h-52 animate-pulse bg-[#F3F4F6]" />
+    <article
+      className="overflow-hidden rounded-xl border border-[#E5E7EB] bg-white"
+      aria-hidden="true"
+    >
+      <div className="h-56 animate-pulse bg-[#E5E7EB] sm:h-64" />
       <div className="p-4">
-        <div className="h-6 w-32 animate-pulse rounded bg-[#F3F4F6]" />
-        <div className="mt-2 flex gap-4">
+        <div className="h-7 w-28 animate-pulse rounded bg-[#E5E7EB]" />
+        <div className="mt-3 h-4 w-40 animate-pulse rounded bg-[#F3F4F6]" />
+        <div className="mt-4 flex gap-4">
           <div className="h-4 w-16 animate-pulse rounded bg-[#F3F4F6]" />
           <div className="h-4 w-16 animate-pulse rounded bg-[#F3F4F6]" />
           <div className="h-4 w-16 animate-pulse rounded bg-[#F3F4F6]" />
         </div>
-        <div className="mt-3 h-4 w-48 animate-pulse rounded bg-[#F3F4F6]" />
-        <div className="mt-2 h-4 w-36 animate-pulse rounded bg-[#F3F4F6]" />
+        <div className="mt-4 h-4 w-full animate-pulse rounded bg-[#F3F4F6]" />
+        <div className="mt-2 h-4 w-2/3 animate-pulse rounded bg-[#F3F4F6]" />
+        <div className="mt-4 flex items-center justify-between border-t border-[#F3F4F6] pt-3">
+          <div className="h-3 w-24 animate-pulse rounded bg-[#F3F4F6]" />
+          <div className="h-3 w-14 animate-pulse rounded bg-[#F3F4F6]" />
+        </div>
       </div>
     </article>
+  );
+}
+
+// A grid of listing skeletons, announced to assistive tech as a loading state.
+export function ListingGridSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="grid gap-5 md:grid-cols-2" role="status" aria-label="Loading listings">
+      <span className="sr-only">Loading listings…</span>
+      {Array.from({ length: count }).map((_, index) => (
+        <ListingCardSkeleton key={index} />
+      ))}
+    </div>
   );
 }
 

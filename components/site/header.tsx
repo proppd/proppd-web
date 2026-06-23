@@ -67,6 +67,14 @@ export function SiteHeader() {
 
   return (
     <>
+      {/* Keyboard skip link — first focusable element, bypasses the nav */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[#4A3AFF] focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-white focus:shadow-lg"
+      >
+        Skip to content
+      </a>
+
       <header className="sticky top-0 z-50 border-b border-[#E5E7EB] bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3 sm:gap-4 sm:px-6 lg:px-8">
           {/* Mobile hamburger */}
@@ -170,6 +178,11 @@ export function SiteHeader() {
           </div>
         </div>
       </header>
+
+      {/* Skip-link target — start of page content, just past the nav */}
+      <span id="main-content" tabIndex={-1} className="sr-only">
+        Start of main content
+      </span>
 
       {/* Mobile slide-out menu */}
       {mobileOpen && (
