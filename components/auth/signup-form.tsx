@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import { useState } from 'react';
-import { ArrowRight, CheckCircle, Mail, Building2, User, MapPin, BadgeCheck } from 'lucide-react';
+import { ArrowRight, CheckCircle, Mail, Building2, User, MapPin, BadgeCheck, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
 
 type Props = {
   supabaseUrl?: string;
@@ -10,6 +10,11 @@ type Props = {
 };
 
 type Step = 'details' | 'email' | 'sent';
+
+type FFCVerificationState = {
+  status: 'idle' | 'checking' | 'verified' | 'failed';
+  message?: string;
+};
 
 export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
   const [step, setStep] = useState<Step>('details');
@@ -24,11 +29,68 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
     role: 'agent',
   });
   const [error, setError] = useState('');
+  const [ffcVerification, setFFCVerification] = useState<FFCVerificationState>({ status: 'idle' });
 
   const isConfigured = Boolean(supabaseUrl && publishableKey);
 
-  const update = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
+  const update = (field: string, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    if (field === 'fidelityFundCertificateNumber') {
+      setFFCVerification({ status: 'idle' });
+    }
+  };
+
   const isValid = form.firstName.trim() && form.lastName.trim() && form.email.trim() && form.email.includes('@') && form.fidelityFundCertificateNumber.trim();
+
+  const verifyFFC = async () => {
+    const ffc = form.fidelityFundCertificateNumber.trim();
+    if (!ffc) return;
+
+    setFFCVerification({ status: 'checking' });
+
+    try {
+      const response = await fetch('/api/auth/verify-ffc', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          ffcNumber: ffc,
+          submittedName: `${form.firstName} ${form.lastName}`.trim() || undefined,
+          submittedAgency: form.agency || undefined,
+        }),
+      });
+
+      const data = await response.json();
+      const verification = data?.verification;
+
+      if (response.ok && verification?.status === 'verified') {
+        setFFCVerification({
+          status: 'verified',
+          message: `PPRA verified — ${verification.record?.fullName ?? 'certificate active'}`,
+        });
+      } else if (response.ok && verification) {
+        const labels: Record<string, string> = {
+          not_found: 'FFC number not found on the PPRA register.',
+          invalid_certificate: 'This certificate is not currently valid.',
+          name_mismatch: 'The name on the PPRA register does not match yours.',
+          endpoint_error: 'PPRA check is temporarily unavailable — you can still submit.',
+        };
+        setFFCVerification({
+          status: 'failed',
+          message: labels[verification.status] ?? 'Could not verify this FFC number.',
+        });
+      } else {
+        setFFCVerification({
+          status: 'failed',
+          message: data?.error ?? 'Could not verify this FFC number.',
+        });
+      }
+    } catch {
+      setFFCVerification({
+        status: 'failed',
+        message: 'PPRA check is temporarily unavailable — you can still submit.',
+      });
+    }
+  };
 
   const handleSubmit = async () => {
     if (!isValid) return;
@@ -107,7 +169,33 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
           <Field label="Phone" value={form.phone} onChange={(v) => update('phone', v)} placeholder="+27..." type="tel" icon={<Mail size={14} />} />
           <Field label="Agency" value={form.agency} onChange={(v) => update('agency', v)} placeholder="e.g. Seeff, RE/MAX" icon={<Building2 size={14} />} />
           <Field label="Service area" value={form.area} onChange={(v) => update('area', v)} placeholder="e.g. Sandton, Cape Town" icon={<MapPin size={14} />} />
-          <Field label="Fidelity Fund Certificate number" value={form.fidelityFundCertificateNumber} onChange={(v) => update('fidelityFundCertificateNumber', v)} placeholder="e.g. FFC 1234567" icon={<BadgeCheck size={14} />} required />
+          <div>
+            <Field label="Fidelity Fund Certificate number" value={form.fidelityFundCertificateNumber} onChange={(v) => update('fidelityFundCertificateNumber', v)} placeholder="e.g. FFC 1234567" icon={<BadgeCheck size={14} />} required />
+            {form.fidelityFundCertificateNumber.trim() && ffcVerification.status === 'idle' && (
+              <button
+                type="button"
+                onClick={verifyFFC}
+                className="mt-1.5 inline-flex items-center gap-1.5 text-xs font-bold text-[#4A3AFF] hover:text-[#3A2AE0]"
+              >
+                <ShieldCheck size={13} /> Verify with PPRA
+              </button>
+            )}
+            {ffcVerification.status === 'checking' && (
+              <div className="mt-1.5 flex items-center gap-1.5 text-xs font-bold text-[#6B7280]">
+                <Loader2 size={13} className="animate-spin" /> Checking PPRA register…
+              </div>
+            )}
+            {ffcVerification.status === 'verified' && (
+              <div className="mt-1.5 flex items-center gap-1.5 text-xs font-bold text-green-600">
+                <CheckCircle size={13} /> {ffcVerification.message}
+              </div>
+            )}
+            {ffcVerification.status === 'failed' && (
+              <div className="mt-1.5 flex items-center gap-1.5 text-xs font-bold text-amber-600">
+                <AlertCircle size={13} /> {ffcVerification.message}
+              </div>
+            )}
+          </div>
 
           <button
             type="button"
@@ -129,7 +217,14 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
               <span>{form.email}</span>
               {form.agency && <span>{form.agency}</span>}
               {form.area && <span>{form.area}</span>}
-              <span>FFC: {form.fidelityFundCertificateNumber}</span>
+              <span className="flex items-center gap-1">
+                FFC: {form.fidelityFundCertificateNumber}
+                {ffcVerification.status === 'verified' && (
+                  <span className="inline-flex items-center gap-0.5 rounded-full bg-green-50 px-1.5 py-0.5 text-[10px] font-bold text-green-600">
+                    <ShieldCheck size={10} /> PPRA verified
+                  </span>
+                )}
+              </span>
             </div>
           </div>
 
