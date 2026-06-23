@@ -3,8 +3,13 @@
 import { useEffect, useState } from 'react';
 import { ArrowRight, Bell, Loader2, Search, Trash2 } from 'lucide-react';
 import { getBrowserSupabaseClient } from '@/lib/supabase/client';
+import { SupabaseLoginForm } from '@/components/auth/supabase-login-form';
 import { cloudListSearches, cloudRemoveSearch } from '@/lib/search/cloud';
 import { savedSearchHref, type SavedSearch } from '@/lib/search/saved';
+
+// NEXT_PUBLIC_* must be referenced as literal property accesses to be inlined.
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export function SavedSearchList() {
   const [auth, setAuth] = useState<'unknown' | 'in' | 'out'>('unknown');
@@ -64,9 +69,11 @@ export function SavedSearchList() {
           </div>
 
           {auth === 'out' ? (
-            <div className="mt-5 rounded-xl border border-dashed border-[#BFDBFE] bg-[#F7F8FA] p-5 text-center">
-              <p className="text-sm font-semibold text-[#6B7280]">Sign in to save searches and pick up where you left off across devices.</p>
-              <a href="/login?next=%2Fsaved" className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#4A3AFF] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#3A2AE0]">Sign in</a>
+            <div className="mt-5 rounded-xl border border-dashed border-[#BFDBFE] bg-[#F7F8FA] p-5">
+              <p className="text-sm font-semibold text-[#6B7280]">Sign in to save searches and pick up where you left off across devices. New here? Your account is created automatically — no password.</p>
+              <div className="mt-4 max-w-sm">
+                <SupabaseLoginForm supabaseUrl={SUPABASE_URL} publishableKey={SUPABASE_PUBLISHABLE_KEY} nextPath="/saved" allowSignUp />
+              </div>
             </div>
           ) : loading ? (
             <p className="mt-5 flex items-center gap-2 text-sm font-semibold text-[#6B7280]"><Loader2 size={15} className="animate-spin" /> Loading your saved searches…</p>
