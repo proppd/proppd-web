@@ -56,8 +56,8 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
 
       <section className="border-b border-[#E5E7EB] bg-white px-4 py-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <form action="/properties" className="grid gap-3 rounded-lg border border-[#E5E7EB] bg-white p-3 shadow-sm sm:p-4 xl:grid-cols-[1.6fr_1fr_1fr_1fr_auto] xl:items-end">
-            <label className="flex min-h-12 items-center gap-3 rounded-full border border-slate-300 bg-white px-4 text-sm font-bold text-[#9CA3AF] focus-within:border-[#4A3AFF] focus-within:ring-4 focus-within:ring-[#4A3AFF]/10 sm:min-h-14 sm:px-5">
+          <form action="/properties" className="flex flex-wrap items-end gap-3 rounded-lg border border-[#E5E7EB] bg-white p-3 shadow-sm sm:p-4">
+            <label className="flex min-h-12 min-w-[14rem] flex-1 items-center gap-3 rounded-full border border-slate-300 bg-white px-4 text-sm font-bold text-[#9CA3AF] focus-within:border-[#4A3AFF] focus-within:ring-4 focus-within:ring-[#4A3AFF]/10 sm:min-h-14 sm:px-5">
               <SearchAutocomplete
                 name="q"
                 defaultValue={filters.query ?? ''}
@@ -65,36 +65,58 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
               />
             </label>
 
-            <SelectField label="Purpose" name="purpose" defaultValue={filters.purpose}>
+            <SelectField label="Purpose" name="purpose" defaultValue={filters.purpose} compact>
               <option value="all">For sale & rent</option>
               <option value="sale">For sale</option>
               <option value="rent">To rent</option>
             </SelectField>
 
-            <SelectField label="Sort" name="sort" defaultValue={filters.sort}>
+            <SelectField label="Home type" name="propertyType" defaultValue={filters.propertyType ?? ''} compact>
+              <option value="">Any type</option>
+              <option value="House">House</option>
+              <option value="Apartment">Apartment</option>
+              <option value="Townhouse">Townhouse</option>
+              <option value="Duplex">Duplex</option>
+              <option value="Flat">Flat</option>
+              <option value="Cluster">Cluster</option>
+              <option value="Vacant land">Vacant land</option>
+            </SelectField>
+
+            <PriceField label="Min price" name="minPrice" defaultValue={filters.minPrice} />
+            <PriceField label="Max price" name="maxPrice" defaultValue={filters.maxPrice} />
+
+            <SelectField label="Beds" name="bedrooms" defaultValue={filters.bedrooms ? String(filters.bedrooms) : ''} compact>
+              <option value="">Any</option>
+              <option value="1">1+</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+              <option value="4">4+</option>
+              <option value="5">5+</option>
+            </SelectField>
+
+            <SelectField label="Baths" name="bathrooms" defaultValue={filters.bathrooms ? String(filters.bathrooms) : ''} compact>
+              <option value="">Any</option>
+              <option value="1">1+</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+              <option value="4">4+</option>
+            </SelectField>
+
+            <SelectField label="Parking" name="parking" defaultValue={filters.parking ? String(filters.parking) : ''} compact>
+              <option value="">Any</option>
+              <option value="1">1+</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+            </SelectField>
+
+            <SelectField label="Sort" name="sort" defaultValue={filters.sort} compact>
               <option value="featured">Featured</option>
               <option value="newest">Newest</option>
               <option value="price-asc">Price: low to high</option>
               <option value="price-desc">Price: high to low</option>
             </SelectField>
 
-            <SelectField label="Home type" name="propertyType" defaultValue={filters.propertyType ?? ''}>
-              <option value="">Any type</option>
-              <option value="House">House</option>
-              <option value="Apartment">Apartment</option>
-              <option value="Townhouse">Townhouse</option>
-              <option value="Duplex">Duplex</option>
-            </SelectField>
-
-            <div className="flex flex-wrap gap-2 xl:justify-end">
-              <SelectField label="Beds" name="bedrooms" defaultValue={filters.bedrooms ? String(filters.bedrooms) : ''} compact>
-                <option value="">Any beds</option>
-                <option value="1">1+</option>
-                <option value="2">2+</option>
-                <option value="3">3+</option>
-                <option value="4">4+</option>
-                <option value="5">5+</option>
-              </SelectField>
+            <div className="flex gap-2">
               <button className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#4A3AFF] px-5 text-sm font-bold text-white shadow-lg shadow-[#4A3AFF]/20 transition hover:bg-[#2f3fd6]" type="submit">
                 Search
               </button>
@@ -406,6 +428,24 @@ function SelectField({ label, name, defaultValue, children, compact = false }: {
       >
         {children}
       </select>
+    </label>
+  );
+}
+
+function PriceField({ label, name, defaultValue }: { label: string; name: string; defaultValue?: number }) {
+  return (
+    <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
+      {label}
+      <input
+        type="number"
+        inputMode="numeric"
+        min={0}
+        step={50000}
+        name={name}
+        defaultValue={defaultValue ?? ''}
+        placeholder="R any"
+        className="mt-2 w-full rounded-full border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-[#1A1A2E] shadow-sm outline-none transition focus:border-[#4A3AFF] focus:ring-4 focus:ring-[#4A3AFF]/10 sm:w-32"
+      />
     </label>
   );
 }
