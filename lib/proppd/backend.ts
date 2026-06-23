@@ -834,6 +834,30 @@ export async function loadPortalUserAccess(userId: string, userEmail?: string | 
   };
 }
 
+/**
+ * Returns true when the email belongs to a verified, active agent — i.e. an
+ * agent who has passed PPRA/Fidelity Fund validation (modelled as
+ * agents.is_verified). Used to let onboarded agents self-serve their first
+ * passwordless login while keeping everyone else invite-only. Fails closed.
+ */
+export async function isVerifiedAgentEmail(email: string, env: PortalEnv = process.env): Promise<boolean> {
+  const clean = email.trim().toLowerCase();
+  if (!clean.includes('@')) return false;
+
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return false;
+
+  const pool = getPortalPool(databaseUrl);
+  const result = await pool.query<{ eligible: boolean }>(
+    `select exists(
+       select 1 from public.agents
+       where lower(email) = $1 and is_verified and is_active
+     ) as eligible`,
+    [clean],
+  );
+  return result.rows[0]?.eligible ?? false;
+}
+
 export async function loadManagedListingDrafts(access: PortalUserAccess, env: PortalEnv = process.env): Promise<PortalPayload<PortalListingDraft>> {
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {

@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse, type NextRequest } from 'next/server';
 import { buildAuthCallbackUrl } from '@/lib/auth/redirects';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
+import { isVerifiedAgentEmail } from '@/lib/proppd/backend';
 import { rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 
@@ -34,11 +35,17 @@ export async function POST(request: NextRequest) {
 
   const nextPath = safeNextPath(body?.nextPath);
   const origin = new URL(request.url).origin;
+
+  // Invite-only by default, but let agents who have passed PPRA / Fidelity Fund
+  // validation onboard instantly: if their email already matches a verified,
+  // active agent, allow the account to be created on first magic-link sign-in.
+  const shouldCreateUser = body?.allowSignUp === true || (await isVerifiedAgentEmail(email).catch(() => false));
+
   const supabase = createClient(config.url, config.publishableKey, { auth: { persistSession: false } });
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      shouldCreateUser: body?.allowSignUp === true,
+      shouldCreateUser,
       emailRedirectTo: buildAuthCallbackUrl(origin, nextPath),
       data: profileData(body?.profile),
     },
