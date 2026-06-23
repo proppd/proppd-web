@@ -1553,6 +1553,7 @@ async function queryDirectoryAgents(databaseUrl: string): Promise<DirectoryAgent
     select
       a.name,
       a.slug,
+      a.is_verified,
       coalesce(array_to_string(a.areas_served, ', '), coalesce(ag.city, 'South Africa')) as area,
       ag.name as agency_name,
       count(l.id)::int as listings
@@ -1560,13 +1561,14 @@ async function queryDirectoryAgents(databaseUrl: string): Promise<DirectoryAgent
     left join public.agencies ag on ag.id = a.agency_id
     left join public.listings l on l.agent_id = a.id and l.status in ('available', 'under_offer', 'sold', 'rented')
     where a.is_active = true
-    group by a.name, a.slug, ag.name, ag.city
+    group by a.name, a.slug, a.is_verified, ag.name, ag.city
     order by a.name asc
   `;
 
   const result = await pool.query<{
     name: string;
     slug: string;
+    is_verified: boolean;
     area: string | null;
     agency_name: string | null;
     listings: number | string;
@@ -1577,6 +1579,7 @@ async function queryDirectoryAgents(databaseUrl: string): Promise<DirectoryAgent
     agency: row.agency_name ?? 'Independent agent',
     area: row.area ?? 'South Africa',
     listings: Number(row.listings ?? 0),
+    isVerified: row.is_verified === true,
   }));
 }
 

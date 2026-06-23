@@ -4,7 +4,7 @@ export const sakstonsAgents = [
   { name: 'Graham Donald', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 6 },
   { name: 'Liz Marx', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 12 },
   { name: 'Mark Chait', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 20 },
-].map((agent) => ({ ...agent, isActive: true }));
+].map((agent) => ({ ...agent, isActive: true, isVerified: true }));
 
 export const sakstonsAgencies = [
   { name: 'Sakstons', city: 'Sandton', agents: 3, listings: 38 },
