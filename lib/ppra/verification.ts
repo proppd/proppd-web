@@ -245,6 +245,14 @@ function buildFullName(cardFName?: string, cardName?: string): string | undefine
   return parts.length > 0 ? parts.join(' ') : undefined;
 }
 
+function coerceString(value: unknown): string | undefined {
+  if (value == null) return undefined;
+  if (typeof value === 'string') return value.trim() || undefined;
+  // PPRA sometimes returns empty arrays [] for missing string fields
+  if (Array.isArray(value)) return value.length > 0 ? String(value[0]).trim() || undefined : undefined;
+  return String(value).trim() || undefined;
+}
+
 /**
  * Parse the check_agent_status response into a structured record.
  */
@@ -266,13 +274,13 @@ export function parseStatusResponse(
     cardcode,
     ffcNumber: normaliseFFC(ffcNumber),
     isValid: String(data.ISVALID ?? '') === '1' || String(data.ISVALID ?? '').toLowerCase() === 'true',
-    cardFirstName: data.CardFName?.trim() || undefined,
-    cardLastName: data.CardName?.trim() || undefined,
-    fullName: buildFullName(data.CardFName, data.CardName),
-    roleName: data.RoleName?.trim() || undefined,
-    firmName: data.FirmName?.trim() || undefined,
-    tradeName: data.TradeName?.trim() || undefined,
-    category: data.Category?.trim() || undefined,
+    cardFirstName: coerceString(data.CardFName),
+    cardLastName: coerceString(data.CardName),
+    fullName: buildFullName(coerceString(data.CardFName), coerceString(data.CardName)),
+    roleName: coerceString(data.RoleName),
+    firmName: coerceString(data.FirmName),
+    tradeName: coerceString(data.TradeName),
+    category: coerceString(data.Category),
   };
 }
 
