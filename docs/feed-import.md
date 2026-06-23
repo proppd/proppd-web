@@ -53,6 +53,42 @@ normalises values:
 Default aliases live in `DEFAULT_FIELD_ALIASES`; extend them there as new feed
 shapes appear.
 
+## Scheduled remote pulls
+
+Instead of POSTing feed content each time, register an agency's feed **URL**
+once and a cron re-syncs it on a cadence.
+
+### Manage feeds — `/api/admin/feeds` (admins only)
+
+- `GET /api/admin/feeds` — list feed sources (scoped to your agency; super
+  admins see all).
+- `POST /api/admin/feeds` — create one. Body: `name`, `url`, optional `format`,
+  `recordTag`, `defaultStatus`, `frequencyMinutes` (15 min–30 days, default
+  1440), `isActive`, and `agencyId` (required for super admins).
+- `PATCH /api/admin/feeds/{id}` / `DELETE /api/admin/feeds/{id}` — update or
+  remove.
+
+Feed URLs must be public `http(s)` — localhost and private IP ranges are
+rejected (SSRF guard in `lib/import/fetch.ts`).
+
+### The cron — `/api/admin/feeds/sync`
+
+Runs on the Vercel cron in `vercel.json` (`30 * * * *`) and is guarded by the
+`CRON_SECRET` Authorization header (same scheme as saved-search alerts). Each
+run:
+
+1. loads active feed sources and selects those **due** by their
+   `frequencyMinutes` (`isFeedSourceDue` in `lib/import/schedule.ts`);
+2. fetches each due URL (timeout + 5MB cap), runs the import pipeline, and
+   upserts valid rows via `importPortalListings`;
+3. records `last_run_at` / `last_status` / `last_summary` on the feed source.
+
+Pass `?force=1` to ignore intervals and pull every active feed immediately.
+
+The cron runs hourly but each feed only pulls when its own interval has elapsed,
+so daily feeds stay daily. Requires `CRON_SECRET`, `DATABASE_URL`, and (for the
+feed table) migration `010_feed_sources.sql`.
+
 ## Modules
 
 - `lib/import/csv.ts` — RFC 4180 CSV reader.
@@ -60,5 +96,7 @@ shapes appear.
 - `lib/import/feed.ts` — format detection + unified record parsing.
 - `lib/import/mapping.ts` — field aliases + value normalisation.
 - `lib/import/pipeline.ts` — parse → map → validate, with a dry-run preview.
+- `lib/import/schedule.ts` — pure "is this feed due?" logic for the cron.
+- `lib/import/fetch.ts` — safe remote feed fetch (SSRF guard, timeout, size cap).
 
 The parse/map/validate pipeline is pure and covered by `tests/feed-import.test.ts`.

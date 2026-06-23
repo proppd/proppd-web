@@ -3,6 +3,10 @@
     {
       "path": "/api/saved-searches/run-alerts",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/admin/feeds/sync",
+      "schedule": "30 * * * *"
     }
   ]
 }

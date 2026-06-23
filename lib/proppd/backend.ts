@@ -7,7 +7,7 @@ import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
 import { logServerError } from '@/lib/security/logging';
 import type { DirectoryAgency, DirectoryAgent } from '../directory';
 import { slugifyAgentName } from '../agents/profile';
-import { portalPropertyTypeOptions, slugifyListingTitle } from './listing-editor';
+import { portalPropertyTypeOptions, slugifyListingTitle, type PortalListingStatus } from './listing-editor';
 
 export type PortalBackendMode = 'database' | 'demo';
 export type PortalDataSource = 'database' | 'demo' | 'empty' | 'error';
@@ -1208,7 +1208,7 @@ async function upsertImportedListing(
       agencyId, agentId, propertyTypeId, listing.title, slug, listing.purpose, listing.status, listing.price, listing.description,
       listing.suburb, listing.city, listing.province, listing.bedrooms ?? null, listing.bathrooms ?? null, listing.parking ?? null,
       listing.floorSizeSqm ?? null, listing.erfSizeSqm ?? null, listing.ratesAndTaxes ?? null, listing.levies ?? null,
-      Boolean(listing.isFeatured), profileId, source, item.externalRef,
+      Boolean(listing.isFeatured), profileId || null, source, item.externalRef,
     ],
   );
 
@@ -2032,4 +2032,249 @@ function isPoolerDatabaseHost(host: string | null): boolean {
 function normaliseEnvValue(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
   return trimmed && trimmed.length > 0 ? trimmed : undefined;
+}
+
+// --- Scheduled feed sources --------------------------------------------------
+
+export type FeedSourceFormat = 'csv' | 'xml' | 'json';
+
+export type FeedSourceRecord = {
+  id: string;
+  agencyId: string;
+  agencyName: string | null;
+  name: string;
+  url: string;
+  format: FeedSourceFormat | null;
+  recordTag: string | null;
+  defaultStatus: PortalListingStatus;
+  frequencyMinutes: number;
+  isActive: boolean;
+  lastRunAt: string | null;
+  lastStatus: string | null;
+  lastMessage: string | null;
+  lastSummary: unknown;
+  createdAt: string;
+};
+
+export type FeedSourceWriteInput = {
+  agencyId: string;
+  name: string;
+  url: string;
+  format?: FeedSourceFormat | null;
+  recordTag?: string | null;
+  defaultStatus?: PortalListingStatus;
+  frequencyMinutes?: number;
+  isActive?: boolean;
+};
+
+type FeedSourceRow = {
+  id: string;
+  agency_id: string;
+  agency_name: string | null;
+  name: string;
+  url: string;
+  format: string | null;
+  record_tag: string | null;
+  default_status: string;
+  frequency_minutes: number | string;
+  is_active: boolean;
+  last_run_at: string | null;
+  last_status: string | null;
+  last_message: string | null;
+  last_summary: unknown;
+  created_at: string;
+};
+
+const FEED_SOURCE_SELECT = `select
+  fs.id, fs.agency_id, fs.name, fs.url, fs.format, fs.record_tag, fs.default_status,
+  fs.frequency_minutes, fs.is_active, fs.last_run_at, fs.last_status, fs.last_message,
+  fs.last_summary, fs.created_at,
+  (select name from public.agencies where id = fs.agency_id) as agency_name
+from public.feed_sources fs`;
+
+function mapFeedSourceRow(row: FeedSourceRow): FeedSourceRecord {
+  return {
+    id: row.id,
+    agencyId: row.agency_id,
+    agencyName: row.agency_name,
+    name: row.name,
+    url: row.url,
+    format: (row.format as FeedSourceFormat | null) ?? null,
+    recordTag: row.record_tag,
+    defaultStatus: row.default_status as PortalListingStatus,
+    frequencyMinutes: Number(row.frequency_minutes),
+    isActive: row.is_active,
+    lastRunAt: row.last_run_at,
+    lastStatus: row.last_status,
+    lastMessage: row.last_message,
+    lastSummary: row.last_summary,
+    createdAt: row.created_at,
+  };
+}
+
+function feedSourceAgencyScope(access: PortalUserAccess): string | null {
+  // Agency admins are scoped to their own agency; super admins see all.
+  return access.role === 'super_admin' ? null : access.agencyId;
+}
+
+export async function loadFeedSources(access: PortalUserAccess, env: PortalEnv = process.env): Promise<PortalPayload<FeedSourceRecord>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  if (access.role !== 'super_admin' && access.role !== 'agency_admin') {
+    return { source: 'error', items: [], error: 'Only admins can manage feed sources.' };
+  }
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const scope = feedSourceAgencyScope(access);
+    const result = scope
+      ? await pool.query<FeedSourceRow>(`${FEED_SOURCE_SELECT} where fs.agency_id = $1 order by fs.created_at desc`, [scope])
+      : await pool.query<FeedSourceRow>(`${FEED_SOURCE_SELECT} order by fs.created_at desc`);
+    return { source: 'database', items: result.rows.map(mapFeedSourceRow) };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function createFeedSource(access: PortalUserAccess, input: FeedSourceWriteInput, env: PortalEnv = process.env): Promise<PortalPayload<FeedSourceRecord>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  if (access.role !== 'super_admin' && access.role !== 'agency_admin') {
+    return { source: 'error', items: [], error: 'Only admins can manage feed sources.' };
+  }
+
+  const agencyId = access.role === 'super_admin' ? input.agencyId : access.agencyId;
+  if (!agencyId) return { source: 'error', items: [], error: 'A target agency is required.' };
+  if (access.role === 'agency_admin' && input.agencyId && input.agencyId !== access.agencyId) {
+    return { source: 'error', items: [], error: 'You can only add feeds for your own agency.' };
+  }
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const result = await pool.query<{ id: string }>(
+      `insert into public.feed_sources (agency_id, name, url, format, record_tag, default_status, frequency_minutes, is_active, created_by)
+       values ($1, $2, $3, $4, $5, $6::public.listing_status, $7, $8, $9) returning id`,
+      [
+        agencyId,
+        input.name,
+        input.url,
+        input.format ?? null,
+        input.recordTag ?? null,
+        input.defaultStatus ?? 'pending_review',
+        input.frequencyMinutes ?? 1440,
+        input.isActive ?? true,
+        access.profileId || null,
+      ],
+    );
+    const id = result.rows[0]?.id;
+    if (!id) return { source: 'error', items: [], error: 'Feed source could not be created.' };
+    const created = await pool.query<FeedSourceRow>(`${FEED_SOURCE_SELECT} where fs.id = $1`, [id]);
+    return { source: 'database', items: created.rows.map(mapFeedSourceRow) };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function updateFeedSource(
+  id: string,
+  access: PortalUserAccess,
+  patch: Partial<Omit<FeedSourceWriteInput, 'agencyId'>>,
+  env: PortalEnv = process.env,
+): Promise<PortalPayload<FeedSourceRecord>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  if (access.role !== 'super_admin' && access.role !== 'agency_admin') {
+    return { source: 'error', items: [], error: 'Only admins can manage feed sources.' };
+  }
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const scope = feedSourceAgencyScope(access);
+    const result = await pool.query<FeedSourceRow>(
+      `update public.feed_sources set
+        name = coalesce($2, name),
+        url = coalesce($3, url),
+        format = coalesce($4, format),
+        record_tag = coalesce($5, record_tag),
+        default_status = coalesce($6, default_status)::public.listing_status,
+        frequency_minutes = coalesce($7, frequency_minutes),
+        is_active = coalesce($8, is_active),
+        updated_at = now()
+      where id = $1 ${scope ? 'and agency_id = $9' : ''}
+      returning id`,
+      scope
+        ? [id, patch.name ?? null, patch.url ?? null, patch.format ?? null, patch.recordTag ?? null, patch.defaultStatus ?? null, patch.frequencyMinutes ?? null, patch.isActive ?? null, scope]
+        : [id, patch.name ?? null, patch.url ?? null, patch.format ?? null, patch.recordTag ?? null, patch.defaultStatus ?? null, patch.frequencyMinutes ?? null, patch.isActive ?? null],
+    );
+    if (result.rowCount === 0) return { source: 'error', items: [], error: 'Feed source not found.' };
+    const updated = await pool.query<FeedSourceRow>(`${FEED_SOURCE_SELECT} where fs.id = $1`, [id]);
+    return { source: 'database', items: updated.rows.map(mapFeedSourceRow) };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function deleteFeedSource(id: string, access: PortalUserAccess, env: PortalEnv = process.env): Promise<PortalPayload<{ id: string }>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  if (access.role !== 'super_admin' && access.role !== 'agency_admin') {
+    return { source: 'error', items: [], error: 'Only admins can manage feed sources.' };
+  }
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const scope = feedSourceAgencyScope(access);
+    const result = scope
+      ? await pool.query('delete from public.feed_sources where id = $1 and agency_id = $2', [id, scope])
+      : await pool.query('delete from public.feed_sources where id = $1', [id]);
+    if (result.rowCount === 0) return { source: 'error', items: [], error: 'Feed source not found.' };
+    return { source: 'database', items: [{ id }] };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+/** Load active feed sources for the scheduled runner (system context). */
+export async function loadActiveFeedSources(env: PortalEnv = process.env): Promise<PortalPayload<FeedSourceRecord>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const result = await pool.query<FeedSourceRow>(`${FEED_SOURCE_SELECT} where fs.is_active = true order by fs.last_run_at asc nulls first`);
+    return { source: 'database', items: result.rows.map(mapFeedSourceRow) };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+/** Record the outcome of a scheduled feed run. */
+export async function recordFeedRun(
+  id: string,
+  outcome: { status: 'ok' | 'error'; message: string; summary: unknown },
+  env: PortalEnv = process.env,
+): Promise<void> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return;
+  try {
+    const pool = getPortalPool(databaseUrl);
+    await pool.query(
+      `update public.feed_sources set last_run_at = now(), last_status = $2, last_message = $3, last_summary = $4::jsonb, updated_at = now() where id = $1`,
+      [id, outcome.status, outcome.message.slice(0, 500), JSON.stringify(outcome.summary ?? null)],
+    );
+  } catch (error) {
+    logServerError('recordFeedRun', error);
+  }
+}
+
+/** Synthetic super-admin access for system/cron-driven imports (no profile FK). */
+export function systemFeedAccess(): PortalUserAccess {
+  return {
+    userId: 'system-feed-cron',
+    profileId: '',
+    role: 'super_admin',
+    agentId: null,
+    agentName: null,
+    agencyId: null,
+    agencyName: null,
+  };
 }

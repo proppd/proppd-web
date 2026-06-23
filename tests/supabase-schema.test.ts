@@ -66,6 +66,13 @@ describe('Supabase portal foundation', () => {
     expect(importSql).toContain('create unique index if not exists listings_agency_external_ref_idx');
   });
 
+  it('registers remote feed sources for scheduled pulls', () => {
+    const feedSql = readFileSync(join(repoRoot, 'supabase/migrations/010_feed_sources.sql'), 'utf8');
+    expect(feedSql).toContain('create table if not exists public.feed_sources');
+    expect(feedSql).toContain('frequency_minutes integer not null default 1440');
+    expect(feedSql).toContain('alter table public.feed_sources enable row level security');
+  });
+
   it('keeps Sakstons seed as live onboarding data', () => {
     expect(sakstonsSeedSql).toContain("'Sakstons', 'sakstons'");
     expect(sakstonsSeedSql).toContain('Live agency import from sakstons.com stock');
