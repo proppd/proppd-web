@@ -17,7 +17,7 @@ describe('directory helpers', () => {
     const agency = findAgencyBySlug(agencies, 'sakstons');
 
     expect(agency).toBeDefined();
-    expect(getAgencyAgents(agents, agency!.name).map((agent) => agent.name)).toEqual(['Graham Donald', 'Liz Marx', 'Mark Chait']);
+    expect(getAgencyAgents(agents, agency!.name).map((agent) => agent.name)).toEqual(['Graham Donald', 'Hamez Saks', 'Liz Marx', 'Mark Chait']);
     expect(getAgencyListings(listings, agency!.name).length).toBe(38);
   });
 
@@ -26,8 +26,8 @@ describe('directory helpers', () => {
     const team = getAgencyAgents(agents, 'Sakstons');
     const stock = getAgencyListings(listings, 'Sakstons');
 
-    expect(agency).toMatchObject({ name: 'Sakstons', city: 'Sandton', agents: 3, listings: 38, isActive: true });
-    expect(team.map((agent) => agent.name)).toEqual(['Graham Donald', 'Liz Marx', 'Mark Chait']);
+    expect(agency).toMatchObject({ name: 'Sakstons', city: 'Sandton', agents: 4, listings: 38, isActive: true });
+    expect(team.map((agent) => agent.name)).toEqual(['Graham Donald', 'Hamez Saks', 'Liz Marx', 'Mark Chait']);
     expect(stock.length).toBeGreaterThan(0);
   });
 
@@ -48,7 +48,7 @@ describe('directory helpers', () => {
 
   it('filters agent directory results by agent, agency, and area', () => {
     expect(filterAgents(agents, 'liz').map((agent) => agent.name)).toEqual(['Liz Marx']);
-    expect(filterAgents(agents, 'sakstons').map((agent) => agent.name)).toEqual(['Graham Donald', 'Liz Marx', 'Mark Chait']);
+    expect(filterAgents(agents, 'sakstons').map((agent) => agent.name)).toEqual(['Graham Donald', 'Hamez Saks', 'Liz Marx', 'Mark Chait']);
     expect(filterAgents(agents, 'missing')).toEqual([]);
   });
 

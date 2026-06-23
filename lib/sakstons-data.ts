@@ -8,7 +8,7 @@ export const sakstonsAgents = [
 ].map((agent) => ({ ...agent, isActive: true, isVerified: true }));
 
 export const sakstonsAgencies = [
-  { name: 'Sakstons', city: 'Sandton', agents: 3, listings: 38 },
+  { name: 'Sakstons', city: 'Sandton', agents: 4, listings: 38 },
 ].map((agency) => ({ ...agency, isActive: true }));
 
 const sakstonsListingSeed = [
