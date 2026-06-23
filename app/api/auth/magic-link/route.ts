@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { buildAuthCallbackUrl } from '@/lib/auth/redirects';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
@@ -41,7 +41,24 @@ export async function POST(request: NextRequest) {
   // active agent, allow the account to be created on first magic-link sign-in.
   const shouldCreateUser = body?.allowSignUp === true || (await isVerifiedAgentEmail(email).catch(() => false));
 
-  const supabase = createClient(config.url, config.publishableKey, { auth: { persistSession: false } });
+  // Use the PKCE flow (via @supabase/ssr) so the magic link returns a `?code=`
+  // that /auth/callback can exchange — not implicit hash tokens, which the
+  // server callback cannot read. The PKCE code-verifier is written as a cookie
+  // on this response so it is present when the user later opens the link.
+  const response = NextResponse.json({ ok: true });
+  const supabase = createServerClient(config.url, config.publishableKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet) {
+        for (const { name, value, options } of cookiesToSet) {
+          response.cookies.set(name, value, options);
+        }
+      },
+    },
+  });
+
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
@@ -55,7 +72,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Could not send the login link. If you are new to Proppd, email info@proppd.com so we can approve your access.' }, { status: 400 });
   }
 
-  return NextResponse.json({ ok: true });
+  return response;
 }
 
 function isEmail(value: string): boolean {
