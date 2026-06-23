@@ -9,6 +9,7 @@ import { MortgageCalculator } from '@/components/finance/mortgage-calculator';
 import { PreApprovalForm } from '@/components/finance/pre-approval-form';
 import { NeighborhoodContext } from '@/components/property/neighborhood-context';
 import { PhotoLightbox } from '@/components/property/photo-lightbox';
+import { MobileEnquiryBar } from '@/components/property/mobile-enquiry-bar';
 import { PriceHistory } from '@/components/property/price-history';
 import { PropertyTracking } from '@/components/property/property-tracking';
 import { ListingCard } from '@/components/properties/listing-card';
@@ -83,7 +84,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
     : 'Your enquiry can open in email so the agent still receives a clear handoff.';
 
   return (
-    <main className="proppd-page">
+    <main className="proppd-page pb-20 lg:pb-0">
       {/* Structured data for SEO */}
       <script
         type="application/ld+json"
@@ -193,11 +194,13 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
             </div>
             <div className="hidden gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-1">
               {listing.photos.slice(1, 3).map((photo, index) => (
-                <div key={photo.src} className={`relative min-h-48 overflow-hidden rounded-lg bg-gradient-to-br ${listing.gradient} p-5 text-white`}>
+                <div key={photo.src} className={`group relative min-h-48 overflow-hidden rounded-lg bg-gradient-to-br ${listing.gradient} p-5 text-white`}>
                   {photo.src && (
-                    <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 1024px) 50vw, 25vw" className="object-cover" />
+                    <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 1024px) 50vw, 25vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
                   )}
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,48,.18)_0%,rgba(5,10,48,.62)_100%)]" />
+                  {/* Open the gallery at this photo */}
+                  <PhotoLightbox photos={listing.photos} startIndex={index + 1} />
                   <div className="relative flex h-full flex-col justify-between">
                     <span className="w-fit rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#1A1A2E]">Photo {index + 2} / {listing.photos.length}</span>
                     <p className="text-xl font-bold tracking-[-.03em]">{listing.highlights[index]}</p>
@@ -320,20 +323,22 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
               <div className="mb-4">
                 <PreApprovalForm listingPrice={listing.priceValue} listingTitle={listing.title} />
               </div>
-              <EnquiryForm
-                agentProfileHref={agentProfileHref}
-                listing={{
-                  id: listing.id,
-                  slug: listing.slug,
-                  title: listing.title,
-                  price: listing.price,
-                  agent: listing.agent,
-                  agency: listing.agency,
-                }}
-                shareText={shareText}
-                routingLabel={leadRoutingLabel}
-                routingDetail={leadRoutingDetail}
-              />
+              <div id="enquiry" className="scroll-mt-24">
+                <EnquiryForm
+                  agentProfileHref={agentProfileHref}
+                  listing={{
+                    id: listing.id,
+                    slug: listing.slug,
+                    title: listing.title,
+                    price: listing.price,
+                    agent: listing.agent,
+                    agency: listing.agency,
+                  }}
+                  shareText={shareText}
+                  routingLabel={leadRoutingLabel}
+                  routingDetail={leadRoutingDetail}
+                />
+              </div>
             </aside>
           </div>
 
@@ -359,6 +364,8 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
       </section>
 
       <SiteFooter />
+
+      <MobileEnquiryBar price={listing.price} agent={listing.agent} />
     </main>
   );
 }

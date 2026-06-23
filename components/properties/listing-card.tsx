@@ -35,8 +35,11 @@ export function ListingCard({ listing }: { listing: Listing }) {
           
           {/* Photo count */}
           {listing.photos.length > 1 && (
-            <span className="absolute bottom-3 right-3 rounded-lg bg-black/70 px-2.5 py-1.5 text-xs font-bold text-white backdrop-blur-sm">
-              📷 {listing.photos.length}
+            <span
+              className="absolute bottom-3 right-3 rounded-lg bg-black/70 px-2.5 py-1.5 text-xs font-bold text-white backdrop-blur-sm"
+              aria-label={`${listing.photos.length} photos`}
+            >
+              <span aria-hidden="true">📷 {listing.photos.length}</span>
             </span>
           )}
 
