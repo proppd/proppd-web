@@ -3,6 +3,7 @@ import { FeaturedListings } from '@/components/home/featured-listings';
 import { HomeValueSection } from '@/components/home/home-value-section';
 import { HeroSearch } from '@/components/home/hero-search';
 import { PopularAreas } from '@/components/home/popular-areas';
+import { PpraTrustSection } from '@/components/home/ppra-trust-section';
 import { RecentlyViewed } from '@/components/properties/recently-viewed';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
@@ -34,6 +35,7 @@ export default function Home() {
       <PopularAreas />
       <HomeValueSection />
       <FeaturedAgents />
+      <PpraTrustSection />
       <RecentlyViewed />
       <SiteFooter />
     </main>
