@@ -1066,6 +1066,160 @@ export async function createPortalListing(access: PortalUserAccess, input: Porta
   }
 }
 
+export type ImportListingItem = {
+  externalRef: string | null;
+  listing: PortalListingWriteInput;
+};
+
+export type ImportListingsInput = {
+  /** Origin label stored on each listing, e.g. the agency feed name. */
+  source: string;
+  /** Required when a super admin imports on behalf of an agency. */
+  targetAgencyId?: string | null;
+  targetAgentId?: string | null;
+  items: ImportListingItem[];
+};
+
+export type ImportListingsResult = {
+  source: PortalDataSource;
+  created: number;
+  updated: number;
+  failed: number;
+  errors: { ref: string; message: string }[];
+  error?: string;
+};
+
+/**
+ * Bulk import listings from an agency feed. Listings carrying an external
+ * reference are upserted by (agency_id, external_ref) so re-running a feed
+ * updates rows instead of duplicating them. Listings without a reference are
+ * always inserted.
+ */
+export async function importPortalListings(
+  access: PortalUserAccess,
+  input: ImportListingsInput,
+  env: PortalEnv = process.env,
+): Promise<ImportListingsResult> {
+  const empty: ImportListingsResult = { source: 'error', created: 0, updated: 0, failed: 0, errors: [] };
+
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return { ...empty, error: 'Database connection is not configured.' };
+  }
+
+  if (access.role !== 'super_admin' && access.role !== 'agency_admin') {
+    return { ...empty, error: 'Only admins can import listings.' };
+  }
+
+  const agencyId = access.role === 'super_admin' ? (input.targetAgencyId ?? null) : access.agencyId;
+  if (!agencyId) {
+    return { ...empty, error: 'A target agency is required to import listings.' };
+  }
+  if (access.role === 'agency_admin' && input.targetAgencyId && input.targetAgencyId !== access.agencyId) {
+    return { ...empty, error: 'You can only import listings into your own agency.' };
+  }
+
+  const agentId = access.role === 'super_admin' ? (input.targetAgentId ?? null) : (input.targetAgentId ?? access.agentId);
+  const source = input.source.trim() || 'feed-import';
+
+  let created = 0;
+  let updated = 0;
+  const errors: { ref: string; message: string }[] = [];
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    for (const item of input.items) {
+      const ref = item.externalRef ?? item.listing.title;
+      try {
+        const outcome = await upsertImportedListing(pool, agencyId, agentId, access.profileId, source, item, env);
+        if (outcome === 'updated') updated += 1;
+        else created += 1;
+      } catch (error) {
+        errors.push({ ref, message: errorMessage(error) });
+      }
+    }
+  } catch (error) {
+    return { ...empty, error: errorMessage(error) };
+  }
+
+  return {
+    source: 'database',
+    created,
+    updated,
+    failed: errors.length,
+    errors,
+  };
+}
+
+async function upsertImportedListing(
+  pool: Pool,
+  agencyId: string,
+  agentId: string | null,
+  profileId: string,
+  source: string,
+  item: ImportListingItem,
+  _env: PortalEnv,
+): Promise<'created' | 'updated'> {
+  const propertyTypeId = await ensurePropertyTypeId(pool, item.listing.propertyTypeSlug);
+  const listing = item.listing;
+
+  if (item.externalRef) {
+    const updateResult = await pool.query<{ id: string }>(
+      `update public.listings set
+        property_type_id = $1, agent_id = coalesce($2, agent_id), title = $3,
+        purpose = $4::public.listing_purpose, status = $5::public.listing_status, price = $6,
+        description = $7, suburb = $8, city = $9, province = $10,
+        bedrooms = $11, bathrooms = $12, parking = $13, floor_size_sqm = $14, erf_size_sqm = $15,
+        rates_and_taxes = $16, levies = $17, is_featured = $18, source = $19, imported_at = now(),
+        updated_at = now(),
+        published_at = case when $5::public.listing_status = 'available' and published_at is null then now() else published_at end
+      where agency_id = $20 and external_ref = $21
+      returning id`,
+      [
+        propertyTypeId, agentId, listing.title, listing.purpose, listing.status, listing.price,
+        listing.description, listing.suburb, listing.city, listing.province,
+        listing.bedrooms ?? null, listing.bathrooms ?? null, listing.parking ?? null,
+        listing.floorSizeSqm ?? null, listing.erfSizeSqm ?? null, listing.ratesAndTaxes ?? null, listing.levies ?? null,
+        Boolean(listing.isFeatured), source, agencyId, item.externalRef,
+      ],
+    );
+
+    const existing = updateResult.rows[0];
+    if (existing) {
+      if (listing.photos && listing.photos.length > 0) {
+        await replaceListingImages(pool, existing.id, listing.photos);
+      }
+      return 'updated';
+    }
+  }
+
+  const slug = await generateUniqueListingSlug(pool, listing.title);
+  const insertResult = await pool.query<{ id: string }>(
+    `insert into public.listings (
+      agency_id, agent_id, property_type_id, title, slug, purpose, status, price, description,
+      suburb, city, province, bedrooms, bathrooms, parking, floor_size_sqm, erf_size_sqm, rates_and_taxes, levies,
+      is_featured, created_by, source, external_ref, imported_at, published_at
+    ) values (
+      $1, $2, $3, $4, $5, $6::public.listing_purpose, $7::public.listing_status, $8, $9,
+      $10, $11, $12, $13, $14, $15, $16, $17, $18, $19,
+      $20, $21, $22, $23, now(), case when $7::public.listing_status = 'available' then now() else null end
+    ) returning id`,
+    [
+      agencyId, agentId, propertyTypeId, listing.title, slug, listing.purpose, listing.status, listing.price, listing.description,
+      listing.suburb, listing.city, listing.province, listing.bedrooms ?? null, listing.bathrooms ?? null, listing.parking ?? null,
+      listing.floorSizeSqm ?? null, listing.erfSizeSqm ?? null, listing.ratesAndTaxes ?? null, listing.levies ?? null,
+      Boolean(listing.isFeatured), profileId, source, item.externalRef,
+    ],
+  );
+
+  const inserted = insertResult.rows[0];
+  if (inserted && listing.photos && listing.photos.length > 0) {
+    await replaceListingImages(pool, inserted.id, listing.photos);
+  }
+
+  return 'created';
+}
+
 export async function updatePortalListingBySlug(
   slug: string,
   access: PortalUserAccess,

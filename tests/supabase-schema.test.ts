@@ -59,6 +59,13 @@ describe('Supabase portal foundation', () => {
     expect(seedSql).toContain('Proppd Verified Realty');
   });
 
+  it('supports idempotent feed imports via source/external_ref tracking', () => {
+    const importSql = readFileSync(join(repoRoot, 'supabase/migrations/009_listing_import_sources.sql'), 'utf8');
+    expect(importSql).toContain('add column if not exists external_ref text');
+    expect(importSql).toContain('add column if not exists source text');
+    expect(importSql).toContain('create unique index if not exists listings_agency_external_ref_idx');
+  });
+
   it('keeps Sakstons seed as live onboarding data', () => {
     expect(sakstonsSeedSql).toContain("'Sakstons', 'sakstons'");
     expect(sakstonsSeedSql).toContain('Live agency import from sakstons.com stock');
