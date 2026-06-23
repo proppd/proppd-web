@@ -47,9 +47,9 @@ export default async function ForSalePage({ searchParams }: { searchParams: Sear
       <SiteHeader />
       <section className="border-b border-[#E5E7EB] bg-white px-4 py-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <form action="/properties/for-sale" className="flex flex-wrap items-end gap-3 rounded-lg border border-[#E5E7EB] bg-white p-4 shadow-sm">
-            <label className="flex min-h-14 min-w-[14rem] flex-1 items-center gap-3 rounded-full border border-slate-300 bg-white px-5 text-sm font-bold text-[#9CA3AF] focus-within:border-[#4A3AFF] focus-within:ring-4 focus-within:ring-[#4A3AFF]/10">
-              <Search size={21} className="text-[#4A3AFF]" />
+          <form action="/properties/for-sale" className="rounded-xl border border-[#E5E7EB] bg-white p-3 shadow-sm sm:p-4">
+            <label className="flex min-h-12 items-center gap-3 rounded-full border border-slate-300 bg-white px-4 text-sm font-bold text-[#9CA3AF] focus-within:border-[#4A3AFF] focus-within:ring-4 focus-within:ring-[#4A3AFF]/10 sm:min-h-14 sm:px-5">
+              <Search size={21} className="shrink-0 text-[#4A3AFF]" />
               <input
                 name="q"
                 type="search"
@@ -60,58 +60,60 @@ export default async function ForSalePage({ searchParams }: { searchParams: Sear
               />
             </label>
 
-            <SelectField label="Home type" name="propertyType" defaultValue={filters.propertyType ?? ''} compact>
-              <option value="">Any type</option>
-              <option value="House">House</option>
-              <option value="Apartment">Apartment</option>
-              <option value="Townhouse">Townhouse</option>
-              <option value="Duplex">Duplex</option>
-              <option value="Flat">Flat</option>
-              <option value="Cluster">Cluster</option>
-              <option value="Vacant land">Vacant land</option>
-            </SelectField>
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+              <SelectField label="Home type" name="propertyType" defaultValue={filters.propertyType ?? ''}>
+                <option value="">Any type</option>
+                <option value="House">House</option>
+                <option value="Apartment">Apartment</option>
+                <option value="Townhouse">Townhouse</option>
+                <option value="Duplex">Duplex</option>
+                <option value="Flat">Flat</option>
+                <option value="Cluster">Cluster</option>
+                <option value="Vacant land">Vacant land</option>
+              </SelectField>
 
-            <PriceField label="Min price" name="minPrice" defaultValue={filters.minPrice} />
-            <PriceField label="Max price" name="maxPrice" defaultValue={filters.maxPrice} />
+              <PriceField label="Min price" name="minPrice" defaultValue={filters.minPrice} />
+              <PriceField label="Max price" name="maxPrice" defaultValue={filters.maxPrice} />
 
-            <SelectField label="Beds" name="bedrooms" defaultValue={filters.bedrooms ? String(filters.bedrooms) : ''} compact>
-              <option value="">Any</option>
-              <option value="1">1+</option>
-              <option value="2">2+</option>
-              <option value="3">3+</option>
-              <option value="4">4+</option>
-              <option value="5">5+</option>
-            </SelectField>
+              <SelectField label="Beds" name="bedrooms" defaultValue={filters.bedrooms ? String(filters.bedrooms) : ''}>
+                <option value="">Any</option>
+                <option value="1">1+</option>
+                <option value="2">2+</option>
+                <option value="3">3+</option>
+                <option value="4">4+</option>
+                <option value="5">5+</option>
+              </SelectField>
 
-            <SelectField label="Baths" name="bathrooms" defaultValue={filters.bathrooms ? String(filters.bathrooms) : ''} compact>
-              <option value="">Any</option>
-              <option value="1">1+</option>
-              <option value="2">2+</option>
-              <option value="3">3+</option>
-              <option value="4">4+</option>
-            </SelectField>
+              <SelectField label="Baths" name="bathrooms" defaultValue={filters.bathrooms ? String(filters.bathrooms) : ''}>
+                <option value="">Any</option>
+                <option value="1">1+</option>
+                <option value="2">2+</option>
+                <option value="3">3+</option>
+                <option value="4">4+</option>
+              </SelectField>
 
-            <SelectField label="Parking" name="parking" defaultValue={filters.parking ? String(filters.parking) : ''} compact>
-              <option value="">Any</option>
-              <option value="1">1+</option>
-              <option value="2">2+</option>
-              <option value="3">3+</option>
-            </SelectField>
+              <SelectField label="Parking" name="parking" defaultValue={filters.parking ? String(filters.parking) : ''}>
+                <option value="">Any</option>
+                <option value="1">1+</option>
+                <option value="2">2+</option>
+                <option value="3">3+</option>
+              </SelectField>
 
-            <SelectField label="Sort" name="sort" defaultValue={filters.sort} compact>
-              <option value="featured">Featured</option>
-              <option value="newest">Newest</option>
-              <option value="price-asc">Price: low to high</option>
-              <option value="price-desc">Price: high to low</option>
-            </SelectField>
+              <SelectField label="Sort" name="sort" defaultValue={filters.sort}>
+                <option value="featured">Featured</option>
+                <option value="newest">Newest</option>
+                <option value="price-asc">Price: low to high</option>
+                <option value="price-desc">Price: high to low</option>
+              </SelectField>
+            </div>
 
-            <div className="flex gap-2">
-              <button className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#4A3AFF] px-5 text-sm font-bold text-white shadow-lg shadow-[#4A3AFF]/20 transition hover:bg-[#2f3fd6]" type="submit">
-                Search
-              </button>
-              <a className="inline-flex min-h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-4 text-sm font-bold text-[#1A1A2E] shadow-sm transition hover:border-[#4A3AFF]" href="/properties/for-sale">
+            <div className="mt-3 flex justify-end gap-2">
+              <a className="inline-flex min-h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-bold text-[#1A1A2E] shadow-sm transition hover:border-[#4A3AFF]" href="/properties/for-sale">
                 Clear
               </a>
+              <button className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#4A3AFF] px-7 text-sm font-bold text-white shadow-lg shadow-[#4A3AFF]/20 transition hover:bg-[#2f3fd6]" type="submit">
+                Search
+              </button>
             </div>
           </form>
 
@@ -232,7 +234,7 @@ export default async function ForSalePage({ searchParams }: { searchParams: Sear
 
 function PriceField({ label, name, defaultValue }: { label: string; name: string; defaultValue?: number }) {
   return (
-    <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
+    <label className="block min-w-0 text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
       {label}
       <input
         type="number"
@@ -242,20 +244,20 @@ function PriceField({ label, name, defaultValue }: { label: string; name: string
         name={name}
         defaultValue={defaultValue ?? ''}
         placeholder="R any"
-        className="mt-2 w-full rounded-full border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-[#1A1A2E] shadow-sm outline-none transition focus:border-[#4A3AFF] focus:ring-4 focus:ring-[#4A3AFF]/10 sm:w-32"
+        className="mt-2 w-full rounded-full border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-[#1A1A2E] shadow-sm outline-none transition focus:border-[#4A3AFF] focus:ring-4 focus:ring-[#4A3AFF]/10"
       />
     </label>
   );
 }
 
-function SelectField({ label, name, defaultValue, children, compact = false }: { label: string; name: string; defaultValue?: string; children: ReactNode; compact?: boolean }) {
+function SelectField({ label, name, defaultValue, children }: { label: string; name: string; defaultValue?: string; children: ReactNode }) {
   return (
-    <label className={`block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF] ${compact ? 'w-full sm:w-auto' : ''}`}>
+    <label className="block min-w-0 text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF]">
       {label}
       <select
         name={name}
         defaultValue={defaultValue ?? ''}
-        className={`mt-2 w-full rounded-full border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-[#1A1A2E] shadow-sm outline-none transition focus:border-[#4A3AFF] focus:ring-4 focus:ring-[#4A3AFF]/10 ${compact ? 'sm:min-w-[9rem]' : ''}`}
+        className="mt-2 w-full rounded-full border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-[#1A1A2E] shadow-sm outline-none transition focus:border-[#4A3AFF] focus:ring-4 focus:ring-[#4A3AFF]/10"
       >
         {children}
       </select>
