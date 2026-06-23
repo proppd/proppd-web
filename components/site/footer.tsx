@@ -50,6 +50,7 @@ export function SiteFooter() {
           <FooterGroup
             title="Professionals"
             links={[
+              ['Proppd for Agents', '/for-agents'],
               ['Agents', '/agents'],
               ['Agencies', '/agencies'],
               ['List with us', '/list-with-us'],

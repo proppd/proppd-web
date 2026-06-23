@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Menu, X, Heart, ChevronDown, Users, Building2, LayoutDashboard, Wrench, Calculator } from 'lucide-react';
+import { Menu, X, Heart, ChevronDown, Users, Building2, Briefcase } from 'lucide-react';
 import { AuthModal, type AuthMode } from '@/components/auth/auth-modal';
 import { getBrowserSupabaseClient } from '@/lib/supabase/client';
 import { ProppdLogo } from './logo';
@@ -12,12 +12,10 @@ const primaryNav = [
   ['Sell', '/my-properties'],
 ];
 
-const agentMenu = [
-  { label: 'Agents', helper: 'Browse verified agents', href: '/agents', icon: Users },
-  { label: 'Agencies', helper: 'Agency directory', href: '/agencies', icon: Building2 },
-  { label: 'CRM', helper: 'Leads & workspace', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Tools', helper: 'AgentOS & workflow', href: '/list-with-us', icon: Wrench },
-  { label: 'Valuations', helper: 'Request a valuation', href: '/request-valuation', icon: Calculator },
+// Consumer-facing: find an agent or agency to help you buy, sell or rent.
+const findAgentMenu = [
+  { label: 'Find an agent', helper: 'Browse verified agents', href: '/agents', icon: Users },
+  { label: 'Browse agencies', helper: 'Agency directory', href: '/agencies', icon: Building2 },
 ];
 
 export function SiteHeader() {
@@ -92,7 +90,7 @@ export function SiteHeader() {
               <a key={href} className="transition hover:text-[#1A1A2E]" href={href}>{label}</a>
             ))}
 
-            {/* Agents dropdown — hover on desktop, keyboard via focus-within */}
+            {/* Agents dropdown (consumer: find an agent) — hover / keyboard focus-within */}
             <div className="relative group">
               <a
                 href="/agents"
@@ -103,8 +101,8 @@ export function SiteHeader() {
               </a>
               <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-3 opacity-0 transition duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
                 <div className="w-72 overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white p-2 shadow-xl shadow-black/5">
-                  <p className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">For agents &amp; agencies</p>
-                  {agentMenu.map(({ label, helper, href, icon: Icon }) => (
+                  <p className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">Find an agent</p>
+                  {findAgentMenu.map(({ label, helper, href, icon: Icon }) => (
                     <a
                       key={href}
                       href={href}
@@ -119,9 +117,21 @@ export function SiteHeader() {
                       </span>
                     </a>
                   ))}
+                  <a href="/for-agents" className="mt-1 flex items-center justify-between gap-3 rounded-xl bg-[#EFF6FF] px-3 py-2.5 transition hover:bg-[#DBEAFE]">
+                    <span>
+                      <span className="block text-sm font-bold text-[#1A1A2E]">Are you an agent?</span>
+                      <span className="block text-xs font-semibold text-[#2563EB]">Proppd for Agents →</span>
+                    </span>
+                    <Briefcase size={16} className="text-[#2563EB]" />
+                  </a>
                 </div>
               </div>
             </div>
+
+            {/* Persistent professional path */}
+            <a href="/for-agents" className="inline-flex items-center gap-1.5 font-semibold text-[#4A3AFF] transition hover:text-[#3A2AE0]">
+              <Briefcase size={15} /> For agents
+            </a>
           </nav>
 
           {/* Right side — clean, minimal */}
@@ -194,10 +204,10 @@ export function SiteHeader() {
               ))}
             </nav>
 
-            {/* Agents group */}
+            {/* Find an agent (consumer) */}
             <div className="border-t border-[#E5E7EB] px-3 py-3">
-              <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">For agents &amp; agencies</p>
-              {agentMenu.map(({ label, helper, href, icon: Icon }) => (
+              <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">Find an agent</p>
+              {findAgentMenu.map(({ label, helper, href, icon: Icon }) => (
                 <a
                   key={href}
                   href={href}
@@ -213,6 +223,23 @@ export function SiteHeader() {
                   </span>
                 </a>
               ))}
+            </div>
+
+            {/* Professional path */}
+            <div className="border-t border-[#E5E7EB] px-3 py-3">
+              <a
+                href="/for-agents"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-between gap-3 rounded-lg bg-[#EFF6FF] px-3 py-3 text-sm font-bold text-[#1A1A2E] transition hover:bg-[#DBEAFE]"
+              >
+                <span className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-[#2563EB]">
+                    <Briefcase size={16} />
+                  </span>
+                  Proppd for Agents
+                </span>
+                <span className="text-[#2563EB]">→</span>
+              </a>
             </div>
 
             <div className="border-t border-[#E5E7EB] px-3 py-3">
