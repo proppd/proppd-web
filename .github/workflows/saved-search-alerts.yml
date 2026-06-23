@@ -1,0 +1,34 @@
+name: Saved search alerts
+
+# Free daily trigger for the saved-search alert matcher (no Vercel Pro needed).
+# Requires a repository secret CRON_SECRET that matches the Vercel env var.
+# Optional repository variable ALERTS_BASE_URL overrides the default site URL.
+
+on:
+  schedule:
+    - cron: '0 7 * * *' # daily at 07:00 UTC
+  workflow_dispatch: {} # allow manual runs from the Actions tab
+
+jobs:
+  run-alerts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger saved-search alerts
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          BASE_URL: ${{ vars.ALERTS_BASE_URL || 'https://proppd.com' }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::CRON_SECRET repository secret is not set."
+            exit 1
+          fi
+          code=$(curl -s -o response.json -w "%{http_code}" --max-time 60 \
+            -H "authorization: Bearer $CRON_SECRET" \
+            "$BASE_URL/api/saved-searches/run-alerts")
+          echo "HTTP $code"
+          cat response.json || true
+          echo
+          if [ "$code" != "200" ]; then
+            echo "::error::Alerts endpoint returned HTTP $code"
+            exit 1
+          fi
