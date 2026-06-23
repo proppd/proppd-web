@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { ArrowLeft, Bath, BedDouble, Building2, CalendarDays, Car, CheckCircle2, Home, MapPin, Share2, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Bath, BedDouble, Building2, CalendarDays, Car, CheckCircle2, Home, MapPin, Share2, ShieldCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { EnquiryForm } from '@/components/property/enquiry-form';
 import { ReportListingButton } from '@/components/property/report-listing';
@@ -288,16 +288,20 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
             <aside className="lg:sticky lg:top-24 lg:h-fit">
               <div className="mb-4 rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-12 w-12 place-items-center rounded-full bg-[#4A3AFF]/10 text-[#4A3AFF]"><Building2 size={22} /></div>
-                  <div>
-                    <p className="text-sm font-bold text-[#1A1A2E]">{listing.agent}</p>
-                    <p className="text-xs font-bold text-[#9CA3AF]">{listing.agency}</p>
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#4A3AFF] text-sm font-bold text-white">{agentInitials(listing.agent)}</div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-[#1A1A2E]">{listing.agent}</p>
+                    <p className="flex items-center gap-1 truncate text-xs font-bold text-[#9CA3AF]"><Building2 size={12} className="shrink-0" /> {listing.agency}</p>
                   </div>
+                  <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-full bg-[#EFF6FF] px-2 py-0.5 text-[10px] font-bold text-[#2563EB]"><ShieldCheck size={10} /> Verified</span>
                 </div>
                 <div className="mt-4 grid gap-2 text-sm font-bold text-[#6B7280]">
                   <span className="flex items-center gap-2"><ShieldCheck size={16} className="text-[#2563EB]" /> {listing.mandate}</span>
                   <span className="flex items-center gap-2"><CalendarDays size={16} /> Listed {formatDate(listing.listedAt)}</span>
                 </div>
+                <a href={agentProfileHref} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#E5E7EB] px-4 py-2.5 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]">
+                  View agent profile <ArrowRight size={15} />
+                </a>
               </div>
               <div className="mb-4">
                 <MortgageCalculator price={listing.priceValue} />
@@ -363,6 +367,16 @@ function FactIcon({ icon, value, label }: { icon: ReactNode; value: string; labe
 
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(value));
+}
+
+function agentInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .filter(Boolean)
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 }
 
 function slugifyName(value: string): string {
