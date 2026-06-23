@@ -3,6 +3,7 @@
 import { Bath, BedDouble, Car, MapPin, Heart } from 'lucide-react';
 import type { Listing } from '@/lib/demo-data';
 import { SaveListingButton } from '@/components/properties/save-listing-button';
+import { ListingImage } from './listing-image';
 import { ListingBadgeDisplay, getListingBadges } from './listing-badges';
 
 export function ListingCard({ listing }: { listing: Listing }) {
@@ -13,11 +14,11 @@ export function ListingCard({ listing }: { listing: Listing }) {
       <a href={`/property/${listing.slug}`} className="block">
         {/* Image */}
         <div className="relative h-56 overflow-hidden bg-[#F7F8FA] sm:h-64">
-          <img
+          <ListingImage
             src={listing.photos[0]?.src}
             alt={listing.photos[0]?.alt ?? listing.title}
+            gradient={listing.gradient}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-            loading="lazy"
           />
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
