@@ -60,10 +60,10 @@ function safeNextPath(value: unknown): string {
   return value.slice(0, 120);
 }
 
-function profileData(value: unknown): Record<string, string> | undefined {
+export function profileData(value: unknown): Record<string, string> | undefined {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
   const source = value as Record<string, unknown>;
-  const allowed = ['first_name', 'last_name', 'phone', 'agency', 'area', 'role'];
+  const allowed = ['first_name', 'last_name', 'phone', 'agency', 'area', 'fidelity_fund_certificate_number', 'role'];
   const data: Record<string, string> = {};
   for (const key of allowed) {
     const raw = source[key];

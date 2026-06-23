@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import { useState } from 'react';
-import { ArrowRight, CheckCircle, Mail, Building2, User, MapPin } from 'lucide-react';
+import { ArrowRight, CheckCircle, Mail, Building2, User, MapPin, BadgeCheck } from 'lucide-react';
 
 type Props = {
   supabaseUrl?: string;
@@ -20,6 +20,7 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
     phone: '',
     agency: '',
     area: '',
+    fidelityFundCertificateNumber: '',
     role: 'agent',
   });
   const [error, setError] = useState('');
@@ -27,7 +28,7 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
   const isConfigured = Boolean(supabaseUrl && publishableKey);
 
   const update = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
-  const isValid = form.firstName.trim() && form.lastName.trim() && form.email.trim() && form.email.includes('@');
+  const isValid = form.firstName.trim() && form.lastName.trim() && form.email.trim() && form.email.includes('@') && form.fidelityFundCertificateNumber.trim();
 
   const handleSubmit = async () => {
     if (!isValid) return;
@@ -48,6 +49,7 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
             phone: form.phone,
             agency: form.agency,
             area: form.area,
+            fidelity_fund_certificate_number: form.fidelityFundCertificateNumber,
             role: form.role,
           },
         }),
@@ -66,6 +68,7 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
         `Phone: ${form.phone || 'Not supplied'}`,
         `Agency: ${form.agency || 'Not supplied'}`,
         `Service area: ${form.area || 'Not supplied'}`,
+        `Fidelity Fund Certificate number: ${form.fidelityFundCertificateNumber || 'Not supplied'}`,
         `Role: ${form.role}`,
       ].join('\n'));
       window.location.href = `mailto:info@proppd.com?subject=${subject}&body=${body}`;
@@ -104,6 +107,7 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
           <Field label="Phone" value={form.phone} onChange={(v) => update('phone', v)} placeholder="+27..." type="tel" icon={<Mail size={14} />} />
           <Field label="Agency" value={form.agency} onChange={(v) => update('agency', v)} placeholder="e.g. Seeff, RE/MAX" icon={<Building2 size={14} />} />
           <Field label="Service area" value={form.area} onChange={(v) => update('area', v)} placeholder="e.g. Sandton, Cape Town" icon={<MapPin size={14} />} />
+          <Field label="Fidelity Fund Certificate number" value={form.fidelityFundCertificateNumber} onChange={(v) => update('fidelityFundCertificateNumber', v)} placeholder="e.g. FFC 1234567" icon={<BadgeCheck size={14} />} required />
 
           <button
             type="button"
@@ -125,6 +129,7 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
               <span>{form.email}</span>
               {form.agency && <span>{form.agency}</span>}
               {form.area && <span>{form.area}</span>}
+              <span>FFC: {form.fidelityFundCertificateNumber}</span>
             </div>
           </div>
 
