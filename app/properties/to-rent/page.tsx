@@ -6,7 +6,8 @@ import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { listings } from '@/lib/demo-data';
 import { applyListingFilters, parseListingFilters } from '@/lib/listings/filters';
-import { buildSavedSearchMailto } from '@/lib/listings/saved-search';
+import { buildSavedSearchMailto, buildSavedSearchPath, savedSearchName } from '@/lib/listings/saved-search';
+import { SaveSearchButton } from '@/components/properties/save-search-button';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -34,6 +35,9 @@ export default async function ToRentPage({ searchParams }: { searchParams: Searc
   const params = await searchParams;
   const filters = parseListingFilters(toURLSearchParams({ ...params, purpose: 'rent' }));
   const rentListings = applyListingFilters(listings, filters);
+  const savedSearchUrl = buildSavedSearchPath(filters, '/properties/to-rent');
+  const savedSearchQuery = savedSearchUrl.includes('?') ? savedSearchUrl.slice(savedSearchUrl.indexOf('?') + 1) : '';
+  const hasActiveFilters = Boolean(filters.query || filters.propertyType || filters.minPrice !== undefined || filters.maxPrice !== undefined || filters.bedrooms || filters.bathrooms || filters.parking || filters.sort !== 'featured');
   const areaWatchlist = buildAreaWatchlist(rentListings);
   const resultLabel = rentListings.length === 1 ? 'rental home' : 'rental homes';
   const headline = `${rentListings.length} ${resultLabel} ${filters.query ? `matching “${filters.query}”` : 'in South Africa'}`;
@@ -125,6 +129,11 @@ export default async function ToRentPage({ searchParams }: { searchParams: Searc
               </a>
             ) : null}
           </div>
+          {hasActiveFilters ? (
+            <div className="mt-3">
+              <SaveSearchButton label={savedSearchName(filters, '/properties/to-rent')} path="/properties/to-rent" queryString={savedSearchQuery} />
+            </div>
+          ) : null}
         </div>
       </section>
 

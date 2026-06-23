@@ -6,11 +6,12 @@ import { ListingCard } from '@/components/properties/listing-card';
 import { PropertyMap } from '@/components/properties/property-map';
 import { SavedHomesBanner } from '@/components/properties/saved-homes-banner';
 import { SavedSearchAlerts } from '@/components/properties/saved-search-alerts';
+import { SaveSearchButton } from '@/components/properties/save-search-button';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { loadPortalListings } from '../../lib/proppd/backend';
 import { applyListingFilters, paginateListings, parseListingFilters } from '@/lib/listings/filters';
-import { buildSavedSearchMailto } from '@/lib/listings/saved-search';
+import { buildSavedSearchMailto, buildSavedSearchPath, savedSearchName } from '@/lib/listings/saved-search';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -42,6 +43,9 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
   const portalListings = (await loadPortalListings()).items;
   const filtered = applyListingFilters(portalListings, filters);
   const hasActiveSearch = Object.values(params).some((value) => value !== undefined && value !== null && value !== '');
+  const savedSearchUrl = buildSavedSearchPath(filters, '/properties');
+  const savedSearchQuery = savedSearchUrl.includes('?') ? savedSearchUrl.slice(savedSearchUrl.indexOf('?') + 1) : '';
+  const savedSearchLabel = savedSearchName(filters, '/properties');
   const visibleListings = filtered.length > 0 || hasActiveSearch ? filtered : portalListings;
   const paginated = paginateListings(visibleListings, filters.page, filters.pageSize);
   const areaWatchlist = buildAreaWatchlist(visibleListings);
@@ -146,6 +150,11 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
               </a>
             ) : null}
           </div>
+          {hasActiveSearch ? (
+            <div className="mt-3">
+              <SaveSearchButton label={savedSearchLabel} path="/properties" queryString={savedSearchQuery} />
+            </div>
+          ) : null}
           <SavedHomesBanner />
         </div>
       </section>
