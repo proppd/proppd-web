@@ -1,10 +1,8 @@
 'use client';
 
-import { createBrowserClient } from '@supabase/ssr';
 import type React from 'react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Mail, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
-import { buildAuthCallbackUrl } from '@/lib/auth/redirects';
 
 type LoginFormProps = {
   supabaseUrl?: string;
@@ -28,11 +26,6 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
   });
   const isConfigured = Boolean(supabaseUrl && publishableKey);
 
-  const supabase = useMemo(() => {
-    if (!supabaseUrl || !publishableKey) return null;
-    return createBrowserClient(supabaseUrl, publishableKey);
-  }, [publishableKey, supabaseUrl]);
-
   const cleanEmail = email.trim().toLowerCase();
   const isValidEmail = cleanEmail.includes('@') && cleanEmail.includes('.');
 
@@ -44,7 +37,7 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
       return;
     }
 
-    if (!supabase) {
+    if (!isConfigured) {
       const subject = encodeURIComponent('Proppd access request');
       const body = encodeURIComponent(
         [`Please approve Proppd access for: ${cleanEmail}`, '', 'Agency:', 'Role:', 'Notes:'].join('\n'),
@@ -56,16 +49,15 @@ export function SupabaseLoginForm({ supabaseUrl, publishableKey, nextPath = '/da
 
     setState({ status: 'loading', message: 'Sending secure login link…' });
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email: cleanEmail,
-      options: {
-        shouldCreateUser: allowSignUp,
-        emailRedirectTo: buildAuthCallbackUrl(window.location.origin, nextPath),
-      },
+    const response = await fetch('/api/auth/magic-link', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: cleanEmail, nextPath, allowSignUp }),
     });
+    const result = (await response.json().catch(() => null)) as { error?: string } | null;
 
-    if (error) {
-      setState({ status: 'error', message: error.message || 'Could not send the login link.' });
+    if (!response.ok) {
+      setState({ status: 'error', message: result?.error || 'Could not send the login link.' });
       return;
     }
 

@@ -1,10 +1,8 @@
 'use client';
 
 import type React from 'react';
-import { useMemo, useState } from 'react';
-import { createBrowserClient } from '@supabase/ssr';
+import { useState } from 'react';
 import { ArrowRight, CheckCircle, Mail, Building2, User, MapPin } from 'lucide-react';
-import { buildAuthCallbackUrl } from '@/lib/auth/redirects';
 
 type Props = {
   supabaseUrl?: string;
@@ -26,10 +24,7 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
   });
   const [error, setError] = useState('');
 
-  const supabase = useMemo(() => {
-    if (!supabaseUrl || !publishableKey) return null;
-    return createBrowserClient(supabaseUrl, publishableKey);
-  }, [publishableKey, supabaseUrl]);
+  const isConfigured = Boolean(supabaseUrl && publishableKey);
 
   const update = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
   const isValid = form.firstName.trim() && form.lastName.trim() && form.email.trim() && form.email.includes('@');
@@ -39,13 +34,15 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
 
     const cleanEmail = form.email.trim().toLowerCase();
 
-    if (supabase) {
-      const { error: authError } = await supabase.auth.signInWithOtp({
-        email: cleanEmail,
-        options: {
-          emailRedirectTo: buildAuthCallbackUrl(window.location.origin, '/dashboard'),
-          shouldCreateUser: false,
-          data: {
+    if (isConfigured) {
+      const response = await fetch('/api/auth/magic-link', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          email: cleanEmail,
+          nextPath: '/dashboard',
+          allowSignUp: false,
+          profile: {
             first_name: form.firstName,
             last_name: form.lastName,
             phone: form.phone,
@@ -53,10 +50,10 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
             area: form.area,
             role: form.role,
           },
-        },
+        }),
       });
 
-      if (authError) {
+      if (!response.ok) {
         setError('We could not send a login link for that email. If you are new to Proppd, email info@proppd.com so we can approve your agency first.');
         return;
       }

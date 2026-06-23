@@ -3,6 +3,7 @@ import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
 import { loadPortalUserAccess } from '@/lib/proppd/backend';
 import { generateListingDescription, isAiConfigured, parseListingFactsFromBody } from '@/lib/ai/listing-description';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
+import { rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -13,6 +14,9 @@ function jsonError(message: string, status = 400) {
 export async function POST(request: NextRequest) {
   const rejectedOrigin = rejectCrossOriginMutation(request);
   if (rejectedOrigin) return rejectedOrigin;
+
+  const limited = rateLimitRequest(request, rateLimitPolicies.aiDescription);
+  if (limited) return limited;
 
   if (!isAiConfigured()) {
     return jsonError('AI description writer is not enabled on this deployment.', 503);

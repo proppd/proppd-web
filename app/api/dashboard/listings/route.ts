@@ -7,6 +7,7 @@ import {
 } from '@/lib/proppd/backend';
 import { validatePortalListingInput } from '@/lib/proppd/listing-editor';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
+import { rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
 
 export async function GET() {
   const supabase = await createPortalSupabaseServerClient();
@@ -31,6 +32,9 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const rejectedOrigin = rejectCrossOriginMutation(request);
   if (rejectedOrigin) return rejectedOrigin;
+
+  const limited = rateLimitRequest(request, rateLimitPolicies.dashboardMutation);
+  if (limited) return limited;
 
   const supabase = await createPortalSupabaseServerClient();
   if (!supabase) {

@@ -1,8 +1,10 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
 import { validatePassword } from '@/lib/auth/validation';
+import { rateLimitHeaders, rateLimitPolicies } from '@/lib/security/rate-limit';
 
 export type ResetPasswordState = { error?: string };
 
@@ -10,6 +12,9 @@ export type ResetPasswordState = { error?: string };
 // /auth/callback) and updates the password. Runs server-side so it does not
 // depend on client hydration or the browser client reading the session.
 export async function updatePasswordAction(_prev: ResetPasswordState, formData: FormData): Promise<ResetPasswordState> {
+  const limited = rateLimitHeaders(await headers(), rateLimitPolicies.auth, 'reset-password');
+  if (limited) return { error: 'Too many requests. Please wait a moment and try again.' };
+
   const password = String(formData.get('password') ?? '');
   const confirm = String(formData.get('confirm') ?? '');
 

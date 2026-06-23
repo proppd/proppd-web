@@ -3,6 +3,7 @@ import { getPortalServerUser } from '@/lib/supabase/server';
 import { loadPortalUserAccess, setPortalListingModeration } from '@/lib/proppd/backend';
 import { isListingStatus } from '@/lib/proppd/listing-editor';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
+import { rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -13,6 +14,9 @@ function jsonError(message: string, status = 400) {
 export async function PATCH(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const rejectedOrigin = rejectCrossOriginMutation(request);
   if (rejectedOrigin) return rejectedOrigin;
+
+  const limited = rateLimitRequest(request, rateLimitPolicies.adminMutation);
+  if (limited) return limited;
 
   const { slug } = await params;
   const user = await getPortalServerUser();

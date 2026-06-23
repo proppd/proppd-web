@@ -136,7 +136,7 @@ export function PhotoUpload({ existingPhotos = [], onChange }: PhotoUploadProps)
           ref={inputRef}
           type="file"
           multiple
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp"
           className="hidden"
           onChange={(e) => {
             void addFiles(e.target.files);

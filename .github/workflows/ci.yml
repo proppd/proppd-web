@@ -23,6 +23,12 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Tests
+        run: npm test
+
+      - name: Dependency audit (high and critical)
+        run: npm audit --audit-level=high
+
       - name: Build
         run: npm run build
         env:

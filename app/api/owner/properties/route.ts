@@ -8,6 +8,7 @@ import {
   type OwnerProperty,
 } from '@/lib/owner/properties';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
+import { rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -60,6 +61,9 @@ export async function POST(request: NextRequest) {
   const rejectedOrigin = rejectCrossOriginMutation(request);
   if (rejectedOrigin) return rejectedOrigin;
 
+  const limited = rateLimitRequest(request, rateLimitPolicies.dashboardMutation);
+  if (limited) return limited;
+
   const auth = await authenticate();
   if (auth.kind !== 'ok') return authError(auth.kind);
 
@@ -82,6 +86,9 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const rejectedOrigin = rejectCrossOriginMutation(request);
   if (rejectedOrigin) return rejectedOrigin;
+
+  const limited = rateLimitRequest(request, rateLimitPolicies.dashboardMutation);
+  if (limited) return limited;
 
   const auth = await authenticate();
   if (auth.kind !== 'ok') return authError(auth.kind);
@@ -107,6 +114,9 @@ export async function PUT(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   const rejectedOrigin = rejectCrossOriginMutation(request);
   if (rejectedOrigin) return rejectedOrigin;
+
+  const limited = rateLimitRequest(request, rateLimitPolicies.dashboardMutation);
+  if (limited) return limited;
 
   const auth = await authenticate();
   if (auth.kind !== 'ok') return authError(auth.kind);
@@ -136,6 +146,9 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const rejectedOrigin = rejectCrossOriginMutation(request);
   if (rejectedOrigin) return rejectedOrigin;
+
+  const limited = rateLimitRequest(request, rateLimitPolicies.dashboardMutation);
+  if (limited) return limited;
 
   const auth = await authenticate();
   if (auth.kind !== 'ok') return authError(auth.kind);
