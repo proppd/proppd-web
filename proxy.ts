@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getSupabaseBrowserConfig } from './lib/supabase/env';
 import { withSecurityHeaders } from './lib/security/request-guards';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const config = getSupabaseBrowserConfig();
   const response = withSecurityHeaders(NextResponse.next({ request }));
 
