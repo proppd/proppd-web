@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type AuthResult =
-  | { kind: 'ok'; supabase: SupabaseClient; userId: string }
+  | { kind: 'ok'; supabase: SupabaseClient; userId: string; email: string | null }
   | { kind: 'unconfigured' }
   | { kind: 'unauthed' };
 
@@ -16,7 +16,7 @@ async function authenticate(): Promise<AuthResult> {
   if (!supabase) return { kind: 'unconfigured' };
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) return { kind: 'unauthed' };
-  return { kind: 'ok', supabase, userId: data.user.id };
+  return { kind: 'ok', supabase, userId: data.user.id, email: data.user.email ?? null };
 }
 
 function authError(kind: 'unconfigured' | 'unauthed') {
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { error } = await auth.supabase.from('saved_searches').insert({ ...row, user_id: auth.userId });
+    const { error } = await auth.supabase.from('saved_searches').insert({ ...row, user_id: auth.userId, email: auth.email });
     if (error) throw error;
     return NextResponse.json({ ok: true, searches: await listFor(auth.supabase, auth.userId) });
   } catch {
