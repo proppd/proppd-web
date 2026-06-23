@@ -2,19 +2,21 @@ import { z } from 'zod';
 
 export const leadIntentSchema = z.enum(['viewing', 'more_info', 'valuation', 'finance']);
 
-export const leadInputSchema = z.object({
-  name: z.string().trim().min(2, 'Name is required'),
-  surname: z.string().trim().min(2, 'Surname is required'),
-  email: z.string().trim().email('Valid email is required').transform((value) => value.toLowerCase()),
-  phone: z
-    .string()
-    .trim()
-    .min(8, 'Valid phone number is required')
-    .refine((value) => normalisePhone(value).length >= 10, 'Valid phone number is required'),
-  message: z.string().trim().min(10, 'Message must be at least 10 characters'),
-  intent: leadIntentSchema,
-  popiaConsent: z.boolean().refine((value) => value === true, 'POPIA consent is required'),
-});
+export const leadInputSchema = z
+  .object({
+    name: z.string().trim().min(2, 'Name is required'),
+    surname: z.string().trim().min(2, 'Surname is required'),
+    email: z.string().trim().email('Valid email is required').transform((value) => value.toLowerCase()),
+    phone: z
+      .string()
+      .trim()
+      .min(8, 'Valid phone number is required')
+      .refine((value) => normalisePhone(value).length >= 10, 'Valid phone number is required'),
+    message: z.string().trim().min(10, 'Message must be at least 10 characters'),
+    intent: leadIntentSchema,
+    popiaConsent: z.boolean().refine((value) => value === true, 'POPIA consent is required'),
+  })
+  .strict();
 
 export type LeadInput = z.input<typeof leadInputSchema>;
 export type ValidLeadInput = z.output<typeof leadInputSchema>;
@@ -30,7 +32,7 @@ export type ExistingLeadFingerprint = {
 const SPAM_KEYWORDS = ['crypto', 'guaranteed seo', 'investment', 'forex', 'casino', 'loan offer'];
 const DUPLICATE_WINDOW_MS = 60 * 60 * 1000;
 
-export function validateLeadInput(input: LeadInput):
+export function validateLeadInput(input: unknown):
   | { success: true; data: ValidLeadInput }
   | { success: false; errors: string[] } {
   const parsed = leadInputSchema.safeParse(input);

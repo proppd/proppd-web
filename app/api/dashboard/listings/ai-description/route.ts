@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
 import { loadPortalUserAccess } from '@/lib/proppd/backend';
 import { generateListingDescription, isAiConfigured, parseListingFactsFromBody } from '@/lib/ai/listing-description';
+import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 
 export const runtime = 'nodejs';
 
@@ -10,6 +11,9 @@ function jsonError(message: string, status = 400) {
 }
 
 export async function POST(request: NextRequest) {
+  const rejectedOrigin = rejectCrossOriginMutation(request);
+  if (rejectedOrigin) return rejectedOrigin;
+
   if (!isAiConfigured()) {
     return jsonError('AI description writer is not enabled on this deployment.', 503);
   }

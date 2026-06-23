@@ -37,6 +37,23 @@ describe('validateLeadInput', () => {
       expect(result.errors).toContain('POPIA consent is required');
     }
   });
+
+  it('rejects unexpected lead form fields', () => {
+    const payload = {
+      name: 'Lerato',
+      surname: 'Mokoena',
+      email: 'buyer@example.com',
+      phone: '+27 82 123 4567',
+      message: 'Please send viewing times for this property.',
+      intent: 'viewing',
+      popiaConsent: true,
+      isAdmin: true,
+    } as unknown;
+
+    const result = validateLeadInput(payload);
+
+    expect(result.success).toBe(false);
+  });
 });
 
 describe('detectLeadFlags', () => {

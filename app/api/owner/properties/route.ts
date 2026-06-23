@@ -7,6 +7,7 @@ import {
   ownerRowInputFromPayload,
   type OwnerProperty,
 } from '@/lib/owner/properties';
+import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -56,6 +57,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const rejectedOrigin = rejectCrossOriginMutation(request);
+  if (rejectedOrigin) return rejectedOrigin;
+
   const auth = await authenticate();
   if (auth.kind !== 'ok') return authError(auth.kind);
 
@@ -76,6 +80,9 @@ export async function POST(request: NextRequest) {
 
 // Bulk import — migrates a device (localStorage) workspace into the account.
 export async function PUT(request: NextRequest) {
+  const rejectedOrigin = rejectCrossOriginMutation(request);
+  if (rejectedOrigin) return rejectedOrigin;
+
   const auth = await authenticate();
   if (auth.kind !== 'ok') return authError(auth.kind);
 
@@ -98,6 +105,9 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const rejectedOrigin = rejectCrossOriginMutation(request);
+  if (rejectedOrigin) return rejectedOrigin;
+
   const auth = await authenticate();
   if (auth.kind !== 'ok') return authError(auth.kind);
 
@@ -124,6 +134,9 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const rejectedOrigin = rejectCrossOriginMutation(request);
+  if (rejectedOrigin) return rejectedOrigin;
+
   const auth = await authenticate();
   if (auth.kind !== 'ok') return authError(auth.kind);
 
