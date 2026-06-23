@@ -19,15 +19,15 @@ export function HomeValueSection() {
             <p className="mt-4 text-sm leading-relaxed text-[#6B7280]">
               Get an instant indicative market range from comparable Proppd listings, then request a local agent appraisal when you are ready.
             </p>
-            <div className="mt-5 flex items-center gap-3">
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
               <input
                 type="text"
                 placeholder="Enter suburb or city"
-                className="flex-1 rounded-lg border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#1A1A2E] outline-none transition focus:border-[#4A3AFF] focus:ring-2 focus:ring-[#4A3AFF]/10 placeholder:text-[#9CA3AF]"
+                className="w-full min-w-0 flex-1 rounded-lg border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#1A1A2E] outline-none transition focus:border-[#4A3AFF] focus:ring-2 focus:ring-[#4A3AFF]/10 placeholder:text-[#9CA3AF]"
               />
               <a
                 href="/home-values#instant-estimate"
-                className="shrink-0 rounded-lg bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0]"
+                className="w-full shrink-0 rounded-lg bg-[#4A3AFF] px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-[#3A2AE0] sm:w-auto"
               >
                 Get estimate
               </a>
