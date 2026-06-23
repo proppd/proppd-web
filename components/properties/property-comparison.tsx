@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Bath, BedDouble, Car, MapPin, X } from 'lucide-react';
 import type { Listing } from '@/lib/demo-data';
 
@@ -33,11 +34,18 @@ export function PropertyComparison({ listings, onRemove }: PropertyComparisonPro
               {listings.map((listing) => (
                 <th key={listing.slug} className="pb-3 text-center">
                   <div className="relative inline-block">
-                    <img
-                      src={listing.photos[0]?.src}
-                      alt={listing.title}
-                      className="h-16 w-24 rounded-lg object-cover"
-                    />
+                    {listing.photos[0]?.src ? (
+                      <Image
+                        src={listing.photos[0].src}
+                        alt={listing.title}
+                        width={96}
+                        height={64}
+                        sizes="96px"
+                        className="h-16 w-24 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <div className="h-16 w-24 rounded-lg bg-gradient-to-br from-[#1A1A2E] via-[#4A3AFF] to-[#60A5FA]" />
+                    )}
                     <button
                       type="button"
                       onClick={() => onRemove(listing.slug)}

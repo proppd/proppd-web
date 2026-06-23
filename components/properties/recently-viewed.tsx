@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { Clock, Bath, BedDouble, MapPin } from 'lucide-react';
 
 interface ViewedProperty {
@@ -48,11 +49,18 @@ export function RecentlyViewed() {
               href={`/property/${item.slug}`}
               className="group flex gap-4 rounded-xl border border-[#E5E7EB] bg-white p-3 transition hover:shadow-lg hover:shadow-black/5"
             >
-              <img
-                src={item.photo}
-                alt={item.title}
-                className="h-20 w-24 shrink-0 rounded-lg object-cover"
-              />
+              {item.photo ? (
+                <Image
+                  src={item.photo}
+                  alt={item.title}
+                  width={96}
+                  height={80}
+                  sizes="96px"
+                  className="h-20 w-24 shrink-0 rounded-lg object-cover"
+                />
+              ) : (
+                <div className="h-20 w-24 shrink-0 rounded-lg bg-gradient-to-br from-[#1A1A2E] via-[#4A3AFF] to-[#60A5FA]" />
+              )}
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold text-[#1A1A2E]">{item.price}</p>
                 <h3 className="mt-0.5 line-clamp-1 text-xs font-semibold text-[#6B7280]">{item.title}</h3>

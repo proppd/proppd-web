@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import Image from 'next/image';
 import { ArrowLeft, ArrowRight, Bath, BedDouble, Building2, CalendarDays, Car, CheckCircle2, Home, MapPin, Share2, ShieldCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { EnquiryForm } from '@/components/property/enquiry-form';
@@ -163,11 +164,16 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
           <div className="grid gap-3 overflow-hidden rounded-xl bg-white p-3 shadow-sm lg:grid-cols-[1.35fr_.65fr]">
             <div className={`relative min-h-[16rem] overflow-hidden rounded-lg bg-gradient-to-br ${listing.gradient} p-4 text-white sm:min-h-[25rem] sm:p-6`}>
               <PhotoLightbox photos={listing.photos} startIndex={0} />
-              <img
-                src={listing.photos[0]?.src}
-                alt={listing.photos[0]?.alt ?? listing.title}
-                className="absolute inset-0 h-full w-full object-cover"
-              />
+              {listing.photos[0]?.src && (
+                <Image
+                  src={listing.photos[0].src}
+                  alt={listing.photos[0]?.alt ?? listing.title}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 60vw"
+                  className="object-cover"
+                />
+              )}
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,48,.12)_0%,rgba(5,10,48,.08)_42%,rgba(5,10,48,.82)_100%)]" />
               <div className="relative flex gap-2">
                 <span className="rounded-md bg-white px-3 py-1 text-xs font-bold uppercase tracking-[.08em] text-[#1A1A2E]">{listing.purpose}</span>
@@ -188,7 +194,9 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
             <div className="hidden gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-1">
               {listing.photos.slice(1, 3).map((photo, index) => (
                 <div key={photo.src} className={`relative min-h-48 overflow-hidden rounded-lg bg-gradient-to-br ${listing.gradient} p-5 text-white`}>
-                  <img src={photo.src} alt={photo.alt} className="absolute inset-0 h-full w-full object-cover" />
+                  {photo.src && (
+                    <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 1024px) 50vw, 25vw" className="object-cover" />
+                  )}
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,48,.18)_0%,rgba(5,10,48,.62)_100%)]" />
                   <div className="relative flex h-full flex-col justify-between">
                     <span className="w-fit rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#1A1A2E]">Photo {index + 2} / {listing.photos.length}</span>
