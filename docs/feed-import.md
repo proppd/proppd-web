@@ -73,9 +73,9 @@ rejected (SSRF guard in `lib/import/fetch.ts`).
 
 ### The cron — `/api/admin/feeds/sync`
 
-Runs on the Vercel cron in `vercel.json` (`30 * * * *`) and is guarded by the
-`CRON_SECRET` Authorization header (same scheme as saved-search alerts). Each
-run:
+Runs on the Vercel cron in `vercel.json` (`30 6 * * *`, daily — the Vercel
+Hobby plan only permits daily crons) and is guarded by the `CRON_SECRET`
+Authorization header (same scheme as saved-search alerts). Each run:
 
 1. loads active feed sources and selects those **due** by their
    `frequencyMinutes` (`isFeedSourceDue` in `lib/import/schedule.ts`);
@@ -85,9 +85,11 @@ run:
 
 Pass `?force=1` to ignore intervals and pull every active feed immediately.
 
-The cron runs hourly but each feed only pulls when its own interval has elapsed,
-so daily feeds stay daily. Requires `CRON_SECRET`, `DATABASE_URL`, and (for the
-feed table) migration `010_feed_sources.sql`.
+The cron fires once daily; each feed pulls only when its own interval has
+elapsed, so `frequencyMinutes` acts as a floor (sub-daily intervals still pull
+at most once per cron run on the Hobby plan — upgrade to Pro for finer cadences
+and bump the `vercel.json` schedule). Requires `CRON_SECRET`, `DATABASE_URL`,
+and (for the feed table) migration `010_feed_sources.sql`.
 
 ## Modules
 
