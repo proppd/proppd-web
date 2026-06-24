@@ -56,22 +56,6 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
   const portalListings = await loadPortalListings();
   const activeListings = getAgentListings(portalListings.items.length > 0 ? portalListings.items : sakstonsListings, agent.name);
   const agentMarketSummary = buildAgentMarketSummary(activeListings);
-  const directoryStateLabel =
-    portalAgent.source === 'database'
-      ? 'Live agent profile connected'
-      : portalAgent.source === 'empty'
-        ? 'Live directory connected, profile not yet published'
-        : portalAgent.source === 'demo'
-          ? 'Demo agent profile'
-          : 'Agent profile unavailable';
-  const listingStateLabel =
-    portalListings.source === 'database'
-      ? 'Live listings connected'
-      : portalListings.source === 'empty'
-        ? 'Live listings connected, none active'
-        : portalListings.source === 'demo'
-          ? 'Demo stock'
-          : 'Listings unavailable';
 
   return (
     <main className="proppd-page">
@@ -98,10 +82,6 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
               <p className="mt-6 max-w-3xl text-lg leading-8 text-[#6B7280]">
                 {agent.name} helps buyers, tenants, and sellers across {agent.area}. This profile is wired to Proppd's verified enquiry foundation and active listing data.
               </p>
-              <div className="mt-6 flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[.16em]">
-                <span className="rounded-full bg-[#E9FFFC] px-4 py-2 text-[#087d75]">{directoryStateLabel}</span>
-                <span className="rounded-full bg-[#F7F8FA] px-4 py-2 text-[#6B7280]">{listingStateLabel}</span>
-              </div>
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
                 <ProfileStat label="Agency" value={agent.agency} icon={<Building2 size={18} />} />
                 <ProfileStat label="Area" value={agent.area} icon={<MapPin size={18} />} />
