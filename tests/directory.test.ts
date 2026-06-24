@@ -5,11 +5,11 @@ import { filterAgencies, filterAgents, findAgencyBySlug, findAgentBySlug, format
 describe('directory helpers', () => {
   it('creates stable profile slugs from agency and agent names', () => {
     expect(slugifyDirectoryName('Sakstons (Pty) Ltd')).toBe('sakstons-pty-ltd');
-    expect(slugifyDirectoryName('Mark Chait')).toBe('mark-chait');
+    expect(slugifyDirectoryName('Marc Chait')).toBe('marc-chait');
   });
 
   it('finds agents and agencies by their profile slugs', () => {
-    expect(findAgentBySlug(agents, 'liz-marx')?.name).toBe('Liz Marx');
+    expect(findAgentBySlug(agents, 'lize-marx')?.name).toBe('Lize Marx');
     expect(findAgencyBySlug(agencies, 'sakstons')?.name).toBe('Sakstons');
   });
 
@@ -17,7 +17,7 @@ describe('directory helpers', () => {
     const agency = findAgencyBySlug(agencies, 'sakstons');
 
     expect(agency).toBeDefined();
-    expect(getAgencyAgents(agents, agency!.name).map((agent) => agent.name)).toEqual(['Graham Donald', 'Hamez Saks', 'Liz Marx', 'Mark Chait']);
+    expect(getAgencyAgents(agents, agency!.name).map((agent) => agent.name)).toEqual(['Graham Donald', 'Hamez Saks', 'Lize Marx', 'Marc Chait']);
     expect(getAgencyListings(listings, agency!.name).length).toBe(38);
   });
 
@@ -27,7 +27,7 @@ describe('directory helpers', () => {
     const stock = getAgencyListings(listings, 'Sakstons');
 
     expect(agency).toMatchObject({ name: 'Sakstons', city: 'Sandton', agents: 4, listings: 38, isActive: true });
-    expect(team.map((agent) => agent.name)).toEqual(['Graham Donald', 'Hamez Saks', 'Liz Marx', 'Mark Chait']);
+    expect(team.map((agent) => agent.name)).toEqual(['Graham Donald', 'Hamez Saks', 'Lize Marx', 'Marc Chait']);
     expect(stock.length).toBeGreaterThan(0);
   });
 
@@ -47,8 +47,8 @@ describe('directory helpers', () => {
   });
 
   it('filters agent directory results by agent, agency, and area', () => {
-    expect(filterAgents(agents, 'liz').map((agent) => agent.name)).toEqual(['Liz Marx']);
-    expect(filterAgents(agents, 'sakstons').map((agent) => agent.name)).toEqual(['Graham Donald', 'Hamez Saks', 'Liz Marx', 'Mark Chait']);
+    expect(filterAgents(agents, 'liz').map((agent) => agent.name)).toEqual(['Lize Marx']);
+    expect(filterAgents(agents, 'sakstons').map((agent) => agent.name)).toEqual(['Graham Donald', 'Hamez Saks', 'Lize Marx', 'Marc Chait']);
     expect(filterAgents(agents, 'missing')).toEqual([]);
   });
 
