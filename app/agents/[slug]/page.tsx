@@ -63,20 +63,24 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
       <section className="px-4 py-14 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
-            <div className="rounded-xl border border-[#E5E7EB] bg-white p-8 shadow-sm sm:p-12">
+            <div className="relative rounded-xl border border-[#E5E7EB] bg-white p-8 shadow-sm sm:p-12">
+              {/* PPRA badge — top-right corner of the card */}
+              {agent.isVerified && agent.ffcNumber ? (
+                <div className="absolute right-6 top-6">
+                  <PpraVerificationDialog agentName={agent.name} ffcNumber={agent.ffcNumber} />
+                </div>
+              ) : agent.isVerified ? (
+                <div className="absolute right-6 top-6">
+                  <PpraVerifiedBadge />
+                </div>
+              ) : null}
+
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-gradient-to-br from-[#4A3AFF] to-[#60A5FA] text-3xl font-bold text-white">
                   {agent.name.split(' ').map((part: string) => part[0]).join('').slice(0, 2)}
                 </div>
                 <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {agent.isVerified && agent.ffcNumber ? (
-                      <PpraVerificationDialog agentName={agent.name} ffcNumber={agent.ffcNumber} />
-                    ) : agent.isVerified ? (
-                      <PpraVerifiedBadge />
-                    ) : null}
-                  </div>
-                  <h1 className="mt-3 text-5xl font-bold tracking-[-.07em] sm:text-6xl">{agent.name}</h1>
+                  <h1 className="text-5xl font-bold tracking-[-.07em] sm:text-6xl">{agent.name}</h1>
                 </div>
               </div>
               <p className="mt-6 max-w-3xl text-lg leading-8 text-[#6B7280]">
