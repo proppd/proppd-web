@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { MessageCircle, Mail, Phone, Clock, CheckCircle, TrendingUp, ExternalLink, Filter, ListChecks, Search, X } from 'lucide-react';
+import { MessageCircle, Mail, Phone, Clock, CheckCircle, TrendingUp, ExternalLink, Filter, ListChecks, Search, X, CalendarClock } from 'lucide-react';
 import { loadPortalLeadQueue, loadPortalUserAccess } from '@/lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
 import { buildLeadFilterHref, buildWhatsAppHref, filterLeads, formatLeadStatus, getLeadCrmStats, getLeadNextAction, getLeadQueue, getLeadSourceStats, hasLeadFilters, isLeadStatus, type LeadFilters, type LeadQuality, type LeadRecord, type LeadStatus } from '@/lib/leads/pipeline';
@@ -184,6 +184,12 @@ export default async function Page({ searchParams }: PageProps) {
                           {lead.phone && <span>· {lead.phone}</span>}
                           <span>· {new Intl.DateTimeFormat('en-ZA', { month: 'short', day: 'numeric' }).format(new Date(lead.createdAt))}</span>
                         </div>
+                        {lead.viewingAt && (
+                          <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-[#BFDBFE] bg-[#EFF6FF] px-2.5 py-1 text-xs font-bold text-[#2563EB]">
+                            <CalendarClock size={12} />
+                            Viewing {new Intl.DateTimeFormat('en-ZA', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(lead.viewingAt))}
+                          </div>
+                        )}
 
                         {/* Actions */}
                         <div className="mt-3 flex flex-wrap gap-2">

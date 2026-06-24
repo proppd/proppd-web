@@ -157,6 +157,7 @@ type LeadRow = {
   quality: string;
   flags: string[] | null;
   created_at: string;
+  viewing_at: string | null;
   source_page: string | null;
   listing_slug: string | null;
   listing_title: string | null;
@@ -394,6 +395,7 @@ export async function loadPortalLeadTimeline(leadId: string, env: PortalEnv = pr
 export type PortalLeadWorkflowUpdate = {
   status?: LeadStatus;
   quality?: 'clean' | 'duplicate' | 'flagged';
+  viewingAt?: string;
 };
 
 export async function updatePortalLeadWorkflow(
@@ -425,14 +427,16 @@ export async function updatePortalLeadWorkflow(
 
     const nextStatus = input.status ?? mapLeadStatus(current.status);
     const nextQuality = input.quality ? mapLeadQualityForDatabase(input.quality) : current.quality;
+    const viewingAt = input.viewingAt ?? null;
 
     await pool.query(
       `update public.leads
        set status = $1::public.lead_status,
            quality = $2::public.lead_quality,
+           viewing_at = coalesce($4::timestamptz, viewing_at),
            updated_at = now()
        where id = $3`,
-      [nextStatus, nextQuality, leadId],
+      [nextStatus, nextQuality, leadId, viewingAt],
     );
 
     await pool.query(
@@ -1606,6 +1610,7 @@ async function queryLeads(databaseUrl: string, agentName?: string): Promise<Lead
       l.quality,
       l.flags,
       l.created_at,
+      l.viewing_at,
       l.source_page,
       li.slug as listing_slug,
       li.title as listing_title,
@@ -1865,6 +1870,7 @@ function mapLeadRow(row: LeadRow): LeadRecord {
     agent: row.agent_name ?? 'Unassigned agent',
     agency: row.agency_name ?? 'Unassigned agency',
     sourcePage: row.source_page ?? undefined,
+    viewingAt: row.viewing_at ?? undefined,
     latestEventType: row.latest_event_type ?? undefined,
     latestEventAt: row.latest_event_at ?? undefined,
     latestEventNote: row.latest_event_note ?? undefined,

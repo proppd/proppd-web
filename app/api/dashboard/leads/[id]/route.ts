@@ -31,11 +31,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const note = typeof body.note === 'string' ? body.note : undefined;
   const statusWasProvided = Object.prototype.hasOwnProperty.call(body, 'status');
   const status = isLeadStatus(body.status) ? body.status : undefined;
+  const viewingAt = typeof body.viewing_at === 'string' && body.viewing_at ? body.viewing_at : undefined;
 
   if (statusWasProvided && !status) return jsonError('Provide a valid lead status.');
 
   if (status) {
-    const statusResult = await updatePortalLeadWorkflow(id, access, { status });
+    const statusResult = await updatePortalLeadWorkflow(id, access, { status, viewingAt });
     if (statusResult.source === 'error' || statusResult.items.length === 0) {
       return respondToError(statusResult.error);
     }

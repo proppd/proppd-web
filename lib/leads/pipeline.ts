@@ -36,6 +36,7 @@ export type LeadRecord = {
   agent: string;
   agency: string;
   sourcePage?: string;
+  viewingAt?: string;
   latestEventType?: string;
   latestEventAt?: string;
   latestEventNote?: string;
