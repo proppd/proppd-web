@@ -3,6 +3,7 @@ import { ArrowLeft, CalendarClock, CheckCircle2, ExternalLink, Mail, MapPinned, 
 import { notFound, redirect } from 'next/navigation';
 import { LeadPipelineControls } from '@/components/dashboard/lead-pipeline-controls';
 import { LeadStageSuggestionControls } from '@/components/dashboard/lead-stage-suggestion-controls';
+import { QuickReplyTemplates } from '@/components/dashboard/quick-reply-templates';
 import { loadPortalLeadTimeline, loadPortalUserAccess } from '@/lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
 import { buildWhatsAppHref, formatLeadIntent, formatLeadStatus, getLeadNextAction, getLeadSourceLabel, getLeadStageSuggestion } from '@/lib/leads/pipeline';
@@ -138,6 +139,15 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
                   )}
                 </div>
               </div>
+
+              <QuickReplyTemplates
+                firstName={lead.name.split(' ')[0] ?? ''}
+                listingTitle={lead.listingTitle}
+                agentName={lead.agent}
+                agency={lead.agency}
+                email={lead.email}
+                phone={lead.phone}
+              />
 
               <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
                 <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Routing snapshot</p>
