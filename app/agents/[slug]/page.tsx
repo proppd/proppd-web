@@ -67,7 +67,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
               {/* PPRA badge — top-right corner of the card */}
               {agent.isVerified && agent.ffcNumber ? (
                 <div className="absolute right-6 top-6">
-                  <PpraVerificationDialog agentName={agent.name} ffcNumber={agent.ffcNumber} />
+                  <PpraVerificationDialog agentName={agent.name} agency={agent.agency} ffcNumber={agent.ffcNumber} />
                 </div>
               ) : agent.isVerified ? (
                 <div className="absolute right-6 top-6">

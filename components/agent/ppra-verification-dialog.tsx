@@ -6,11 +6,13 @@ import { X } from 'lucide-react';
 
 export function PpraVerificationDialog({
   agentName,
+  agency,
   ffcNumber,
   size = 'md',
   className = '',
 }: {
   agentName: string;
+  agency?: string;
   ffcNumber: string;
   size?: 'sm' | 'md';
   className?: string;
@@ -94,6 +96,12 @@ export function PpraVerificationDialog({
                   <p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#16a34a]">Agent name</p>
                   <p className="mt-1 text-lg font-bold text-[#1A1A2E]">{agentName}</p>
                 </div>
+                {agency && (
+                  <div className="rounded-xl bg-[#F0FDF4] p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#16a34a]">Agency</p>
+                    <p className="mt-1 text-lg font-bold text-[#1A1A2E]">{agency}</p>
+                  </div>
+                )}
                 <div className="rounded-xl bg-[#F0FDF4] p-4">
                   <p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#16a34a]">Fidelity Fund Certificate</p>
                   <p className="mt-1 font-mono text-base font-bold tracking-wider text-[#1A1A2E]">{ffcNumber}</p>
