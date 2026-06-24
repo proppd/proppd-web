@@ -9,8 +9,10 @@ export type AgentWorkspaceStats = {
   activeListings: number;
   newLeads: number;
   qualifiedLeads: number;
+  convertedLeads: number;
   flaggedLeads: number;
   totalLeads: number;
+  conversionRate: number;
   latestLead?: LeadRecord;
   featuredListing?: Listing;
 };
@@ -36,6 +38,8 @@ export function getAgentWorkspaceStats(agentName: string, listings: Listing[], l
   const agentListings = listings.filter((listing) => listing.agent === agentName && listing.isActive !== false);
   const agentLeads = leads.filter((lead) => lead.agent === agentName);
   const queue = getLeadQueue(agentLeads);
+  const convertedLeads = agentLeads.filter((lead) => lead.status === 'converted').length;
+  const totalLeads = agentLeads.length;
 
   return {
     agentName,
@@ -43,8 +47,10 @@ export function getAgentWorkspaceStats(agentName: string, listings: Listing[], l
     activeListings: agentListings.length,
     newLeads: agentLeads.filter((lead) => lead.status === 'new').length,
     qualifiedLeads: agentLeads.filter((lead) => lead.status === 'qualified').length,
+    convertedLeads,
     flaggedLeads: agentLeads.filter((lead) => lead.quality === 'flagged').length,
-    totalLeads: agentLeads.length,
+    totalLeads,
+    conversionRate: totalLeads > 0 ? Math.round((convertedLeads / totalLeads) * 100) : 0,
     latestLead: queue[0],
     featuredListing: agentListings.find((listing) => listing.featured) ?? agentListings[0],
   };

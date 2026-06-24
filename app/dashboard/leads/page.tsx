@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { MessageCircle, Mail, Phone, Clock, CheckCircle, TrendingUp, ExternalLink, Filter, ListChecks } from 'lucide-react';
+import { MessageCircle, Mail, Phone, Clock, CheckCircle, TrendingUp, ExternalLink, Filter, ListChecks, Search, X, CalendarClock } from 'lucide-react';
 import { loadPortalLeadQueue, loadPortalUserAccess } from '@/lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
 import { buildLeadFilterHref, buildWhatsAppHref, filterLeads, formatLeadStatus, getLeadCrmStats, getLeadNextAction, getLeadQueue, getLeadSourceStats, hasLeadFilters, isLeadStatus, type LeadFilters, type LeadQuality, type LeadRecord, type LeadStatus } from '@/lib/leads/pipeline';
@@ -107,7 +107,20 @@ export default async function Page({ searchParams }: PageProps) {
             <MiniStat icon={<TrendingUp size={16} />} label="Converted" value={stats.converted} color="#2563EB" />
           </div>
 
-          <div className="mt-4 rounded-xl border border-[#E5E7EB] bg-white p-3 shadow-sm">
+          <form method="GET" action="/dashboard/leads" className="mt-4 flex items-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2 shadow-sm focus-within:border-[#4A3AFF]">
+            <Search size={15} className="shrink-0 text-[#9CA3AF]" />
+            <input
+              name="q"
+              defaultValue={activeFilters.query ?? ''}
+              placeholder="Search by name, email, phone or listing…"
+              className="min-w-0 flex-1 bg-transparent text-sm font-bold text-[#1A1A2E] outline-none placeholder:font-semibold placeholder:text-[#9CA3AF]"
+            />
+            {activeFilters.query && (
+              <a href="/dashboard/leads" className="shrink-0 rounded-full p-0.5 text-[#9CA3AF] hover:text-[#4A3AFF]"><X size={13} /></a>
+            )}
+          </form>
+
+          <div className="mt-2 rounded-xl border border-[#E5E7EB] bg-white p-3 shadow-sm">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-2 text-xs font-bold uppercase tracking-widest text-[#9CA3AF]"><Filter size={13} /> Show</span>
               <FilterChip label="All" href="/dashboard/leads" active={!filtersActive} />
@@ -171,6 +184,12 @@ export default async function Page({ searchParams }: PageProps) {
                           {lead.phone && <span>· {lead.phone}</span>}
                           <span>· {new Intl.DateTimeFormat('en-ZA', { month: 'short', day: 'numeric' }).format(new Date(lead.createdAt))}</span>
                         </div>
+                        {lead.viewingAt && (
+                          <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-[#BFDBFE] bg-[#EFF6FF] px-2.5 py-1 text-xs font-bold text-[#2563EB]">
+                            <CalendarClock size={12} />
+                            Viewing {new Intl.DateTimeFormat('en-ZA', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(lead.viewingAt))}
+                          </div>
+                        )}
 
                         {/* Actions */}
                         <div className="mt-3 flex flex-wrap gap-2">
@@ -267,8 +286,10 @@ export default async function Page({ searchParams }: PageProps) {
 function parseLeadFilters(params?: Record<string, string | string[] | undefined>): LeadFilters {
   const status = firstParam(params?.status);
   const quality = firstParam(params?.quality);
+  const query = firstParam(params?.q);
 
   return {
+    query: query?.trim() || undefined,
     status: isLeadStatus(status) ? status : 'all',
     quality: isLeadQuality(quality) ? quality : 'all',
   };

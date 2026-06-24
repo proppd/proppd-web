@@ -110,7 +110,7 @@ export default async function Page() {
             <StatCard icon={<Eye size={20} />} label="Views (7 days)" value={views7d} color="#1A1A2E" />
             <StatCard icon={<BellRing size={20} />} label="New leads" value={stats.newLeads} color="#2563EB" />
             <StatCard icon={<CheckCircle2 size={20} />} label="Qualified" value={stats.qualifiedLeads} color="#4A3AFF" />
-            <StatCard icon={<TrendingUp size={20} />} label="Total leads" value={stats.totalLeads} color="#2563EB" />
+            <StatCard icon={<TrendingUp size={20} />} label="Converted" value={stats.convertedLeads} color="#166534" sub={stats.totalLeads > 0 ? `${stats.conversionRate}% rate` : undefined} />
           </div>
         </div>
       </section>
@@ -382,7 +382,7 @@ function ToolLink({ icon, label, text, href }: { icon: ReactNode; label: string;
   );
 }
 
-function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color: string }) {
+function StatCard({ icon, label, value, color, sub }: { icon: React.ReactNode; label: string; value: number; color: string; sub?: string }) {
   return (
     <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm sm:p-5">
       <div className="flex items-center gap-3">
@@ -392,6 +392,7 @@ function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label:
         <div>
           <p className="text-2xl font-bold text-[#1A1A2E]">{value}</p>
           <p className="text-xs font-bold text-[#9CA3AF]">{label}</p>
+          {sub && <p className="mt-0.5 text-[10px] font-bold" style={{ color }}>{sub}</p>}
         </div>
       </div>
     </div>

@@ -157,6 +157,7 @@ type LeadRow = {
   quality: string;
   flags: string[] | null;
   created_at: string;
+  viewing_at: string | null;
   source_page: string | null;
   listing_slug: string | null;
   listing_title: string | null;
@@ -394,6 +395,7 @@ export async function loadPortalLeadTimeline(leadId: string, env: PortalEnv = pr
 export type PortalLeadWorkflowUpdate = {
   status?: LeadStatus;
   quality?: 'clean' | 'duplicate' | 'flagged';
+  viewingAt?: string;
 };
 
 export async function updatePortalLeadWorkflow(
@@ -425,14 +427,16 @@ export async function updatePortalLeadWorkflow(
 
     const nextStatus = input.status ?? mapLeadStatus(current.status);
     const nextQuality = input.quality ? mapLeadQualityForDatabase(input.quality) : current.quality;
+    const viewingAt = input.viewingAt ?? null;
 
     await pool.query(
       `update public.leads
        set status = $1::public.lead_status,
            quality = $2::public.lead_quality,
+           viewing_at = coalesce($4::timestamptz, viewing_at),
            updated_at = now()
        where id = $3`,
-      [nextStatus, nextQuality, leadId],
+      [nextStatus, nextQuality, leadId, viewingAt],
     );
 
     await pool.query(
@@ -498,6 +502,76 @@ export async function addPortalLeadNote(
     );
 
     return await loadPortalLeadById(leadId, env);
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export type ConsumerEnquiryRecord = {
+  id: string;
+  listingTitle: string;
+  listingSlug: string;
+  listingCoverImage: string | null;
+  agentName: string;
+  status: LeadStatus;
+  intent: LeadIntent;
+  viewingAt: string | null;
+  createdAt: string;
+};
+
+export async function loadConsumerEnquiries(userEmail: string, env: PortalEnv = process.env): Promise<PortalPayload<ConsumerEnquiryRecord>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { source: 'empty', items: [] };
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const result = await pool.query<{
+      id: string;
+      listing_title: string | null;
+      listing_slug: string | null;
+      cover_image_url: string | null;
+      agent_name: string | null;
+      status: string;
+      intent: string;
+      viewing_at: string | null;
+      created_at: string;
+    }>(
+      `select
+         l.id,
+         li.title as listing_title,
+         li.slug as listing_slug,
+         min(case when img.is_cover then img.image_url end) as cover_image_url,
+         a.name as agent_name,
+         l.status,
+         l.intent,
+         l.viewing_at,
+         l.created_at
+       from public.leads l
+       left join public.listings li on li.id = l.listing_id
+       left join public.listing_images img on img.listing_id = l.listing_id
+       left join public.agents a on a.id = l.agent_id
+       where lower(l.email) = lower($1)
+         and l.quality != 'spam'
+         and l.status != 'fake_spam'
+       group by l.id, li.title, li.slug, a.name
+       order by l.created_at desc
+       limit 50`,
+      [userEmail.trim()],
+    );
+
+    const items: ConsumerEnquiryRecord[] = result.rows.map((row) => ({
+      id: row.id,
+      listingTitle: row.listing_title ?? 'Property enquiry',
+      listingSlug: row.listing_slug ?? '',
+      listingCoverImage: row.cover_image_url ?? null,
+      agentName: row.agent_name ?? 'Proppd agent',
+      status: mapLeadStatus(row.status),
+      intent: mapLeadIntent(row.intent),
+      viewingAt: row.viewing_at ?? null,
+      createdAt: row.created_at,
+    }));
+
+    return { source: items.length > 0 ? 'database' : 'empty', items };
   } catch (error) {
     return { source: 'error', items: [], error: errorMessage(error) };
   }
@@ -1606,6 +1680,7 @@ async function queryLeads(databaseUrl: string, agentName?: string): Promise<Lead
       l.quality,
       l.flags,
       l.created_at,
+      l.viewing_at,
       l.source_page,
       li.slug as listing_slug,
       li.title as listing_title,
@@ -1865,6 +1940,7 @@ function mapLeadRow(row: LeadRow): LeadRecord {
     agent: row.agent_name ?? 'Unassigned agent',
     agency: row.agency_name ?? 'Unassigned agency',
     sourcePage: row.source_page ?? undefined,
+    viewingAt: row.viewing_at ?? undefined,
     latestEventType: row.latest_event_type ?? undefined,
     latestEventAt: row.latest_event_at ?? undefined,
     latestEventNote: row.latest_event_note ?? undefined,

@@ -76,6 +76,18 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
               <ContactCard icon={<MapPinned size={15} />} label="Listing" value={lead.listingTitle} href={`/property/${lead.listingSlug}`} />
             </div>
 
+            {lead.viewingAt && (
+              <div className="mt-5 flex items-center gap-3 rounded-xl border border-[#BFDBFE] bg-[#EFF6FF] p-4">
+                <CalendarClock size={18} className="shrink-0 text-[#2563EB]" />
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#2563EB]">Viewing confirmed</p>
+                  <p className="mt-0.5 text-sm font-bold text-[#1A1A2E]">
+                    {new Intl.DateTimeFormat('en-ZA', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }).format(new Date(lead.viewingAt))}
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div className="mt-5 rounded-lg bg-[#F7F8FA] p-4">
               <p className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">Enquiry · {formatLeadIntent(lead.intent)}</p>
               <p className="mt-2 text-sm leading-6 text-[#6B7280]">{lead.message}</p>
