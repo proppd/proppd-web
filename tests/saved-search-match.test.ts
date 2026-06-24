@@ -19,7 +19,7 @@ function listing(overrides: Partial<Listing>): Listing {
     parking: overrides.parking ?? 2,
     type: overrides.type ?? 'House',
     agency: overrides.agency ?? 'Sakstons',
-    agent: overrides.agent ?? 'Mark Chait',
+    agent: overrides.agent ?? 'Marc Chait',
     gradient: overrides.gradient ?? 'from-[#1A1A2E] to-[#60A5FA]',
     photos: overrides.photos ?? [{ src: 'x', alt: 'x' }],
     description: overrides.description ?? 'desc',
