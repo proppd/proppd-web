@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
-import { ArrowLeft, CalendarClock, CheckCircle2, ExternalLink, Mail, MapPinned, Phone, MessageSquare, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, CalendarClock, CheckCircle2, ExternalLink, Mail, MapPinned, MessageCircle, Phone, MessageSquare, ShieldCheck } from 'lucide-react';
 import { notFound, redirect } from 'next/navigation';
 import { LeadPipelineControls } from '@/components/dashboard/lead-pipeline-controls';
 import { LeadStageSuggestionControls } from '@/components/dashboard/lead-stage-suggestion-controls';
+import { QuickReplyTemplates } from '@/components/dashboard/quick-reply-templates';
 import { loadPortalLeadTimeline, loadPortalUserAccess } from '@/lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
-import { formatLeadIntent, formatLeadStatus, getLeadNextAction, getLeadSourceLabel, getLeadStageSuggestion } from '@/lib/leads/pipeline';
+import { buildWhatsAppHref, formatLeadIntent, formatLeadStatus, getLeadNextAction, getLeadSourceLabel, getLeadStageSuggestion } from '@/lib/leads/pipeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,6 +42,7 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
 
   const controlsEnabled = timeline.source === 'database';
   const emailHref = `mailto:${lead.email}?subject=${encodeURIComponent(`Re: ${lead.listingTitle}`)}&body=${encodeURIComponent(`Hi ${lead.name.split(' ')[0]},\n\n`)}`;
+  const whatsappHref = buildWhatsAppHref(lead.phone, lead.name);
   const nextAction = getLeadNextAction(lead);
   const stageSuggestion = getLeadStageSuggestion(lead);
   const latestEvent = timeline.events[0];
@@ -65,9 +67,12 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
               </span>
             </div>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <div className={`mt-6 grid gap-3 ${whatsappHref ? 'sm:grid-cols-4' : 'sm:grid-cols-3'}`}>
               <ContactCard icon={<Mail size={15} />} label="Email" value={lead.email} href={`mailto:${lead.email}`} />
               <ContactCard icon={<Phone size={15} />} label="Phone" value={lead.phone} href={`tel:${lead.phone.replace(/\s+/g, '')}`} />
+              {whatsappHref && (
+                <ContactCard icon={<MessageCircle size={15} />} label="WhatsApp" value={lead.phone} href={whatsappHref} external />
+              )}
               <ContactCard icon={<MapPinned size={15} />} label="Listing" value={lead.listingTitle} href={`/property/${lead.listingSlug}`} />
             </div>
 
@@ -126,11 +131,23 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
                 </div>
                 <div className="mt-4 grid gap-2">
                   <a href={emailHref} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#4A3AFF] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0]"><Mail size={15} /> Reply by email</a>
+                  {whatsappHref && (
+                    <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#A7F3D0] bg-[#F0FDF4] px-4 py-3 text-sm font-bold text-[#166534] transition hover:bg-[#DCFCE7]"><MessageCircle size={15} /> WhatsApp</a>
+                  )}
                   {lead.listingSlug && (
                     <a href={`/property/${lead.listingSlug}`} className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF]"><ExternalLink size={15} /> View listing</a>
                   )}
                 </div>
               </div>
+
+              <QuickReplyTemplates
+                firstName={lead.name.split(' ')[0] ?? ''}
+                listingTitle={lead.listingTitle}
+                agentName={lead.agent}
+                agency={lead.agency}
+                email={lead.email}
+                phone={lead.phone}
+              />
 
               <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
                 <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Routing snapshot</p>
@@ -167,10 +184,10 @@ function SnapshotRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ContactCard({ icon, label, value, href }: { icon: React.ReactNode; label: string; value: string; href: string }) {
+function ContactCard({ icon, label, value, href, external }: { icon: React.ReactNode; label: string; value: string; href: string; external?: boolean }) {
   return (
-    <a href={href} className="flex items-start gap-2.5 rounded-lg border border-[#E5E7EB] bg-white p-3 transition hover:border-[#4A3AFF]">
-      <span className="mt-0.5 text-[#4A3AFF]">{icon}</span>
+    <a href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined} className={`flex items-start gap-2.5 rounded-lg border p-3 transition ${label === 'WhatsApp' ? 'border-[#A7F3D0] bg-[#F0FDF4] hover:border-[#6EE7B7]' : 'border-[#E5E7EB] bg-white hover:border-[#4A3AFF]'}`}>
+      <span className={`mt-0.5 ${label === 'WhatsApp' ? 'text-[#166534]' : 'text-[#4A3AFF]'}`}>{icon}</span>
       <span className="min-w-0">
         <span className="block text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">{label}</span>
         <span className="block truncate text-sm font-bold text-[#1A1A2E]">{value}</span>

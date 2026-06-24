@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { BarChart3, BellRing, CheckCircle2, ChevronRight, Eye, Home, ListChecks, ListPlus, MessageCircle, Plus, TrendingUp, User } from 'lucide-react';
+import { BarChart3, BellRing, CheckCircle2, ChevronRight, Clock, Eye, Home, ListChecks, ListPlus, MessageCircle, Plus, TrendingUp, User, Zap } from 'lucide-react';
 import { FollowUpPanel } from '@/components/dashboard/follow-up-panel';
 import { loadMyPortalListings, loadPortalLeadQueue, loadPortalListings, loadPortalUserAccess } from '../../lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
-import { getAgentFollowUpActions, getAgentToolCards, getAgentWorkspaceStats, formatAgentResponseSignal, type AgentFollowUpAction, type AgentToolCard } from '@/lib/agent/workspace';
+import { getAgentFollowUpActions, getAgentResponseStats, getAgentToolCards, getAgentWorkspaceStats, formatAgentResponseSignal, type AgentFollowUpAction, type AgentToolCard } from '@/lib/agent/workspace';
+import { formatIdleDuration } from '@/lib/leads/follow-ups';
 
 const agentName = 'Lerato Mokoena';
 
@@ -27,6 +28,7 @@ export default async function Page() {
   const agentListings = portalListings.filter((l) => l.agent === workspaceAgentName);
   const agentLeads = portalLeads.filter((l) => l.agent === workspaceAgentName);
   const followUpActions = getAgentFollowUpActions(workspaceAgentName, portalLeads).slice(0, 3);
+  const responseStats = getAgentResponseStats(workspaceAgentName, portalLeads);
   const toolCards = getAgentToolCards(stats);
   const views7d = agentListings.reduce((sum, l) => sum + (l.views7d ?? 0), 0);
 
@@ -50,6 +52,13 @@ export default async function Page() {
               </a>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Speed-to-lead banner */}
+      <section className="px-4 pb-2 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <SpeedToLeadBanner stats={responseStats} />
         </div>
       </section>
 
@@ -197,6 +206,59 @@ export default async function Page() {
         </div>
       </section>
     </main>
+  );
+}
+
+function SpeedToLeadBanner({ stats }: { stats: ReturnType<typeof getAgentResponseStats> }) {
+  const tone =
+    stats.health === 'urgent'
+      ? { bg: 'border-red-200 bg-red-50', icon: 'bg-red-100 text-red-700', accent: 'text-red-700' }
+      : stats.health === 'watch'
+        ? { bg: 'border-amber-200 bg-amber-50', icon: 'bg-amber-100 text-amber-700', accent: 'text-amber-700' }
+        : { bg: 'border-[#A7F3D0] bg-[#F0FDF4]', icon: 'bg-[#DCFCE7] text-[#166534]', accent: 'text-[#166534]' };
+
+  const headline =
+    stats.health === 'urgent'
+      ? stats.oldestWaitingHours !== null
+        ? `Oldest enquiry waiting ${formatIdleDuration(stats.oldestWaitingHours)}`
+        : `${stats.overdueFollowUps} follow-up${stats.overdueFollowUps === 1 ? '' : 's'} overdue`
+      : stats.health === 'watch'
+        ? `${stats.needsResponse} enquiry${stats.needsResponse === 1 ? '' : 'ies'} awaiting a first reply`
+        : 'You are on top of every enquiry';
+
+  const detail =
+    stats.health === 'clear'
+      ? 'No leads are waiting and no follow-ups are overdue. The first agent to reply wins the deal — keep it up.'
+      : 'Buyers contact several agents at once. The first to respond wins the deal, so clear these before anything else.';
+
+  return (
+    <div className={`flex flex-col gap-4 rounded-2xl border p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between ${tone.bg}`}>
+      <div className="flex items-start gap-3">
+        <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${tone.icon}`}>
+          {stats.health === 'clear' ? <Zap size={20} /> : <Clock size={20} />}
+        </span>
+        <div>
+          <p className={`text-xs font-bold uppercase tracking-widest ${tone.accent}`}>Speed to lead</p>
+          <h2 className="mt-1 text-xl font-bold tracking-tight text-[#1A1A2E]">{headline}</h2>
+          <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-[#6B7280]">{detail}</p>
+        </div>
+      </div>
+      <div className="flex shrink-0 items-center gap-3">
+        <div className="text-center">
+          <p className={`text-2xl font-bold ${tone.accent}`}>{stats.needsResponse}</p>
+          <p className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9CA3AF]">Awaiting reply</p>
+        </div>
+        <div className="text-center">
+          <p className={`text-2xl font-bold ${tone.accent}`}>{stats.overdueFollowUps}</p>
+          <p className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9CA3AF]">Overdue</p>
+        </div>
+        {(stats.needsResponse > 0 || stats.overdueFollowUps > 0) && (
+          <a href="/dashboard/leads?status=new" className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1A1A2E] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#000]">
+            Work now
+          </a>
+        )}
+      </div>
+    </div>
   );
 }
 
