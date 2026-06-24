@@ -106,15 +106,17 @@ export default async function AgentsPage({ searchParams }: { searchParams: Searc
               <a
                 key={agent.name}
                 href={`/agents/${slugifyDirectoryName(agent.name)}`}
-                className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-200/80"
+                className="relative rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-200/80"
               >
+                {agent.isVerified && (
+                  <div className="absolute right-4 top-4">
+                    <PpraVerifiedBadge size="sm" />
+                  </div>
+                )}
                 <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[#4A3AFF] to-[#60A5FA] text-2xl font-bold text-white">
                   {agent.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}
                 </div>
-                <div className="mt-5 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-[#2563EB]">
-                  {agent.isVerified ? <PpraVerifiedBadge size="sm" /> : null}
-                </div>
-                <h2 className="mt-3 text-2xl font-bold tracking-[-.04em]">{agent.name}</h2>
+                <h2 className="mt-5 text-2xl font-bold tracking-[-.04em]">{agent.name}</h2>
                 <p className="mt-2 flex items-center gap-2 text-sm font-bold text-[#9CA3AF]"><Building2 size={16} /> {agent.agency}</p>
                 <p className="mt-2 flex items-center gap-2 text-sm font-bold text-[#9CA3AF]"><MapPin size={16} /> {agent.area}</p>
                 <div className="mt-6 rounded-3xl bg-[#F7F8FA] p-4">

@@ -35,17 +35,19 @@ export async function FeaturedAgents() {
             <a
               key={agent.name}
               href={`/agents/${slugifyDirectoryName(agent.name)}`}
-              className="group rounded-xl border border-[#E5E7EB] bg-white p-5 transition hover:shadow-lg hover:shadow-black/5"
+              className="group relative rounded-xl border border-[#E5E7EB] bg-white p-5 transition hover:shadow-lg hover:shadow-black/5"
             >
+              {agent.isVerified && (
+                <div className="absolute right-3 top-3">
+                  <PpraVerifiedBadge size="sm" />
+                </div>
+              )}
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#4A3AFF] text-sm font-bold text-white">
                   {agent.name.split(' ').map((p) => p[0]).join('').slice(0, 2)}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="truncate text-base font-bold text-[#1A1A2E]">{agent.name}</h3>
-                    {agent.isVerified ? <PpraVerifiedBadge size="sm" /> : null}
-                  </div>
+                  <h3 className="truncate text-base font-bold text-[#1A1A2E]">{agent.name}</h3>
                   <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[#6B7280]">
                     <span className="flex items-center gap-1">
                       <Building2 size={13} className="text-[#9CA3AF]" /> {agent.agency}
