@@ -153,6 +153,12 @@ export function SiteHeader() {
             {signedIn ? (
               <>
                 <a
+                  href="/account/enquiries"
+                  className="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
+                >
+                  My enquiries
+                </a>
+                <a
                   href="/dashboard"
                   className="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
                 >

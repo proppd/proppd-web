@@ -507,6 +507,76 @@ export async function addPortalLeadNote(
   }
 }
 
+export type ConsumerEnquiryRecord = {
+  id: string;
+  listingTitle: string;
+  listingSlug: string;
+  listingCoverImage: string | null;
+  agentName: string;
+  status: LeadStatus;
+  intent: LeadIntent;
+  viewingAt: string | null;
+  createdAt: string;
+};
+
+export async function loadConsumerEnquiries(userEmail: string, env: PortalEnv = process.env): Promise<PortalPayload<ConsumerEnquiryRecord>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { source: 'empty', items: [] };
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const result = await pool.query<{
+      id: string;
+      listing_title: string | null;
+      listing_slug: string | null;
+      cover_image_url: string | null;
+      agent_name: string | null;
+      status: string;
+      intent: string;
+      viewing_at: string | null;
+      created_at: string;
+    }>(
+      `select
+         l.id,
+         li.title as listing_title,
+         li.slug as listing_slug,
+         min(case when img.is_cover then img.image_url end) as cover_image_url,
+         a.name as agent_name,
+         l.status,
+         l.intent,
+         l.viewing_at,
+         l.created_at
+       from public.leads l
+       left join public.listings li on li.id = l.listing_id
+       left join public.listing_images img on img.listing_id = l.listing_id
+       left join public.agents a on a.id = l.agent_id
+       where lower(l.email) = lower($1)
+         and l.quality != 'spam'
+         and l.status != 'fake_spam'
+       group by l.id, li.title, li.slug, a.name
+       order by l.created_at desc
+       limit 50`,
+      [userEmail.trim()],
+    );
+
+    const items: ConsumerEnquiryRecord[] = result.rows.map((row) => ({
+      id: row.id,
+      listingTitle: row.listing_title ?? 'Property enquiry',
+      listingSlug: row.listing_slug ?? '',
+      listingCoverImage: row.cover_image_url ?? null,
+      agentName: row.agent_name ?? 'Proppd agent',
+      status: mapLeadStatus(row.status),
+      intent: mapLeadIntent(row.intent),
+      viewingAt: row.viewing_at ?? null,
+      createdAt: row.created_at,
+    }));
+
+    return { source: items.length > 0 ? 'database' : 'empty', items };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
 export function buildLeadWorkflowEventNotes(previousStatus: LeadStatus, nextStatus: LeadStatus, previousQuality: LeadQuality, nextQuality: LeadQuality): string {
   const changes: string[] = [];
 
