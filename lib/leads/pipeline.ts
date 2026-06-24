@@ -337,3 +337,32 @@ export function getLeadSourceGroup(sourcePage?: string): Exclude<LeadSourceGroup
 
   return 'portal';
 }
+
+export type LeadScoreLabel = 'Hot' | 'Warm' | 'Cool';
+
+export function scoreLeadRecord(lead: LeadRecord): number {
+  let score = 0;
+
+  const intentScore: Record<LeadIntent, number> = { viewing: 40, finance: 30, more_info: 20, valuation: 10 };
+  score += intentScore[lead.intent] ?? 20;
+
+  if (lead.phone?.trim()) score += 15;
+
+  const msgLen = (lead.message ?? '').trim().length;
+  if (msgLen > 150) score += 15;
+  else if (msgLen > 75) score += 10;
+  else if (msgLen > 30) score += 5;
+
+  if (lead.quality === 'flagged') score -= 20;
+  else if (lead.quality === 'duplicate') score -= 10;
+
+  score -= Math.min((lead.flags?.length ?? 0) * 5, 15);
+
+  return Math.max(0, Math.min(100, score));
+}
+
+export function getScoreLabel(score: number): { label: LeadScoreLabel; chip: string } {
+  if (score >= 60) return { label: 'Hot',  chip: 'bg-red-50 text-red-700' };
+  if (score >= 35) return { label: 'Warm', chip: 'bg-amber-50 text-amber-700' };
+  return             { label: 'Cool', chip: 'bg-[#F3F4F6] text-[#9CA3AF]' };
+}

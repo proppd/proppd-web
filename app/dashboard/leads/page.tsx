@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { MessageCircle, Mail, Phone, Clock, CheckCircle, TrendingUp, ExternalLink, Filter, ListChecks, Search, X, CalendarClock } from 'lucide-react';
 import { loadPortalLeadQueue, loadPortalUserAccess } from '@/lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
-import { buildLeadFilterHref, buildWhatsAppHref, filterLeads, formatLeadStatus, getLeadCrmStats, getLeadNextAction, getLeadQueue, getLeadSourceStats, hasLeadFilters, isLeadStatus, type LeadFilters, type LeadQuality, type LeadRecord, type LeadStatus } from '@/lib/leads/pipeline';
+import { buildLeadFilterHref, buildWhatsAppHref, filterLeads, formatLeadStatus, getLeadCrmStats, getLeadNextAction, getLeadQueue, getLeadSourceStats, getScoreLabel, hasLeadFilters, isLeadStatus, scoreLeadRecord, type LeadFilters, type LeadQuality, type LeadRecord, type LeadStatus } from '@/lib/leads/pipeline';
 import { hoursSince, formatIdleDuration, getFollowUpUrgency } from '@/lib/leads/follow-ups';
 import { LeadPipelineControls } from '@/components/dashboard/lead-pipeline-controls';
 
@@ -148,6 +148,8 @@ export default async function Page({ searchParams }: PageProps) {
                   const ageHours = hoursSince(lead.createdAt, now);
                   const urgency = getFollowUpUrgency(lead, now);
                   const whatsappHref = buildWhatsAppHref(lead.phone, lead.name);
+                  const score = scoreLeadRecord(lead);
+                  const scoreMeta = getScoreLabel(score);
                   return (
                     <div key={lead.id} className="flex items-start gap-4 px-4 py-4 transition hover:bg-[#F7F8FA] sm:px-6">
                       {/* Avatar */}
@@ -164,6 +166,9 @@ export default async function Page({ searchParams }: PageProps) {
                           </div>
                           <div className="flex flex-wrap items-center gap-2">
                             <LeadAgeChip hours={ageHours} urgency={urgency} />
+                            <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${scoreMeta.chip}`} title={`Lead score: ${score}/100`}>
+                              {scoreMeta.label} {score}
+                            </span>
                             <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${intent.bg} ${intent.text}`}>
                               {lead.intent}
                             </span>
