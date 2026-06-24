@@ -1,4 +1,4 @@
-import { Clock, TrendingDown, Eye } from 'lucide-react';
+import { Clock, TrendingDown, Eye, ShieldCheck } from 'lucide-react';
 
 type BadgeType = 'new' | 'price-drop' | 'open-house' | 'featured' | 'verified';
 
@@ -9,10 +9,15 @@ interface ListingBadge {
 
 export function getListingBadges(listing: {
   featured?: boolean;
+  isVerified?: boolean;
   listedAt?: string;
   priceReduced?: boolean;
 }): ListingBadge[] {
   const badges: ListingBadge[] = [];
+
+  if (listing.isVerified) {
+    badges.push({ type: 'verified', label: 'Verified' });
+  }
 
   if (listing.featured) {
     badges.push({ type: 'featured', label: 'Featured' });
@@ -52,7 +57,7 @@ function Badge({ badge }: { badge: ListingBadge }) {
     'price-drop': 'bg-red-500 text-white',
     'open-house': 'bg-[#DBEAFE] text-[#1A1A2E]',
     'featured': 'bg-[#F59E0B] text-white',
-    'verified': 'bg-[#4A3AFF] text-white',
+    'verified': 'bg-[#166534] text-white',
   };
 
   const icons: Record<BadgeType, React.ReactNode> = {
@@ -60,7 +65,7 @@ function Badge({ badge }: { badge: ListingBadge }) {
     'price-drop': <TrendingDown size={10} />,
     'open-house': <Eye size={10} />,
     'featured': null,
-    'verified': null,
+    'verified': <ShieldCheck size={10} />,
   };
 
   return (
