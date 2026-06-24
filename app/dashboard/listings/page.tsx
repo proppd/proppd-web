@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { Plus, Pencil, Eye, Home, Clock, CheckCircle, ListChecks } from 'lucide-react';
+import { Plus, Pencil, Eye, Home, Clock, CheckCircle, ListChecks, ShieldCheck } from 'lucide-react';
+import { ListingVerifyToggle } from '@/components/dashboard/listing-verify-toggle';
 import { loadMyPortalListings, loadPortalUserAccess } from '@/lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
 import { getListingHealthLabel, getListingWorkspaceActions, getListingWorkspaceStats, type ListingWorkspaceAction } from '@/lib/agent/listing-workspace';
@@ -103,6 +104,9 @@ export default async function Page() {
                       <th className="hidden px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#9CA3AF] md:table-cell">Beds</th>
                       <th className="hidden px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#9CA3AF] md:table-cell">Views</th>
                       <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">Status</th>
+                      <th className="hidden px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-[#9CA3AF] sm:table-cell" title="Proppd-verified listing">
+                        <ShieldCheck size={13} className="mx-auto" />
+                      </th>
                       <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">Actions</th>
                     </tr>
                   </thead>
@@ -138,6 +142,9 @@ export default async function Page() {
                             <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${listingHealthClass(getListingHealthLabel(listing))}`}>
                               {getListingHealthLabel(listing)}
                             </span>
+                          </td>
+                          <td className="hidden px-4 py-3 text-center sm:table-cell">
+                            <ListingVerifyToggle slug={listing.slug} initialVerified={listing.isVerified ?? false} />
                           </td>
                           <td className="px-4 py-3 text-right">
                             <div className="flex items-center justify-end gap-1">

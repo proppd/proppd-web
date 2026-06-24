@@ -31,6 +31,7 @@ export type Listing = {
   lat?: number;
   lng?: number;
   featured?: boolean;
+  isVerified?: boolean;
   isActive?: boolean;
   viewsTotal?: number;
   views7d?: number;
@@ -80,6 +81,7 @@ export const listings: Listing[] = [
     rates: 'R 1 850 pm',
     levies: 'R 1 420 pm',
     featured: true,
+    isVerified: true,
     lat: -26.0989,
     lng: 28.0556,
   },

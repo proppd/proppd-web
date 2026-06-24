@@ -183,7 +183,11 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,48,.12)_0%,rgba(5,10,48,.08)_42%,rgba(5,10,48,.82)_100%)]" />
               <div className="relative flex gap-2">
                 <span className="rounded-md bg-white px-3 py-1 text-xs font-bold uppercase tracking-[.08em] text-[#1A1A2E]">{listing.purpose}</span>
-                <a href="#verification" className="rounded-md bg-[#DBEAFE] px-3 py-1 text-xs font-bold uppercase tracking-[.08em] text-[#1A1A2E] transition hover:bg-white">Verified</a>
+                {listing.isVerified && (
+                  <span className="inline-flex items-center gap-1.5 rounded-md bg-[#166534] px-3 py-1 text-xs font-bold uppercase tracking-[.08em] text-white">
+                    <ShieldCheck size={12} /> Proppd Verified
+                  </span>
+                )}
               </div>
               <div className="relative mt-20 max-w-3xl sm:mt-48">
                 <p className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold backdrop-blur sm:px-4 sm:py-2 sm:text-sm"><MapPin size={14} /> {listing.location}</p>

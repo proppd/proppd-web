@@ -74,6 +74,7 @@ export type PortalListingDraft = {
   agentId: string | null;
   agentName: string | null;
   isFeatured: boolean;
+  isVerified: boolean;
   floorSizeSqm: number | string | null;
   erfSizeSqm: number | string | null;
   ratesAndTaxes: number | string | null;
@@ -137,6 +138,7 @@ type ListingRow = {
   published_at: string | null;
   created_at: string;
   is_featured: boolean | null;
+  is_verified: boolean | null;
   floor_size_sqm: number | string | null;
   erf_size_sqm: number | string | null;
   rates_and_taxes: number | string | null;
@@ -708,6 +710,7 @@ async function queryManagedListings(databaseUrl: string, access: PortalUserAcces
       l.published_at,
       l.created_at,
       l.is_featured,
+      l.is_verified,
       l.floor_size_sqm,
       l.erf_size_sqm,
       l.rates_and_taxes,
@@ -751,6 +754,7 @@ function mapListingDraftRow(row: ManagedListingRow): PortalListingDraft {
     agentId: row.agent_id,
     agentName: row.agent_name,
     isFeatured: Boolean(row.is_featured),
+    isVerified: Boolean(row.is_verified),
     floorSizeSqm: row.floor_size_sqm,
     erfSizeSqm: row.erf_size_sqm,
     ratesAndTaxes: row.rates_and_taxes,
@@ -1379,6 +1383,32 @@ export async function updatePortalListingBySlug(
   }
 }
 
+export async function toggleListingVerification(
+  slug: string,
+  verified: boolean,
+  access: PortalUserAccess,
+  env: PortalEnv = process.env,
+): Promise<{ ok: boolean; error?: string }> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { ok: false, error: 'Database not configured.' };
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const owned = await queryManagedListings(databaseUrl, access, slug);
+    if (owned.length === 0 && access.role !== 'super_admin') {
+      return { ok: false, error: 'You do not have access to this listing.' };
+    }
+
+    await pool.query(
+      `update public.listings set is_verified = $1, updated_at = now() where slug = $2`,
+      [verified, slug],
+    );
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: errorMessage(error) };
+  }
+}
+
 export type PortalAgentProfile = {
   agentId: string;
   name: string;
@@ -1638,6 +1668,7 @@ async function queryListings(databaseUrl: string, slug?: string): Promise<Listin
       l.published_at,
       l.created_at,
       l.is_featured,
+      l.is_verified,
       l.floor_size_sqm,
       l.erf_size_sqm,
       l.rates_and_taxes,
@@ -1916,6 +1947,7 @@ function mapListingRow(row: ListingRow): Listing {
     rates: toMoneyDisplay(row.rates_and_taxes),
     levies: toMoneyDisplay(row.levies),
     featured: Boolean(row.is_featured),
+    isVerified: Boolean(row.is_verified),
     viewsTotal: toOptionalNumber(row.views_total ?? null),
     views7d: toOptionalNumber(row.views_7d ?? null),
   };
