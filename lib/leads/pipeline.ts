@@ -304,6 +304,16 @@ export function getLeadActivityLabel(eventType?: string): string {
   return labels[type] ?? 'Activity recorded';
 }
 
+export function buildWhatsAppHref(phone: string, leadName?: string): string | null {
+  if (!phone?.trim()) return null;
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < 7) return null;
+  // Normalise SA numbers: 0XX → 2727XX; international +XX already stripped of +
+  const normalised = digits.startsWith('27') ? digits : digits.startsWith('0') ? `27${digits.slice(1)}` : digits;
+  const greeting = leadName ? `Hi ${leadName.split(' ')[0]}, ` : '';
+  return `https://wa.me/${normalised}?text=${encodeURIComponent(greeting)}`;
+}
+
 export function getLeadSourceGroup(sourcePage?: string): Exclude<LeadSourceGroup, 'all'> {
   const page = sourcePage?.trim();
   if (!page) return 'general';
