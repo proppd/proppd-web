@@ -75,6 +75,10 @@ export type PortalListingDraft = {
   agentName: string | null;
   isFeatured: boolean;
   isVerified: boolean;
+  mandateType: string | null;
+  mandateSellerName: string | null;
+  mandateCommissionPct: number | null;
+  mandateExpiresAt: string | null;
   floorSizeSqm: number | string | null;
   erfSizeSqm: number | string | null;
   ratesAndTaxes: number | string | null;
@@ -104,6 +108,10 @@ export type PortalListingWriteInput = {
   ratesAndTaxes?: number;
   levies?: number;
   isFeatured?: boolean;
+  mandateType?: 'sole' | 'joint' | 'open';
+  mandateSellerName?: string;
+  mandateCommissionPct?: number;
+  mandateExpiresAt?: string;
   photos?: PortalListingPhotoInput[];
 };
 
@@ -139,6 +147,10 @@ type ListingRow = {
   created_at: string;
   is_featured: boolean | null;
   is_verified: boolean | null;
+  mandate_type: string | null;
+  mandate_seller_name: string | null;
+  mandate_commission_pct: string | number | null;
+  mandate_expires_at: string | null;
   floor_size_sqm: number | string | null;
   erf_size_sqm: number | string | null;
   rates_and_taxes: number | string | null;
@@ -711,6 +723,10 @@ async function queryManagedListings(databaseUrl: string, access: PortalUserAcces
       l.created_at,
       l.is_featured,
       l.is_verified,
+      l.mandate_type,
+      l.mandate_seller_name,
+      l.mandate_commission_pct,
+      l.mandate_expires_at,
       l.floor_size_sqm,
       l.erf_size_sqm,
       l.rates_and_taxes,
@@ -755,6 +771,10 @@ function mapListingDraftRow(row: ManagedListingRow): PortalListingDraft {
     agentName: row.agent_name,
     isFeatured: Boolean(row.is_featured),
     isVerified: Boolean(row.is_verified),
+    mandateType: row.mandate_type ?? null,
+    mandateSellerName: row.mandate_seller_name ?? null,
+    mandateCommissionPct: row.mandate_commission_pct !== null ? Number(row.mandate_commission_pct) : null,
+    mandateExpiresAt: row.mandate_expires_at ?? null,
     floorSizeSqm: row.floor_size_sqm,
     erfSizeSqm: row.erf_size_sqm,
     ratesAndTaxes: row.rates_and_taxes,
@@ -1336,6 +1356,10 @@ export async function updatePortalListingBySlug(
         rates_and_taxes = $15,
         levies = $16,
         is_featured = $17,
+        mandate_type = $19,
+        mandate_seller_name = $20,
+        mandate_commission_pct = $21,
+        mandate_expires_at = $22,
         updated_at = now(),
         published_at = case when $4::public.listing_status = 'available' and published_at is null then now() else published_at end
       where slug = $18
@@ -1345,7 +1369,8 @@ export async function updatePortalListingBySlug(
         (select name from public.property_types where id = property_type_id) as property_type_name,
         agency_id, (select name from public.agencies where id = agency_id) as agency_name,
         agent_id, (select name from public.agents where id = agent_id) as agent_name,
-        is_featured, floor_size_sqm, erf_size_sqm, rates_and_taxes, levies, published_at, created_at`,
+        is_featured, is_verified, mandate_type, mandate_seller_name, mandate_commission_pct, mandate_expires_at,
+        floor_size_sqm, erf_size_sqm, rates_and_taxes, levies, published_at, created_at`,
       [
         propertyTypeId,
         input.title,
@@ -1365,6 +1390,10 @@ export async function updatePortalListingBySlug(
         input.levies ?? null,
         Boolean(input.isFeatured),
         slug,
+        input.mandateType ?? null,
+        input.mandateSellerName ?? null,
+        input.mandateCommissionPct ?? null,
+        input.mandateExpiresAt ?? null,
       ],
     );
 
@@ -1752,6 +1781,10 @@ async function queryListings(databaseUrl: string, slug?: string): Promise<Listin
       l.created_at,
       l.is_featured,
       l.is_verified,
+      l.mandate_type,
+      l.mandate_seller_name,
+      l.mandate_commission_pct,
+      l.mandate_expires_at,
       l.floor_size_sqm,
       l.erf_size_sqm,
       l.rates_and_taxes,
@@ -2031,6 +2064,10 @@ function mapListingRow(row: ListingRow): Listing {
     levies: toMoneyDisplay(row.levies),
     featured: Boolean(row.is_featured),
     isVerified: Boolean(row.is_verified),
+    mandateType: (row.mandate_type as 'sole' | 'joint' | 'open' | null) ?? undefined,
+    mandateSellerName: row.mandate_seller_name ?? undefined,
+    mandateCommissionPct: row.mandate_commission_pct !== null ? Number(row.mandate_commission_pct) : undefined,
+    mandateExpiresAt: row.mandate_expires_at ?? undefined,
     viewsTotal: toOptionalNumber(row.views_total ?? null),
     views7d: toOptionalNumber(row.views_7d ?? null),
   };
@@ -2094,6 +2131,9 @@ function buildHighlights(row: ListingRow): Listing['highlights'] {
 }
 
 function buildMandate(row: ListingRow): Listing['mandate'] {
+  if (row.mandate_type === 'sole') return 'Sole mandate';
+  if (row.mandate_type === 'joint') return 'Joint mandate';
+  if (row.mandate_type === 'open') return 'Open mandate';
   if (row.is_featured) return 'Verified mandate';
   if (row.agent_name && row.agency_name) return 'Agency verified';
   return 'Owner verified';
