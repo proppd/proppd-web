@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { Plus, Pencil, Eye, Home, Clock, CheckCircle, ListChecks, ShieldCheck } from 'lucide-react';
 import { ListingVerifyToggle } from '@/components/dashboard/listing-verify-toggle';
-import { loadMyPortalListings, loadPortalUserAccess } from '@/lib/proppd/backend';
+import { loadDuplicateListingGroups, loadMyPortalListings, loadPortalUserAccess, type DuplicateListingGroup } from '@/lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
 import { getListingHealthLabel, getListingWorkspaceActions, getListingWorkspaceStats, type ListingWorkspaceAction } from '@/lib/agent/listing-workspace';
 
@@ -31,7 +31,10 @@ export default async function Page() {
   }
 
   const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
-  const { items: listings } = access ? await loadMyPortalListings(access) : { items: [] };
+  const [{ items: listings }, duplicates] = await Promise.all([
+    access ? loadMyPortalListings(access) : Promise.resolve({ items: [] }),
+    access ? loadDuplicateListingGroups(access) : Promise.resolve([]),
+  ]);
 
   const stats = getListingWorkspaceStats(listings);
   const actions = getListingWorkspaceActions(listings);
@@ -81,6 +84,19 @@ export default async function Page() {
             <MiniStat icon={<Clock size={16} />} label="To rent" value={stats.rent} />
             <MiniStat icon={<Eye size={16} />} label="Views 7d" value={stats.views7d} color="#4A3AFF" />
           </div>
+
+          {/* Duplicate alert */}
+          {duplicates.length > 0 && (
+            <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-5">
+              <p className="text-xs font-bold uppercase tracking-widest text-amber-700">Potential duplicates</p>
+              <p className="mt-1 text-sm font-semibold text-amber-800">
+                {duplicates.length} listing pair{duplicates.length === 1 ? '' : 's'} share the same suburb, bedrooms and a similar price. Review and archive the duplicate.
+              </p>
+              <div className="mt-4 space-y-3">
+                {duplicates.map((group, i) => <DuplicateGroupRow key={i} group={group} />)}
+              </div>
+            </div>
+          )}
 
           {/* Listings table */}
           <div className="mt-6 rounded-xl border border-[#E5E7EB] bg-white shadow-sm overflow-hidden">
@@ -187,6 +203,29 @@ function listingHealthClass(label: string): string {
   if (label === 'Refresh details') return 'bg-[#4A3AFF]/10 text-[#4A3AFF]';
   if (label === 'Needs exposure') return 'bg-slate-100 text-slate-600';
   return 'bg-[#EFF6FF] text-[#2563EB]';
+}
+
+function DuplicateGroupRow({ group }: { group: DuplicateListingGroup }) {
+  const location = [group.suburb, group.city].filter(Boolean).join(', ') || 'Unknown location';
+  const beds = group.bedrooms !== null ? `${group.bedrooms} bed` : '';
+  return (
+    <div className="flex flex-wrap items-start gap-3 rounded-lg border border-amber-200 bg-white p-4">
+      <div className="min-w-0 flex-1 space-y-1">
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          <a href={`/dashboard/listings/${group.slug1}/edit`} className="text-sm font-bold text-[#1A1A2E] hover:text-[#4A3AFF] truncate">{group.title1}</a>
+          <span className="text-xs text-[#9CA3AF]">{group.agent1 ?? 'Unassigned'}</span>
+        </div>
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          <a href={`/dashboard/listings/${group.slug2}/edit`} className="text-sm font-bold text-[#1A1A2E] hover:text-[#4A3AFF] truncate">{group.title2}</a>
+          <span className="text-xs text-[#9CA3AF]">{group.agent2 ?? 'Unassigned'}</span>
+        </div>
+      </div>
+      <div className="shrink-0 text-right">
+        <p className="text-sm font-bold text-amber-800">{group.price}</p>
+        <p className="text-xs text-amber-700">{[location, beds].filter(Boolean).join(' · ')}</p>
+      </div>
+    </div>
+  );
 }
 
 function MiniStat({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color?: string }) {
