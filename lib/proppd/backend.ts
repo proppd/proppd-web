@@ -1409,6 +1409,89 @@ export async function toggleListingVerification(
   }
 }
 
+export type DuplicateListingGroup = {
+  slug1: string;
+  title1: string;
+  agent1: string | null;
+  slug2: string;
+  title2: string;
+  agent2: string | null;
+  suburb: string | null;
+  city: string | null;
+  bedrooms: number | null;
+  price: string;
+};
+
+export async function loadDuplicateListingGroups(
+  access: PortalUserAccess,
+  env: PortalEnv = process.env,
+): Promise<DuplicateListingGroup[]> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return [];
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const values: (string | boolean)[] = [];
+
+    // For non-admins scope to pairs involving the agent's own listings.
+    let ownershipFilter = '';
+    if (access.role !== 'super_admin') {
+      const ors: string[] = [];
+      if (access.agentId) {
+        values.push(access.agentId);
+        ors.push(`l1.agent_id = $${values.length} or l2.agent_id = $${values.length}`);
+      }
+      if (access.agencyId) {
+        values.push(access.agencyId);
+        ors.push(`l1.agency_id = $${values.length} or l2.agency_id = $${values.length}`);
+      }
+      if (ors.length > 0) ownershipFilter = `and (${ors.join(' or ')})`;
+    }
+
+    const sql = `
+      select
+        l1.slug  as slug1,  l1.title as title1,
+        a1.name  as agent1,
+        l2.slug  as slug2,  l2.title as title2,
+        a2.name  as agent2,
+        l1.suburb, l1.city,
+        l1.bedrooms,
+        l1.price
+      from public.listings l1
+      join public.listings l2
+        on  l2.id > l1.id
+        and lower(trim(coalesce(l1.suburb,''))) = lower(trim(coalesce(l2.suburb,'')))
+        and lower(trim(coalesce(l1.city,'')))   = lower(trim(coalesce(l2.city,'')))
+        and l1.purpose   = l2.purpose
+        and l1.bedrooms  = l2.bedrooms
+        and l1.price > 0
+        and abs(l1.price - l2.price) / l1.price < 0.05
+        and l2.status not in ('archived','fake_spam')
+      left join public.agents a1 on a1.id = l1.agent_id
+      left join public.agents a2 on a2.id = l2.agent_id
+      where l1.status not in ('archived','fake_spam')
+      ${ownershipFilter}
+      order by l1.created_at desc
+      limit 10
+    `;
+
+    const result = await pool.query<{
+      slug1: string; title1: string; agent1: string | null;
+      slug2: string; title2: string; agent2: string | null;
+      suburb: string | null; city: string | null;
+      bedrooms: string | null; price: string;
+    }>(sql, values);
+
+    return result.rows.map((r) => ({
+      ...r,
+      bedrooms: r.bedrooms !== null ? Number(r.bedrooms) : null,
+      price: formatListingPrice(Number(r.price), 'sale'),
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export type PortalAgentProfile = {
   agentId: string;
   name: string;
