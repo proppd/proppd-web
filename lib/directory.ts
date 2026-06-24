@@ -8,6 +8,8 @@ export type DirectoryAgent = {
   isActive?: boolean;
   /** Passed PPRA / Fidelity Fund validation (agents.is_verified). */
   isVerified?: boolean;
+  /** Normalised Fidelity Fund Certificate number from the PPRA register. */
+  ffcNumber?: string;
 };
 
 export type DirectoryAgency = {

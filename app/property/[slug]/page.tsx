@@ -17,7 +17,8 @@ import { SaveListingButton } from '@/components/properties/save-listing-button';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { Breadcrumbs } from '@/components/site/breadcrumbs';
-import { loadPortalDiagnostics, loadPortalListingBySlug, loadPortalListings } from '../../../lib/proppd/backend';
+import { loadPortalDiagnostics, loadPortalListingBySlug, loadPortalListings, loadPortalAgents } from '../../../lib/proppd/backend';
+import { PpraVerificationDialog } from '@/components/agent/ppra-verification-dialog';
 import { listings as demoListings } from '@/lib/demo-data';
 import { buildEnquiryMailto, buildListingShareText, getListingBySlug, getListingFacts, getRelatedListings } from '@/lib/listings/details';
 
@@ -62,13 +63,16 @@ export const dynamic = 'force-dynamic';
 
 export default async function PropertyPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [portalListing, portalListings, diagnostics] = await Promise.all([
+  const [portalListing, portalListings, diagnostics, portalAgents] = await Promise.all([
     loadPortalListingBySlug(slug),
     loadPortalListings(),
     loadPortalDiagnostics(),
+    loadPortalAgents(),
   ]);
   const listing = portalListing.items[0] ?? getListingBySlug(demoListings, slug);
   if (!listing) notFound();
+
+  const listingAgent = portalAgents.items.find((a) => a.name === listing.agent);
 
   const facts = getListingFacts(listing);
   const relatedSourceListings = portalListings.source === 'database' ? portalListings.items : demoListings;
@@ -304,7 +308,11 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                     <p className="truncate text-sm font-bold text-[#1A1A2E]">{listing.agent}</p>
                     <p className="flex items-center gap-1 truncate text-xs font-bold text-[#9CA3AF]"><Building2 size={12} className="shrink-0" /> {listing.agency}</p>
                   </div>
-                  <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-full bg-[#EFF6FF] px-2 py-0.5 text-[10px] font-bold text-[#2563EB]"><ShieldCheck size={10} /> Verified</span>
+                  {listingAgent?.isVerified && listingAgent.ffcNumber ? (
+                    <PpraVerificationDialog agentName={listing.agent} ffcNumber={listingAgent.ffcNumber} size="sm" className="ml-auto shrink-0" />
+                  ) : (
+                    <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-full bg-[#EFF6FF] px-2 py-0.5 text-[10px] font-bold text-[#2563EB]"><ShieldCheck size={10} /> Verified</span>
+                  )}
                 </div>
                 <div className="mt-4 grid gap-2 text-sm font-bold text-[#6B7280]">
                   <span className="flex items-center gap-2"><ShieldCheck size={16} className="text-[#2563EB]" /> {listing.mandate}</span>
