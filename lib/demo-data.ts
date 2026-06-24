@@ -22,7 +22,7 @@ export type Listing = {
   description: string;
   features: string[];
   highlights: string[];
-  mandate: 'Verified mandate' | 'Owner verified' | 'Agency verified';
+  mandate: 'Sole mandate' | 'Joint mandate' | 'Open mandate' | 'Verified mandate' | 'Owner verified' | 'Agency verified';
   listedAt: string;
   floorSize?: number;
   erfSize?: number;
@@ -32,6 +32,10 @@ export type Listing = {
   lng?: number;
   featured?: boolean;
   isVerified?: boolean;
+  mandateType?: 'sole' | 'joint' | 'open';
+  mandateSellerName?: string;
+  mandateCommissionPct?: number;
+  mandateExpiresAt?: string;
   isActive?: boolean;
   viewsTotal?: number;
   views7d?: number;

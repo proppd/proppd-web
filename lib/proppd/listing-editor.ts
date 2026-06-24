@@ -46,6 +46,10 @@ export type ValidPortalListingInput = {
   ratesAndTaxes?: number;
   levies?: number;
   isFeatured?: boolean;
+  mandateType?: 'sole' | 'joint' | 'open';
+  mandateSellerName?: string;
+  mandateCommissionPct?: number;
+  mandateExpiresAt?: string;
   photos: PortalListingPhotoInput[];
 };
 
@@ -127,6 +131,13 @@ export function validatePortalListingInput(input: PortalListingInput) {
     return { success: false as const, errors };
   }
 
+  const mandateTypeRaw = coerceString(input.mandateType);
+  const mandateType = (mandateTypeRaw === 'sole' || mandateTypeRaw === 'joint' || mandateTypeRaw === 'open')
+    ? mandateTypeRaw : undefined;
+
+  const mandateExpiresAtRaw = coerceString(input.mandateExpiresAt);
+  const mandateExpiresAt = mandateExpiresAtRaw || undefined;
+
   return {
     success: true as const,
     data: {
@@ -147,6 +158,10 @@ export function validatePortalListingInput(input: PortalListingInput) {
       ratesAndTaxes,
       levies,
       isFeatured: coerceBoolean(input.isFeatured),
+      mandateType,
+      mandateSellerName: coerceString(input.mandateSellerName) || undefined,
+      mandateCommissionPct: coerceNumber(input.mandateCommissionPct),
+      mandateExpiresAt,
       photos: parseListingPhotos(input.photos),
     } satisfies ValidPortalListingInput,
   };

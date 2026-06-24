@@ -296,7 +296,14 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                   <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
                     <VerificationPoint title="Agency named" text={listing.agency} />
                     <VerificationPoint title="Mandate shown" text={listing.mandate} />
-                    <VerificationPoint title="Handoff route" text={leadRoutingLive ? 'Portal enquiry route' : 'Email enquiry route'} />
+                    {listing.mandateCommissionPct ? (
+                      <VerificationPoint title="Commission" text={`${listing.mandateCommissionPct}%`} />
+                    ) : (
+                      <VerificationPoint title="Handoff route" text={leadRoutingLive ? 'Portal enquiry route' : 'Email enquiry route'} />
+                    )}
+                    {listing.mandateExpiresAt && (
+                      <VerificationPoint title="Mandate expires" text={new Intl.DateTimeFormat('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(listing.mandateExpiresAt))} />
+                    )}
                   </div>
                 </div>
                 <div className="mt-5 border-t border-[#BFDBFE] pt-4">
