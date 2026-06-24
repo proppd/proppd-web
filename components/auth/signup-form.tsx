@@ -2,6 +2,7 @@
 
 import type React from 'react';
 import { useState } from 'react';
+import Image from 'next/image';
 import { ArrowRight, CheckCircle, Mail, Building2, User, MapPin, BadgeCheck, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
 
 type Props = {
@@ -14,6 +15,7 @@ type Step = 'details' | 'email' | 'sent';
 type FFCVerificationState = {
   status: 'idle' | 'checking' | 'verified' | 'failed';
   message?: string;
+  record?: { fullName?: string; firmName?: string };
 };
 
 export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
@@ -35,12 +37,17 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
 
   const update = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-    if (field === 'fidelityFundCertificateNumber') {
+    // Any change to an identity field invalidates a prior PPRA check.
+    if (['fidelityFundCertificateNumber', 'firstName', 'lastName'].includes(field)) {
       setFFCVerification({ status: 'idle' });
     }
   };
 
-  const isValid = form.firstName.trim() && form.lastName.trim() && form.email.trim() && form.email.includes('@') && form.fidelityFundCertificateNumber.trim();
+  const fieldsComplete = Boolean(
+    form.firstName.trim() && form.lastName.trim() && form.email.trim() && form.email.includes('@') && form.fidelityFundCertificateNumber.trim(),
+  );
+  // The agent can only continue once the PPRA check has succeeded.
+  const canContinue = fieldsComplete && ffcVerification.status === 'verified';
 
   const verifyFFC = async () => {
     const ffc = form.fidelityFundCertificateNumber.trim();
@@ -66,6 +73,10 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
         setFFCVerification({
           status: 'verified',
           message: `PPRA verified — ${verification.record?.fullName ?? 'certificate active'}`,
+          record: {
+            fullName: verification.record?.fullName,
+            firmName: verification.record?.firmName ?? verification.record?.tradeName,
+          },
         });
       } else if (response.ok && verification) {
         const labels: Record<string, string> = {
@@ -93,7 +104,7 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
   };
 
   const handleSubmit = async () => {
-    if (!isValid) return;
+    if (!canContinue) return;
 
     const cleanEmail = form.email.trim().toLowerCase();
 
@@ -161,6 +172,17 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
 
       {step === 'details' && (
         <div className="grid gap-4">
+          {/* PPRA verification notice */}
+          <div className="flex items-start gap-3 rounded-xl border border-[#A7F3D0] bg-[#F0FDF4] p-4">
+            <Image src="/ppra-verified-badge.png" alt="Agent Verified by the PPRA" width={48} height={48} className="shrink-0 drop-shadow-sm" />
+            <div>
+              <p className="text-sm font-bold text-[#166534]">PPRA verification required</p>
+              <p className="mt-1 text-xs leading-5 text-[#15803d]">
+                Your <span className="font-bold">name</span>, <span className="font-bold">surname</span>, <span className="font-bold">agency</span> and <span className="font-bold">Fidelity Fund Certificate</span> are checked against the live PPRA register. You can only continue once verification succeeds.
+              </p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <Field label="First name" value={form.firstName} onChange={(v) => update('firstName', v)} placeholder="John" icon={<User size={14} />} required />
             <Field label="Last name" value={form.lastName} onChange={(v) => update('lastName', v)} placeholder="Smith" icon={<User size={14} />} required />
@@ -171,28 +193,41 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
           <Field label="Service area" value={form.area} onChange={(v) => update('area', v)} placeholder="e.g. Sandton, Cape Town" icon={<MapPin size={14} />} />
           <div>
             <Field label="Fidelity Fund Certificate number" value={form.fidelityFundCertificateNumber} onChange={(v) => update('fidelityFundCertificateNumber', v)} placeholder="e.g. FFC 1234567" icon={<BadgeCheck size={14} />} required />
-            {form.fidelityFundCertificateNumber.trim() && ffcVerification.status === 'idle' && (
+
+            {/* Verify button — required to unlock Continue */}
+            {ffcVerification.status !== 'verified' && (
               <button
                 type="button"
                 onClick={verifyFFC}
-                className="mt-1.5 inline-flex items-center gap-1.5 text-xs font-bold text-[#4A3AFF] hover:text-[#3A2AE0]"
+                disabled={!fieldsComplete || ffcVerification.status === 'checking'}
+                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#4A3AFF] bg-[#4A3AFF]/5 px-4 py-2.5 text-sm font-bold text-[#4A3AFF] transition hover:bg-[#4A3AFF]/10 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <ShieldCheck size={13} /> Verify with PPRA
+                {ffcVerification.status === 'checking' ? (
+                  <><Loader2 size={15} className="animate-spin" /> Checking PPRA register…</>
+                ) : (
+                  <><ShieldCheck size={15} /> Verify with PPRA</>
+                )}
               </button>
             )}
-            {ffcVerification.status === 'checking' && (
-              <div className="mt-1.5 flex items-center gap-1.5 text-xs font-bold text-[#6B7280]">
-                <Loader2 size={13} className="animate-spin" /> Checking PPRA register…
-              </div>
-            )}
+
             {ffcVerification.status === 'verified' && (
-              <div className="mt-1.5 flex items-center gap-1.5 text-xs font-bold text-green-600">
-                <CheckCircle size={13} /> {ffcVerification.message}
+              <div className="mt-2 rounded-lg border border-[#A7F3D0] bg-[#F0FDF4] p-3">
+                <p className="flex items-center gap-1.5 text-xs font-bold text-green-700">
+                  <CheckCircle size={14} /> PPRA verified
+                </p>
+                {ffcVerification.record?.fullName && (
+                  <p className="mt-1 text-xs font-semibold text-[#15803d]">Name: {ffcVerification.record.fullName}</p>
+                )}
+                {ffcVerification.record?.firmName && (
+                  <p className="text-xs font-semibold text-[#15803d]">Agency: {ffcVerification.record.firmName}</p>
+                )}
               </div>
             )}
+
             {ffcVerification.status === 'failed' && (
-              <div className="mt-1.5 flex items-center gap-1.5 text-xs font-bold text-amber-600">
-                <AlertCircle size={13} /> {ffcVerification.message}
+              <div className="mt-2 flex items-start gap-1.5 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs font-bold text-amber-700">
+                <AlertCircle size={14} className="mt-0.5 shrink-0" />
+                <span>{ffcVerification.message} If you believe this is an error, email info@proppd.com.</span>
               </div>
             )}
           </div>
@@ -200,11 +235,14 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
           <button
             type="button"
             onClick={() => setStep('email')}
-            disabled={!isValid}
-            className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0] disabled:opacity-50"
+            disabled={!canContinue}
+            className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Continue <ArrowRight size={14} />
           </button>
+          {fieldsComplete && ffcVerification.status !== 'verified' && (
+            <p className="-mt-1 text-center text-xs font-semibold text-[#9CA3AF]">Complete PPRA verification above to continue.</p>
+          )}
         </div>
       )}
 

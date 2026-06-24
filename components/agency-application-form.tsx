@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
+import Image from 'next/image';
 import { CheckCircle2, Mail, ShieldCheck } from 'lucide-react';
 import {
   buildAgencyApplicationMailto,
@@ -140,6 +141,17 @@ export function AgencyApplicationForm({ id = 'launch-application' }: Props) {
       <p className="mt-4 max-w-3xl text-base font-semibold leading-7 text-[#6B7280]">
         Share the agency details, stock readiness, and routing needs once so Proppd can review the launch fit and follow up with the right next step.
       </p>
+
+      {/* PPRA verification notice */}
+      <div className="mt-5 flex items-start gap-3 rounded-xl border border-[#A7F3D0] bg-[#F0FDF4] p-4">
+        <Image src="/ppra-verified-badge.png" alt="Agent Verified by the PPRA" width={48} height={48} className="shrink-0 drop-shadow-sm" />
+        <div>
+          <p className="text-sm font-bold text-[#166534]">Every agent is PPRA-verified</p>
+          <p className="mt-1 text-sm leading-6 text-[#15803d]">
+            Before your team goes live, each agent&apos;s <span className="font-bold">name</span>, <span className="font-bold">surname</span>, <span className="font-bold">agency</span> and <span className="font-bold">Fidelity Fund Certificate</span> are checked against the live PPRA register. Agencies only activate once their agents pass verification.
+          </p>
+        </div>
+      </div>
 
       <form className="mt-6 grid gap-4 lg:grid-cols-2" onSubmit={handleSubmit} noValidate>
         <label className="block text-xs font-bold uppercase tracking-[.12em] text-[#9CA3AF] lg:col-span-2">
