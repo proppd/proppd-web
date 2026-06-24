@@ -19,6 +19,7 @@ import { SiteHeader } from '@/components/site/header';
 import { Breadcrumbs } from '@/components/site/breadcrumbs';
 import { loadPortalDiagnostics, loadPortalListingBySlug, loadPortalListings, loadPortalAgents } from '../../../lib/proppd/backend';
 import { PpraVerificationDialog } from '@/components/agent/ppra-verification-dialog';
+import { PpraVerifiedBadge } from '@/components/agent/ppra-verified-badge';
 import { listings as demoListings } from '@/lib/demo-data';
 import { buildEnquiryMailto, buildListingShareText, getListingBySlug, getListingFacts, getRelatedListings } from '@/lib/listings/details';
 
@@ -310,9 +311,9 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                   </div>
                   {listingAgent?.isVerified && listingAgent.ffcNumber ? (
                     <PpraVerificationDialog agentName={listing.agent} ffcNumber={listingAgent.ffcNumber} size="sm" className="ml-auto shrink-0" />
-                  ) : (
-                    <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-full bg-[#EFF6FF] px-2 py-0.5 text-[10px] font-bold text-[#2563EB]"><ShieldCheck size={10} /> Verified</span>
-                  )}
+                  ) : listingAgent?.isVerified ? (
+                    <PpraVerifiedBadge size="sm" className="ml-auto shrink-0" />
+                  ) : null}
                 </div>
                 <div className="mt-4 grid gap-2 text-sm font-bold text-[#6B7280]">
                   <span className="flex items-center gap-2"><ShieldCheck size={16} className="text-[#2563EB]" /> {listing.mandate}</span>
