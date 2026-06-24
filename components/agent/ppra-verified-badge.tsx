@@ -1,8 +1,5 @@
-import { ShieldCheck } from 'lucide-react';
+import Image from 'next/image';
 
-// Green "PPRA verified" badge shown on agents who have passed Property
-// Practitioners Regulatory Authority / Fidelity Fund validation
-// (agents.is_verified). A South African market first for a property portal.
 export function PpraVerifiedBadge({
   size = 'md',
   className = '',
@@ -10,17 +7,20 @@ export function PpraVerifiedBadge({
   size?: 'sm' | 'md';
   className?: string;
 }) {
-  const sizing =
-    size === 'sm' ? 'gap-1 px-2.5 py-1 text-[10px]' : 'gap-1.5 px-3 py-1.5 text-xs';
-  const iconSize = size === 'sm' ? 12 : 15;
+  const imgSize = size === 'sm' ? 44 : 72;
 
   return (
     <span
       title="Verified against the Property Practitioners Regulatory Authority (PPRA) — valid Fidelity Fund Certificate."
-      className={`inline-flex items-center rounded-full border border-[#A7F3D0] bg-[#ECFDF5] font-bold uppercase tracking-[.12em] text-[#047857] ${sizing} ${className}`}
+      className={`inline-flex ${className}`}
     >
-      <ShieldCheck size={iconSize} className="text-[#059669]" aria-hidden="true" />
-      PPRA verified
+      <Image
+        src="/ppra-verified-badge.png"
+        alt="Agent Verified by the PPRA"
+        width={imgSize}
+        height={imgSize}
+        className="drop-shadow-md"
+      />
     </span>
   );
 }
