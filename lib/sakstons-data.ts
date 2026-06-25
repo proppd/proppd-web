@@ -39,6 +39,7 @@ const sakstonsListingSeed = [
     floorSize: 250,
     erfSize: undefined,
     featured: true,
+    priceReduced: true,
   },
   {
     id: 'sakstons-22376',

@@ -155,6 +155,7 @@ type ListingRow = {
   erf_size_sqm: number | string | null;
   rates_and_taxes: number | string | null;
   levies: number | string | null;
+  max_historical_price?: number | string | null;
   views_total?: number | string | null;
   views_7d?: number | string | null;
 };
@@ -333,6 +334,28 @@ export async function loadPortalListingBySlug(slug: string, env: PortalEnv = pro
   } catch (error) {
     const fallback = sakstonsListings.find((listing) => listing.slug === slug);
     return fallbackToDemoOnDatabaseConnectivityError(error, fallback ? [fallback] : []);
+  }
+}
+
+export type ListingPricePoint = { price: number; recordedAt: string };
+
+export async function loadListingPriceHistory(slug: string, env: PortalEnv = process.env): Promise<ListingPricePoint[]> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return [];
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const result = await pool.query<{ price: string | number; recorded_at: string }>(
+      `select h.price, h.recorded_at
+       from public.listing_price_history h
+       join public.listings l on l.id = h.listing_id
+       where l.slug = $1
+       order by h.recorded_at asc`,
+      [slug],
+    );
+    return result.rows.map((r) => ({ price: toNumber(r.price), recordedAt: r.recorded_at }));
+  } catch {
+    return [];
   }
 }
 
@@ -1788,7 +1811,8 @@ async function queryListings(databaseUrl: string, slug?: string): Promise<Listin
       l.floor_size_sqm,
       l.erf_size_sqm,
       l.rates_and_taxes,
-      l.levies
+      l.levies,
+      (select max(h.price) from public.listing_price_history h where h.listing_id = l.id) as max_historical_price
     from public.listings l
     left join public.agencies ag on ag.id = l.agency_id
     left join public.agents a on a.id = l.agent_id
@@ -2033,6 +2057,9 @@ function mapListingRow(row: ListingRow): Listing {
   const price = formatListingPrice(priceValue, row.purpose);
   const photos = buildListingPhotos(row);
   const gradient = FALLBACK_GRADIENTS[stableIndex(row.slug, FALLBACK_GRADIENTS.length)];
+  const maxHistoricalPrice = toOptionalNumber(row.max_historical_price ?? null);
+  // A price drop of at least 1% from the highest recorded asking price.
+  const priceReduced = maxHistoricalPrice !== undefined && maxHistoricalPrice > priceValue * 1.01;
 
   return {
     id: row.id,
@@ -2068,6 +2095,8 @@ function mapListingRow(row: ListingRow): Listing {
     mandateSellerName: row.mandate_seller_name ?? undefined,
     mandateCommissionPct: row.mandate_commission_pct !== null ? Number(row.mandate_commission_pct) : undefined,
     mandateExpiresAt: row.mandate_expires_at ?? undefined,
+    priceReduced,
+    previousPrice: priceReduced ? maxHistoricalPrice : undefined,
     viewsTotal: toOptionalNumber(row.views_total ?? null),
     views7d: toOptionalNumber(row.views_7d ?? null),
   };
