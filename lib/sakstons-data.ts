@@ -8,8 +8,8 @@ export const sakstonsAgents = [
 ].map((agent) => ({ ...agent, isActive: true, isVerified: true }));
 
 export const sakstonsAgencies = [
-  { name: 'Sakstons', city: 'Sandton', agents: 4, listings: 38 },
-].map((agency) => ({ ...agency, isActive: true }));
+  { name: 'Sakstons', city: 'Sandton', agents: 4, listings: 38, ffcNumber: 'FFC 2026F1004562000', ffcVerifiedAt: '2026-03-05T09:00:00.000Z' },
+].map((agency) => ({ ...agency, isActive: true, isVerified: true }));
 
 const sakstonsListingSeed = [
   {

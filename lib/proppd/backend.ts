@@ -1997,13 +1997,16 @@ async function queryDirectoryAgencies(databaseUrl: string): Promise<DirectoryAge
       ag.name,
       ag.slug,
       ag.city,
+      ag.is_verified,
+      ag.ffc_number,
+      ag.ffc_verified_at,
       count(distinct a.id)::int as agents,
       count(distinct l.id) filter (where l.status in ('available', 'under_offer', 'sold', 'rented'))::int as listings
     from public.agencies ag
     left join public.agents a on a.agency_id = ag.id and a.is_active = true
     left join public.listings l on l.agency_id = ag.id
     where ag.is_active = true
-    group by ag.name, ag.slug, ag.city
+    group by ag.name, ag.slug, ag.city, ag.is_verified, ag.ffc_number, ag.ffc_verified_at
     order by ag.name asc
   `;
 
@@ -2011,6 +2014,9 @@ async function queryDirectoryAgencies(databaseUrl: string): Promise<DirectoryAge
     name: string;
     slug: string;
     city: string | null;
+    is_verified: boolean;
+    ffc_number: string | null;
+    ffc_verified_at: string | Date | null;
     agents: number | string;
     listings: number | string;
   }>(sql);
@@ -2020,6 +2026,9 @@ async function queryDirectoryAgencies(databaseUrl: string): Promise<DirectoryAge
     city: row.city ?? 'South Africa',
     agents: Number(row.agents ?? 0),
     listings: Number(row.listings ?? 0),
+    isVerified: row.is_verified === true,
+    ffcNumber: row.ffc_number ?? undefined,
+    ffcVerifiedAt: row.ffc_verified_at ? new Date(row.ffc_verified_at).toISOString() : undefined,
   }));
 }
 

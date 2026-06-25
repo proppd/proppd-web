@@ -9,6 +9,7 @@ export function PpraVerificationDialog({
   agency,
   ffcNumber,
   verifiedAt,
+  variant = 'agent',
   size = 'md',
   className = '',
 }: {
@@ -16,11 +17,18 @@ export function PpraVerificationDialog({
   agency?: string;
   ffcNumber: string;
   verifiedAt?: string;
+  /** Whether the badge describes an individual practitioner or the firm. */
+  variant?: 'agent' | 'agency';
   size?: 'sm' | 'md';
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
+
+  const isAgency = variant === 'agency';
+  const subjectWord = isAgency ? 'agency' : 'agent';
+  const titleLabel = isAgency ? 'PPRA Verified Agency' : 'PPRA Verified Agent';
+  const nameLabel = isAgency ? 'Agency name' : 'Agent name';
 
   const parsedVerified = verifiedAt ? new Date(verifiedAt) : null;
   const verifiedDate = parsedVerified && !Number.isNaN(parsedVerified.getTime()) ? parsedVerified : null;
@@ -54,7 +62,7 @@ export function PpraVerificationDialog({
       >
         <Image
           src="/ppra-verified-badge.png"
-          alt="Agent Verified by the PPRA — click for details"
+          alt={`${isAgency ? 'Agency' : 'Agent'} Verified by the PPRA — click for details`}
           width={imgSize}
           height={imgSize}
           className="drop-shadow-md"
@@ -88,13 +96,13 @@ export function PpraVerificationDialog({
               </button>
               <Image
                 src="/ppra-verified-badge.png"
-                alt="Agent Verified by the PPRA"
+                alt={`${isAgency ? 'Agency' : 'Agent'} Verified by the PPRA`}
                 width={100}
                 height={100}
                 className="drop-shadow-xl"
               />
               <h2 id="ppra-dialog-title" className="mt-3 text-center text-lg font-bold text-white">
-                PPRA Verified Agent
+                {titleLabel}
               </h2>
               <p className="mt-1 text-center text-xs font-semibold text-white/70">
                 Property Practitioners Regulatory Authority
@@ -105,7 +113,7 @@ export function PpraVerificationDialog({
             <div className="px-6 py-6">
               <div className="grid gap-4">
                 <div className="rounded-xl bg-[#F0FDF4] p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#16a34a]">Agent name</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#16a34a]">{nameLabel}</p>
                   <p className="mt-1 text-lg font-bold text-[#1A1A2E]">{agentName}</p>
                 </div>
                 {agency && (
@@ -134,7 +142,7 @@ export function PpraVerificationDialog({
                 </div>
               )}
               <p className="mt-4 text-xs leading-5 text-[#6B7280]">
-                This agent holds a valid Fidelity Fund Certificate issued by the PPRA. You can cross-check this number on the official PPRA register at <span className="font-semibold text-[#15803d]">ppra.org.za</span>.
+                This {subjectWord} holds a valid Fidelity Fund Certificate issued by the PPRA. You can cross-check this number on the official PPRA register at <span className="font-semibold text-[#15803d]">ppra.org.za</span>.
               </p>
             </div>
 
