@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Home, ListPlus, MessageCircle, User, BarChart3, Menu, X, ChevronRight, Plus, CalendarClock } from 'lucide-react';
+import { Home, ListPlus, MessageCircle, User, BarChart3, Menu, X, ChevronRight, Plus, CalendarClock, CreditCard } from 'lucide-react';
 
 const navItems = [
   { label: 'Dashboard', helper: 'Start here', href: '/dashboard', icon: BarChart3 },
@@ -10,6 +10,7 @@ const navItems = [
   { label: 'Viewings', helper: 'Upcoming schedule', href: '/dashboard/viewings', icon: CalendarClock },
   { label: 'Listings', helper: 'Create and edit stock', href: '/dashboard/listings', icon: ListPlus },
   { label: 'Profile', helper: 'Public agent details', href: '/dashboard/profile', icon: User },
+  { label: 'Billing', helper: 'Plan and payments', href: '/dashboard/billing', icon: CreditCard },
 ];
 
 interface DashboardNavProps {

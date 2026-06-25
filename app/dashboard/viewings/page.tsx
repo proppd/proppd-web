@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import { ArrowLeft, CalendarClock, CheckCircle2, Clock, Home, Mail, MessageCircle, Phone } from 'lucide-react';
-import { loadPortalLeadQueue, loadPortalUserAccess } from '@/lib/proppd/backend';
-import { getPortalServerUser } from '@/lib/supabase/server';
+import { loadPortalLeadQueue, leadQueueScopeForAccess } from '@/lib/proppd/backend';
+import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 import { buildWhatsAppHref, type LeadRecord } from '@/lib/leads/pipeline';
 
 export const metadata: Metadata = {
@@ -17,13 +16,9 @@ export const dynamic = 'force-dynamic';
 type ViewingLead = LeadRecord & { viewingAt: string };
 
 export default async function ViewingsPage() {
-  const user = await getPortalServerUser();
-  if (!user) redirect('/login?next=/dashboard/viewings');
+  const access = await requireAgentWorkspaceAccess('/dashboard/viewings');
 
-  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
-  if (!access) redirect('/dashboard/profile');
-
-  const leadPayload = await loadPortalLeadQueue(access.agentName ?? undefined);
+  const leadPayload = await loadPortalLeadQueue(leadQueueScopeForAccess(access));
   const now = new Date();
 
   const allViewings = (leadPayload.items.filter(

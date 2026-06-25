@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import { MessageCircle, Mail, Phone, Clock, CheckCircle, TrendingUp, ExternalLink, Filter, ListChecks, Search, X, CalendarClock } from 'lucide-react';
-import { loadPortalLeadQueue, loadPortalUserAccess } from '@/lib/proppd/backend';
-import { getPortalServerUser } from '@/lib/supabase/server';
+import { loadPortalLeadQueue, leadQueueScopeForAccess } from '@/lib/proppd/backend';
+import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 import { buildLeadFilterHref, buildWhatsAppHref, filterLeads, formatLeadStatus, getLeadCrmStats, getLeadNextAction, getLeadQueue, getLeadSourceStats, getScoreLabel, hasLeadFilters, isLeadStatus, scoreLeadRecord, type LeadFilters, type LeadQuality, type LeadRecord, type LeadStatus } from '@/lib/leads/pipeline';
 import { hoursSince, formatIdleDuration, getFollowUpUrgency } from '@/lib/leads/follow-ups';
 import { LeadPipelineControls } from '@/components/dashboard/lead-pipeline-controls';
@@ -28,13 +27,8 @@ type PageProps = {
 
 export default async function Page({ searchParams }: PageProps) {
   const params = await searchParams;
-  const user = await getPortalServerUser();
-  if (!user) {
-    redirect('/login?next=%2Fdashboard%2Fleads');
-  }
-
-  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
-  const leadPayload = await loadPortalLeadQueue(access?.agentName ?? undefined);
+  const access = await requireAgentWorkspaceAccess('/dashboard/leads');
+  const leadPayload = await loadPortalLeadQueue(leadQueueScopeForAccess(access));
   const leads = leadPayload.items;
   const controlsEnabled = leadPayload.source === 'database' || leadPayload.source === 'empty';
   const activeFilters = parseLeadFilters(params);

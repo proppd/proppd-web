@@ -74,7 +74,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   const selectedQuality = parseQuality(getSingleParam(params.quality));
   const selectedSource = parseSource(getSingleParam(params.source));
 
-  const [leadPayload, diagnostics] = await Promise.all([loadPortalLeadQueue(), loadPortalDiagnostics()]);
+  const [leadPayload, diagnostics] = await Promise.all([loadPortalLeadQueue({ kind: 'all' }), loadPortalDiagnostics()]);
   const filteredLeads = filterLeads(leadPayload.items, {
     query,
     status: selectedStatus,

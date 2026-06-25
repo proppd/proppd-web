@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { BarChart3, BellRing, CalendarClock, CheckCircle2, ChevronRight, Clock, Eye, Home, ListChecks, ListPlus, MessageCircle, Plus, TrendingUp, User, Zap } from 'lucide-react';
 import { FollowUpPanel } from '@/components/dashboard/follow-up-panel';
-import { loadMyPortalListings, loadPortalLeadQueue, loadPortalListings, loadPortalUserAccess } from '../../lib/proppd/backend';
-import { getPortalServerUser } from '@/lib/supabase/server';
+import { loadMyPortalListings, loadPortalLeadQueue, leadQueueScopeForAccess } from '../../lib/proppd/backend';
+import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 import { getAgentFollowUpActions, getAgentResponseStats, getAgentToolCards, getAgentWorkspaceStats, formatAgentResponseSignal, type AgentFollowUpAction, type AgentToolCard } from '@/lib/agent/workspace';
 import { formatIdleDuration } from '@/lib/leads/follow-ups';
 
@@ -18,12 +18,11 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  const user = await getPortalServerUser();
-  const access = user ? await loadPortalUserAccess(user.id, user.email) : null;
+  const access = await requireAgentWorkspaceAccess('/dashboard');
 
-  const portalListings = access ? (await loadMyPortalListings(access)).items : (await loadPortalListings()).items;
-  const portalLeads = (await loadPortalLeadQueue(access?.agentName ?? undefined)).items;
-  const workspaceAgentName = access?.agentName ?? portalListings[0]?.agent ?? portalLeads[0]?.agent ?? agentName;
+  const portalListings = (await loadMyPortalListings(access)).items;
+  const portalLeads = (await loadPortalLeadQueue(leadQueueScopeForAccess(access))).items;
+  const workspaceAgentName = access.agentName ?? portalListings[0]?.agent ?? portalLeads[0]?.agent ?? agentName;
   const stats = getAgentWorkspaceStats(workspaceAgentName, portalListings, portalLeads);
   const agentListings = portalListings.filter((l) => l.agent === workspaceAgentName);
   const agentLeads = portalLeads.filter((l) => l.agent === workspaceAgentName);

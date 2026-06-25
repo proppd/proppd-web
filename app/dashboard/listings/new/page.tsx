@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import { ListingEditorForm } from '@/components/listings/listing-editor-form';
 import { isAiConfigured } from '@/lib/ai/listing-description';
-import { loadPortalUserAccess } from '@/lib/proppd/backend';
-import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
+import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 
 export const metadata: Metadata = {
   title: { absolute: 'New listing | Proppd' },
@@ -14,14 +12,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  const supabase = await createPortalSupabaseServerClient();
-  if (!supabase) redirect('/login?next=%2Fdashboard%2Flistings%2Fnew');
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login?next=%2Fdashboard%2Flistings%2Fnew');
-
-  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
-  if (!access) redirect('/dashboard/profile');
+  await requireAgentWorkspaceAccess('/dashboard/listings/new');
 
   return (
     <main className="proppd-page">

@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import { Plus, Pencil, Eye, Home, Clock, CheckCircle, ListChecks, ShieldCheck, MessageSquare, Bookmark } from 'lucide-react';
 import { ListingVerifyToggle } from '@/components/dashboard/listing-verify-toggle';
-import { loadDuplicateListingGroups, loadMyPortalListings, loadPortalUserAccess, type DuplicateListingGroup } from '@/lib/proppd/backend';
-import { getPortalServerUser } from '@/lib/supabase/server';
+import { loadDuplicateListingGroups, loadMyPortalListings, type DuplicateListingGroup } from '@/lib/proppd/backend';
+import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 import { getListingHealthLabel, getListingWorkspaceActions, getListingWorkspaceStats, type ListingWorkspaceAction } from '@/lib/agent/listing-workspace';
 
 export const metadata: Metadata = {
@@ -26,15 +25,10 @@ const statusStyles: Record<string, { bg: string; text: string; label: string }> 
 };
 
 export default async function Page() {
-  const user = await getPortalServerUser();
-  if (!user) {
-    redirect('/login?next=%2Fdashboard%2Flistings');
-  }
-
-  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
+  const access = await requireAgentWorkspaceAccess('/dashboard/listings');
   const [{ items: listings }, duplicates] = await Promise.all([
-    access ? loadMyPortalListings(access) : Promise.resolve({ items: [] }),
-    access ? loadDuplicateListingGroups(access) : Promise.resolve([]),
+    loadMyPortalListings(access),
+    loadDuplicateListingGroups(access),
   ]);
 
   const stats = getListingWorkspaceStats(listings);
