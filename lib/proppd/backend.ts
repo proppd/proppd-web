@@ -158,6 +158,8 @@ type ListingRow = {
   max_historical_price?: number | string | null;
   views_total?: number | string | null;
   views_7d?: number | string | null;
+  lead_count?: number | string | null;
+  saves_count?: number | string | null;
 };
 
 type LeadRow = {
@@ -755,7 +757,9 @@ async function queryManagedListings(databaseUrl: string, access: PortalUserAcces
       l.rates_and_taxes,
       l.levies,
       (select count(*) from public.listing_views v where v.listing_id = l.id) as views_total,
-      (select count(*) from public.listing_views v where v.listing_id = l.id and v.viewed_at >= now() - interval '7 days') as views_7d
+      (select count(*) from public.listing_views v where v.listing_id = l.id and v.viewed_at >= now() - interval '7 days') as views_7d,
+      (select count(*) from public.leads ld where ld.listing_id = l.id) as lead_count,
+      (select count(*) from public.saved_homes sh where sh.slug = l.slug) as saves_count
     from public.listings l
     left join public.agencies ag on ag.id = l.agency_id
     left join public.agents a on a.id = l.agent_id
@@ -2111,6 +2115,8 @@ function mapListingRow(row: ListingRow): Listing {
     previousPrice: priceReduced ? maxHistoricalPrice : undefined,
     viewsTotal: toOptionalNumber(row.views_total ?? null),
     views7d: toOptionalNumber(row.views_7d ?? null),
+    leadCount: toOptionalNumber(row.lead_count ?? null),
+    savesCount: toOptionalNumber(row.saves_count ?? null),
   };
 }
 
