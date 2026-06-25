@@ -101,10 +101,10 @@ export function LeadPipelineControls({ leadId, currentStatus, enabled }: Props) 
           />
           <button
             type="button"
-            disabled={state.kind === 'saving'}
+            disabled={state.kind === 'saving' || !viewingDate}
             onClick={async () => {
               const prev = status === 'viewing_booked' ? currentStatus : status;
-              const ok = await send({ status: 'viewing_booked', viewing_at: viewingDate || undefined });
+              const ok = await send({ status: 'viewing_booked', viewing_at: viewingDate });
               if (!ok) setStatus(prev as LeadStatus);
               else setViewingOpen(false);
             }}
