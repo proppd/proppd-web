@@ -1956,6 +1956,7 @@ async function queryDirectoryAgents(databaseUrl: string): Promise<DirectoryAgent
       a.slug,
       a.is_verified,
       a.ffc_number,
+      a.ffc_verified_at,
       coalesce(array_to_string(a.areas_served, ', '), coalesce(ag.city, 'South Africa')) as area,
       ag.name as agency_name,
       count(l.id)::int as listings
@@ -1972,6 +1973,7 @@ async function queryDirectoryAgents(databaseUrl: string): Promise<DirectoryAgent
     slug: string;
     is_verified: boolean;
     ffc_number: string | null;
+    ffc_verified_at: string | Date | null;
     area: string | null;
     agency_name: string | null;
     listings: number | string;
@@ -1984,6 +1986,7 @@ async function queryDirectoryAgents(databaseUrl: string): Promise<DirectoryAgent
     listings: Number(row.listings ?? 0),
     isVerified: row.is_verified === true,
     ffcNumber: row.ffc_number ?? undefined,
+    ffcVerifiedAt: row.ffc_verified_at ? new Date(row.ffc_verified_at).toISOString() : undefined,
   }));
 }
 

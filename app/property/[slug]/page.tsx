@@ -322,7 +322,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                     <p className="flex items-center gap-1 truncate text-xs font-bold text-[#9CA3AF]"><Building2 size={12} className="shrink-0" /> {listing.agency}</p>
                   </div>
                   {listingAgent?.isVerified && listingAgent.ffcNumber ? (
-                    <PpraVerificationDialog agentName={listing.agent} agency={listing.agency} ffcNumber={listingAgent.ffcNumber} size="sm" className="ml-auto shrink-0" />
+                    <PpraVerificationDialog agentName={listing.agent} agency={listing.agency} ffcNumber={listingAgent.ffcNumber} verifiedAt={listingAgent.ffcVerifiedAt} size="sm" className="ml-auto shrink-0" />
                   ) : listingAgent?.isVerified ? (
                     <PpraVerifiedBadge size="sm" className="ml-auto shrink-0" />
                   ) : null}

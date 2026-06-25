@@ -10,6 +10,8 @@ export type DirectoryAgent = {
   isVerified?: boolean;
   /** Normalised Fidelity Fund Certificate number from the PPRA register. */
   ffcNumber?: string;
+  /** ISO timestamp of when the FFC was last validated against the PPRA register. */
+  ffcVerifiedAt?: string;
 };
 
 export type DirectoryAgency = {
