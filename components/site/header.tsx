@@ -22,22 +22,45 @@ export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode | null>(null);
   const [signedIn, setSignedIn] = useState(false);
+  // Workspace users (agent / agency / admin) get the Dashboard; consumers get
+  // the My-enquiries inbox. Defaults to false until the probe resolves.
+  const [canAccessWorkspace, setCanAccessWorkspace] = useState(false);
 
   const openAuth = (mode: AuthMode) => {
     setMobileOpen(false);
     setAuthMode(mode);
   };
 
-  // Track auth so the Sign in control disappears once signed in.
+  // Track auth so the Sign in control disappears once signed in, and resolve
+  // the user's role so the header shows the right destination for them.
   useEffect(() => {
     const supabase = getBrowserSupabaseClient();
     if (!supabase) return;
     let active = true;
+
+    const refreshAccess = async (isSignedIn: boolean) => {
+      if (!isSignedIn) {
+        if (active) setCanAccessWorkspace(false);
+        return;
+      }
+      try {
+        const res = await fetch('/api/me/access', { cache: 'no-store' });
+        const body = await res.json();
+        if (active) setCanAccessWorkspace(Boolean(body?.canAccessWorkspace));
+      } catch {
+        if (active) setCanAccessWorkspace(false);
+      }
+    };
+
     supabase.auth.getUser().then(({ data }) => {
-      if (active) setSignedIn(Boolean(data.user));
+      const isSignedIn = Boolean(data.user);
+      if (active) setSignedIn(isSignedIn);
+      void refreshAccess(isSignedIn);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSignedIn(Boolean(session?.user));
+      const isSignedIn = Boolean(session?.user);
+      setSignedIn(isSignedIn);
+      void refreshAccess(isSignedIn);
     });
     return () => {
       active = false;
@@ -152,18 +175,21 @@ export function SiteHeader() {
             </a>
             {signedIn ? (
               <>
-                <a
-                  href="/account/enquiries"
-                  className="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
-                >
-                  My enquiries
-                </a>
-                <a
-                  href="/dashboard"
-                  className="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
-                >
-                  Dashboard
-                </a>
+                {canAccessWorkspace ? (
+                  <a
+                    href="/dashboard"
+                    className="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
+                  >
+                    Dashboard
+                  </a>
+                ) : (
+                  <a
+                    href="/account/enquiries"
+                    className="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
+                  >
+                    My enquiries
+                  </a>
+                )}
                 <button
                   type="button"
                   onClick={signOut}
@@ -270,13 +296,23 @@ export function SiteHeader() {
             <div className="border-t border-[#E5E7EB] px-3 py-3">
               {signedIn ? (
                 <>
-                  <a
-                    href="/dashboard"
-                    onClick={() => setMobileOpen(false)}
-                    className="block w-full rounded-lg bg-[#4A3AFF] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#3A2AE0]"
-                  >
-                    Go to dashboard
-                  </a>
+                  {canAccessWorkspace ? (
+                    <a
+                      href="/dashboard"
+                      onClick={() => setMobileOpen(false)}
+                      className="block w-full rounded-lg bg-[#4A3AFF] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#3A2AE0]"
+                    >
+                      Go to dashboard
+                    </a>
+                  ) : (
+                    <a
+                      href="/account/enquiries"
+                      onClick={() => setMobileOpen(false)}
+                      className="block w-full rounded-lg bg-[#4A3AFF] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#3A2AE0]"
+                    >
+                      My enquiries
+                    </a>
+                  )}
                   <button
                     type="button"
                     onClick={signOut}
