@@ -41,6 +41,8 @@ export type Listing = {
   isActive?: boolean;
   viewsTotal?: number;
   views7d?: number;
+  leadCount?: number;
+  savesCount?: number;
 };
 
 export const listings: Listing[] = [
