@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { BarChart3, BellRing, CheckCircle2, ChevronRight, Clock, Eye, Home, ListChecks, ListPlus, MessageCircle, Plus, TrendingUp, User, Zap } from 'lucide-react';
+import { BarChart3, BellRing, CalendarClock, CheckCircle2, ChevronRight, Clock, Eye, Home, ListChecks, ListPlus, MessageCircle, Plus, TrendingUp, User, Zap } from 'lucide-react';
 import { FollowUpPanel } from '@/components/dashboard/follow-up-panel';
 import { loadMyPortalListings, loadPortalLeadQueue, loadPortalListings, loadPortalUserAccess } from '../../lib/proppd/backend';
 import { getPortalServerUser } from '@/lib/supabase/server';
@@ -31,6 +31,11 @@ export default async function Page() {
   const responseStats = getAgentResponseStats(workspaceAgentName, portalLeads);
   const toolCards = getAgentToolCards(stats);
   const views7d = agentListings.reduce((sum, l) => sum + (l.views7d ?? 0), 0);
+  const now = new Date();
+  const upcomingViewings = agentLeads
+    .filter((l) => typeof l.viewingAt === 'string' && l.viewingAt.length > 0 && new Date(l.viewingAt) >= now)
+    .sort((a, b) => new Date(a.viewingAt!).getTime() - new Date(b.viewingAt!).getTime())
+    .slice(0, 3);
 
   return (
     <main className="proppd-page overflow-x-hidden">
@@ -105,12 +110,13 @@ export default async function Page() {
       {/* Stats grid */}
       <section id="performance" className="px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-6">
             <StatCard icon={<Home size={20} />} label="Active listings" value={stats.activeListings} color="#4A3AFF" />
             <StatCard icon={<Eye size={20} />} label="Views (7 days)" value={views7d} color="#1A1A2E" />
             <StatCard icon={<BellRing size={20} />} label="New leads" value={stats.newLeads} color="#2563EB" />
             <StatCard icon={<CheckCircle2 size={20} />} label="Qualified" value={stats.qualifiedLeads} color="#4A3AFF" />
             <StatCard icon={<TrendingUp size={20} />} label="Converted" value={stats.convertedLeads} color="#166534" sub={stats.totalLeads > 0 ? `${stats.conversionRate}% rate` : undefined} />
+            <StatCard icon={<CalendarClock size={20} />} label="Viewings" value={upcomingViewings.length} color="#2563EB" href="/dashboard/viewings" sub={upcomingViewings.length > 0 ? 'upcoming' : undefined} />
           </div>
         </div>
       </section>
@@ -164,6 +170,46 @@ export default async function Page() {
                 ))
               )}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Upcoming viewings */}
+      <section className="px-4 pb-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <h2 className="flex items-center gap-2 text-base font-bold text-[#1A1A2E]">
+              <CalendarClock size={16} className="text-[#2563EB]" /> Upcoming viewings
+            </h2>
+            <a href="/dashboard/viewings" className="text-xs font-bold text-[#2563EB]">Full schedule</a>
+          </div>
+          <div className="mt-4 space-y-3">
+            {upcomingViewings.length === 0 ? (
+              <p className="text-sm text-[#9CA3AF]">No viewings booked yet. Book one from a lead and it appears here.</p>
+            ) : (
+              upcomingViewings.map((lead) => {
+                const d = new Date(lead.viewingAt!);
+                return (
+                  <a key={lead.id} href={`/dashboard/leads/${lead.id}`} className="flex items-center justify-between rounded-lg border border-[#BFDBFE] bg-[#EFF6FF] px-4 py-3 transition hover:border-[#2563EB]/40 hover:bg-[#DBEAFE]/40">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <CalendarClock size={15} className="shrink-0 text-[#2563EB]" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-[#1A1A2E] truncate">{lead.name}</p>
+                        <p className="text-xs text-[#6B7280]">{lead.listingTitle}</p>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-right pl-3">
+                      <p className="text-xs font-bold text-[#2563EB]">
+                        {new Intl.DateTimeFormat('en-ZA', { weekday: 'short', day: 'numeric', month: 'short' }).format(d)}
+                      </p>
+                      <p className="text-xs font-semibold text-[#6B7280]">
+                        {new Intl.DateTimeFormat('en-ZA', { hour: '2-digit', minute: '2-digit' }).format(d)}
+                      </p>
+                    </div>
+                  </a>
+                );
+              })
+            )}
           </div>
         </div>
       </section>
@@ -382,19 +428,26 @@ function ToolLink({ icon, label, text, href }: { icon: ReactNode; label: string;
   );
 }
 
-function StatCard({ icon, label, value, color, sub }: { icon: React.ReactNode; label: string; value: number; color: string; sub?: string }) {
-  return (
-    <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm sm:p-5">
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ backgroundColor: `${color}10`, color }}>
-          {icon}
-        </div>
-        <div>
-          <p className="text-2xl font-bold text-[#1A1A2E]">{value}</p>
-          <p className="text-xs font-bold text-[#9CA3AF]">{label}</p>
-          {sub && <p className="mt-0.5 text-[10px] font-bold" style={{ color }}>{sub}</p>}
-        </div>
+function StatCard({ icon, label, value, color, sub, href }: { icon: React.ReactNode; label: string; value: number; color: string; sub?: string; href?: string }) {
+  const inner = (
+    <div className="flex items-center gap-3">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ backgroundColor: `${color}10`, color }}>
+        {icon}
       </div>
+      <div>
+        <p className="text-2xl font-bold text-[#1A1A2E]">{value}</p>
+        <p className="text-xs font-bold text-[#9CA3AF]">{label}</p>
+        {sub && <p className="mt-0.5 text-[10px] font-bold" style={{ color }}>{sub}</p>}
+      </div>
+    </div>
+  );
+  return href ? (
+    <a href={href} className="rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm transition hover:border-[#2563EB]/30 sm:p-5">
+      {inner}
+    </a>
+  ) : (
+    <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm sm:p-5">
+      {inner}
     </div>
   );
 }
