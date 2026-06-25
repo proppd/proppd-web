@@ -11,7 +11,7 @@ import { PhotoUpload, type ListingPhoto } from '@/components/listings/photo-uplo
 type ListingFormState = {
   title: string;
   purpose: 'sale' | 'rent';
-  status: 'draft' | 'pending_review' | 'available' | 'under_offer' | 'sold' | 'rented' | 'archived';
+  status: 'draft' | 'pending_review' | 'available' | 'coming_soon' | 'under_offer' | 'sold' | 'rented' | 'archived';
   price: string;
   description: string;
   suburb: string;
@@ -282,6 +282,7 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
             </div>
             <SelectField label="Listing status" value={state.status} onChange={(v) => update('status', v)}>
               <option value="draft">Save as draft (only you can see it)</option>
+              <option value="coming_soon">Coming soon — pre-market (visible, no offers yet)</option>
               <option value="available">Publish — available now</option>
               <option value="under_offer">Published — under offer</option>
               <option value="sold">Sold / no longer available</option>
@@ -384,6 +385,7 @@ function statusLabel(status: ListingFormState['status']): string {
     draft: 'Draft (private)',
     pending_review: 'Pending review',
     available: 'Published — available',
+    coming_soon: 'Coming soon',
     under_offer: 'Under offer',
     sold: 'Sold',
     rented: 'Rented',

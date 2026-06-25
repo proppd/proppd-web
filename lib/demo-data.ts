@@ -43,6 +43,7 @@ export type Listing = {
   views7d?: number;
   leadCount?: number;
   savesCount?: number;
+  listingStatus?: string;
 };
 
 export const listings: Listing[] = [

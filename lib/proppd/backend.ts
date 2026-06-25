@@ -93,7 +93,7 @@ export type PortalListingPhotoInput = { src: string; alt: string };
 export type PortalListingWriteInput = {
   title: string;
   purpose: 'sale' | 'rent';
-  status: 'draft' | 'pending_review' | 'available' | 'under_offer' | 'sold' | 'rented' | 'archived';
+  status: 'draft' | 'pending_review' | 'available' | 'coming_soon' | 'under_offer' | 'sold' | 'rented' | 'archived';
   price: number;
   description: string;
   suburb: string;
@@ -997,7 +997,7 @@ export async function loadManagedListingDrafts(access: PortalUserAccess, env: Po
   }
 }
 
-const MODERATION_STATUSES = ['draft', 'pending_review', 'available', 'under_offer', 'sold', 'rented', 'archived'] as const;
+const MODERATION_STATUSES = ['draft', 'pending_review', 'available', 'coming_soon', 'under_offer', 'sold', 'rented', 'archived'] as const;
 export type ModerationStatus = (typeof MODERATION_STATUSES)[number];
 
 export type ListingModerationInput = {
@@ -1748,7 +1748,7 @@ export async function loadPortalDiagnostics(env: PortalEnv = process.env): Promi
   try {
     const pool = getPortalPool(databaseUrl);
     const [listingsCount, leadCount, agentCount, agencyCount] = await Promise.all([
-      queryCount(pool, "select count(*)::int as count from public.listings where status in ('available', 'under_offer', 'sold', 'rented')"),
+      queryCount(pool, "select count(*)::int as count from public.listings where status in ('available', 'coming_soon', 'under_offer', 'sold', 'rented')"),
       queryCount(pool, 'select count(*)::int as count from public.leads'),
       queryCount(pool, 'select count(*)::int as count from public.agents where is_active = true'),
       queryCount(pool, 'select count(*)::int as count from public.agencies where is_active = true'),
@@ -1774,7 +1774,7 @@ export async function loadPortalDiagnostics(env: PortalEnv = process.env): Promi
 async function queryListings(databaseUrl: string, slug?: string): Promise<ListingRow[]> {
   const pool = getPortalPool(databaseUrl);
   const values: Array<string> = [];
-  const clauses = ["l.status in ('available', 'under_offer', 'sold', 'rented')"];
+  const clauses = ["l.status in ('available', 'coming_soon', 'under_offer', 'sold', 'rented')"];
 
   if (slug) {
     values.push(slug);
@@ -1966,7 +1966,7 @@ async function queryDirectoryAgents(databaseUrl: string): Promise<DirectoryAgent
       count(l.id)::int as listings
     from public.agents a
     left join public.agencies ag on ag.id = a.agency_id
-    left join public.listings l on l.agent_id = a.id and l.status in ('available', 'under_offer', 'sold', 'rented')
+    left join public.listings l on l.agent_id = a.id and l.status in ('available', 'coming_soon', 'under_offer', 'sold', 'rented')
     where a.is_active = true
     group by a.id, ag.name, ag.city
     order by a.name asc
@@ -2005,7 +2005,7 @@ async function queryDirectoryAgencies(databaseUrl: string): Promise<DirectoryAge
       ag.ffc_number,
       ag.ffc_verified_at,
       count(distinct a.id)::int as agents,
-      count(distinct l.id) filter (where l.status in ('available', 'under_offer', 'sold', 'rented'))::int as listings
+      count(distinct l.id) filter (where l.status in ('available', 'coming_soon', 'under_offer', 'sold', 'rented'))::int as listings
     from public.agencies ag
     left join public.agents a on a.agency_id = ag.id and a.is_active = true
     left join public.listings l on l.agency_id = ag.id
@@ -2117,6 +2117,7 @@ function mapListingRow(row: ListingRow): Listing {
     views7d: toOptionalNumber(row.views_7d ?? null),
     leadCount: toOptionalNumber(row.lead_count ?? null),
     savesCount: toOptionalNumber(row.saves_count ?? null),
+    listingStatus: row.status,
   };
 }
 
@@ -2172,6 +2173,7 @@ function buildListingPhotos(row: ListingRow): Listing['photos'] {
 
 function buildHighlights(row: ListingRow): Listing['highlights'] {
   const highlights = [buildMandate(row), row.is_featured ? 'Featured listing' : 'Freshly published'];
+  if (row.status === 'coming_soon') highlights.push('Coming soon');
   if (row.status === 'under_offer') highlights.push('Under offer');
   if (row.status === 'sold' || row.status === 'rented') highlights.push('Recently completed');
   return highlights.slice(0, 3);
