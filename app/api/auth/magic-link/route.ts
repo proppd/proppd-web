@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { buildAuthCallbackUrl } from '@/lib/auth/redirects';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
 import { isVerifiedAgentEmail } from '@/lib/proppd/backend';
-import { rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
+import { rateLimitByIdentifier, rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 
 export const runtime = 'nodejs';
@@ -32,6 +32,11 @@ export async function POST(request: NextRequest) {
   if (!isEmail(email)) {
     return NextResponse.json({ ok: false, error: 'Enter a valid email address.' }, { status: 400 });
   }
+
+  // Second rate-limit dimension keyed by the target email, so one mailbox cannot
+  // be flooded with login links from rotating IP addresses.
+  const limitedByEmail = rateLimitByIdentifier(email, rateLimitPolicies.auth, 'auth:magic-link');
+  if (limitedByEmail) return limitedByEmail;
 
   const nextPath = safeNextPath(body?.nextPath);
   const origin = new URL(request.url).origin;

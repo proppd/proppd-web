@@ -3,6 +3,16 @@ import { NextResponse, type NextRequest } from 'next/server';
 type RequestLike = Pick<Request, 'headers' | 'url'> | NextRequest;
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+
+// 'unsafe-eval' is only needed by Next.js dev tooling (HMR / React Refresh).
+// Production never evaluates strings as code, so we drop it there to shrink the
+// script attack surface. 'unsafe-inline' is still required until the app moves
+// to a nonce-based CSP, which only works on dynamically-rendered pages.
+const scriptSrc =
+  process.env.NODE_ENV === 'production'
+    ? "script-src 'self' 'unsafe-inline'"
+    : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
+
 const BASELINE_CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -12,7 +22,7 @@ const BASELINE_CONTENT_SECURITY_POLICY = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   "connect-src 'self' https: wss:",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  scriptSrc,
   "style-src 'self' 'unsafe-inline'",
   'upgrade-insecure-requests',
 ].join('; ');
