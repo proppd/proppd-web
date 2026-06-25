@@ -1079,4 +1079,31 @@ const sakstonsListingSeed = [
   }
 ] satisfies Listing[];
 
-export const sakstonsListings: Listing[] = sakstonsListingSeed.map((listing) => ({ ...listing, isActive: true }));
+const DEMO_INTENT: Pick<Listing, 'viewsTotal' | 'views7d' | 'leadCount' | 'savesCount'>[] = [
+  { viewsTotal: 312, views7d: 47, leadCount: 8, savesCount: 14 },
+  { viewsTotal: 198, views7d: 31, leadCount: 5, savesCount: 9 },
+  { viewsTotal: 534, views7d: 82, leadCount: 12, savesCount: 22 },
+  { viewsTotal: 87,  views7d: 11, leadCount: 2, savesCount: 3 },
+  { viewsTotal: 421, views7d: 63, leadCount: 9, savesCount: 17 },
+  { viewsTotal: 156, views7d: 24, leadCount: 3, savesCount: 6 },
+  { viewsTotal: 278, views7d: 39, leadCount: 6, savesCount: 11 },
+  { viewsTotal: 93,  views7d: 14, leadCount: 1, savesCount: 2 },
+  { viewsTotal: 445, views7d: 71, leadCount: 10, savesCount: 19 },
+  { viewsTotal: 132, views7d: 18, leadCount: 2, savesCount: 5 },
+  { viewsTotal: 367, views7d: 55, leadCount: 7, savesCount: 13 },
+  { viewsTotal: 201, views7d: 29, leadCount: 4, savesCount: 8 },
+  { viewsTotal: 488, views7d: 74, leadCount: 11, savesCount: 20 },
+  { viewsTotal: 74,  views7d: 9,  leadCount: 1, savesCount: 2 },
+  { viewsTotal: 319, views7d: 48, leadCount: 6, savesCount: 12 },
+  { viewsTotal: 143, views7d: 21, leadCount: 3, savesCount: 5 },
+  { viewsTotal: 256, views7d: 36, leadCount: 5, savesCount: 10 },
+  { viewsTotal: 108, views7d: 16, leadCount: 2, savesCount: 4 },
+  { viewsTotal: 392, views7d: 58, leadCount: 8, savesCount: 16 },
+  { viewsTotal: 167, views7d: 25, leadCount: 3, savesCount: 6 },
+];
+
+export const sakstonsListings: Listing[] = sakstonsListingSeed.map((listing, i) => ({
+  ...listing,
+  isActive: true,
+  ...(DEMO_INTENT[i % DEMO_INTENT.length]),
+}));
