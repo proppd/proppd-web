@@ -97,8 +97,8 @@ export default async function Page() {
 function SpeedToLeadBanner({ stats }: { stats: ReturnType<typeof getAgentResponseStats> }) {
   const tone =
     stats.health === 'urgent'
-      ? { bg: 'border-red-200 bg-red-50', icon: 'bg-red-100 text-red-700', accent: 'text-red-700' }
-      : { bg: 'border-amber-200 bg-amber-50', icon: 'bg-amber-100 text-amber-700', accent: 'text-amber-700' };
+      ? { bg: 'border-red-200 bg-red-50', icon: 'bg-red-100 text-red-700', accent: 'text-red-700', btn: 'border-red-300 text-red-700 hover:bg-red-50' }
+      : { bg: 'border-amber-200 bg-amber-50', icon: 'bg-amber-100 text-amber-700', accent: 'text-amber-700', btn: 'border-amber-300 text-amber-700 hover:bg-amber-50' };
 
   const headline =
     stats.health === 'urgent'
@@ -121,7 +121,7 @@ function SpeedToLeadBanner({ stats }: { stats: ReturnType<typeof getAgentRespons
           </p>
         </div>
       </div>
-      <div className="flex shrink-0 items-center gap-3">
+      <div className="flex shrink-0 flex-wrap items-center gap-3">
         <div className="flex gap-4">
           <div className="text-center">
             <p className={`text-xl font-bold ${tone.accent}`}>{stats.needsResponse}</p>
@@ -134,9 +134,9 @@ function SpeedToLeadBanner({ stats }: { stats: ReturnType<typeof getAgentRespons
         </div>
         <a
           href="/dashboard/leads?status=new"
-          className="inline-flex items-center gap-2 rounded-lg bg-[#1A1A2E] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-black"
+          className={`inline-flex items-center gap-2 rounded-lg border bg-white px-4 py-2.5 text-sm font-bold transition ${tone.btn}`}
         >
-          Work now
+          Work now →
         </a>
       </div>
     </div>
