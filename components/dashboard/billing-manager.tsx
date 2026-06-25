@@ -57,8 +57,8 @@ export function BillingManager({ planId, planName, priceCents, tagline, features
           <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">{planName} plan</p>
           <p className="mt-1 text-sm font-semibold text-[#6B7280]">{tagline}</p>
         </div>
-        <div className="text-right">
-          <p className="text-2xl font-bold tracking-tight text-[#1A1A2E]">{formatZar(priceCents)}</p>
+        <div className="shrink-0 text-right">
+          <p className="whitespace-nowrap text-2xl font-bold tracking-tight text-[#1A1A2E]">{formatZar(priceCents)}</p>
           <p className="text-xs font-bold text-[#9CA3AF]">per month</p>
         </div>
       </div>
