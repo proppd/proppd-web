@@ -25,6 +25,7 @@ export const rateLimitPolicies = {
   valuation: { key: 'valuation', limit: 10, windowMs: 60_000 },
   listingView: { key: 'listing-view', limit: 60, windowMs: 60_000 },
   savedSearch: { key: 'saved-search', limit: 20, windowMs: 60_000 },
+  savedHome: { key: 'saved-home', limit: 60, windowMs: 60_000 },
   dashboardMutation: { key: 'dashboard-mutation', limit: 60, windowMs: 60_000 },
   adminMutation: { key: 'admin-mutation', limit: 60, windowMs: 60_000 },
   aiDescription: { key: 'ai-description', limit: 10, windowMs: 60_000 },

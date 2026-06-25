@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import 'leaflet/dist/leaflet.css';
 import { CookieNotice } from '@/components/site/cookie-notice';
+import { SavedHomesSync } from '@/components/properties/saved-homes-sync';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proppd.com'),
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en">
       <body>
         {children}
+        <SavedHomesSync />
         <CookieNotice />
       </body>
     </html>
