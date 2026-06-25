@@ -659,7 +659,7 @@ export async function loadConsumerEnquiries(userEmail: string, env: PortalEnv = 
       agentName: row.agent_name ?? 'Proppd agent',
       status: mapLeadStatus(row.status),
       intent: mapLeadIntent(row.intent),
-      viewingAt: row.viewing_at ?? null,
+      viewingAt: row.viewing_at != null ? new Date(row.viewing_at as unknown as string | Date).toISOString() : null,
       createdAt: row.created_at,
     }));
 
@@ -2197,7 +2197,7 @@ function mapLeadRow(row: LeadRow): LeadRecord {
     agent: row.agent_name ?? 'Unassigned agent',
     agency: row.agency_name ?? 'Unassigned agency',
     sourcePage: row.source_page ?? undefined,
-    viewingAt: row.viewing_at ?? undefined,
+    viewingAt: row.viewing_at != null ? new Date(row.viewing_at as unknown as string | Date).toISOString() : undefined,
     latestEventType: row.latest_event_type ?? undefined,
     latestEventAt: row.latest_event_at ?? undefined,
     latestEventNote: row.latest_event_note ?? undefined,
