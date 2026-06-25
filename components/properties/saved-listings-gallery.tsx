@@ -6,10 +6,23 @@ import type { Listing } from '@/lib/demo-data';
 import { ListingCard } from '@/components/properties/listing-card';
 import { readSavedHomeSlugs, subscribeSavedHomes, writeSavedHomeSlugs } from '@/lib/saved-homes';
 
-export function SavedListingsGallery({ listings }: { listings: Listing[] }) {
-  const [savedSlugs, setSavedSlugs] = useState<string[]>([]);
+export function SavedListingsGallery({ listings, initialSlugs }: { listings: Listing[]; initialSlugs?: string[] | null }) {
+  // Seed from the server-fetched cloud list when available (eliminates the
+  // flash of empty state on first load for signed-in users on a new device).
+  // Falls back to localStorage, which SavedHomesSync reconciles shortly after mount.
+  const [savedSlugs, setSavedSlugs] = useState<string[]>(() => initialSlugs ?? readSavedHomeSlugs());
 
   useEffect(() => {
+    // If the server gave us cloud slugs, merge them into localStorage so
+    // SavedHomesSync and all save buttons reflect the account state immediately.
+    if (initialSlugs && initialSlugs.length > 0) {
+      const local = readSavedHomeSlugs();
+      const localSet = new Set(local);
+      const union = [...initialSlugs, ...local.filter((s) => !new Set(initialSlugs).has(s))];
+      if (union.length !== local.length || union.some((s) => !localSet.has(s))) {
+        writeSavedHomeSlugs(union);
+      }
+    }
     setSavedSlugs(readSavedHomeSlugs());
     return subscribeSavedHomes(() => setSavedSlugs(readSavedHomeSlugs()));
   }, []);
@@ -33,13 +46,17 @@ export function SavedListingsGallery({ listings }: { listings: Listing[] }) {
               <p className="text-sm font-bold uppercase tracking-[.2em] text-[#4A3AFF]">Saved homes</p>
               <h1 className="mt-2 text-4xl font-bold tracking-[-.06em] text-[#1A1A2E]">Your shortlist lives here.</h1>
               <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-[#6B7280]">
-                Tap Save on any listing to keep it on this device. Sign in to carry the same shortlist across devices and open it from your inbox or dashboard later.
+                {initialSlugs != null
+                  ? 'Your shortlist is synced to your account and available on any device.'
+                  : 'Tap Save on any listing to keep it on this device. Sign in to carry the same shortlist across devices and open it from your inbox or dashboard later.'}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <a href="/login?next=%2Fsaved" className="inline-flex items-center gap-2 rounded-full bg-[#4A3AFF] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]">
-                <Lock size={15} /> Sign in to sync
-              </a>
+              {initialSlugs == null && (
+                <a href="/login?next=%2Fsaved" className="inline-flex items-center gap-2 rounded-full bg-[#4A3AFF] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#4A3AFF]">
+                  <Lock size={15} /> Sign in to sync
+                </a>
+              )}
               <button type="button" onClick={clearSavedHomes} className="inline-flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-bold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]">
                 <Trash2 size={15} /> Clear shortlist
               </button>
