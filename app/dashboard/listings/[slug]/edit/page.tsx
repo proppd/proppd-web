@@ -110,6 +110,7 @@ function formatListingStatus(status: string) {
     draft: 'Draft',
     pending_review: 'Pending review',
     available: 'Live',
+    coming_soon: 'Coming soon',
     under_offer: 'Under offer',
     sold: 'Sold',
     rented: 'Rented',

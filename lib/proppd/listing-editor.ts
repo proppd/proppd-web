@@ -13,9 +13,9 @@ export const portalPropertyTypeOptions = [
 ] as const;
 
 export type PortalListingPurpose = 'sale' | 'rent';
-export type PortalListingStatus = 'draft' | 'pending_review' | 'available' | 'under_offer' | 'sold' | 'rented' | 'archived';
+export type PortalListingStatus = 'draft' | 'pending_review' | 'available' | 'coming_soon' | 'under_offer' | 'sold' | 'rented' | 'archived';
 
-export const LISTING_STATUSES: PortalListingStatus[] = ['draft', 'pending_review', 'available', 'under_offer', 'sold', 'rented', 'archived'];
+export const LISTING_STATUSES: PortalListingStatus[] = ['draft', 'pending_review', 'available', 'coming_soon', 'under_offer', 'sold', 'rented', 'archived'];
 
 export function isListingStatus(value: unknown): value is PortalListingStatus {
   return typeof value === 'string' && (LISTING_STATUSES as string[]).includes(value);
