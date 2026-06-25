@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import { CheckCircle2, AlertCircle, Clock, ShieldCheck } from 'lucide-react';
 import { BillingManager } from '@/components/dashboard/billing-manager';
-import { canAccessAgentWorkspace, loadPortalUserAccess } from '@/lib/proppd/backend';
-import { getPortalServerUser } from '@/lib/supabase/server';
+import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 import { loadBillingContext } from '@/lib/proppd/billing-store';
 import { getPlan, formatZar } from '@/lib/billing/plans';
 import { deriveEntitlement, isTrialEligible } from '@/lib/billing/subscription';
@@ -17,11 +15,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
-  const user = await getPortalServerUser();
-  if (!user) redirect('/login?next=%2Fdashboard%2Fbilling');
-
-  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
-  if (!canAccessAgentWorkspace(access)) redirect('/my-properties');
+  const access = await requireAgentWorkspaceAccess('/dashboard/billing');
 
   const context = await loadBillingContext(access);
   const { status: statusFlag } = await searchParams;

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import { AgentProfileEditor } from '@/components/agent/agent-profile-editor';
-import { getPortalServerUser } from '@/lib/supabase/server';
+import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 
 export const metadata: Metadata = {
   title: { absolute: 'Profile | Proppd' },
@@ -12,10 +11,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  const user = await getPortalServerUser();
-  if (!user) {
-    redirect('/login?next=%2Fdashboard%2Fprofile');
-  }
+  await requireAgentWorkspaceAccess('/dashboard/profile');
 
   return (
     <main className="proppd-page">

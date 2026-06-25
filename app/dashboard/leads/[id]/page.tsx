@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import { ArrowLeft, CalendarClock, CheckCircle2, ExternalLink, Mail, MapPinned, MessageCircle, Phone, MessageSquare, ShieldCheck } from 'lucide-react';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { LeadPipelineControls } from '@/components/dashboard/lead-pipeline-controls';
 import { LeadStageSuggestionControls } from '@/components/dashboard/lead-stage-suggestion-controls';
 import { QuickReplyTemplates } from '@/components/dashboard/quick-reply-templates';
-import { loadPortalLeadTimeline, loadPortalUserAccess } from '@/lib/proppd/backend';
-import { getPortalServerUser } from '@/lib/supabase/server';
+import { loadPortalLeadTimeline } from '@/lib/proppd/backend';
+import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 import { buildWhatsAppHref, formatLeadIntent, formatLeadStatus, getLeadNextAction, getLeadSourceLabel, getLeadStageSuggestion } from '@/lib/leads/pipeline';
 
 export const dynamic = 'force-dynamic';
@@ -22,11 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function AgentLeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  const user = await getPortalServerUser();
-  if (!user) redirect(`/login?next=${encodeURIComponent(`/dashboard/leads/${id}`)}`);
-
-  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
-  if (!access) redirect('/dashboard/profile');
+  const access = await requireAgentWorkspaceAccess(`/dashboard/leads/${id}`);
 
   const timeline = await loadPortalLeadTimeline(id);
   if (!timeline) notFound();
