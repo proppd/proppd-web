@@ -18,6 +18,7 @@ const statusStyles: Record<string, { bg: string; text: string; label: string }> 
   draft: { bg: 'bg-[#F3F4F6]', text: 'text-[#6B7280]', label: 'Draft' },
   pending_review: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Pending' },
   available: { bg: 'bg-[#EFF6FF]', text: 'text-[#2563EB]', label: 'Live' },
+  coming_soon: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Coming soon' },
   under_offer: { bg: 'bg-[#4A3AFF]/10', text: 'text-[#4A3AFF]', label: 'Under offer' },
   sold: { bg: 'bg-[#4A3AFF]/10', text: 'text-[#4A3AFF]', label: 'Sold' },
   rented: { bg: 'bg-[#4A3AFF]/10', text: 'text-[#4A3AFF]', label: 'Rented' },
@@ -156,9 +157,16 @@ export default async function Page() {
                             <IntentCell listing={listing} />
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${listingHealthClass(getListingHealthLabel(listing))}`}>
-                              {getListingHealthLabel(listing)}
-                            </span>
+                            {(() => {
+                              const s = statusStyles[listing.listingStatus ?? ''];
+                              return s ? (
+                                <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${s.bg} ${s.text}`}>{s.label}</span>
+                              ) : (
+                                <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${listingHealthClass(getListingHealthLabel(listing))}`}>
+                                  {getListingHealthLabel(listing)}
+                                </span>
+                              );
+                            })()}
                           </td>
                           <td className="hidden px-4 py-3 text-center sm:table-cell">
                             <ListingVerifyToggle slug={listing.slug} initialVerified={listing.isVerified ?? false} />
