@@ -17,7 +17,7 @@ import { SaveListingButton } from '@/components/properties/save-listing-button';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { Breadcrumbs } from '@/components/site/breadcrumbs';
-import { loadPortalDiagnostics, loadPortalListingBySlug, loadPortalListings, loadPortalAgents } from '../../../lib/proppd/backend';
+import { loadListingPriceHistory, loadPortalDiagnostics, loadPortalListingBySlug, loadPortalListings, loadPortalAgents } from '../../../lib/proppd/backend';
 import { PpraVerificationDialog } from '@/components/agent/ppra-verification-dialog';
 import { PpraVerifiedBadge } from '@/components/agent/ppra-verified-badge';
 import { listings as demoListings } from '@/lib/demo-data';
@@ -64,11 +64,12 @@ export const dynamic = 'force-dynamic';
 
 export default async function PropertyPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [portalListing, portalListings, diagnostics, portalAgents] = await Promise.all([
+  const [portalListing, portalListings, diagnostics, portalAgents, priceHistory] = await Promise.all([
     loadPortalListingBySlug(slug),
     loadPortalListings(),
     loadPortalDiagnostics(),
     loadPortalAgents(),
+    loadListingPriceHistory(slug),
   ]);
   const listing = portalListing.items[0] ?? getListingBySlug(demoListings, slug);
   if (!listing) notFound();
@@ -281,7 +282,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
               </section>
 
               <section className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm sm:p-8">
-                <PriceHistory listingPrice={listing.priceValue} listedAt={listing.listedAt} />
+                <PriceHistory listingPrice={listing.priceValue} listedAt={listing.listedAt} history={priceHistory} />
               </section>
 
               <section id="verification" className="rounded-xl border border-[#BFDBFE] bg-[#EFF6FF] p-6 shadow-sm sm:p-8">

@@ -32,6 +32,8 @@ export type Listing = {
   lng?: number;
   featured?: boolean;
   isVerified?: boolean;
+  priceReduced?: boolean;
+  previousPrice?: number;
   mandateType?: 'sole' | 'joint' | 'open';
   mandateSellerName?: string;
   mandateCommissionPct?: number;
