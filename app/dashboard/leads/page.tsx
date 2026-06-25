@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { MessageCircle, Mail, Phone, Clock, CheckCircle, TrendingUp, ExternalLink, Filter, ListChecks, Search, X, CalendarClock } from 'lucide-react';
-import { loadPortalLeadQueue } from '@/lib/proppd/backend';
+import { loadPortalLeadQueue, leadQueueScopeForAccess } from '@/lib/proppd/backend';
 import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 import { buildLeadFilterHref, buildWhatsAppHref, filterLeads, formatLeadStatus, getLeadCrmStats, getLeadNextAction, getLeadQueue, getLeadSourceStats, getScoreLabel, hasLeadFilters, isLeadStatus, scoreLeadRecord, type LeadFilters, type LeadQuality, type LeadRecord, type LeadStatus } from '@/lib/leads/pipeline';
 import { hoursSince, formatIdleDuration, getFollowUpUrgency } from '@/lib/leads/follow-ups';
@@ -28,7 +28,7 @@ type PageProps = {
 export default async function Page({ searchParams }: PageProps) {
   const params = await searchParams;
   const access = await requireAgentWorkspaceAccess('/dashboard/leads');
-  const leadPayload = await loadPortalLeadQueue(access.agentName ?? undefined);
+  const leadPayload = await loadPortalLeadQueue(leadQueueScopeForAccess(access));
   const leads = leadPayload.items;
   const controlsEnabled = leadPayload.source === 'database' || leadPayload.source === 'empty';
   const activeFilters = parseLeadFilters(params);

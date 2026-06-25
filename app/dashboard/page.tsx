@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { BarChart3, BellRing, CalendarClock, CheckCircle2, ChevronRight, Clock, Eye, Home, ListChecks, ListPlus, MessageCircle, Plus, TrendingUp, User, Zap } from 'lucide-react';
 import { FollowUpPanel } from '@/components/dashboard/follow-up-panel';
-import { loadMyPortalListings, loadPortalLeadQueue } from '../../lib/proppd/backend';
+import { loadMyPortalListings, loadPortalLeadQueue, leadQueueScopeForAccess } from '../../lib/proppd/backend';
 import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 import { getAgentFollowUpActions, getAgentResponseStats, getAgentToolCards, getAgentWorkspaceStats, formatAgentResponseSignal, type AgentFollowUpAction, type AgentToolCard } from '@/lib/agent/workspace';
 import { formatIdleDuration } from '@/lib/leads/follow-ups';
@@ -21,7 +21,7 @@ export default async function Page() {
   const access = await requireAgentWorkspaceAccess('/dashboard');
 
   const portalListings = (await loadMyPortalListings(access)).items;
-  const portalLeads = (await loadPortalLeadQueue(access.agentName ?? undefined)).items;
+  const portalLeads = (await loadPortalLeadQueue(leadQueueScopeForAccess(access))).items;
   const workspaceAgentName = access.agentName ?? portalListings[0]?.agent ?? portalLeads[0]?.agent ?? agentName;
   const stats = getAgentWorkspaceStats(workspaceAgentName, portalListings, portalLeads);
   const agentListings = portalListings.filter((l) => l.agent === workspaceAgentName);

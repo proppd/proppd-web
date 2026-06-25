@@ -47,6 +47,31 @@ export type PortalUserAccess = {
 
 export const AGENT_WORKSPACE_FORBIDDEN_MESSAGE = 'AgentOS and CRM are only available to approved agents and agencies.';
 
+/**
+ * The set of leads a portal account is allowed to see.
+ *  - 'all'    : super admins (the whole platform)
+ *  - 'agent'  : a single agent's leads, matched by agent name
+ *  - 'agency' : every lead routed to an agency, matched by agency id
+ *  - 'none'   : no access / no workspace identity — returns an empty queue
+ *
+ * The dashboard reads leads through a connection that bypasses RLS, so this
+ * scope is the only thing keeping one agency's lead PII from another. It must
+ * fail closed: anything without a concrete identity resolves to 'none'.
+ */
+export type LeadQueueScope =
+  | { kind: 'all' }
+  | { kind: 'agent'; agentName: string }
+  | { kind: 'agency'; agencyId: string }
+  | { kind: 'none' };
+
+export function leadQueueScopeForAccess(access: PortalUserAccess | null | undefined): LeadQueueScope {
+  if (!access) return { kind: 'none' };
+  if (access.role === 'super_admin') return { kind: 'all' };
+  if (access.role === 'agency_admin') return access.agencyId ? { kind: 'agency', agencyId: access.agencyId } : { kind: 'none' };
+  if (access.role === 'agent') return access.agentName ? { kind: 'agent', agentName: access.agentName } : { kind: 'none' };
+  return { kind: 'none' };
+}
+
 export function canAccessAgentWorkspace(access: PortalUserAccess | null | undefined): access is PortalUserAccess {
   if (!access) return false;
   // Super admins have full access regardless of agent linkage.
@@ -380,19 +405,28 @@ export async function loadListingPriceHistory(slug: string, env: PortalEnv = pro
   }
 }
 
-export async function loadPortalLeadQueue(agentName?: string, env: PortalEnv = process.env): Promise<PortalPayload<LeadRecord>> {
+export async function loadPortalLeadQueue(scope: LeadQueueScope, env: PortalEnv = process.env): Promise<PortalPayload<LeadRecord>> {
+  // Fail closed: an account with no workspace identity sees no leads.
+  if (scope.kind === 'none') return { source: 'empty', items: [] };
+
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
-    const items = agentName ? demoLeads.filter((lead) => lead.agent === agentName) : demoLeads;
-    return { source: 'demo', items: getLeadQueue(items) };
+    return { source: 'demo', items: getLeadQueue(filterDemoLeadsByScope(scope)) };
   }
 
   try {
-    const rows = await queryLeads(databaseUrl, agentName);
+    const rows = await queryLeads(databaseUrl, scope);
     return { source: rows.length > 0 ? 'database' : 'empty', items: rows.map(mapLeadRow).sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()) };
   } catch (error) {
-    return fallbackToDemoOnDatabaseConnectivityError(error, agentName ? getLeadQueue(demoLeads.filter((lead) => lead.agent === agentName)) : getLeadQueue(demoLeads));
+    return fallbackToDemoOnDatabaseConnectivityError(error, getLeadQueue(filterDemoLeadsByScope(scope)));
   }
+}
+
+// Demo/showcase fallback only (no live PII). Agency scope can't be matched by id
+// against demo data, so it shows the demo set; agent scope filters by name.
+function filterDemoLeadsByScope(scope: LeadQueueScope): LeadRecord[] {
+  if (scope.kind === 'agent') return demoLeads.filter((lead) => lead.agent === scope.agentName);
+  return demoLeads;
 }
 
 export async function loadPortalLeadById(leadId: string, env: PortalEnv = process.env): Promise<PortalPayload<LeadRecord>> {
@@ -403,7 +437,7 @@ export async function loadPortalLeadById(leadId: string, env: PortalEnv = proces
   }
 
   try {
-    const rows = await queryLeads(databaseUrl);
+    const rows = await queryLeads(databaseUrl, { kind: 'all' });
     const item = rows.map(mapLeadRow).find((lead) => lead.id === leadId);
     return item ? { source: 'database', items: [item] } : { source: 'empty', items: [] };
   } catch (error) {
@@ -469,7 +503,7 @@ export async function updatePortalLeadWorkflow(
 
   try {
     const pool = getPortalPool(databaseUrl);
-    const rows = await queryLeads(databaseUrl);
+    const rows = await queryLeads(databaseUrl, { kind: 'all' });
     const current = rows.find((entry) => entry.id === leadId);
     if (!current) {
       return { source: 'error', items: [], error: 'Lead not found.' };
@@ -539,7 +573,7 @@ export async function addPortalLeadNote(
 
   try {
     const pool = getPortalPool(databaseUrl);
-    const rows = await queryLeads(databaseUrl);
+    const rows = await queryLeads(databaseUrl, { kind: 'all' });
     const current = rows.find((entry) => entry.id === leadId);
     if (!current) {
       return { source: 'error', items: [], error: 'Lead not found.' };
@@ -1851,15 +1885,19 @@ async function queryListings(databaseUrl: string, slug?: string): Promise<Listin
   return result.rows;
 }
 
-async function queryLeads(databaseUrl: string, agentName?: string): Promise<LeadRow[]> {
+async function queryLeads(databaseUrl: string, scope: LeadQueueScope): Promise<LeadRow[]> {
   const pool = getPortalPool(databaseUrl);
   const values: Array<string> = [];
   const clauses: string[] = [];
 
-  if (agentName) {
-    values.push(agentName);
+  if (scope.kind === 'agent') {
+    values.push(scope.agentName);
     clauses.push(`a.name = $${values.length}`);
+  } else if (scope.kind === 'agency') {
+    values.push(scope.agencyId);
+    clauses.push(`l.agency_id = $${values.length}`);
   }
+  // scope.kind === 'all' adds no clause; 'none' never reaches this function.
 
   const sql = `
     select
