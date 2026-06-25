@@ -343,12 +343,7 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
 
           {/* Saved search alerts - mobile/tablet */}
           <div className="mt-4 lg:hidden">
-            <SavedSearchAlerts searchParams={{
-              q: filters.query ?? undefined,
-              location: filters.location ?? undefined,
-              purpose: filters.purpose !== 'all' ? filters.purpose : undefined,
-              bedrooms: filters.bedrooms ? String(filters.bedrooms) : undefined,
-            }} />
+            <SavedSearchAlerts label={savedSearchLabel} path="/properties" queryString={savedSearchQuery} />
           </div>
         </div>
       </section>
