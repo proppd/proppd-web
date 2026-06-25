@@ -2,9 +2,12 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { buildAuthCallbackUrl } from '@/lib/auth/redirects';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
-import { isVerifiedAgentEmail } from '@/lib/proppd/backend';
+import { getSupabaseAdminClient } from '@/lib/supabase/admin';
+import { isVerifiedAgentEmail, doesProfileExistForEmail } from '@/lib/proppd/backend';
 import { rateLimitByIdentifier, rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
+import { sendEmail, isEmailConfigured } from '@/lib/notifications/email';
+import { buildMagicLinkEmailHtml, buildMagicLinkEmailText } from '@/lib/email/templates/magic-link';
 
 export const runtime = 'nodejs';
 
@@ -46,10 +49,54 @@ export async function POST(request: NextRequest) {
   // active agent, allow the account to be created on first magic-link sign-in.
   const shouldCreateUser = body?.allowSignUp === true || (await isVerifiedAgentEmail(email).catch(() => false));
 
-  // Use the PKCE flow (via @supabase/ssr) so the magic link returns a `?code=`
-  // that /auth/callback can exchange — not implicit hash tokens, which the
-  // server callback cannot read. The PKCE code-verifier is written as a cookie
-  // on this response so it is present when the user later opens the link.
+  // When a Supabase service role key and Resend are both configured, take over
+  // the email send so we can use a branded template. The admin client generates
+  // the magic link without sending it; we send it ourselves via Resend.
+  // The admin-generated link uses the implicit (hash token) flow, so we redirect
+  // to the login page — the HashSessionHandler there handles the hash tokens.
+  const adminClient = getSupabaseAdminClient();
+  if (adminClient && isEmailConfigured()) {
+    // For invite-only requests, only generate a link when the user already has
+    // a Proppd profile — prevents creating ghost auth accounts for unknown emails.
+    let canProceed = shouldCreateUser;
+    if (!canProceed) {
+      canProceed = await doesProfileExistForEmail(email).catch(() => false);
+    }
+
+    if (canProceed) {
+      // Redirect to /login so HashSessionHandler can exchange the hash tokens.
+      const loginUrl = new URL('/login', origin);
+      loginUrl.searchParams.set('next', nextPath);
+
+      const { data, error } = await adminClient.auth.admin.generateLink({
+        type: 'magiclink',
+        email,
+        options: {
+          redirectTo: loginUrl.toString(),
+          data: profileData(body?.profile),
+        },
+      });
+
+      if (!error && data?.properties?.action_link) {
+        await sendEmail({
+          to: email,
+          subject: 'Your Proppd sign-in link',
+          html: buildMagicLinkEmailHtml({ actionLink: data.properties.action_link, email, origin }),
+          text: buildMagicLinkEmailText({ actionLink: data.properties.action_link, email, origin }),
+        });
+        return NextResponse.json({ ok: true });
+      }
+
+      // If admin link generation failed, fall through to signInWithOtp below.
+    } else {
+      // Unknown email in invite-only mode: silently succeed to prevent enumeration.
+      return NextResponse.json({ ok: true });
+    }
+  }
+
+  // Fallback: use the PKCE flow via @supabase/ssr. The magic link returns a
+  // `?code=` that /auth/callback can exchange — not implicit hash tokens.
+  // The PKCE code-verifier is written as a cookie on this response.
   const response = NextResponse.json({ ok: true });
   const supabase = createServerClient(config.url, config.publishableKey, {
     cookies: {
