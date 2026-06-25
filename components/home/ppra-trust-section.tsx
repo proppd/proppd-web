@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { ShieldCheck, BadgeCheck, FileCheck2, UserCheck } from 'lucide-react';
 
 export function PpraTrustSection() {
@@ -46,17 +47,15 @@ export function PpraTrustSection() {
               </div>
             </div>
 
-            {/* Right — visual badge */}
+            {/* Right — PPRA verified badge */}
             <div className="hidden items-center justify-center border-l border-white/8 bg-white/4 px-12 lg:flex">
-              <div className="flex flex-col items-center gap-4 text-center">
-                <div className="flex h-28 w-28 items-center justify-center rounded-full border-2 border-[#A7F3D0]/40 bg-[#ECFDF5]/10 shadow-[0_0_60px_rgba(16,185,129,0.15)]">
-                  <ShieldCheck size={56} className="text-[#34D399]" strokeWidth={1.5} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-white">PPRA</p>
-                  <p className="text-xs font-bold uppercase tracking-[.2em] text-white/50">Verified</p>
-                </div>
-              </div>
+              <Image
+                src="/ppra-verified-badge.png"
+                alt="PPRA Verified"
+                width={180}
+                height={180}
+                className="drop-shadow-[0_0_40px_rgba(16,185,129,0.3)]"
+              />
             </div>
 
           </div>
