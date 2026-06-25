@@ -4,6 +4,7 @@ import { sakstonsAgents, sakstonsAgencies, sakstonsListings } from '../sakstons-
 import { demoLeads } from '../leads/demo-leads';
 import { getLeadQueue, getLeadActivityLabel, getLeadSourceLabel, isLeadStatus, type LeadRecord, type LeadQuality, type LeadStatus, type LeadIntent } from '../leads/pipeline';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
+import { isAllowedSuperAdminEmail } from '@/lib/auth/super-admin';
 import { logServerError } from '@/lib/security/logging';
 import type { DirectoryAgency, DirectoryAgent } from '../directory';
 import { slugifyAgentName } from '../agents/profile';
@@ -60,7 +61,16 @@ export function canAccessAgentWorkspace(access: PortalUserAccess | null | undefi
   return false;
 }
 
-const ADMIN_EMAIL = 'info@proppd.com';
+/**
+ * Clamps a role read from the database for a non-allowlisted email. A
+ * super_admin value on such an account must never be honoured (defence in
+ * depth behind the DB allowlist trigger): downgrade to the most privilege the
+ * account's linkage actually supports.
+ */
+export function clampNonAdminRole(role: PortalUserAccess['role'], hasAgentLink: boolean): PortalUserAccess['role'] {
+  if (role === 'super_admin') return hasAgentLink ? 'agent' : 'user';
+  return role;
+}
 
 export type PortalListingDraft = {
   id: string;
@@ -902,7 +912,7 @@ async function generateUniqueListingSlug(pool: Pool, title: string): Promise<str
 }
 
 export async function loadPortalUserAccess(userId: string, userEmail?: string | null, env: PortalEnv = process.env): Promise<PortalUserAccess | null> {
-  const isAdminEmail = userEmail?.trim().toLowerCase() === ADMIN_EMAIL;
+  const isAdminEmail = isAllowedSuperAdminEmail(userEmail);
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
     return isAdminEmail
@@ -960,7 +970,7 @@ export async function loadPortalUserAccess(userId: string, userEmail?: string | 
   return {
     userId,
     profileId: row.profile_id,
-    role: isAdminEmail ? 'super_admin' : normaliseRole(row.role),
+    role: isAdminEmail ? 'super_admin' : clampNonAdminRole(normaliseRole(row.role), row.agent_id !== null),
     agentId: row.agent_id,
     agentName: row.agent_name,
     agencyId: row.agency_id,
