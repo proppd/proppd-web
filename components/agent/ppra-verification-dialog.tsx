@@ -2,23 +2,35 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { X } from 'lucide-react';
+import { AlertTriangle, X } from 'lucide-react';
 
 export function PpraVerificationDialog({
   agentName,
   agency,
   ffcNumber,
+  verifiedAt,
   size = 'md',
   className = '',
 }: {
   agentName: string;
   agency?: string;
   ffcNumber: string;
+  verifiedAt?: string;
   size?: 'sm' | 'md';
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
+
+  const parsedVerified = verifiedAt ? new Date(verifiedAt) : null;
+  const verifiedDate = parsedVerified && !Number.isNaN(parsedVerified.getTime()) ? parsedVerified : null;
+  // PPRA Fidelity Fund Certificates are renewed annually, so a check older than
+  // 12 months should be refreshed.
+  const reverificationDue =
+    verifiedDate != null && Date.now() - verifiedDate.getTime() > 365 * 24 * 60 * 60 * 1000;
+  const verifiedLabel = verifiedDate
+    ? new Intl.DateTimeFormat('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' }).format(verifiedDate)
+    : null;
 
   useEffect(() => {
     if (!open) return;
@@ -106,7 +118,21 @@ export function PpraVerificationDialog({
                   <p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#16a34a]">Fidelity Fund Certificate</p>
                   <p className="mt-1 font-mono text-base font-bold tracking-wider text-[#1A1A2E]">{ffcNumber}</p>
                 </div>
+                {verifiedLabel && (
+                  <div className="rounded-xl bg-[#F0FDF4] p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#16a34a]">Last verified</p>
+                    <p className="mt-1 text-base font-bold text-[#1A1A2E]">{verifiedLabel}</p>
+                  </div>
+                )}
               </div>
+              {reverificationDue && (
+                <div className="mt-4 flex items-start gap-2 rounded-xl border border-[#FCD34D] bg-[#FFFBEB] p-3">
+                  <AlertTriangle size={16} className="mt-0.5 shrink-0 text-[#B45309]" />
+                  <p className="text-xs leading-5 text-[#92400E]">
+                    This certificate was last verified over a year ago. PPRA Fidelity Fund Certificates renew annually — we recommend re-checking it on the official register before transacting.
+                  </p>
+                </div>
+              )}
               <p className="mt-4 text-xs leading-5 text-[#6B7280]">
                 This agent holds a valid Fidelity Fund Certificate issued by the PPRA. You can cross-check this number on the official PPRA register at <span className="font-semibold text-[#15803d]">ppra.org.za</span>.
               </p>

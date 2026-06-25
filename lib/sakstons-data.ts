@@ -1,10 +1,10 @@
 import type { Listing } from './demo-data';
 
 export const sakstonsAgents = [
-  { name: 'Graham Donald', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 6, ffcNumber: 'FFC 202624015840000' },
-  { name: 'Hamez Saks', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 0, ffcNumber: 'FFC 202623026100000' },
-  { name: 'Lize Marx', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 12, ffcNumber: 'FFC 202634074660000' },
-  { name: 'Marc Chait', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 20, ffcNumber: 'FFC 202401036404219' },
+  { name: 'Graham Donald', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 6, ffcNumber: 'FFC 202624015840000', ffcVerifiedAt: '2026-02-18T09:00:00.000Z' },
+  { name: 'Hamez Saks', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 0, ffcNumber: 'FFC 202623026100000', ffcVerifiedAt: '2026-04-02T09:00:00.000Z' },
+  { name: 'Lize Marx', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 12, ffcNumber: 'FFC 202634074660000', ffcVerifiedAt: '2026-05-21T09:00:00.000Z' },
+  { name: 'Marc Chait', agency: 'Sakstons', area: 'Fourways, Kyalami and Sandton precincts', listings: 20, ffcNumber: 'FFC 202401036404219', ffcVerifiedAt: '2025-01-14T09:00:00.000Z' },
 ].map((agent) => ({ ...agent, isActive: true, isVerified: true }));
 
 export const sakstonsAgencies = [
