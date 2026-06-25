@@ -53,11 +53,40 @@ export function rateLimitHeaders(headers: Headers, policy: RateLimitPolicy, scop
   );
 }
 
+/**
+ * Rate-limit by an explicit identifier (e.g. an email address) instead of the
+ * caller IP. Used as a second dimension so a single mailbox cannot be targeted
+ * from rotating IPs. The identifier is namespaced so it never collides with the
+ * IP-keyed buckets.
+ */
+export function rateLimitByIdentifier(identifier: string, policy: RateLimitPolicy, scope = 'server-action'): NextResponse | null {
+  const result = checkRateLimitForKey(`id:${sanitiseIdentifier(identifier)}`, policy, scope);
+  if (result.allowed) return null;
+
+  return NextResponse.json(
+    { ok: false, error: 'Too many requests. Please wait a moment and try again.' },
+    {
+      status: 429,
+      headers: {
+        'Retry-After': String(result.retryAfterSeconds),
+        'X-RateLimit-Limit': String(policy.limit),
+        'X-RateLimit-Remaining': '0',
+        'X-RateLimit-Reset': String(Math.ceil(result.resetAt / 1000)),
+      },
+    },
+  );
+}
+
 export function checkRateLimit(headers: Headers, policy: RateLimitPolicy, scope = 'server-action'):
   | { allowed: true; remaining: number; resetAt: number }
   | { allowed: false; retryAfterSeconds: number; resetAt: number } {
+  return checkRateLimitForKey(rateLimitIdentifier(headers), policy, scope);
+}
+
+function checkRateLimitForKey(identifier: string, policy: RateLimitPolicy, scope: string):
+  | { allowed: true; remaining: number; resetAt: number }
+  | { allowed: false; retryAfterSeconds: number; resetAt: number } {
   const now = Date.now();
-  const identifier = rateLimitIdentifier(headers);
   const bucketKey = `${policy.key}:${routeScope(scope)}:${identifier}`;
   const current = buckets.get(bucketKey);
 
@@ -83,7 +112,11 @@ export function rateLimitIdentifier(headers: Headers): string {
   const forwarded = headers.get('x-forwarded-for')?.split(',')[0]?.trim();
   const realIp = headers.get('x-real-ip')?.trim();
   const candidate = forwarded || realIp || 'unknown';
-  return candidate.replace(/[^a-zA-Z0-9:._-]/g, '').slice(0, 96) || 'unknown';
+  return sanitiseIdentifier(candidate);
+}
+
+function sanitiseIdentifier(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-zA-Z0-9:@._-]/g, '').slice(0, 96) || 'unknown';
 }
 
 export function resetRateLimitsForTests() {
