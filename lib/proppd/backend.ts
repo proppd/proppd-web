@@ -1036,6 +1036,21 @@ export async function isVerifiedAgentEmail(email: string, env: PortalEnv = proce
   return result.rows[0]?.eligible ?? false;
 }
 
+export async function doesProfileExistForEmail(email: string, env: PortalEnv = process.env): Promise<boolean> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return false;
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const result = await pool.query<{ exists: boolean }>(
+      `select exists(select 1 from public.profiles where email = $1) as exists`,
+      [email.trim().toLowerCase()],
+    );
+    return result.rows[0]?.exists ?? false;
+  } catch {
+    return false;
+  }
+}
+
 export async function loadManagedListingDrafts(access: PortalUserAccess, env: PortalEnv = process.env): Promise<PortalPayload<PortalListingDraft>> {
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
