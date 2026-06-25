@@ -25,4 +25,19 @@ describe('agent workspace access', () => {
     expect(canAccessAgentWorkspace(null)).toBe(false);
     expect(canAccessAgentWorkspace(undefined)).toBe(false);
   });
+
+  it('blocks an agent/agency role that has no linked workspace record', () => {
+    // A profile carrying role 'agent' but with no agent record behind it must
+    // not reach the CRM — otherwise the dashboard adopts another agent's
+    // identity and the global lead queue. Same for an unlinked agency admin.
+    const orphanAgent: PortalUserAccess = { ...access('agent'), agentId: null, agentName: null };
+    const orphanAgencyAdmin: PortalUserAccess = { ...access('agency_admin'), agencyId: null, agencyName: null };
+    expect(canAccessAgentWorkspace(orphanAgent)).toBe(false);
+    expect(canAccessAgentWorkspace(orphanAgencyAdmin)).toBe(false);
+  });
+
+  it('still allows a super admin with no agent linkage', () => {
+    const adminNoAgent: PortalUserAccess = { ...access('super_admin'), agentId: null, agencyId: null };
+    expect(canAccessAgentWorkspace(adminNoAgent)).toBe(true);
+  });
 });

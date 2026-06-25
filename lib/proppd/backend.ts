@@ -48,7 +48,16 @@ export const AGENT_WORKSPACE_FORBIDDEN_MESSAGE = 'AgentOS and CRM are only avail
 
 export function canAccessAgentWorkspace(access: PortalUserAccess | null | undefined): access is PortalUserAccess {
   if (!access) return false;
-  return access.role === 'super_admin' || access.role === 'agency_admin' || access.role === 'agent';
+  // Super admins have full access regardless of agent linkage.
+  if (access.role === 'super_admin') return true;
+  // A role string alone is NOT enough: an account whose role says 'agent' or
+  // 'agency_admin' but has no linked agent/agency record has no workspace of
+  // its own. Letting it through means the dashboard falls back to the first
+  // agent in the dataset (and the global lead queue), exposing another agent's
+  // data. Require a concrete workspace identity so the CRM fails closed.
+  if (access.role === 'agency_admin') return Boolean(access.agencyId);
+  if (access.role === 'agent') return Boolean(access.agentId);
+  return false;
 }
 
 const ADMIN_EMAIL = 'info@proppd.com';
