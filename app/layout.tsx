@@ -7,22 +7,52 @@ import { SavedHomesSync } from '@/components/properties/saved-homes-sync';
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proppd.com'),
   title: {
-    default: 'Proppd | Real Property. Real Opportunities.',
+    default: 'Proppd | Property for Sale & Rent in South Africa',
     template: '%s | Proppd',
   },
   description:
-    'Proppd is a modern South African prop-tech platform for real listings, verified enquiries, and agent-friendly property technology.',
+    'Search PPRA-verified property listings across South Africa. Buy, rent, and connect with verified estate agents on Proppd — South Africa\'s transparent property portal.',
+  keywords: [
+    'property for sale south africa',
+    'property to rent south africa',
+    'real estate south africa',
+    'PPRA verified estate agents',
+    'property portal',
+    'houses for sale',
+    'apartments for rent',
+  ],
+  alternates: { canonical: '/' },
+  robots: {
+    index: true,
+    follow: true,
+    'max-image-preview': 'large',
+    'max-snippet': -1,
+    'max-video-preview': -1,
+  },
   openGraph: {
+    type: 'website',
+    locale: 'en_ZA',
     title: 'Proppd | Real Property. Real Opportunities.',
-    description: 'Modern South African property technology for real listings and verified enquiries.',
+    description:
+      'Search PPRA-verified property listings across South Africa. Buy, rent, and connect with verified estate agents.',
     url: 'https://proppd.com',
     siteName: 'Proppd',
-    images: [{ url: '/proppd-logo-horizontal.png', width: 1200, height: 315, alt: 'Proppd logo' }],
+    images: [{ url: '/proppd-logo-horizontal.png', width: 1200, height: 315, alt: 'Proppd — South African property portal' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Proppd | Real Property. Real Opportunities.',
+    description:
+      'Search PPRA-verified property listings across South Africa.',
+    images: ['/proppd-logo-horizontal.png'],
   },
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',
     apple: '/icon.png',
+  },
+  verification: {
+    google: 'google-site-verification-token', // Replace with actual token from Search Console
   },
 };
 
