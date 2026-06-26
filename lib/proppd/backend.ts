@@ -2879,7 +2879,10 @@ export async function approveAgentReviewRequest(
       [id],
     );
     const row = req.rows[0];
-    if (!row) return { ok: false, error: 'Review request not found or already resolved.' };
+    if (!row) {
+      await client.query('rollback');
+      return { ok: false, error: 'Review request not found or already resolved.' };
+    }
 
     const fullName = `${row.first_name} ${row.last_name}`.trim();
     const baseSlug = slugifyAgentName(fullName) || 'agent';
@@ -2896,12 +2899,20 @@ export async function approveAgentReviewRequest(
         [existing.rows[0].id, row.ffc_number],
       );
     } else {
-      // Pick a unique slug.
-      const slugRow = await client.query<{ slug: string }>(
-        `select slug from public.agents where slug like $1 order by slug desc limit 1`,
-        [`${baseSlug}%`],
+      // Pick the first free slug: baseSlug, then baseSlug-2, baseSlug-3, ...
+      // We gather every slug that could collide and scan locally so we never
+      // re-use a suffix that already exists (which would violate the unique key).
+      const slugRows = await client.query<{ slug: string }>(
+        `select slug from public.agents where slug = $1 or slug like $2`,
+        [baseSlug, `${baseSlug}-%`],
       );
-      const slug = slugRow.rows[0] ? `${baseSlug}-2` : baseSlug;
+      const taken = new Set(slugRows.rows.map((r) => r.slug));
+      let slug = baseSlug;
+      let suffix = 2;
+      while (taken.has(slug)) {
+        slug = `${baseSlug}-${suffix}`;
+        suffix += 1;
+      }
 
       await client.query(
         `insert into public.agents (name, slug, email, ffc_number, is_verified, is_active, ffc_verified_at)
@@ -2918,7 +2929,12 @@ export async function approveAgentReviewRequest(
     await client.query('commit');
     return { ok: true, email: row.email, firstName: row.first_name, lastName: row.last_name };
   } catch (error) {
-    await client.query('rollback');
+    try {
+      await client.query('rollback');
+    } catch {
+      // Rollback can fail if the connection is already broken; the release
+      // below still returns the client to the pool for teardown.
+    }
     return { ok: false, error: errorMessage(error) };
   } finally {
     client.release();
