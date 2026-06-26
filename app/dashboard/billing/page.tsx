@@ -7,6 +7,7 @@ import { getPlan, formatZar } from '@/lib/billing/plans';
 import { deriveEntitlement, isTrialEligible } from '@/lib/billing/subscription';
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: { absolute: 'Billing | Proppd' },
   description: 'Manage your Proppd subscription.',
   alternates: { canonical: '/dashboard/billing' },

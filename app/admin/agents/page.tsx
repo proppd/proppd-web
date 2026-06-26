@@ -8,6 +8,7 @@ import { AgentReviewQueue } from '@/components/admin/agent-review-queue';
 import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: 'Agent review queue',
 };
 

@@ -12,6 +12,7 @@ type PageProps = {
 };
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: {
     absolute: 'Edit listing | Proppd',
   },

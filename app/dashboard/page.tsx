@@ -10,6 +10,7 @@ import type { LeadRecord } from '@/lib/leads/pipeline';
 const agentName = 'Lerato Mokoena';
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: { absolute: 'Dashboard | Proppd' },
   description: 'Manage your listings, track leads, and monitor performance.',
   alternates: { canonical: '/dashboard' },

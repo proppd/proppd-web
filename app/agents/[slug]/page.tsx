@@ -10,6 +10,7 @@ import { SiteHeader } from '@/components/site/header';
 import { loadPortalAgentBySlug, loadPortalListings } from '../../../lib/proppd/backend';
 import { sakstonsAgents, sakstonsListings } from '@/lib/sakstons-data';
 import { formatDirectoryCount, getAgentListings, slugifyDirectoryName } from '@/lib/directory';
+import { realEstateAgentSchema } from '@/lib/seo/schema';
 
 export function generateStaticParams() {
   return sakstonsAgents.map((agent) => ({ slug: slugifyDirectoryName(agent.name) }));
@@ -59,6 +60,21 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
 
   return (
     <main className="proppd-page">
+      {/* RealEstateAgent structured data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            realEstateAgentSchema({
+              name: agent.name,
+              slug: slugifyDirectoryName(agent.name),
+              area: agent.area,
+              agency: agent.agency,
+              ffcNumber: agent.ffcNumber,
+            }),
+          ),
+        }}
+      />
       <SiteHeader />
       <section className="px-4 py-14 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">

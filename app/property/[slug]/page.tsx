@@ -109,6 +109,11 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
               baths: listing.baths,
               agent: listing.agent,
               agency: listing.agency,
+              purpose: listing.purpose,
+              listedAt: listing.listedAt,
+              floorSize: listing.floorSize,
+              lat: listing.lat,
+              lng: listing.lng,
             }),
           ),
         }}

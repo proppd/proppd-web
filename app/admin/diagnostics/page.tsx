@@ -7,6 +7,7 @@ import { SiteHeader } from '@/components/site/header';
 import { loadPortalDiagnostics } from '../../../lib/proppd/backend';
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: 'Backend diagnostics | Proppd',
   description: 'Live backend readiness, auth config, and database connectivity for Proppd.',
   alternates: { canonical: '/admin/diagnostics' },
