@@ -8,6 +8,7 @@ import { listings } from '@/lib/demo-data';
 import { applyListingFilters, parseListingFilters } from '@/lib/listings/filters';
 import { buildSavedSearchMailto, buildSavedSearchPath, savedSearchName } from '@/lib/listings/saved-search';
 import { SaveSearchButton } from '@/components/properties/save-search-button';
+import { SortSelect } from '@/components/listings/sort-select';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -161,17 +162,11 @@ export default async function ToRentPage({ searchParams }: { searchParams: Searc
             </a>
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">Sort:</span>
-            {sortOptions.map(({ value, label }) => (
-              <a
-                key={value}
-                href={buildToRentHref(params, { sort: value })}
-                className={`inline-flex items-center rounded-full border px-4 py-2 text-sm font-bold transition ${filters.sort === value ? 'border-[#4A3AFF] bg-[#4A3AFF] text-white' : 'border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#4A3AFF] hover:text-[#4A3AFF]'}`}
-              >
-                {label}
-              </a>
-            ))}
+          <div className="mt-6">
+            <SortSelect
+              value={filters.sort}
+              options={sortOptions.map(({ value, label }) => ({ value, label, href: buildToRentHref(params, { sort: value }) }))}
+            />
           </div>
 
           <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">

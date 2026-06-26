@@ -7,6 +7,7 @@ import { PropertyMap } from '@/components/properties/property-map';
 import { SavedHomesBanner } from '@/components/properties/saved-homes-banner';
 import { SavedSearchAlerts } from '@/components/properties/saved-search-alerts';
 import { SaveSearchButton } from '@/components/properties/save-search-button';
+import { SortSelect } from '@/components/listings/sort-select';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { loadPortalListings } from '../../lib/proppd/backend';
@@ -237,17 +238,11 @@ export default async function PropertiesPage({ searchParams }: { searchParams: S
               </div>
             ) : null}
 
-            <div className="mt-5 flex flex-wrap items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">Sort:</span>
-              {propertiesSortOptions.map(({ value, label }) => (
-                <a
-                  key={value}
-                  href={buildPropertiesHref(params, { sort: value, page: null })}
-                  className={`inline-flex items-center rounded-full border px-4 py-2 text-sm font-bold transition ${filters.sort === value ? 'border-[#4A3AFF] bg-[#4A3AFF] text-white' : 'border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#4A3AFF] hover:text-[#4A3AFF]'}`}
-                >
-                  {label}
-                </a>
-              ))}
+            <div className="mt-5">
+              <SortSelect
+                value={filters.sort}
+                options={propertiesSortOptions.map(({ value, label }) => ({ value, label, href: buildPropertiesHref(params, { sort: value, page: null }) }))}
+              />
             </div>
 
             <div className="mt-4 grid gap-5 md:grid-cols-2">
