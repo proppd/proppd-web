@@ -2722,3 +2722,236 @@ export function systemFeedAccess(): PortalUserAccess {
     agencyName: null,
   };
 }
+
+// --- Agent review requests ---------------------------------------------------
+
+export type AgentReviewStatus = 'pending' | 'approved' | 'rejected';
+
+export type AgentReviewRequest = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  agency: string | null;
+  area: string | null;
+  ffcNumber: string;
+  verificationStatus: string;
+  verificationReason: string | null;
+  reviewStatus: AgentReviewStatus;
+  reviewedBy: string | null;
+  reviewedAt: string | null;
+  createdAt: string;
+};
+
+type AgentReviewRow = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  agency: string | null;
+  area: string | null;
+  ffc_number: string;
+  verification_status: string;
+  verification_reason: string | null;
+  review_status: string;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+};
+
+function mapReviewRow(row: AgentReviewRow): AgentReviewRequest {
+  return {
+    id: row.id,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    email: row.email,
+    phone: row.phone,
+    agency: row.agency,
+    area: row.area,
+    ffcNumber: row.ffc_number,
+    verificationStatus: row.verification_status,
+    verificationReason: row.verification_reason,
+    reviewStatus: (row.review_status as AgentReviewStatus) ?? 'pending',
+    reviewedBy: row.reviewed_by,
+    reviewedAt: row.reviewed_at,
+    createdAt: row.created_at,
+  };
+}
+
+/**
+ * Persist a new agent review request (called at signup time when PPRA
+ * auto-verification fails). Silently swallows errors so it never blocks
+ * the onboarding response.
+ */
+export async function createAgentReviewRequest(
+  input: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string | null;
+    agency?: string | null;
+    area?: string | null;
+    ffcNumber: string;
+    verificationStatus: string;
+    verificationReason?: string | null;
+  },
+  env: PortalEnv = process.env,
+): Promise<void> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return;
+  try {
+    const pool = getPortalPool(databaseUrl);
+    await pool.query(
+      `insert into public.agent_review_requests
+         (first_name, last_name, email, phone, agency, area, ffc_number, verification_status, verification_reason)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [
+        input.firstName,
+        input.lastName,
+        input.email,
+        input.phone ?? null,
+        input.agency ?? null,
+        input.area ?? null,
+        input.ffcNumber,
+        input.verificationStatus,
+        input.verificationReason ?? null,
+      ],
+    );
+  } catch (error) {
+    logServerError('createAgentReviewRequest', error);
+  }
+}
+
+/** Load review requests (super admin only). Filter by status if provided. */
+export async function loadAgentReviewRequests(
+  access: PortalUserAccess,
+  status?: AgentReviewStatus,
+  env: PortalEnv = process.env,
+): Promise<PortalPayload<AgentReviewRequest>> {
+  if (access.role !== 'super_admin') {
+    return { source: 'error', items: [], error: 'Only super admins can view review requests.' };
+  }
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { source: 'error', items: [], error: 'Database connection is not configured.' };
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const result = status
+      ? await pool.query<AgentReviewRow>(
+          `select * from public.agent_review_requests where review_status = $1 order by created_at desc`,
+          [status],
+        )
+      : await pool.query<AgentReviewRow>(
+          `select * from public.agent_review_requests order by created_at desc`,
+        );
+    return { source: 'database', items: result.rows.map(mapReviewRow) };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+/**
+ * Approve an agent review request.
+ * - Upserts an agent record with is_verified = true (matched by lower(email)).
+ * - Marks the review request as approved.
+ * Returns the agent's email on success (so the caller can send the magic link).
+ */
+export async function approveAgentReviewRequest(
+  id: string,
+  access: PortalUserAccess,
+  env: PortalEnv = process.env,
+): Promise<{ ok: true; email: string; firstName: string; lastName: string } | { ok: false; error: string }> {
+  if (access.role !== 'super_admin') {
+    return { ok: false, error: 'Only super admins can approve review requests.' };
+  }
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { ok: false, error: 'Database connection is not configured.' };
+
+  const pool = getPortalPool(databaseUrl);
+  const client = await pool.connect();
+  try {
+    await client.query('begin');
+
+    const req = await client.query<AgentReviewRow>(
+      `select * from public.agent_review_requests where id = $1 and review_status = 'pending' for update`,
+      [id],
+    );
+    const row = req.rows[0];
+    if (!row) return { ok: false, error: 'Review request not found or already resolved.' };
+
+    const fullName = `${row.first_name} ${row.last_name}`.trim();
+    const baseSlug = slugifyAgentName(fullName) || 'agent';
+
+    // Upsert agent: match by email, set is_verified = true.
+    const existing = await client.query<{ id: string }>(
+      `select id from public.agents where lower(email::text) = lower($1) limit 1`,
+      [row.email],
+    );
+
+    if (existing.rows[0]) {
+      await client.query(
+        `update public.agents set is_verified = true, ffc_number = coalesce(ffc_number, $2), ffc_verified_at = coalesce(ffc_verified_at, now()), updated_at = now() where id = $1`,
+        [existing.rows[0].id, row.ffc_number],
+      );
+    } else {
+      // Pick a unique slug.
+      const slugRow = await client.query<{ slug: string }>(
+        `select slug from public.agents where slug like $1 order by slug desc limit 1`,
+        [`${baseSlug}%`],
+      );
+      const slug = slugRow.rows[0] ? `${baseSlug}-2` : baseSlug;
+
+      await client.query(
+        `insert into public.agents (name, slug, email, ffc_number, is_verified, is_active, ffc_verified_at)
+         values ($1, $2, $3, $4, true, true, now())`,
+        [fullName, slug, row.email, row.ffc_number],
+      );
+    }
+
+    await client.query(
+      `update public.agent_review_requests set review_status = 'approved', reviewed_by = $2, reviewed_at = now() where id = $1`,
+      [id, access.profileId || null],
+    );
+
+    await client.query('commit');
+    return { ok: true, email: row.email, firstName: row.first_name, lastName: row.last_name };
+  } catch (error) {
+    await client.query('rollback');
+    return { ok: false, error: errorMessage(error) };
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * Reject an agent review request and mark it resolved.
+ */
+export async function rejectAgentReviewRequest(
+  id: string,
+  access: PortalUserAccess,
+  env: PortalEnv = process.env,
+): Promise<{ ok: true; email: string; firstName: string } | { ok: false; error: string }> {
+  if (access.role !== 'super_admin') {
+    return { ok: false, error: 'Only super admins can reject review requests.' };
+  }
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { ok: false, error: 'Database connection is not configured.' };
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const result = await pool.query<AgentReviewRow>(
+      `update public.agent_review_requests
+       set review_status = 'rejected', reviewed_by = $2, reviewed_at = now()
+       where id = $1 and review_status = 'pending'
+       returning *`,
+      [id, access.profileId || null],
+    );
+    const row = result.rows[0];
+    if (!row) return { ok: false, error: 'Review request not found or already resolved.' };
+    return { ok: true, email: row.email, firstName: row.first_name };
+  } catch (error) {
+    return { ok: false, error: errorMessage(error) };
+  }
+}
