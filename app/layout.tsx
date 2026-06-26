@@ -41,8 +41,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@proppd',
-    creator: '@proppd',
+    // TODO: add `site: '@proppd'` / `creator: '@proppd'` once the X/Twitter account exists.
     title: 'Proppd | Real Property. Real Opportunities.',
     description:
       'Search PPRA-verified property listings across South Africa.',
@@ -53,9 +52,9 @@ export const metadata: Metadata = {
     shortcut: '/favicon.ico',
     apple: '/icon.png',
   },
-  verification: {
-    google: 'google-site-verification-token', // Replace with actual token from Search Console
-  },
+  // TODO: once Google Search Console is set up, add:
+  //   verification: { google: '<real-token-from-search-console>' }
+  // A placeholder token verifies nothing, so it is omitted until the real one exists.
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

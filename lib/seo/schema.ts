@@ -26,11 +26,9 @@ export function organizationSchema() {
       'Real estate listings',
       'Property technology',
     ],
-    sameAs: [
-      'https://twitter.com/proppd',
-      'https://facebook.com/proppd',
-      'https://www.linkedin.com/company/proppd',
-    ],
+    // TODO: add `sameAs: [...]` with the official social profile URLs once the
+    // Proppd accounts (X/Twitter, Facebook, LinkedIn) are live. Pointing at
+    // profiles that don't exist yet feeds Google dead entity links.
   };
 }
 
