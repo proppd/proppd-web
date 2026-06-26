@@ -18,6 +18,7 @@ import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { Breadcrumbs } from '@/components/site/breadcrumbs';
 import { loadListingPriceHistory, loadPortalDiagnostics, loadPortalListingBySlug, loadPortalListings, loadPortalAgents } from '../../../lib/proppd/backend';
+import { faqSchema, realEstateListingSchema } from '@/lib/seo/schema';
 import { PpraVerificationDialog } from '@/components/agent/ppra-verification-dialog';
 import { PpraVerifiedBadge } from '@/components/agent/ppra-verified-badge';
 import { listings as demoListings } from '@/lib/demo-data';
@@ -95,35 +96,47 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'RealEstateListing',
-            name: listing.title,
-            description: listing.description,
-            url: `/property/${listing.slug}`,
-            image: listing.photos[0]?.src,
-            offers: {
-              '@type': 'Offer',
-              price: listing.priceValue,
-              priceCurrency: 'ZAR',
-            },
-            address: {
-              '@type': 'PostalAddress',
-              addressLocality: listing.city,
-              addressRegion: listing.province,
-              addressCountry: 'ZA',
-            },
-            numberOfBedrooms: listing.beds,
-            numberOfBathroomsTotal: listing.baths,
-            agent: {
-              '@type': 'Person',
-              name: listing.agent,
-              worksFor: {
-                '@type': 'Organization',
-                name: listing.agency,
+          __html: JSON.stringify(
+            realEstateListingSchema({
+              title: listing.title,
+              description: listing.description,
+              slug: listing.slug,
+              photos: listing.photos,
+              priceValue: listing.priceValue,
+              city: listing.city,
+              province: listing.province,
+              beds: listing.beds,
+              baths: listing.baths,
+              agent: listing.agent,
+              agency: listing.agency,
+            }),
+          ),
+        }}
+      />
+      {/* FAQ schema for rich results */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            faqSchema([
+              {
+                question: `What is the monthly bond payment on ${listing.title}?`,
+                answer: `Based on a 20-year bond at 11.75% with a 10% deposit of R${Math.round(listing.priceValue * 0.1).toLocaleString('en-ZA')}, the estimated monthly repayment is approximately R${Math.round((listing.priceValue * 0.9 * 0.01144) / (1 - Math.pow(1.01144, -240))).toLocaleString('en-ZA')}. Use the bond calculator on this page for a detailed breakdown.`,
               },
-            },
-          }),
+              {
+                question: `Where is ${listing.title} located?`,
+                answer: `${listing.title} is located in ${listing.location}, ${listing.province}. The neighbourhood offers a walk score and nearby amenities — see the neighbourhood context section on this page for schools, transport, and green spaces.`,
+              },
+              {
+                question: `Is the agent for ${listing.title} PPRA verified?`,
+                answer: `Yes. ${listing.agent} from ${listing.agency} is a verified agent on Proppd. PPRA verification means the agent holds a valid Fidelity Fund Certificate (FFC) issued by the Property Practitioners Regulatory Authority.`,
+              },
+              {
+                question: `What are the transfer costs when buying ${listing.title}?`,
+                answer: `Transfer duty on a property priced at R${listing.priceValue.toLocaleString('en-ZA')} in South Africa is calculated on a sliding scale. For properties above R1.1 million, transfer duty applies. Additional costs include bond registration fees and conveyancing attorney fees. Consult the listing agent for a full cost breakdown.`,
+              },
+            ]),
+          ),
         }}
       />
       <PropertyTracking
