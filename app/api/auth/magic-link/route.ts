@@ -78,16 +78,19 @@ export async function POST(request: NextRequest) {
       });
 
       if (!error && data?.properties?.action_link) {
-        await sendEmail({
+        const emailResult = await sendEmail({
           to: email,
           subject: 'Your Proppd sign-in link',
           html: buildMagicLinkEmailHtml({ actionLink: data.properties.action_link, email, origin }),
           text: buildMagicLinkEmailText({ actionLink: data.properties.action_link, email, origin }),
         });
-        return NextResponse.json({ ok: true });
+        if (emailResult.delivered) {
+          return NextResponse.json({ ok: true });
+        }
+        // Resend delivery failed — fall through to signInWithOtp so the user still gets a link.
       }
 
-      // If admin link generation failed, fall through to signInWithOtp below.
+      // Admin link generation failed or email undelivered — fall through to signInWithOtp below.
     } else {
       // Unknown email in invite-only mode: silently succeed to prevent enumeration.
       return NextResponse.json({ ok: true });
