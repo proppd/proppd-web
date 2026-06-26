@@ -8,6 +8,7 @@ import { SiteHeader } from '@/components/site/header';
 import { loadPortalAgencies, loadPortalAgents, loadPortalListings } from '../../../lib/proppd/backend';
 import { agencies as demoAgencies, agents as demoAgents, listings as demoListings } from '@/lib/demo-data';
 import { formatDirectoryCount, getAgencyAgents, getAgencyListings, slugifyDirectoryName } from '@/lib/directory';
+import { realEstateAgencySchema } from '@/lib/seo/schema';
 
 export function generateStaticParams() {
   return demoAgencies.map((agency) => ({ slug: slugifyDirectoryName(agency.name) }));
@@ -82,6 +83,20 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
 
   return (
     <main className="proppd-page">
+      {/* RealEstateAgent (firm-level) structured data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            realEstateAgencySchema({
+              name: agency.name,
+              slug: slugifyDirectoryName(agency.name),
+              city: agency.city,
+              ffcNumber: agency.ffcNumber,
+            }),
+          ),
+        }}
+      />
       <SiteHeader />
       <section className="px-4 py-14 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">

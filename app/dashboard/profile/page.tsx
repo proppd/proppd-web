@@ -3,6 +3,7 @@ import { AgentProfileEditor } from '@/components/agent/agent-profile-editor';
 import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: { absolute: 'Profile | Proppd' },
   description: 'Edit your agent profile.',
   alternates: { canonical: '/dashboard/profile' },

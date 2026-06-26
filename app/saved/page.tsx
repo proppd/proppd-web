@@ -8,6 +8,7 @@ import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
 import { savedHomeSlugsFromRows } from '@/lib/listings/saved-home';
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: {
     absolute: 'Saved homes | Proppd',
   },

@@ -4,6 +4,7 @@ import { isAiConfigured } from '@/lib/ai/listing-description';
 import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: { absolute: 'New listing | Proppd' },
   description: 'Create a new property listing on Proppd.',
   alternates: { canonical: '/dashboard/listings/new' },

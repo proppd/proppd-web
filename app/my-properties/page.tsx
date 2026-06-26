@@ -5,6 +5,7 @@ import { OwnerCrm } from '@/components/owner/owner-crm';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: { absolute: 'My properties | Proppd' },
   description: 'A simple workspace for South African sellers and landlords: track the homes you plan to sell or rent out, get an instant market range, and move each one forward.',
   alternates: { canonical: '/my-properties' },

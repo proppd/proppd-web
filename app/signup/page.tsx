@@ -6,6 +6,7 @@ import { SignUpForm } from '@/components/auth/signup-form';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: { absolute: 'Request access | Proppd' },
   description: 'Request invite-only Proppd agency access and continue with a passwordless login link.',
   alternates: { canonical: '/signup' },

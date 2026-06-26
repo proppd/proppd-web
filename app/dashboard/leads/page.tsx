@@ -7,6 +7,7 @@ import { hoursSince, formatIdleDuration, getFollowUpUrgency } from '@/lib/leads/
 import { LeadPipelineControls } from '@/components/dashboard/lead-pipeline-controls';
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: { absolute: 'Leads | Proppd' },
   description: 'Track and manage your property enquiries.',
   alternates: { canonical: '/dashboard/leads' },

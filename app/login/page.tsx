@@ -7,6 +7,7 @@ import { HashSessionHandler } from '@/components/auth/hash-session-handler';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: 'Sign in',
   description: 'Sign in to manage your listings, track leads, and access your agent dashboard.',
   alternates: { canonical: '/login' },

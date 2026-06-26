@@ -6,6 +6,7 @@ import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 import { getListingHealthLabel, getListingWorkspaceActions, getListingWorkspaceStats, type ListingWorkspaceAction } from '@/lib/agent/listing-workspace';
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: { absolute: 'Listings | Proppd' },
   description: 'Manage your property listings.',
   alternates: { canonical: '/dashboard/listings' },

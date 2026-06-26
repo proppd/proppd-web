@@ -25,6 +25,7 @@ import {
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: 'Lead operations',
   alternates: {
     canonical: '/admin',

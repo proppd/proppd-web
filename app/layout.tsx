@@ -41,6 +41,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
+    site: '@proppd',
+    creator: '@proppd',
     title: 'Proppd | Real Property. Real Opportunities.',
     description:
       'Search PPRA-verified property listings across South Africa.',
