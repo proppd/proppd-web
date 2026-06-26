@@ -2,16 +2,19 @@
 -- Sale pipeline tracker: follows a deal from OTP signing through to
 -- deeds office registration, capturing buyer details, attorney contacts,
 -- financial terms, and the key milestone dates for each stage.
+-- Fully idempotent: safe to run more than once.
 
-create type public.deal_stage as enum (
-  'otp_signed',
-  'bond_submitted',
-  'bond_approved',
-  'attorney_instructed',
-  'deeds_lodged',
-  'registered',
-  'fallen_through'
-);
+do $$ begin
+  create type public.deal_stage as enum (
+    'otp_signed',
+    'bond_submitted',
+    'bond_approved',
+    'attorney_instructed',
+    'deeds_lodged',
+    'registered',
+    'fallen_through'
+  );
+exception when duplicate_object then null; end $$;
 
 create table if not exists public.deals (
   id              uuid        primary key default gen_random_uuid(),
@@ -63,6 +66,7 @@ create index if not exists deals_agent_id_idx   on public.deals(agent_id);
 create index if not exists deals_agency_id_idx  on public.deals(agency_id);
 create index if not exists deals_stage_idx      on public.deals(stage);
 
+drop trigger if exists deals_set_updated_at on public.deals;
 create trigger deals_set_updated_at
   before update on public.deals
   for each row execute function public.set_updated_at();
@@ -70,18 +74,21 @@ create trigger deals_set_updated_at
 alter table public.deals enable row level security;
 
 -- Super admins have unrestricted access.
+drop policy if exists "Super admins full access on deals" on public.deals;
 create policy "Super admins full access on deals"
   on public.deals for all
   using  (public.is_super_admin())
   with check (public.is_super_admin());
 
 -- Agents can manage deals they own.
+drop policy if exists "Agents manage their own deals" on public.deals;
 create policy "Agents manage their own deals"
   on public.deals for all
   using  (public.is_agent_profile(agent_id))
   with check (public.is_agent_profile(agent_id));
 
 -- Agency admins can manage all deals belonging to their agency.
+drop policy if exists "Agency admins manage agency deals" on public.deals;
 create policy "Agency admins manage agency deals"
   on public.deals for all
   using  (agency_id is not null and public.is_agency_admin(agency_id))
