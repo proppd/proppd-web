@@ -18,13 +18,57 @@ const findAgentMenu = [
   { label: 'Browse agencies', helper: 'Agency directory', href: '/agencies', icon: Building2 },
 ];
 
+// The header is server-rendered without auth context and re-mounts on every
+// full-page navigation, so the access probe runs fresh each time. We cache the
+// last-known result so navigations render the correct control immediately
+// instead of flashing the consumer default before the probe resolves.
+const ACCESS_CACHE_KEY = 'proppd.headerAccess';
+
+type CachedAccess = { signedIn: boolean; canAccessWorkspace: boolean };
+
+function readCachedAccess(): CachedAccess | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(ACCESS_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<CachedAccess>;
+    if (typeof parsed?.signedIn === 'boolean' && typeof parsed?.canAccessWorkspace === 'boolean') {
+      return { signedIn: parsed.signedIn, canAccessWorkspace: parsed.canAccessWorkspace };
+    }
+  } catch {
+    // Ignore malformed cache.
+  }
+  return null;
+}
+
+function writeCachedAccess(value: CachedAccess) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(ACCESS_CACHE_KEY, JSON.stringify(value));
+  } catch {
+    // Storage may be unavailable (private mode / quota); the probe still works.
+  }
+}
+
+function clearCachedAccess() {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.removeItem(ACCESS_CACHE_KEY);
+  } catch {
+    // Ignore.
+  }
+}
+
 export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode | null>(null);
-  const [signedIn, setSignedIn] = useState(false);
+  // Tri-state: null = not yet resolved. Starting from null (rather than false)
+  // means we never render the wrong control — we hold a neutral placeholder
+  // until either the localStorage cache or the access probe resolves.
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
   // Workspace users (agent / agency / admin) get the Dashboard; consumers get
-  // the My-enquiries inbox. Defaults to false until the probe resolves.
-  const [canAccessWorkspace, setCanAccessWorkspace] = useState(false);
+  // the My-enquiries inbox.
+  const [canAccessWorkspace, setCanAccessWorkspace] = useState<boolean | null>(null);
 
   const openAuth = (mode: AuthMode) => {
     setMobileOpen(false);
@@ -35,31 +79,51 @@ export function SiteHeader() {
   // the user's role so the header shows the right destination for them.
   useEffect(() => {
     const supabase = getBrowserSupabaseClient();
-    if (!supabase) return;
+    if (!supabase) {
+      // No Supabase (preview/demo): treat as signed-out so we render a concrete
+      // control rather than holding the placeholder forever.
+      setSignedIn(false);
+      setCanAccessWorkspace(false);
+      return;
+    }
     let active = true;
+
+    // Seed from the last-known state so a navigation paints the correct control
+    // immediately instead of flashing the consumer default while the probe runs.
+    const cached = readCachedAccess();
+    if (cached) {
+      setSignedIn(cached.signedIn);
+      setCanAccessWorkspace(cached.signedIn ? cached.canAccessWorkspace : false);
+    }
 
     const refreshAccess = async (isSignedIn: boolean) => {
       if (!isSignedIn) {
         if (active) setCanAccessWorkspace(false);
+        clearCachedAccess();
         return;
       }
       try {
         const res = await fetch('/api/me/access', { cache: 'no-store' });
         const body = await res.json();
-        if (active) setCanAccessWorkspace(Boolean(body?.canAccessWorkspace));
+        const workspace = Boolean(body?.canAccessWorkspace);
+        if (active) setCanAccessWorkspace(workspace);
+        writeCachedAccess({ signedIn: true, canAccessWorkspace: workspace });
       } catch {
-        if (active) setCanAccessWorkspace(false);
+        // Keep whatever the cache gave us rather than collapsing to consumer.
+        if (active) setCanAccessWorkspace((prev) => (prev === null ? false : prev));
       }
     };
 
     supabase.auth.getUser().then(({ data }) => {
       const isSignedIn = Boolean(data.user);
       if (active) setSignedIn(isSignedIn);
+      if (!isSignedIn) clearCachedAccess();
       void refreshAccess(isSignedIn);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       const isSignedIn = Boolean(session?.user);
       setSignedIn(isSignedIn);
+      if (!isSignedIn) clearCachedAccess();
       void refreshAccess(isSignedIn);
     });
     return () => {
@@ -70,6 +134,7 @@ export function SiteHeader() {
 
   async function signOut() {
     setMobileOpen(false);
+    clearCachedAccess();
     await getBrowserSupabaseClient()?.auth.signOut();
     // Full reset so any gated page (dashboard/admin) re-evaluates server-side.
     window.location.assign('/');
@@ -173,9 +238,15 @@ export function SiteHeader() {
             <a className="rounded-lg bg-[#4A3AFF] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#3A2AE0] sm:px-4" href="/properties">
               Search
             </a>
-            {signedIn ? (
+            {signedIn === null ? (
+              // Access not yet resolved — hold a neutral placeholder so we never
+              // flash the wrong destination, while reserving layout space.
+              <span aria-hidden className="hidden h-9 w-24 animate-pulse rounded-lg bg-[#F7F8FA] sm:inline-block" />
+            ) : signedIn ? (
               <>
-                {canAccessWorkspace ? (
+                {canAccessWorkspace === null ? (
+                  <span aria-hidden className="hidden h-9 w-24 animate-pulse rounded-lg bg-[#F7F8FA] sm:inline-block" />
+                ) : canAccessWorkspace ? (
                   <a
                     href="/dashboard"
                     className="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF] sm:inline-flex"
@@ -294,9 +365,13 @@ export function SiteHeader() {
             </div>
 
             <div className="border-t border-[#E5E7EB] px-3 py-3">
-              {signedIn ? (
+              {signedIn === null ? (
+                <span aria-hidden className="block h-12 w-full animate-pulse rounded-lg bg-[#F7F8FA]" />
+              ) : signedIn ? (
                 <>
-                  {canAccessWorkspace ? (
+                  {canAccessWorkspace === null ? (
+                    <span aria-hidden className="block h-12 w-full animate-pulse rounded-lg bg-[#F7F8FA]" />
+                  ) : canAccessWorkspace ? (
                     <a
                       href="/dashboard"
                       onClick={() => setMobileOpen(false)}
