@@ -4,6 +4,7 @@ import {
   importPortalListings,
   loadPortalUserAccess,
   loadFeedSources,
+  loadFeedAuthHeader,
   recordFeedRun,
   systemFeedAccess,
   type FeedSourceRecord,
@@ -42,7 +43,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const source = feeds.items.find((f) => f.id === id);
   if (!source) return err('Feed source not found.', 404);
 
-  const outcome = await syncOne(source);
+  const authHeader = await loadFeedAuthHeader(id);
+  const outcome = await syncOne(source, authHeader);
   await recordFeedRun(id, {
     status: outcome.status,
     message: outcome.error ?? `created ${outcome.created ?? 0}, updated ${outcome.updated ?? 0}`,
@@ -55,8 +57,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   return NextResponse.json({ ok: true, ...outcome });
 }
 
-async function syncOne(source: FeedSourceRecord) {
-  const fetched = await fetchFeedContent(source.url);
+async function syncOne(source: FeedSourceRecord, authorizationHeader?: string | null) {
+  const fetched = await fetchFeedContent(source.url, { authorizationHeader: authorizationHeader ?? undefined });
   if (!fetched.ok) return { status: 'error' as const, error: fetched.error };
 
   const result = runListingImport(fetched.content, {

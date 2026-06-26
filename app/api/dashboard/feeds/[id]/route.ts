@@ -5,6 +5,7 @@ import {
   loadPortalUserAccess,
   updateFeedSource,
   type FeedSourceFormat,
+  type FeedAuthType,
 } from '@/lib/proppd/backend';
 import { isListingStatus } from '@/lib/proppd/listing-editor';
 import { isSafeFeedUrl } from '@/lib/import/fetch';
@@ -58,6 +59,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if ('defaultStatus' in body) patch.defaultStatus = isListingStatus(body.defaultStatus) ? body.defaultStatus : undefined;
   if ('frequencyMinutes' in body) patch.frequencyMinutes = clampFrequency(body.frequencyMinutes);
   if ('isActive' in body) patch.isActive = body.isActive === true || body.isActive === false ? body.isActive : undefined;
+  if ('authType' in body) patch.authType = isFeedAuthType(body.authType) ? body.authType : undefined;
+  if ('authUsername' in body) patch.authUsername = typeof body.authUsername === 'string' ? body.authUsername.trim() || null : null;
+  if ('authPassword' in body) patch.authPassword = typeof body.authPassword === 'string' ? body.authPassword || null : null;
+  if ('authToken' in body) patch.authToken = typeof body.authToken === 'string' ? body.authToken.trim() || null : null;
 
   const result = await updateFeedSource(id, auth.access, patch);
   if (result.source === 'error') return err(result.error ?? 'Could not update feed source.', result.error?.includes('not found') ? 404 : 400);
@@ -81,6 +86,10 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
 function isFeedFormat(v: unknown): v is FeedSourceFormat {
   return v === 'csv' || v === 'xml' || v === 'json';
+}
+
+function isFeedAuthType(v: unknown): v is FeedAuthType {
+  return v === 'none' || v === 'basic' || v === 'bearer';
 }
 
 function clampFrequency(value: unknown): number {

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import {
   CheckCircle2, XCircle, Clock, Loader2, RefreshCw, Trash2, Pencil,
-  AlertTriangle, Rss, ChevronDown, ChevronUp,
+  AlertTriangle, Rss, ChevronDown, ChevronUp, KeyRound,
 } from 'lucide-react';
 import type { FeedSourceRecord } from '@/lib/proppd/backend';
 import { NewFeedButton } from './new-feed-form';
@@ -143,6 +143,11 @@ function FeedCard({
             </span>
             <FormatBadge format={feed.format} />
             <FrequencyLabel minutes={feed.frequencyMinutes} />
+            {feed.hasCredentials && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#FEF3C7] px-2 py-0.5 text-xs font-bold text-[#92400E]">
+                <KeyRound size={10} /> Auth
+              </span>
+            )}
           </div>
           <p className="mt-1.5 text-base font-bold text-[#1A1A2E]">{feed.name}</p>
           <p className="mt-0.5 max-w-full truncate text-xs text-[#9CA3AF]">{feed.url}</p>
@@ -304,6 +309,10 @@ function EditFeedForm({
   const [url, setUrl] = useState(feed.url);
   const [format, setFormat] = useState(feed.format ?? '');
   const [frequencyMinutes, setFrequencyMinutes] = useState(String(feed.frequencyMinutes));
+  const [authType, setAuthType] = useState<import('@/lib/proppd/backend').FeedAuthType>(feed.authType);
+  const [authUsername, setAuthUsername] = useState(feed.authUsername ?? '');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authToken, setAuthToken] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -311,6 +320,15 @@ function EditFeedForm({
     e.preventDefault();
     setSaving(true);
     setError(null);
+
+    const authChanged = authType !== feed.authType || authUsername !== (feed.authUsername ?? '') || authPassword !== '' || authToken !== '';
+    const authFields = authChanged ? {
+      authType,
+      authUsername: authType === 'basic' ? authUsername.trim() || null : null,
+      authPassword: authType === 'basic' && authPassword ? authPassword : (authType !== 'basic' ? null : undefined),
+      authToken: authType === 'bearer' ? authToken.trim() || null : null,
+    } : {};
+
     const res = await fetch(`/api/dashboard/feeds/${feed.id}`, {
       method: 'PATCH',
       headers: { 'content-type': 'application/json' },
@@ -319,6 +337,7 @@ function EditFeedForm({
         url,
         format: format || null,
         frequencyMinutes: Number(frequencyMinutes),
+        ...authFields,
       }),
     });
     const json = await res.json().catch(() => ({}));
@@ -351,6 +370,28 @@ function EditFeedForm({
           <option value="json">JSON</option>
         </select>
       </FeedField>
+      <FeedField label="Authentication">
+        <select value={authType} onChange={(e) => setAuthType(e.target.value as import('@/lib/proppd/backend').FeedAuthType)} className={fieldCls}>
+          <option value="none">None (public feed)</option>
+          <option value="basic">HTTP Basic</option>
+          <option value="bearer">Bearer token</option>
+        </select>
+      </FeedField>
+      {authType === 'basic' && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <FeedField label="Username">
+            <input value={authUsername} onChange={(e) => setAuthUsername(e.target.value)} autoComplete="off" className={fieldCls} />
+          </FeedField>
+          <FeedField label={feed.hasCredentials ? 'New password (leave blank to keep)' : 'Password'}>
+            <input type="password" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} autoComplete="new-password" className={fieldCls} />
+          </FeedField>
+        </div>
+      )}
+      {authType === 'bearer' && (
+        <FeedField label={feed.hasCredentials ? 'New token (leave blank to keep)' : 'Bearer token'}>
+          <input type="password" value={authToken} onChange={(e) => setAuthToken(e.target.value)} autoComplete="new-password" placeholder="eyJ…" className={fieldCls} />
+        </FeedField>
+      )}
       {error && <p className="text-xs font-bold text-red-600">{error}</p>}
       <div className="flex justify-end gap-2">
         <button type="button" onClick={onCancel} disabled={saving} className="rounded-lg border border-[#E5E7EB] px-3 py-2 text-xs font-bold text-[#6B7280] hover:text-[#4A3AFF] disabled:opacity-50">

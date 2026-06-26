@@ -41,6 +41,10 @@ function NewFeedModal({ onCreated, onClose }: { onCreated: (f: FeedSourceRecord)
   const [recordTag, setRecordTag] = useState('');
   const [frequencyMinutes, setFrequencyMinutes] = useState('1440');
   const [defaultStatus, setDefaultStatus] = useState('pending_review');
+  const [authType, setAuthType] = useState('none');
+  const [authUsername, setAuthUsername] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authToken, setAuthToken] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -58,6 +62,10 @@ function NewFeedModal({ onCreated, onClose }: { onCreated: (f: FeedSourceRecord)
         frequencyMinutes: Number(frequencyMinutes),
         defaultStatus,
         isActive: true,
+        authType,
+        authUsername: authType === 'basic' ? authUsername.trim() || null : null,
+        authPassword: authType === 'basic' ? authPassword || null : null,
+        authToken: authType === 'bearer' ? authToken.trim() || null : null,
       }),
     });
 
@@ -142,6 +150,31 @@ function NewFeedModal({ onCreated, onClose }: { onCreated: (f: FeedSourceRecord)
               <option value="draft">Draft</option>
             </select>
           </Field>
+
+          <Field label="Authentication">
+            <select value={authType} onChange={(e) => setAuthType(e.target.value)} className={inputCls}>
+              <option value="none">None (public feed)</option>
+              <option value="basic">HTTP Basic (username + password)</option>
+              <option value="bearer">Bearer token</option>
+            </select>
+          </Field>
+
+          {authType === 'basic' && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Username">
+                <input value={authUsername} onChange={(e) => setAuthUsername(e.target.value)} autoComplete="off" className={inputCls} />
+              </Field>
+              <Field label="Password">
+                <input type="password" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} autoComplete="new-password" className={inputCls} />
+              </Field>
+            </div>
+          )}
+
+          {authType === 'bearer' && (
+            <Field label="Bearer token">
+              <input type="password" value={authToken} onChange={(e) => setAuthToken(e.target.value)} autoComplete="new-password" placeholder="eyJ…" className={inputCls} />
+            </Field>
+          )}
 
           {error && <p className="text-sm font-bold text-red-600">{error}</p>}
 
