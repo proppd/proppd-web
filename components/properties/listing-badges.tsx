@@ -1,6 +1,6 @@
-import { Clock, TrendingDown, Eye } from 'lucide-react';
+import { Clock, TrendingDown, Eye, ShieldCheck, Hourglass } from 'lucide-react';
 
-type BadgeType = 'new' | 'price-drop' | 'open-house' | 'featured' | 'verified';
+type BadgeType = 'new' | 'price-drop' | 'open-house' | 'featured' | 'verified' | 'coming-soon';
 
 interface ListingBadge {
   type: BadgeType;
@@ -9,10 +9,21 @@ interface ListingBadge {
 
 export function getListingBadges(listing: {
   featured?: boolean;
+  isVerified?: boolean;
   listedAt?: string;
   priceReduced?: boolean;
+  listingStatus?: string;
 }): ListingBadge[] {
   const badges: ListingBadge[] = [];
+
+  if (listing.listingStatus === 'coming_soon') {
+    badges.push({ type: 'coming-soon', label: 'Coming soon' });
+    return badges;
+  }
+
+  if (listing.isVerified) {
+    badges.push({ type: 'verified', label: 'Verified' });
+  }
 
   if (listing.featured) {
     badges.push({ type: 'featured', label: 'Featured' });
@@ -52,7 +63,8 @@ function Badge({ badge }: { badge: ListingBadge }) {
     'price-drop': 'bg-red-500 text-white',
     'open-house': 'bg-[#DBEAFE] text-[#1A1A2E]',
     'featured': 'bg-[#F59E0B] text-white',
-    'verified': 'bg-[#4A3AFF] text-white',
+    'verified': 'bg-[#166534] text-white',
+    'coming-soon': 'bg-amber-500 text-white',
   };
 
   const icons: Record<BadgeType, React.ReactNode> = {
@@ -60,7 +72,8 @@ function Badge({ badge }: { badge: ListingBadge }) {
     'price-drop': <TrendingDown size={10} />,
     'open-house': <Eye size={10} />,
     'featured': null,
-    'verified': null,
+    'verified': <ShieldCheck size={10} />,
+    'coming-soon': <Hourglass size={10} />,
   };
 
   return (

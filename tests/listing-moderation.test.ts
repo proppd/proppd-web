@@ -13,6 +13,7 @@ describe('isListingStatus', () => {
       'draft',
       'pending_review',
       'available',
+      'coming_soon',
       'under_offer',
       'sold',
       'rented',

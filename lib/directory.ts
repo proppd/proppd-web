@@ -6,6 +6,12 @@ export type DirectoryAgent = {
   area: string;
   listings: number;
   isActive?: boolean;
+  /** Passed PPRA / Fidelity Fund validation (agents.is_verified). */
+  isVerified?: boolean;
+  /** Normalised Fidelity Fund Certificate number from the PPRA register. */
+  ffcNumber?: string;
+  /** ISO timestamp of when the FFC was last validated against the PPRA register. */
+  ffcVerifiedAt?: string;
 };
 
 export type DirectoryAgency = {
@@ -14,6 +20,12 @@ export type DirectoryAgency = {
   agents: number;
   listings: number;
   isActive?: boolean;
+  /** Passed PPRA / Fidelity Fund validation (agencies.is_verified). */
+  isVerified?: boolean;
+  /** Normalised firm-level Fidelity Fund Certificate number from the PPRA register. */
+  ffcNumber?: string;
+  /** ISO timestamp of when the agency FFC was last validated against the PPRA register. */
+  ffcVerifiedAt?: string;
 };
 
 export function slugifyDirectoryName(value: string): string {

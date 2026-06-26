@@ -17,7 +17,10 @@ import { SaveListingButton } from '@/components/properties/save-listing-button';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { Breadcrumbs } from '@/components/site/breadcrumbs';
-import { loadPortalDiagnostics, loadPortalListingBySlug, loadPortalListings } from '../../../lib/proppd/backend';
+import { loadListingPriceHistory, loadPortalDiagnostics, loadPortalListingBySlug, loadPortalListings, loadPortalAgents } from '../../../lib/proppd/backend';
+import { faqSchema, realEstateListingSchema } from '@/lib/seo/schema';
+import { PpraVerificationDialog } from '@/components/agent/ppra-verification-dialog';
+import { PpraVerifiedBadge } from '@/components/agent/ppra-verified-badge';
 import { listings as demoListings } from '@/lib/demo-data';
 import { buildEnquiryMailto, buildListingShareText, getListingBySlug, getListingFacts, getRelatedListings } from '@/lib/listings/details';
 
@@ -62,13 +65,17 @@ export const dynamic = 'force-dynamic';
 
 export default async function PropertyPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [portalListing, portalListings, diagnostics] = await Promise.all([
+  const [portalListing, portalListings, diagnostics, portalAgents, priceHistory] = await Promise.all([
     loadPortalListingBySlug(slug),
     loadPortalListings(),
     loadPortalDiagnostics(),
+    loadPortalAgents(),
+    loadListingPriceHistory(slug),
   ]);
   const listing = portalListing.items[0] ?? getListingBySlug(demoListings, slug);
   if (!listing) notFound();
+
+  const listingAgent = portalAgents.items.find((a) => a.name === listing.agent);
 
   const facts = getListingFacts(listing);
   const relatedSourceListings = portalListings.source === 'database' ? portalListings.items : demoListings;
@@ -89,35 +96,47 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'RealEstateListing',
-            name: listing.title,
-            description: listing.description,
-            url: `/property/${listing.slug}`,
-            image: listing.photos[0]?.src,
-            offers: {
-              '@type': 'Offer',
-              price: listing.priceValue,
-              priceCurrency: 'ZAR',
-            },
-            address: {
-              '@type': 'PostalAddress',
-              addressLocality: listing.city,
-              addressRegion: listing.province,
-              addressCountry: 'ZA',
-            },
-            numberOfBedrooms: listing.beds,
-            numberOfBathroomsTotal: listing.baths,
-            agent: {
-              '@type': 'Person',
-              name: listing.agent,
-              worksFor: {
-                '@type': 'Organization',
-                name: listing.agency,
+          __html: JSON.stringify(
+            realEstateListingSchema({
+              title: listing.title,
+              description: listing.description,
+              slug: listing.slug,
+              photos: listing.photos,
+              priceValue: listing.priceValue,
+              city: listing.city,
+              province: listing.province,
+              beds: listing.beds,
+              baths: listing.baths,
+              agent: listing.agent,
+              agency: listing.agency,
+            }),
+          ),
+        }}
+      />
+      {/* FAQ schema for rich results */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            faqSchema([
+              {
+                question: `What is the monthly bond payment on ${listing.title}?`,
+                answer: `Based on a 20-year bond at 11.75% with a 10% deposit of R${Math.round(listing.priceValue * 0.1).toLocaleString('en-ZA')}, the estimated monthly repayment is approximately R${Math.round((listing.priceValue * 0.9 * 0.01144) / (1 - Math.pow(1.01144, -240))).toLocaleString('en-ZA')}. Use the bond calculator on this page for a detailed breakdown.`,
               },
-            },
-          }),
+              {
+                question: `Where is ${listing.title} located?`,
+                answer: `${listing.title} is located in ${listing.location}, ${listing.province}. The neighbourhood offers a walk score and nearby amenities — see the neighbourhood context section on this page for schools, transport, and green spaces.`,
+              },
+              {
+                question: `Is the agent for ${listing.title} PPRA verified?`,
+                answer: `Yes. ${listing.agent} from ${listing.agency} is a verified agent on Proppd. PPRA verification means the agent holds a valid Fidelity Fund Certificate (FFC) issued by the Property Practitioners Regulatory Authority.`,
+              },
+              {
+                question: `What are the transfer costs when buying ${listing.title}?`,
+                answer: `Transfer duty on a property priced at R${listing.priceValue.toLocaleString('en-ZA')} in South Africa is calculated on a sliding scale. For properties above R1.1 million, transfer duty applies. Additional costs include bond registration fees and conveyancing attorney fees. Consult the listing agent for a full cost breakdown.`,
+              },
+            ]),
+          ),
         }}
       />
       <PropertyTracking
@@ -178,7 +197,11 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,48,.12)_0%,rgba(5,10,48,.08)_42%,rgba(5,10,48,.82)_100%)]" />
               <div className="relative flex gap-2">
                 <span className="rounded-md bg-white px-3 py-1 text-xs font-bold uppercase tracking-[.08em] text-[#1A1A2E]">{listing.purpose}</span>
-                <a href="#verification" className="rounded-md bg-[#DBEAFE] px-3 py-1 text-xs font-bold uppercase tracking-[.08em] text-[#1A1A2E] transition hover:bg-white">Verified</a>
+                {listing.isVerified && (
+                  <span className="inline-flex items-center gap-1.5 rounded-md bg-[#166534] px-3 py-1 text-xs font-bold uppercase tracking-[.08em] text-white">
+                    <ShieldCheck size={12} /> Proppd Verified
+                  </span>
+                )}
               </div>
               <div className="relative mt-20 max-w-3xl sm:mt-48">
                 <p className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold backdrop-blur sm:px-4 sm:py-2 sm:text-sm"><MapPin size={14} /> {listing.location}</p>
@@ -272,7 +295,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
               </section>
 
               <section className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm sm:p-8">
-                <PriceHistory listingPrice={listing.priceValue} listedAt={listing.listedAt} />
+                <PriceHistory listingPrice={listing.priceValue} listedAt={listing.listedAt} history={priceHistory} />
               </section>
 
               <section id="verification" className="rounded-xl border border-[#BFDBFE] bg-[#EFF6FF] p-6 shadow-sm sm:p-8">
@@ -287,7 +310,14 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                   <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
                     <VerificationPoint title="Agency named" text={listing.agency} />
                     <VerificationPoint title="Mandate shown" text={listing.mandate} />
-                    <VerificationPoint title="Handoff route" text={leadRoutingLive ? 'Portal enquiry route' : 'Email enquiry route'} />
+                    {listing.mandateCommissionPct ? (
+                      <VerificationPoint title="Commission" text={`${listing.mandateCommissionPct}%`} />
+                    ) : (
+                      <VerificationPoint title="Handoff route" text={leadRoutingLive ? 'Portal enquiry route' : 'Email enquiry route'} />
+                    )}
+                    {listing.mandateExpiresAt && (
+                      <VerificationPoint title="Mandate expires" text={new Intl.DateTimeFormat('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(listing.mandateExpiresAt))} />
+                    )}
                   </div>
                 </div>
                 <div className="mt-5 border-t border-[#BFDBFE] pt-4">
@@ -304,7 +334,11 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                     <p className="truncate text-sm font-bold text-[#1A1A2E]">{listing.agent}</p>
                     <p className="flex items-center gap-1 truncate text-xs font-bold text-[#9CA3AF]"><Building2 size={12} className="shrink-0" /> {listing.agency}</p>
                   </div>
-                  <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-full bg-[#EFF6FF] px-2 py-0.5 text-[10px] font-bold text-[#2563EB]"><ShieldCheck size={10} /> Verified</span>
+                  {listingAgent?.isVerified && listingAgent.ffcNumber ? (
+                    <PpraVerificationDialog agentName={listing.agent} agency={listing.agency} ffcNumber={listingAgent.ffcNumber} verifiedAt={listingAgent.ffcVerifiedAt} size="sm" className="ml-auto shrink-0" />
+                  ) : listingAgent?.isVerified ? (
+                    <PpraVerifiedBadge size="sm" className="ml-auto shrink-0" />
+                  ) : null}
                 </div>
                 <div className="mt-4 grid gap-2 text-sm font-bold text-[#6B7280]">
                   <span className="flex items-center gap-2"><ShieldCheck size={16} className="text-[#2563EB]" /> {listing.mandate}</span>

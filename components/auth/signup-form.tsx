@@ -2,6 +2,7 @@
 
 import type React from 'react';
 import { useState } from 'react';
+import Image from 'next/image';
 import { ArrowRight, CheckCircle, Mail, Building2, User, MapPin, BadgeCheck, ShieldCheck, Loader2, AlertCircle, Clock } from 'lucide-react';
 
 type Props = {
@@ -37,13 +38,15 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
 
   const update = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-    // Changing name or FFC invalidates the verification
-    if (field === 'fidelityFundCertificateNumber' || field === 'firstName' || field === 'lastName') {
+    // Any change to an identity field invalidates a prior PPRA check.
+    if (['fidelityFundCertificateNumber', 'firstName', 'lastName'].includes(field)) {
       setFFCVerification({ status: 'idle' });
     }
   };
 
-  const isValid = form.firstName.trim() && form.lastName.trim() && form.email.trim() && form.email.includes('@') && form.fidelityFundCertificateNumber.trim();
+  const fieldsComplete = Boolean(
+    form.firstName.trim() && form.lastName.trim() && form.email.trim() && form.email.includes('@') && form.fidelityFundCertificateNumber.trim(),
+  );
 
   const verifyFFC = async () => {
     const ffc = form.fidelityFundCertificateNumber.trim();
@@ -69,7 +72,10 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
         setFFCVerification({
           status: 'verified',
           message: `PPRA verified — ${verification.record?.fullName ?? 'certificate active'}`,
-          record: verification.record,
+          record: {
+            fullName: verification.record?.fullName,
+            firmName: verification.record?.firmName ?? verification.record?.tradeName,
+          },
         });
       } else if (response.ok && verification) {
         const labels: Record<string, string> = {
@@ -97,7 +103,7 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
   };
 
   const handleSubmit = async () => {
-    if (!isValid || submitting) return;
+    if (!fieldsComplete || submitting) return;
 
     const cleanEmail = form.email.trim().toLowerCase();
     setSubmitting(true);
@@ -120,17 +126,18 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
               fidelity_fund_certificate_number: form.fidelityFundCertificateNumber,
               role: form.role,
             },
-            ppraVerification: ffcVerification.status === 'verified' ? { status: 'verified', ffcNumber: form.fidelityFundCertificateNumber } : undefined,
+            ppraVerification:
+              ffcVerification.status === 'verified'
+                ? { status: 'verified', ffcNumber: form.fidelityFundCertificateNumber }
+                : undefined,
           }),
         });
 
         const data = await response.json();
 
         if (response.ok && data?.onboarded) {
-          // PPRA verified — auto-onboarded, magic link sent
           setStep('sent');
         } else if (data?.ppra === 'not_verified') {
-          // PPRA failed — sent to manual review
           setStep('manual_review');
         } else if (!response.ok) {
           setError(data?.error ?? 'We could not send a login link. Please email info@proppd.com.');
@@ -157,22 +164,20 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
     }
   };
 
-  // ─── Success: magic link sent ─────────────────────────────────
   if (step === 'sent') {
     return (
       <div className="rounded-xl border border-[#EFF6FF] bg-[#EFF6FF] p-6 text-center">
         <CheckCircle size={32} className="mx-auto text-[#2563EB]" />
         <h3 className="mt-3 text-lg font-bold text-[#1A1A2E]">You're verified — check your inbox</h3>
         <p className="mt-2 text-sm text-[#6B7280]">
-          Your Fidelity Fund Certificate was verified with the PPRA. We've sent a secure login link to{' '}
-          <span className="font-bold text-[#1A1A2E]">{form.email}</span> to activate your agent dashboard.
+          Your request has been sent to <span className="font-bold text-[#1A1A2E]">{form.email}</span>.
+          If your PPRA verification passed, the secure login link will activate your agent dashboard.
         </p>
         <p className="mt-3 text-xs text-[#9CA3AF]">No link? Check spam/promotions or email info@proppd.com.</p>
       </div>
     );
   }
 
-  // ─── Manual review ────────────────────────────────────────────
   if (step === 'manual_review') {
     return (
       <div className="rounded-xl border border-amber-100 bg-amber-50 p-6 text-center">
@@ -189,7 +194,6 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
     );
   }
 
-  // ─── Form ─────────────────────────────────────────────────────
   return (
     <div>
       {error && (
@@ -198,6 +202,18 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
 
       {step === 'details' && (
         <div className="grid gap-4">
+          <div className="flex items-start gap-3 rounded-xl border border-[#A7F3D0] bg-[#F0FDF4] p-4">
+            <Image src="/ppra-verified-badge.png" alt="Agent Verified by the PPRA" width={48} height={48} className="shrink-0 drop-shadow-sm" />
+            <div>
+              <p className="text-sm font-bold text-[#166534]">PPRA verification supported</p>
+              <p className="mt-1 text-xs leading-5 text-[#15803d]">
+                Your <span className="font-bold">name</span>, <span className="font-bold">surname</span>,{' '}
+                <span className="font-bold">agency</span> and <span className="font-bold">Fidelity Fund Certificate</span>{' '}
+                are checked against the live PPRA register. If we can&apos;t auto-verify, we&apos;ll route your request to manual review.
+              </p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <Field label="First name" value={form.firstName} onChange={(v) => update('firstName', v)} placeholder="John" icon={<User size={14} />} required />
             <Field label="Last name" value={form.lastName} onChange={(v) => update('lastName', v)} placeholder="Smith" icon={<User size={14} />} required />
@@ -237,11 +253,14 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
           <button
             type="button"
             onClick={() => setStep('confirm')}
-            disabled={!isValid}
-            className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0] disabled:opacity-50"
+            disabled={!fieldsComplete || submitting}
+            className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-[#4A3AFF] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Continue <ArrowRight size={14} />
           </button>
+          <p className="-mt-1 text-center text-xs font-semibold text-[#9CA3AF]">
+            Verification speeds up approval, but you can still continue and we&apos;ll review manually if needed.
+          </p>
         </div>
       )}
 
@@ -272,7 +291,7 @@ export function SignUpForm({ supabaseUrl, publishableKey }: Props) {
 
           {ffcVerification.status !== 'verified' && (
             <div className="rounded-lg bg-amber-50 p-3 text-xs text-amber-700">
-              Your FFC hasn't been verified yet. You can still submit — we'll review your application manually and email info@proppd.com on your behalf.
+              Your FFC hasn&apos;t been verified yet. You can still submit — we&apos;ll review your application manually and email info@proppd.com on your behalf.
             </div>
           )}
 

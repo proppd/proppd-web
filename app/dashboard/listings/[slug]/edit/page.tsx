@@ -4,8 +4,8 @@ import { ListingEditorForm } from '@/components/listings/listing-editor-form';
 import { isAiConfigured } from '@/lib/ai/listing-description';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
-import { loadPortalListingDraftBySlug, loadPortalUserAccess } from '@/lib/proppd/backend';
-import { createPortalSupabaseServerClient } from '@/lib/supabase/server';
+import { loadPortalListingDraftBySlug } from '@/lib/proppd/backend';
+import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -23,22 +23,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function Page({ params }: PageProps) {
   const { slug } = await params;
-  const supabase = await createPortalSupabaseServerClient();
-  if (!supabase) {
-    redirect('/login?next=%2Fdashboard%2Flistings');
-  }
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    redirect('/login?next=%2Fdashboard%2Flistings');
-  }
-
-  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
-  if (!access) {
-    redirect('/dashboard/profile');
-  }
+  const access = await requireAgentWorkspaceAccess('/dashboard/listings');
 
   const listing = await loadPortalListingDraftBySlug(slug, access);
   if (listing.items.length === 0 || listing.source === 'error') {
@@ -110,6 +95,7 @@ function formatListingStatus(status: string) {
     draft: 'Draft',
     pending_review: 'Pending review',
     available: 'Live',
+    coming_soon: 'Coming soon',
     under_offer: 'Under offer',
     sold: 'Sold',
     rented: 'Rented',

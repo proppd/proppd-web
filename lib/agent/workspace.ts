@@ -1,6 +1,7 @@
 import type { Listing } from '@/lib/demo-data';
 import type { LeadRecord } from '@/lib/leads/pipeline';
 import { getLeadQueue } from '@/lib/leads/pipeline';
+import { countOverdueFollowUps, hoursSince } from '@/lib/leads/follow-ups';
 
 export type AgentWorkspaceStats = {
   agentName: string;
@@ -8,8 +9,10 @@ export type AgentWorkspaceStats = {
   activeListings: number;
   newLeads: number;
   qualifiedLeads: number;
+  convertedLeads: number;
   flaggedLeads: number;
   totalLeads: number;
+  conversionRate: number;
   latestLead?: LeadRecord;
   featuredListing?: Listing;
 };
@@ -35,6 +38,8 @@ export function getAgentWorkspaceStats(agentName: string, listings: Listing[], l
   const agentListings = listings.filter((listing) => listing.agent === agentName && listing.isActive !== false);
   const agentLeads = leads.filter((lead) => lead.agent === agentName);
   const queue = getLeadQueue(agentLeads);
+  const convertedLeads = agentLeads.filter((lead) => lead.status === 'converted').length;
+  const totalLeads = agentLeads.length;
 
   return {
     agentName,
@@ -42,11 +47,43 @@ export function getAgentWorkspaceStats(agentName: string, listings: Listing[], l
     activeListings: agentListings.length,
     newLeads: agentLeads.filter((lead) => lead.status === 'new').length,
     qualifiedLeads: agentLeads.filter((lead) => lead.status === 'qualified').length,
+    convertedLeads,
     flaggedLeads: agentLeads.filter((lead) => lead.quality === 'flagged').length,
-    totalLeads: agentLeads.length,
+    totalLeads,
+    conversionRate: totalLeads > 0 ? Math.round((convertedLeads / totalLeads) * 100) : 0,
     latestLead: queue[0],
     featuredListing: agentListings.find((listing) => listing.featured) ?? agentListings[0],
   };
+}
+
+export type AgentResponseStats = {
+  needsResponse: number;
+  overdueFollowUps: number;
+  oldestWaitingHours: number | null;
+  health: 'clear' | 'watch' | 'urgent';
+};
+
+/**
+ * Speed-to-lead snapshot. The first agent to respond wins the deal, so this
+ * surfaces how long the oldest unanswered enquiry has been waiting and how
+ * many open leads have gone past their follow-up threshold.
+ */
+export function getAgentResponseStats(agentName: string, leads: LeadRecord[], now: Date = new Date()): AgentResponseStats {
+  const agentLeads = leads.filter((lead) => lead.agent === agentName);
+  const newLeads = agentLeads.filter((lead) => lead.status === 'new');
+  const oldestWaitingHours = newLeads.length > 0
+    ? Math.max(...newLeads.map((lead) => hoursSince(lead.createdAt, now)))
+    : null;
+  const overdueFollowUps = countOverdueFollowUps(agentLeads, now);
+
+  const health: AgentResponseStats['health'] =
+    overdueFollowUps > 0 || (oldestWaitingHours !== null && oldestWaitingHours >= 4)
+      ? 'urgent'
+      : newLeads.length > 0
+        ? 'watch'
+        : 'clear';
+
+  return { needsResponse: newLeads.length, overdueFollowUps, oldestWaitingHours, health };
 }
 
 export function getAgentFollowUpActions(agentName: string, leads: LeadRecord[]): AgentFollowUpAction[] {

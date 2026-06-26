@@ -36,6 +36,7 @@ export type LeadRecord = {
   agent: string;
   agency: string;
   sourcePage?: string;
+  viewingAt?: string;
   latestEventType?: string;
   latestEventAt?: string;
   latestEventNote?: string;
@@ -304,6 +305,16 @@ export function getLeadActivityLabel(eventType?: string): string {
   return labels[type] ?? 'Activity recorded';
 }
 
+export function buildWhatsAppHref(phone: string, leadName?: string): string | null {
+  if (!phone?.trim()) return null;
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < 7) return null;
+  // Normalise SA numbers: 0XX → 2727XX; international +XX already stripped of +
+  const normalised = digits.startsWith('27') ? digits : digits.startsWith('0') ? `27${digits.slice(1)}` : digits;
+  const greeting = leadName ? `Hi ${leadName.split(' ')[0]}, ` : '';
+  return `https://wa.me/${normalised}?text=${encodeURIComponent(greeting)}`;
+}
+
 export function getLeadSourceGroup(sourcePage?: string): Exclude<LeadSourceGroup, 'all'> {
   const page = sourcePage?.trim();
   if (!page) return 'general';
@@ -325,4 +336,33 @@ export function getLeadSourceGroup(sourcePage?: string): Exclude<LeadSourceGroup
   }
 
   return 'portal';
+}
+
+export type LeadScoreLabel = 'Hot' | 'Warm' | 'Cool';
+
+export function scoreLeadRecord(lead: LeadRecord): number {
+  let score = 0;
+
+  const intentScore: Record<LeadIntent, number> = { viewing: 40, finance: 30, more_info: 20, valuation: 10 };
+  score += intentScore[lead.intent] ?? 20;
+
+  if (lead.phone?.trim()) score += 15;
+
+  const msgLen = (lead.message ?? '').trim().length;
+  if (msgLen > 150) score += 15;
+  else if (msgLen > 75) score += 10;
+  else if (msgLen > 30) score += 5;
+
+  if (lead.quality === 'flagged') score -= 20;
+  else if (lead.quality === 'duplicate') score -= 10;
+
+  score -= Math.min((lead.flags?.length ?? 0) * 5, 15);
+
+  return Math.max(0, Math.min(100, score));
+}
+
+export function getScoreLabel(score: number): { label: LeadScoreLabel; chip: string } {
+  if (score >= 60) return { label: 'Hot',  chip: 'bg-red-50 text-red-700' };
+  if (score >= 35) return { label: 'Warm', chip: 'bg-amber-50 text-amber-700' };
+  return             { label: 'Cool', chip: 'bg-[#F3F4F6] text-[#9CA3AF]' };
 }

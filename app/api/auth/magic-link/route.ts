@@ -1,19 +1,24 @@
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { buildAuthCallbackUrl } from '@/lib/auth/redirects';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
-import { rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
+import { getSupabaseAdminClient } from '@/lib/supabase/admin';
+import { isVerifiedAgentEmail, doesProfileExistForEmail } from '@/lib/proppd/backend';
+import { rateLimitByIdentifier, rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
+import { sendEmail, isEmailConfigured } from '@/lib/notifications/email';
+import { buildMagicLinkEmailHtml, buildMagicLinkEmailText } from '@/lib/email/templates/magic-link';
 import { verifyWithPPRA, isAutoApprovable } from '@/lib/ppra/verification';
 import { sendManualReviewEmail } from '@/lib/ppra/manual-review';
 
 export const runtime = 'nodejs';
-// PPRA verification makes an outbound HTTP call — allow enough time.
+// PPRA verification and outbound email sending can take longer than the default.
 export const maxDuration = 30;
 
 type MagicLinkBody = {
   email?: unknown;
   nextPath?: unknown;
+  allowSignUp?: unknown;
   profile?: unknown;
   ppraVerification?: unknown;
 };
@@ -36,39 +41,47 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Enter a valid email address.' }, { status: 400 });
   }
 
+  // Second rate-limit dimension keyed by the target email, so one mailbox cannot
+  // be flooded with login links from rotating IP addresses.
+  const limitedByEmail = rateLimitByIdentifier(email, rateLimitPolicies.auth, 'auth:magic-link');
+  if (limitedByEmail) return limitedByEmail;
+
   const profile = profileData(body?.profile);
   const nextPath = safeNextPath(body?.nextPath);
+  const origin = new URL(request.url).origin;
 
-  // ─── PPRA verification gate ───────────────────────────────────
-  //
-  // Agency signup requires a valid PPRA FFC verification. If the
-  // client already ran the check, it passes the result; otherwise
-  // we run it server-side. If not verified, the request goes to
-  // manual review and NO magic link is sent.
+  // PPRA gate: if the request includes a certificate and identity fields, verify
+  // it first. Verified agents are onboarded immediately; non-verified requests
+  // are sent for manual review and do not get a magic link.
   const ffcNumber = profile?.fidelity_fund_certificate_number;
   const firstName = profile?.first_name;
   const lastName = profile?.last_name;
 
   if (ffcNumber && firstName && lastName) {
-    let verification;
+    let verification: Parameters<typeof isAutoApprovable>[0];
 
-    // Trust a client-passed verification result (already checked server-side
-    // via /api/auth/verify-ffc). If missing or stale, re-verify.
     const passed = body?.ppraVerification;
-    if (
-      passed &&
-      typeof passed === 'object' &&
-      (passed as { status?: string }).status === 'verified'
-    ) {
-      verification = passed as { status: string; ffcNumber: string };
+    if (passed && typeof passed === 'object' && (passed as { status?: string }).status === 'verified') {
+      verification = passed as Parameters<typeof isAutoApprovable>[0];
     } else {
       verification = await verifyWithPPRA({ ffcNumber, firstName, lastName });
     }
 
-    if (isAutoApprovable(verification as Parameters<typeof isAutoApprovable>[0])) {
-      // Auto-onboard: create the account with agent role
-      const origin = new URL(request.url).origin;
-      const supabase = createClient(config.url, config.publishableKey, { auth: { persistSession: false } });
+    if (isAutoApprovable(verification)) {
+      const response = NextResponse.json({ ok: true, onboarded: true, ppra: 'verified' });
+      const supabase = createServerClient(config.url, config.publishableKey, {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            for (const { name, value, options } of cookiesToSet) {
+              response.cookies.set(name, value, options);
+            }
+          },
+        },
+      });
+
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
@@ -82,10 +95,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ ok: false, error: 'Could not send the login link. Please try again or email info@proppd.com.' }, { status: 400 });
       }
 
-      return NextResponse.json({ ok: true, onboarded: true, ppra: 'verified' });
+      return response;
     }
 
-    // Not verified — send to manual review, do NOT create account
     await sendManualReviewEmail({
       firstName,
       lastName,
@@ -97,20 +109,81 @@ export async function POST(request: NextRequest) {
       verification: verification as Parameters<typeof sendManualReviewEmail>[0]['verification'],
     });
 
-    return NextResponse.json({
-      ok: false,
-      ppra: 'not_verified',
-      error: 'Your FFC could not be auto-verified against the PPRA register. The Proppd team has been notified and will review your application manually. For urgent queries, email info@proppd.com.',
-    }, { status: 403 });
+    return NextResponse.json(
+      {
+        ok: false,
+        ppra: 'not_verified',
+        error:
+          'Your FFC could not be auto-verified against the PPRA register. The Proppd team has been notified and will review your application manually. For urgent queries, email info@proppd.com.',
+      },
+      { status: 403 },
+    );
   }
 
-  // ─── Existing user login (no FFC / no profile data = plain login) ──
-  const origin = new URL(request.url).origin;
-  const supabase = createClient(config.url, config.publishableKey, { auth: { persistSession: false } });
+  // Invite-only by default, but let agents who have passed PPRA / Fidelity Fund
+  // validation onboard instantly: if their email already matches a verified,
+  // active agent, allow the account to be created on first magic-link sign-in.
+  const shouldCreateUser = body?.allowSignUp === true || (await isVerifiedAgentEmail(email).catch(() => false));
+
+  // When a Supabase service role key and email provider are both configured,
+  // generate the link ourselves so we can use the branded email template.
+  const adminClient = getSupabaseAdminClient();
+  if (adminClient && isEmailConfigured()) {
+    let canProceed = shouldCreateUser;
+    if (!canProceed) {
+      canProceed = await doesProfileExistForEmail(email).catch(() => false);
+    }
+
+    if (canProceed) {
+      const loginUrl = new URL('/login', origin);
+      loginUrl.searchParams.set('next', nextPath);
+
+      const { data, error } = await adminClient.auth.admin.generateLink({
+        type: 'magiclink',
+        email,
+        options: {
+          redirectTo: loginUrl.toString(),
+          data: profile,
+        },
+      });
+
+      if (!error && data?.properties?.action_link) {
+        const emailResult = await sendEmail({
+          to: email,
+          subject: 'Your Proppd sign-in link',
+          html: buildMagicLinkEmailHtml({ actionLink: data.properties.action_link, email, origin }),
+          text: buildMagicLinkEmailText({ actionLink: data.properties.action_link, email, origin }),
+        });
+        if (emailResult.delivered) {
+          return NextResponse.json({ ok: true });
+        }
+      }
+    } else {
+      // Unknown email in invite-only mode: silently succeed to prevent enumeration.
+      return NextResponse.json({ ok: true });
+    }
+  }
+
+  // Fallback: use the PKCE flow via @supabase/ssr. The magic link returns a
+  // `?code=` that /auth/callback can exchange.
+  const response = NextResponse.json({ ok: true });
+  const supabase = createServerClient(config.url, config.publishableKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet) {
+        for (const { name, value, options } of cookiesToSet) {
+          response.cookies.set(name, value, options);
+        }
+      },
+    },
+  });
+
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      shouldCreateUser: false,
+      shouldCreateUser,
       emailRedirectTo: buildAuthCallbackUrl(origin, nextPath),
       data: profile,
     },
@@ -120,7 +193,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Could not send the login link. If you are new to Proppd, email info@proppd.com so we can approve your access.' }, { status: 400 });
   }
 
-  return NextResponse.json({ ok: true });
+  return response;
 }
 
 function isEmail(value: string): boolean {

@@ -22,7 +22,7 @@ export type Listing = {
   description: string;
   features: string[];
   highlights: string[];
-  mandate: 'Verified mandate' | 'Owner verified' | 'Agency verified';
+  mandate: 'Sole mandate' | 'Joint mandate' | 'Open mandate' | 'Verified mandate' | 'Owner verified' | 'Agency verified';
   listedAt: string;
   floorSize?: number;
   erfSize?: number;
@@ -31,9 +31,19 @@ export type Listing = {
   lat?: number;
   lng?: number;
   featured?: boolean;
+  isVerified?: boolean;
+  priceReduced?: boolean;
+  previousPrice?: number;
+  mandateType?: 'sole' | 'joint' | 'open';
+  mandateSellerName?: string;
+  mandateCommissionPct?: number;
+  mandateExpiresAt?: string;
   isActive?: boolean;
   viewsTotal?: number;
   views7d?: number;
+  leadCount?: number;
+  savesCount?: number;
+  listingStatus?: string;
 };
 
 export const listings: Listing[] = [
@@ -80,6 +90,7 @@ export const listings: Listing[] = [
     rates: 'R 1 850 pm',
     levies: 'R 1 420 pm',
     featured: true,
+    isVerified: true,
     lat: -26.0989,
     lng: 28.0556,
   },

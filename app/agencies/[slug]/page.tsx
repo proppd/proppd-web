@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Building2, Mail, MapPin, ShieldCheck, Users } from 'lucide-react';
 import { ListingCard } from '@/components/properties/listing-card';
+import { PpraVerificationDialog } from '@/components/agent/ppra-verification-dialog';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { loadPortalAgencies, loadPortalAgents, loadPortalListings } from '../../../lib/proppd/backend';
@@ -85,7 +86,17 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
       <section className="px-4 py-14 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-            <div className="proppd-panel p-8 sm:p-12">
+            <div className="relative proppd-panel p-8 sm:p-12">
+              {agency.isVerified && agency.ffcNumber && (
+                <div className="absolute right-6 top-6 sm:right-8 sm:top-8">
+                  <PpraVerificationDialog
+                    variant="agency"
+                    agentName={agency.name}
+                    ffcNumber={agency.ffcNumber}
+                    verifiedAt={agency.ffcVerifiedAt}
+                  />
+                </div>
+              )}
               <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-white/15 backdrop-blur">
                 <Building2 size={36} />
               </div>
@@ -96,7 +107,11 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
             <div className="grid gap-4 p-6 sm:grid-cols-3 sm:p-8">
               <AgencyMetric icon={<Users size={18} />} label="Team" value={formatDirectoryCount(team.length, 'agent')} />
               <AgencyMetric icon={<ShieldCheck size={18} />} label="Active stock" value={formatDirectoryCount(activeListings.length, 'listing')} />
-              <AgencyMetric icon={<Building2 size={18} />} label="Status" value="Verified agency" />
+              <AgencyMetric
+                icon={<ShieldCheck size={18} />}
+                label="Status"
+                value={agency.isVerified && agency.ffcNumber ? 'PPRA verified agency' : 'Verified agency'}
+              />
             </div>
             <div className="px-6 pb-6 sm:px-8">
               <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[.16em]">

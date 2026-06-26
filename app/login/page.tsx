@@ -3,10 +3,11 @@ import { Mail, ShieldCheck, ArrowRight, Building2, BarChart3, Users } from 'luci
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { SupabaseLoginForm } from '@/components/auth/supabase-login-form';
+import { HashSessionHandler } from '@/components/auth/hash-session-handler';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
 
 export const metadata: Metadata = {
-  title: 'Sign in | Proppd',
+  title: 'Sign in',
   description: 'Sign in to manage your listings, track leads, and access your agent dashboard.',
   alternates: { canonical: '/login' },
 };
@@ -30,6 +31,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
 
   return (
     <main className="proppd-page">
+      <HashSessionHandler />
       <SiteHeader />
 
       <section className="px-4 py-12 sm:px-6 lg:px-8">

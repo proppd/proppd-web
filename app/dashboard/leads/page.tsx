@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-import { MessageCircle, Mail, Phone, Clock, CheckCircle, TrendingUp, ExternalLink, Filter, ListChecks } from 'lucide-react';
-import { loadPortalLeadQueue, loadPortalUserAccess } from '@/lib/proppd/backend';
-import { getPortalServerUser } from '@/lib/supabase/server';
-import { buildLeadFilterHref, filterLeads, formatLeadStatus, getLeadCrmStats, getLeadNextAction, getLeadQueue, hasLeadFilters, isLeadStatus, type LeadFilters, type LeadQuality, type LeadRecord, type LeadStatus } from '@/lib/leads/pipeline';
+import { MessageCircle, Mail, Phone, Clock, CheckCircle, TrendingUp, ExternalLink, Filter, ListChecks, Search, X, CalendarClock } from 'lucide-react';
+import { loadPortalLeadQueue, leadQueueScopeForAccess } from '@/lib/proppd/backend';
+import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
+import { buildLeadFilterHref, buildWhatsAppHref, filterLeads, formatLeadStatus, getLeadCrmStats, getLeadNextAction, getLeadQueue, getLeadSourceStats, getScoreLabel, hasLeadFilters, isLeadStatus, scoreLeadRecord, type LeadFilters, type LeadQuality, type LeadRecord, type LeadStatus } from '@/lib/leads/pipeline';
+import { hoursSince, formatIdleDuration, getFollowUpUrgency } from '@/lib/leads/follow-ups';
 import { LeadPipelineControls } from '@/components/dashboard/lead-pipeline-controls';
 
 export const metadata: Metadata = {
@@ -27,19 +27,15 @@ type PageProps = {
 
 export default async function Page({ searchParams }: PageProps) {
   const params = await searchParams;
-  const user = await getPortalServerUser();
-  if (!user) {
-    redirect('/login?next=%2Fdashboard%2Fleads');
-  }
-
-  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
-  const leadPayload = await loadPortalLeadQueue(access?.agentName ?? undefined);
+  const access = await requireAgentWorkspaceAccess('/dashboard/leads');
+  const leadPayload = await loadPortalLeadQueue(leadQueueScopeForAccess(access));
   const leads = leadPayload.items;
   const controlsEnabled = leadPayload.source === 'database' || leadPayload.source === 'empty';
   const activeFilters = parseLeadFilters(params);
   const filteredLeads = filterLeads(leads, activeFilters);
   const filtersActive = hasLeadFilters(activeFilters);
 
+  const now = new Date();
   const stats = {
     total: leads.length,
     new: leads.filter((l) => l.status === 'new').length,
@@ -47,6 +43,7 @@ export default async function Page({ searchParams }: PageProps) {
     converted: leads.filter((l) => l.status === 'converted').length,
   };
   const crmStats = getLeadCrmStats(leads);
+  const sourceStats = getLeadSourceStats(leads);
   const crmFocusLeads = getLeadQueue(leads)
     .filter((lead) => lead.quality === 'flagged' || ['new', 'contacted', 'viewing_booked', 'qualified'].includes(lead.status))
     .slice(0, 3);
@@ -104,7 +101,20 @@ export default async function Page({ searchParams }: PageProps) {
             <MiniStat icon={<TrendingUp size={16} />} label="Converted" value={stats.converted} color="#2563EB" />
           </div>
 
-          <div className="mt-4 rounded-xl border border-[#E5E7EB] bg-white p-3 shadow-sm">
+          <form method="GET" action="/dashboard/leads" className="mt-4 flex items-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-3 py-2 shadow-sm focus-within:border-[#4A3AFF]">
+            <Search size={15} className="shrink-0 text-[#9CA3AF]" />
+            <input
+              name="q"
+              defaultValue={activeFilters.query ?? ''}
+              placeholder="Search by name, email, phone or listing…"
+              className="min-w-0 flex-1 bg-transparent text-sm font-bold text-[#1A1A2E] outline-none placeholder:font-semibold placeholder:text-[#9CA3AF]"
+            />
+            {activeFilters.query && (
+              <a href="/dashboard/leads" className="shrink-0 rounded-full p-0.5 text-[#9CA3AF] hover:text-[#4A3AFF]"><X size={13} /></a>
+            )}
+          </form>
+
+          <div className="mt-2 rounded-xl border border-[#E5E7EB] bg-white p-3 shadow-sm">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-2 text-xs font-bold uppercase tracking-widest text-[#9CA3AF]"><Filter size={13} /> Show</span>
               <FilterChip label="All" href="/dashboard/leads" active={!filtersActive} />
@@ -129,6 +139,11 @@ export default async function Page({ searchParams }: PageProps) {
               <div className="divide-y divide-[#F3F4F6]">
                 {filteredLeads.map((lead) => {
                   const intent = intentStyles[lead.intent] || intentStyles.general;
+                  const ageHours = hoursSince(lead.createdAt, now);
+                  const urgency = getFollowUpUrgency(lead, now);
+                  const whatsappHref = buildWhatsAppHref(lead.phone, lead.name);
+                  const score = scoreLeadRecord(lead);
+                  const scoreMeta = getScoreLabel(score);
                   return (
                     <div key={lead.id} className="flex items-start gap-4 px-4 py-4 transition hover:bg-[#F7F8FA] sm:px-6">
                       {/* Avatar */}
@@ -143,7 +158,11 @@ export default async function Page({ searchParams }: PageProps) {
                             <a href={`/dashboard/leads/${lead.id}`} className="font-bold text-[#1A1A2E] transition hover:text-[#4A3AFF]">{lead.name}</a>
                             <p className="text-xs text-[#9CA3AF]">{lead.email}</p>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <LeadAgeChip hours={ageHours} urgency={urgency} />
+                            <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${scoreMeta.chip}`} title={`Lead score: ${score}/100`}>
+                              {scoreMeta.label} {score}
+                            </span>
                             <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${intent.bg} ${intent.text}`}>
                               {lead.intent}
                             </span>
@@ -164,15 +183,26 @@ export default async function Page({ searchParams }: PageProps) {
                           {lead.phone && <span>· {lead.phone}</span>}
                           <span>· {new Intl.DateTimeFormat('en-ZA', { month: 'short', day: 'numeric' }).format(new Date(lead.createdAt))}</span>
                         </div>
+                        {lead.viewingAt && (
+                          <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-[#BFDBFE] bg-[#EFF6FF] px-2.5 py-1 text-xs font-bold text-[#2563EB]">
+                            <CalendarClock size={12} />
+                            Viewing {new Intl.DateTimeFormat('en-ZA', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(lead.viewingAt))}
+                          </div>
+                        )}
 
                         {/* Actions */}
-                        <div className="mt-3 flex gap-2">
+                        <div className="mt-3 flex flex-wrap gap-2">
                           <a href={`mailto:${lead.email}?subject=Re: Proppd enquiry&body=Hi ${lead.name.split(' ')[0]},`} className="inline-flex items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]">
                             <Mail size={12} /> Reply
                           </a>
                           {lead.phone && (
                             <a href={`tel:${lead.phone}`} className="inline-flex items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs font-bold text-[#1A1A2E] transition hover:border-[#93C5FD] hover:text-[#2563EB]">
                               <Phone size={12} /> Call
+                            </a>
+                          )}
+                          {whatsappHref && (
+                            <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-[#D1FAE5] bg-[#F0FDF4] px-3 py-1.5 text-xs font-bold text-[#166534] transition hover:border-[#6EE7B7] hover:bg-[#DCFCE7]">
+                              <MessageCircle size={12} /> WhatsApp
                             </a>
                           )}
                           {lead.listingSlug && (
@@ -231,6 +261,18 @@ export default async function Page({ searchParams }: PageProps) {
                   )}
                 </div>
               </div>
+
+              <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Lead sources</p>
+                <h2 className="mt-2 text-base font-bold text-[#1A1A2E]">Where enquiries come from</h2>
+                <div className="mt-4 space-y-2">
+                  <LeadSourceRow label="Property pages" count={sourceStats.property} total={stats.total} />
+                  <LeadSourceRow label="Agent profile" count={sourceStats.agent} total={stats.total} />
+                  <LeadSourceRow label="Valuation" count={sourceStats.valuation} total={stats.total} />
+                  <LeadSourceRow label="Launch application" count={sourceStats.launch} total={stats.total} />
+                  <LeadSourceRow label="General portal" count={sourceStats.portal + sourceStats.general} total={stats.total} />
+                </div>
+              </div>
             </aside>
           </section>
         </div>
@@ -243,8 +285,10 @@ export default async function Page({ searchParams }: PageProps) {
 function parseLeadFilters(params?: Record<string, string | string[] | undefined>): LeadFilters {
   const status = firstParam(params?.status);
   const quality = firstParam(params?.quality);
+  const query = firstParam(params?.q);
 
   return {
+    query: query?.trim() || undefined,
     status: isLeadStatus(status) ? status : 'all',
     quality: isLeadQuality(quality) ? quality : 'all',
   };
@@ -312,5 +356,34 @@ function CrmActionCard({ lead }: { lead: LeadRecord }) {
       <p className="mt-3 text-sm font-bold text-[#1A1A2E]">{action.label}</p>
       <p className="mt-1 text-xs font-bold leading-5 text-[#6B7280]">{action.detail}</p>
     </a>
+  );
+}
+
+function LeadAgeChip({ hours, urgency }: { hours: number; urgency: string }) {
+  if (hours < 1) return null;
+  const label = formatIdleDuration(hours);
+  const cls =
+    urgency === 'overdue'
+      ? 'bg-red-50 text-red-700'
+      : urgency === 'due-soon'
+        ? 'bg-amber-50 text-amber-700'
+        : 'bg-[#F3F4F6] text-[#9CA3AF]';
+  return (
+    <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${cls}`}>{label}</span>
+  );
+}
+
+function LeadSourceRow({ label, count, total }: { label: string; count: number; total: number }) {
+  const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+  return (
+    <div>
+      <div className="flex items-center justify-between text-xs font-bold">
+        <span className="text-[#6B7280]">{label}</span>
+        <span className="text-[#1A1A2E]">{count}</span>
+      </div>
+      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[#F3F4F6]">
+        <div className="h-full rounded-full bg-[#4A3AFF]" style={{ width: `${pct}%` }} />
+      </div>
+    </div>
   );
 }

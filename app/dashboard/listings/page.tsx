@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-import { Plus, Pencil, Eye, Home, Clock, CheckCircle, ListChecks } from 'lucide-react';
-import { loadMyPortalListings, loadPortalUserAccess } from '@/lib/proppd/backend';
-import { getPortalServerUser } from '@/lib/supabase/server';
+import { Plus, Pencil, Eye, Home, Clock, CheckCircle, ListChecks, ShieldCheck, MessageSquare, Bookmark } from 'lucide-react';
+import { ListingVerifyToggle } from '@/components/dashboard/listing-verify-toggle';
+import { loadDuplicateListingGroups, loadMyPortalListings, type DuplicateListingGroup } from '@/lib/proppd/backend';
+import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 import { getListingHealthLabel, getListingWorkspaceActions, getListingWorkspaceStats, type ListingWorkspaceAction } from '@/lib/agent/listing-workspace';
 
 export const metadata: Metadata = {
@@ -17,6 +17,7 @@ const statusStyles: Record<string, { bg: string; text: string; label: string }> 
   draft: { bg: 'bg-[#F3F4F6]', text: 'text-[#6B7280]', label: 'Draft' },
   pending_review: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Pending' },
   available: { bg: 'bg-[#EFF6FF]', text: 'text-[#2563EB]', label: 'Live' },
+  coming_soon: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Coming soon' },
   under_offer: { bg: 'bg-[#4A3AFF]/10', text: 'text-[#4A3AFF]', label: 'Under offer' },
   sold: { bg: 'bg-[#4A3AFF]/10', text: 'text-[#4A3AFF]', label: 'Sold' },
   rented: { bg: 'bg-[#4A3AFF]/10', text: 'text-[#4A3AFF]', label: 'Rented' },
@@ -24,16 +25,16 @@ const statusStyles: Record<string, { bg: string; text: string; label: string }> 
 };
 
 export default async function Page() {
-  const user = await getPortalServerUser();
-  if (!user) {
-    redirect('/login?next=%2Fdashboard%2Flistings');
-  }
-
-  const access = await loadPortalUserAccess(user.id, user.email ?? undefined);
-  const { items: listings } = access ? await loadMyPortalListings(access) : { items: [] };
+  const access = await requireAgentWorkspaceAccess('/dashboard/listings');
+  const [{ items: listings }, duplicates] = await Promise.all([
+    loadMyPortalListings(access),
+    loadDuplicateListingGroups(access),
+  ]);
 
   const stats = getListingWorkspaceStats(listings);
   const actions = getListingWorkspaceActions(listings);
+  const totalLeads = listings.reduce((sum, l) => sum + (l.leadCount ?? 0), 0);
+  const totalSaves = listings.reduce((sum, l) => sum + (l.savesCount ?? 0), 0);
 
   return (
     <main className="proppd-page">
@@ -74,12 +75,27 @@ export default async function Page() {
           </div>
 
           {/* Stats */}
-          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="mt-6 grid grid-cols-3 gap-3 sm:grid-cols-6">
             <MiniStat icon={<Home size={16} />} label="Total" value={stats.total} />
             <MiniStat icon={<CheckCircle size={16} />} label="For sale" value={stats.sale} color="#2563EB" />
             <MiniStat icon={<Clock size={16} />} label="To rent" value={stats.rent} />
             <MiniStat icon={<Eye size={16} />} label="Views 7d" value={stats.views7d} color="#4A3AFF" />
+            <MiniStat icon={<MessageSquare size={16} />} label="Enquiries" value={totalLeads} color="#059669" />
+            <MiniStat icon={<Bookmark size={16} />} label="Saves" value={totalSaves} color="#D97706" />
           </div>
+
+          {/* Duplicate alert */}
+          {duplicates.length > 0 && (
+            <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-5">
+              <p className="text-xs font-bold uppercase tracking-widest text-amber-700">Potential duplicates</p>
+              <p className="mt-1 text-sm font-semibold text-amber-800">
+                {duplicates.length} listing pair{duplicates.length === 1 ? '' : 's'} share the same suburb, bedrooms and a similar price. Review and archive the duplicate.
+              </p>
+              <div className="mt-4 space-y-3">
+                {duplicates.map((group, i) => <DuplicateGroupRow key={i} group={group} />)}
+              </div>
+            </div>
+          )}
 
           {/* Listings table */}
           <div className="mt-6 rounded-xl border border-[#E5E7EB] bg-white shadow-sm overflow-hidden">
@@ -101,8 +117,11 @@ export default async function Page() {
                       <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">Price</th>
                       <th className="hidden px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#9CA3AF] sm:table-cell">Location</th>
                       <th className="hidden px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#9CA3AF] md:table-cell">Beds</th>
-                      <th className="hidden px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#9CA3AF] md:table-cell">Views</th>
+                      <th className="hidden px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#9CA3AF] md:table-cell">Interest</th>
                       <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">Status</th>
+                      <th className="hidden px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-[#9CA3AF] sm:table-cell" title="Proppd-verified listing">
+                        <ShieldCheck size={13} className="mx-auto" />
+                      </th>
                       <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">Actions</th>
                     </tr>
                   </thead>
@@ -128,16 +147,23 @@ export default async function Page() {
                           <td className="px-4 py-3 font-bold text-[#1A1A2E]">{listing.price}</td>
                           <td className="hidden px-4 py-3 text-[#6B7280] sm:table-cell">{listing.location}</td>
                           <td className="hidden px-4 py-3 text-[#6B7280] md:table-cell">{listing.beds}</td>
-                          <td className="hidden px-4 py-3 text-[#6B7280] md:table-cell">
-                            <span className="inline-flex items-center gap-1 font-bold text-[#1A1A2E]" title={`${listing.viewsTotal ?? 0} total views`}>
-                              <Eye size={13} className="text-[#9CA3AF]" /> {listing.views7d ?? 0}
-                              <span className="text-xs font-semibold text-[#9CA3AF]">/ 7d</span>
-                            </span>
+                          <td className="hidden px-4 py-3 md:table-cell">
+                            <IntentCell listing={listing} />
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${listingHealthClass(getListingHealthLabel(listing))}`}>
-                              {getListingHealthLabel(listing)}
-                            </span>
+                            {(() => {
+                              const s = statusStyles[listing.listingStatus ?? ''];
+                              return s ? (
+                                <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${s.bg} ${s.text}`}>{s.label}</span>
+                              ) : (
+                                <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${listingHealthClass(getListingHealthLabel(listing))}`}>
+                                  {getListingHealthLabel(listing)}
+                                </span>
+                              );
+                            })()}
+                          </td>
+                          <td className="hidden px-4 py-3 text-center sm:table-cell">
+                            <ListingVerifyToggle slug={listing.slug} initialVerified={listing.isVerified ?? false} />
                           </td>
                           <td className="px-4 py-3 text-right">
                             <div className="flex items-center justify-end gap-1">
@@ -164,6 +190,41 @@ export default async function Page() {
   );
 }
 
+function intentHeat(listing: { views7d?: number; leadCount?: number; savesCount?: number }): 'high' | 'moderate' | 'low' {
+  const v = listing.views7d ?? 0;
+  const l = listing.leadCount ?? 0;
+  const s = listing.savesCount ?? 0;
+  if (v >= 30 || l >= 5 || s >= 10) return 'high';
+  if (v >= 10 || l >= 2 || s >= 3) return 'moderate';
+  return 'low';
+}
+
+const heatDot: Record<string, string> = {
+  high: 'bg-rose-500',
+  moderate: 'bg-amber-400',
+  low: 'bg-[#E5E7EB]',
+};
+
+function IntentCell({ listing }: { listing: { views7d?: number; viewsTotal?: number; leadCount?: number; savesCount?: number } }) {
+  const heat = intentHeat(listing);
+  return (
+    <div className="flex items-center gap-2">
+      <span className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${heatDot[heat]}`} title={`${heat} interest`} />
+      <div className="flex flex-col gap-0.5">
+        <span className="inline-flex items-center gap-1 text-xs font-bold text-[#1A1A2E]" title={`${listing.viewsTotal ?? 0} total views`}>
+          <Eye size={11} className="text-[#9CA3AF]" /> {listing.views7d ?? 0}<span className="font-semibold text-[#9CA3AF]">/7d</span>
+        </span>
+        <span className="inline-flex items-center gap-1 text-xs font-bold text-[#1A1A2E]">
+          <MessageSquare size={11} className="text-[#9CA3AF]" /> {listing.leadCount ?? 0}<span className="font-semibold text-[#9CA3AF]">enq</span>
+        </span>
+        <span className="inline-flex items-center gap-1 text-xs font-bold text-[#1A1A2E]">
+          <Bookmark size={11} className="text-[#9CA3AF]" /> {listing.savesCount ?? 0}<span className="font-semibold text-[#9CA3AF]">saves</span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function ListingAction({ action }: { action: ListingWorkspaceAction }) {
   const toneClass = action.tone === 'urgent' ? 'bg-amber-200 text-amber-950' : action.tone === 'active' ? 'bg-white/15 text-white' : 'bg-[#DBEAFE] text-[#1A1A2E]';
   return (
@@ -180,6 +241,29 @@ function listingHealthClass(label: string): string {
   if (label === 'Refresh details') return 'bg-[#4A3AFF]/10 text-[#4A3AFF]';
   if (label === 'Needs exposure') return 'bg-slate-100 text-slate-600';
   return 'bg-[#EFF6FF] text-[#2563EB]';
+}
+
+function DuplicateGroupRow({ group }: { group: DuplicateListingGroup }) {
+  const location = [group.suburb, group.city].filter(Boolean).join(', ') || 'Unknown location';
+  const beds = group.bedrooms !== null ? `${group.bedrooms} bed` : '';
+  return (
+    <div className="flex flex-wrap items-start gap-3 rounded-lg border border-amber-200 bg-white p-4">
+      <div className="min-w-0 flex-1 space-y-1">
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          <a href={`/dashboard/listings/${group.slug1}/edit`} className="text-sm font-bold text-[#1A1A2E] hover:text-[#4A3AFF] truncate">{group.title1}</a>
+          <span className="text-xs text-[#9CA3AF]">{group.agent1 ?? 'Unassigned'}</span>
+        </div>
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          <a href={`/dashboard/listings/${group.slug2}/edit`} className="text-sm font-bold text-[#1A1A2E] hover:text-[#4A3AFF] truncate">{group.title2}</a>
+          <span className="text-xs text-[#9CA3AF]">{group.agent2 ?? 'Unassigned'}</span>
+        </div>
+      </div>
+      <div className="shrink-0 text-right">
+        <p className="text-sm font-bold text-amber-800">{group.price}</p>
+        <p className="text-xs text-amber-700">{[location, beds].filter(Boolean).join(' · ')}</p>
+      </div>
+    </div>
+  );
 }
 
 function MiniStat({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color?: string }) {

@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { ArrowLeft, BarChart3, CheckCircle2, Home, Mail, ShieldCheck, TrendingUp } from 'lucide-react';
+import { ArrowLeft, BarChart3, CheckCircle2, Home, ShieldCheck, TrendingUp } from 'lucide-react';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { loadPortalListings } from '@/lib/proppd/backend';
 import { estimateInstantValuation, formatValuationAmount, type InstantValuationInput, type InstantValuationResult, type ValuationComparable } from '@/lib/valuation/instant';
+import { ValuationLeadForm } from '@/components/valuation/valuation-lead-form';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,8 +41,10 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
 }
 
 function EstimateResult({ estimate, source }: { estimate: InstantValuationResult; source: string }) {
-  const appraisalHref = buildAgentAppraisalMailto(estimate);
   const topComparable = estimate.comparables[0];
+  const estimateRange = estimate.status === 'estimate'
+    ? `${formatValuationAmount(estimate.lowValue, estimate.purpose)} – ${formatValuationAmount(estimate.highValue, estimate.purpose)}`
+    : undefined;
 
   return (
     <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
@@ -107,10 +110,15 @@ function EstimateResult({ estimate, source }: { estimate: InstantValuationResult
           <SideFact icon={<TrendingUp size={17} />} title="Comparable-led" text="The range uses visible Proppd listings weighted by location, type and bedrooms." />
           <SideFact icon={<CheckCircle2 size={17} />} title="Human final step" text="A local agent should confirm condition, improvements, street position and timing." />
         </div>
-        <a href={appraisalHref} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#4A3AFF] px-5 py-3 text-sm font-bold !text-white">
-          <Mail size={17} /> Request agent appraisal
-        </a>
-        <a href="/request-valuation" className="mt-3 inline-flex w-full items-center justify-center rounded-full border border-[#BFDBFE] px-5 py-3 text-sm font-bold !text-[#2563EB]">
+        <ValuationLeadForm
+          suburb={estimate.inputs.suburb}
+          city={estimate.inputs.city}
+          propertyType={estimate.inputs.propertyType}
+          bedrooms={estimate.inputs.bedrooms}
+          estimateRange={estimateRange}
+          confidence={estimate.confidence}
+        />
+        <a href="/request-valuation" className="mt-4 inline-flex w-full items-center justify-center rounded-full border border-[#BFDBFE] px-5 py-3 text-sm font-bold !text-[#2563EB]">
           Open valuation handoff
         </a>
         <a href="/my-properties" className="mt-3 inline-flex w-full items-center justify-center gap-1.5 text-sm font-bold text-[#4A3AFF] transition hover:text-[#3A2AE0]">
@@ -214,23 +222,3 @@ function numberParam(value: string | string[] | undefined): number | undefined {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
 
-function buildAgentAppraisalMailto(estimate: InstantValuationResult): string {
-  const subject = encodeURIComponent(`Valuation appraisal request: ${estimate.inputs.suburb}`);
-  const range = estimate.status === 'estimate'
-    ? `${formatValuationAmount(estimate.lowValue, estimate.purpose)} – ${formatValuationAmount(estimate.highValue, estimate.purpose)}`
-    : 'Agent appraisal recommended';
-  const body = encodeURIComponent([
-    'Please help me confirm this Proppd instant estimate.',
-    '',
-    `Property: ${estimate.inputs.bedrooms ?? '?'} bedroom ${estimate.inputs.propertyType} in ${estimate.inputs.suburb}, ${estimate.inputs.city}`,
-    `Indicative range: ${range}`,
-    `Confidence: ${estimate.confidence}`,
-    `Reason: ${estimate.reason}`,
-    '',
-    'Owner name:',
-    'Email:',
-    'Phone:',
-  ].join('\n'));
-
-  return `mailto:info@proppd.com?subject=${subject}&body=${body}`;
-}

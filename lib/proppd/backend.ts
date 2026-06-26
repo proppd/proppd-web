@@ -1,12 +1,14 @@
 import { Pool, type PoolClient } from 'pg';
-import { agencies as demoAgencies, agents as demoAgents, listings as demoListings, type Listing } from '../demo-data';
+import { type Listing } from '../demo-data';
+import { sakstonsAgents, sakstonsAgencies, sakstonsListings } from '../sakstons-data';
 import { demoLeads } from '../leads/demo-leads';
 import { getLeadQueue, getLeadActivityLabel, getLeadSourceLabel, isLeadStatus, type LeadRecord, type LeadQuality, type LeadStatus, type LeadIntent } from '../leads/pipeline';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
+import { isAllowedSuperAdminEmail } from '@/lib/auth/super-admin';
 import { logServerError } from '@/lib/security/logging';
 import type { DirectoryAgency, DirectoryAgent } from '../directory';
 import { slugifyAgentName } from '../agents/profile';
-import { portalPropertyTypeOptions, slugifyListingTitle } from './listing-editor';
+import { portalPropertyTypeOptions, slugifyListingTitle, type PortalListingStatus } from './listing-editor';
 
 export type PortalBackendMode = 'database' | 'demo';
 export type PortalDataSource = 'database' | 'demo' | 'empty' | 'error';
@@ -45,12 +47,55 @@ export type PortalUserAccess = {
 
 export const AGENT_WORKSPACE_FORBIDDEN_MESSAGE = 'AgentOS and CRM are only available to approved agents and agencies.';
 
-export function canAccessAgentWorkspace(access: PortalUserAccess | null | undefined): access is PortalUserAccess {
-  if (!access) return false;
-  return access.role === 'super_admin' || access.role === 'agency_admin' || access.role === 'agent';
+/**
+ * The set of leads a portal account is allowed to see.
+ *  - 'all'    : super admins (the whole platform)
+ *  - 'agent'  : a single agent's leads, matched by agent name
+ *  - 'agency' : every lead routed to an agency, matched by agency id
+ *  - 'none'   : no access / no workspace identity — returns an empty queue
+ *
+ * The dashboard reads leads through a connection that bypasses RLS, so this
+ * scope is the only thing keeping one agency's lead PII from another. It must
+ * fail closed: anything without a concrete identity resolves to 'none'.
+ */
+export type LeadQueueScope =
+  | { kind: 'all' }
+  | { kind: 'agent'; agentName: string }
+  | { kind: 'agency'; agencyId: string }
+  | { kind: 'none' };
+
+export function leadQueueScopeForAccess(access: PortalUserAccess | null | undefined): LeadQueueScope {
+  if (!access) return { kind: 'none' };
+  if (access.role === 'super_admin') return { kind: 'all' };
+  if (access.role === 'agency_admin') return access.agencyId ? { kind: 'agency', agencyId: access.agencyId } : { kind: 'none' };
+  if (access.role === 'agent') return access.agentName ? { kind: 'agent', agentName: access.agentName } : { kind: 'none' };
+  return { kind: 'none' };
 }
 
-const ADMIN_EMAIL = 'info@proppd.com';
+export function canAccessAgentWorkspace(access: PortalUserAccess | null | undefined): access is PortalUserAccess {
+  if (!access) return false;
+  // Super admins have full access regardless of agent linkage.
+  if (access.role === 'super_admin') return true;
+  // A role string alone is NOT enough: an account whose role says 'agent' or
+  // 'agency_admin' but has no linked agent/agency record has no workspace of
+  // its own. Letting it through means the dashboard falls back to the first
+  // agent in the dataset (and the global lead queue), exposing another agent's
+  // data. Require a concrete workspace identity so the CRM fails closed.
+  if (access.role === 'agency_admin') return Boolean(access.agencyId);
+  if (access.role === 'agent') return Boolean(access.agentId);
+  return false;
+}
+
+/**
+ * Clamps a role read from the database for a non-allowlisted email. A
+ * super_admin value on such an account must never be honoured (defence in
+ * depth behind the DB allowlist trigger): downgrade to the most privilege the
+ * account's linkage actually supports.
+ */
+export function clampNonAdminRole(role: PortalUserAccess['role'], hasAgentLink: boolean): PortalUserAccess['role'] {
+  if (role === 'super_admin') return hasAgentLink ? 'agent' : 'user';
+  return role;
+}
 
 export type PortalListingDraft = {
   id: string;
@@ -73,6 +118,11 @@ export type PortalListingDraft = {
   agentId: string | null;
   agentName: string | null;
   isFeatured: boolean;
+  isVerified: boolean;
+  mandateType: string | null;
+  mandateSellerName: string | null;
+  mandateCommissionPct: number | null;
+  mandateExpiresAt: string | null;
   floorSizeSqm: number | string | null;
   erfSizeSqm: number | string | null;
   ratesAndTaxes: number | string | null;
@@ -87,7 +137,7 @@ export type PortalListingPhotoInput = { src: string; alt: string };
 export type PortalListingWriteInput = {
   title: string;
   purpose: 'sale' | 'rent';
-  status: 'draft' | 'pending_review' | 'available' | 'under_offer' | 'sold' | 'rented' | 'archived';
+  status: 'draft' | 'pending_review' | 'available' | 'coming_soon' | 'under_offer' | 'sold' | 'rented' | 'archived';
   price: number;
   description: string;
   suburb: string;
@@ -102,6 +152,10 @@ export type PortalListingWriteInput = {
   ratesAndTaxes?: number;
   levies?: number;
   isFeatured?: boolean;
+  mandateType?: 'sole' | 'joint' | 'open';
+  mandateSellerName?: string;
+  mandateCommissionPct?: number;
+  mandateExpiresAt?: string;
   photos?: PortalListingPhotoInput[];
 };
 
@@ -136,12 +190,20 @@ type ListingRow = {
   published_at: string | null;
   created_at: string;
   is_featured: boolean | null;
+  is_verified: boolean | null;
+  mandate_type: string | null;
+  mandate_seller_name: string | null;
+  mandate_commission_pct: string | number | null;
+  mandate_expires_at: string | null;
   floor_size_sqm: number | string | null;
   erf_size_sqm: number | string | null;
   rates_and_taxes: number | string | null;
   levies: number | string | null;
+  max_historical_price?: number | string | null;
   views_total?: number | string | null;
   views_7d?: number | string | null;
+  lead_count?: number | string | null;
+  saves_count?: number | string | null;
 };
 
 type LeadRow = {
@@ -156,6 +218,7 @@ type LeadRow = {
   quality: string;
   flags: string[] | null;
   created_at: string;
+  viewing_at: string | null;
   source_page: string | null;
   listing_slug: string | null;
   listing_title: string | null;
@@ -289,26 +352,25 @@ export function getPortalBackendDiagnostics(env: PortalEnv = process.env): Porta
 export async function loadPortalListings(env: PortalEnv = process.env): Promise<PortalPayload<Listing>> {
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
-    return { source: 'demo', items: demoListings };
+    return { source: 'demo', items: sakstonsListings };
   }
 
   try {
     const rows = await queryListings(databaseUrl);
     if (rows.length === 0) {
-      return fallbackToDemoOnEmptySource(demoListings, 'No published database listings yet, using verified launch stock.');
+      return fallbackToDemoOnEmptySource(sakstonsListings, 'No published database listings yet, using verified launch stock.');
     }
     return { source: 'database', items: rows.map(mapListingRow) };
   } catch (error) {
     logServerError('[proppd] loadPortalListings error', error);
-    // Fall back to demo on any database error, not just connectivity errors
-    return { source: 'demo', items: demoListings, error: 'Database error, using verified launch fallback.' };
+    return { source: 'demo', items: sakstonsListings, error: 'Database error, using verified launch fallback.' };
   }
 }
 
 export async function loadPortalListingBySlug(slug: string, env: PortalEnv = process.env): Promise<PortalPayload<Listing>> {
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
-    const item = demoListings.find((listing) => listing.slug === slug);
+    const item = sakstonsListings.find((listing) => listing.slug === slug);
     return { source: 'demo', items: item ? [item] : [] };
   }
 
@@ -316,24 +378,55 @@ export async function loadPortalListingBySlug(slug: string, env: PortalEnv = pro
     const rows = await queryListings(databaseUrl, slug);
     return { source: rows.length > 0 ? 'database' : 'empty', items: rows.map(mapListingRow) };
   } catch (error) {
-    const fallback = demoListings.find((listing) => listing.slug === slug);
+    const fallback = sakstonsListings.find((listing) => listing.slug === slug);
     return fallbackToDemoOnDatabaseConnectivityError(error, fallback ? [fallback] : []);
   }
 }
 
-export async function loadPortalLeadQueue(agentName?: string, env: PortalEnv = process.env): Promise<PortalPayload<LeadRecord>> {
+export type ListingPricePoint = { price: number; recordedAt: string };
+
+export async function loadListingPriceHistory(slug: string, env: PortalEnv = process.env): Promise<ListingPricePoint[]> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return [];
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const result = await pool.query<{ price: string | number; recorded_at: string }>(
+      `select h.price, h.recorded_at
+       from public.listing_price_history h
+       join public.listings l on l.id = h.listing_id
+       where l.slug = $1
+       order by h.recorded_at asc`,
+      [slug],
+    );
+    return result.rows.map((r) => ({ price: toNumber(r.price), recordedAt: r.recorded_at }));
+  } catch {
+    return [];
+  }
+}
+
+export async function loadPortalLeadQueue(scope: LeadQueueScope, env: PortalEnv = process.env): Promise<PortalPayload<LeadRecord>> {
+  // Fail closed: an account with no workspace identity sees no leads.
+  if (scope.kind === 'none') return { source: 'empty', items: [] };
+
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
-    const items = agentName ? demoLeads.filter((lead) => lead.agent === agentName) : demoLeads;
-    return { source: 'demo', items: getLeadQueue(items) };
+    return { source: 'demo', items: getLeadQueue(filterDemoLeadsByScope(scope)) };
   }
 
   try {
-    const rows = await queryLeads(databaseUrl, agentName);
+    const rows = await queryLeads(databaseUrl, scope);
     return { source: rows.length > 0 ? 'database' : 'empty', items: rows.map(mapLeadRow).sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()) };
   } catch (error) {
-    return fallbackToDemoOnDatabaseConnectivityError(error, agentName ? getLeadQueue(demoLeads.filter((lead) => lead.agent === agentName)) : getLeadQueue(demoLeads));
+    return fallbackToDemoOnDatabaseConnectivityError(error, getLeadQueue(filterDemoLeadsByScope(scope)));
   }
+}
+
+// Demo/showcase fallback only (no live PII). Agency scope can't be matched by id
+// against demo data, so it shows the demo set; agent scope filters by name.
+function filterDemoLeadsByScope(scope: LeadQueueScope): LeadRecord[] {
+  if (scope.kind === 'agent') return demoLeads.filter((lead) => lead.agent === scope.agentName);
+  return demoLeads;
 }
 
 export async function loadPortalLeadById(leadId: string, env: PortalEnv = process.env): Promise<PortalPayload<LeadRecord>> {
@@ -344,7 +437,7 @@ export async function loadPortalLeadById(leadId: string, env: PortalEnv = proces
   }
 
   try {
-    const rows = await queryLeads(databaseUrl);
+    const rows = await queryLeads(databaseUrl, { kind: 'all' });
     const item = rows.map(mapLeadRow).find((lead) => lead.id === leadId);
     return item ? { source: 'database', items: [item] } : { source: 'empty', items: [] };
   } catch (error) {
@@ -394,6 +487,7 @@ export async function loadPortalLeadTimeline(leadId: string, env: PortalEnv = pr
 export type PortalLeadWorkflowUpdate = {
   status?: LeadStatus;
   quality?: 'clean' | 'duplicate' | 'flagged';
+  viewingAt?: string;
 };
 
 export async function updatePortalLeadWorkflow(
@@ -409,7 +503,7 @@ export async function updatePortalLeadWorkflow(
 
   try {
     const pool = getPortalPool(databaseUrl);
-    const rows = await queryLeads(databaseUrl);
+    const rows = await queryLeads(databaseUrl, { kind: 'all' });
     const current = rows.find((entry) => entry.id === leadId);
     if (!current) {
       return { source: 'error', items: [], error: 'Lead not found.' };
@@ -425,14 +519,16 @@ export async function updatePortalLeadWorkflow(
 
     const nextStatus = input.status ?? mapLeadStatus(current.status);
     const nextQuality = input.quality ? mapLeadQualityForDatabase(input.quality) : current.quality;
+    const viewingAt = input.viewingAt ?? null;
 
     await pool.query(
       `update public.leads
        set status = $1::public.lead_status,
            quality = $2::public.lead_quality,
+           viewing_at = coalesce($4::timestamptz, viewing_at),
            updated_at = now()
        where id = $3`,
-      [nextStatus, nextQuality, leadId],
+      [nextStatus, nextQuality, leadId, viewingAt],
     );
 
     await pool.query(
@@ -477,7 +573,7 @@ export async function addPortalLeadNote(
 
   try {
     const pool = getPortalPool(databaseUrl);
-    const rows = await queryLeads(databaseUrl);
+    const rows = await queryLeads(databaseUrl, { kind: 'all' });
     const current = rows.find((entry) => entry.id === leadId);
     if (!current) {
       return { source: 'error', items: [], error: 'Lead not found.' };
@@ -498,6 +594,76 @@ export async function addPortalLeadNote(
     );
 
     return await loadPortalLeadById(leadId, env);
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export type ConsumerEnquiryRecord = {
+  id: string;
+  listingTitle: string;
+  listingSlug: string;
+  listingCoverImage: string | null;
+  agentName: string;
+  status: LeadStatus;
+  intent: LeadIntent;
+  viewingAt: string | null;
+  createdAt: string;
+};
+
+export async function loadConsumerEnquiries(userEmail: string, env: PortalEnv = process.env): Promise<PortalPayload<ConsumerEnquiryRecord>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { source: 'empty', items: [] };
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const result = await pool.query<{
+      id: string;
+      listing_title: string | null;
+      listing_slug: string | null;
+      cover_image_url: string | null;
+      agent_name: string | null;
+      status: string;
+      intent: string;
+      viewing_at: string | null;
+      created_at: string;
+    }>(
+      `select
+         l.id,
+         li.title as listing_title,
+         li.slug as listing_slug,
+         min(case when img.is_cover then img.image_url end) as cover_image_url,
+         a.name as agent_name,
+         l.status,
+         l.intent,
+         l.viewing_at,
+         l.created_at
+       from public.leads l
+       left join public.listings li on li.id = l.listing_id
+       left join public.listing_images img on img.listing_id = l.listing_id
+       left join public.agents a on a.id = l.agent_id
+       where lower(l.email) = lower($1)
+         and l.quality != 'spam'
+         and l.status != 'fake_spam'
+       group by l.id, li.title, li.slug, a.name
+       order by l.created_at desc
+       limit 50`,
+      [userEmail.trim()],
+    );
+
+    const items: ConsumerEnquiryRecord[] = result.rows.map((row) => ({
+      id: row.id,
+      listingTitle: row.listing_title ?? 'Property enquiry',
+      listingSlug: row.listing_slug ?? '',
+      listingCoverImage: row.cover_image_url ?? null,
+      agentName: row.agent_name ?? 'Proppd agent',
+      status: mapLeadStatus(row.status),
+      intent: mapLeadIntent(row.intent),
+      viewingAt: row.viewing_at != null ? new Date(row.viewing_at as unknown as string | Date).toISOString() : null,
+      createdAt: row.created_at,
+    }));
+
+    return { source: items.length > 0 ? 'database' : 'empty', items };
   } catch (error) {
     return { source: 'error', items: [], error: errorMessage(error) };
   }
@@ -524,34 +690,34 @@ export function buildLeadWorkflowEventNotes(previousStatus: LeadStatus, nextStat
 export async function loadPortalAgents(env: PortalEnv = process.env): Promise<PortalPayload<DirectoryAgent>> {
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
-    return { source: 'demo', items: demoAgents };
+    return { source: 'demo', items: sakstonsAgents };
   }
 
   try {
     const rows = await queryDirectoryAgents(databaseUrl);
     if (rows.length === 0) {
-      return fallbackToDemoOnEmptySource(demoAgents, 'No database agent profiles yet, using verified launch profiles.');
+      return fallbackToDemoOnEmptySource(sakstonsAgents, 'No database agent profiles yet, using verified launch profiles.');
     }
     return { source: 'database', items: rows };
   } catch (error) {
-    return fallbackToDemoOnDatabaseConnectivityError(error, demoAgents);
+    return fallbackToDemoOnDatabaseConnectivityError(error, sakstonsAgents);
   }
 }
 
 export async function loadPortalAgencies(env: PortalEnv = process.env): Promise<PortalPayload<DirectoryAgency>> {
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
-    return { source: 'demo', items: demoAgencies };
+    return { source: 'demo', items: sakstonsAgencies };
   }
 
   try {
     const rows = await queryDirectoryAgencies(databaseUrl);
     if (rows.length === 0) {
-      return fallbackToDemoOnEmptySource(demoAgencies, 'No database agency profiles yet, using verified launch agencies.');
+      return fallbackToDemoOnEmptySource(sakstonsAgencies, 'No database agency profiles yet, using verified launch agencies.');
     }
     return { source: 'database', items: rows };
   } catch (error) {
-    return fallbackToDemoOnDatabaseConnectivityError(error, demoAgencies);
+    return fallbackToDemoOnDatabaseConnectivityError(error, sakstonsAgencies);
   }
 }
 
@@ -634,12 +800,19 @@ async function queryManagedListings(databaseUrl: string, access: PortalUserAcces
       l.published_at,
       l.created_at,
       l.is_featured,
+      l.is_verified,
+      l.mandate_type,
+      l.mandate_seller_name,
+      l.mandate_commission_pct,
+      l.mandate_expires_at,
       l.floor_size_sqm,
       l.erf_size_sqm,
       l.rates_and_taxes,
       l.levies,
       (select count(*) from public.listing_views v where v.listing_id = l.id) as views_total,
-      (select count(*) from public.listing_views v where v.listing_id = l.id and v.viewed_at >= now() - interval '7 days') as views_7d
+      (select count(*) from public.listing_views v where v.listing_id = l.id and v.viewed_at >= now() - interval '7 days') as views_7d,
+      (select count(*) from public.leads ld where ld.listing_id = l.id) as lead_count,
+      (select count(*) from public.saved_homes sh where sh.slug = l.slug) as saves_count
     from public.listings l
     left join public.agencies ag on ag.id = l.agency_id
     left join public.agents a on a.id = l.agent_id
@@ -677,6 +850,11 @@ function mapListingDraftRow(row: ManagedListingRow): PortalListingDraft {
     agentId: row.agent_id,
     agentName: row.agent_name,
     isFeatured: Boolean(row.is_featured),
+    isVerified: Boolean(row.is_verified),
+    mandateType: row.mandate_type ?? null,
+    mandateSellerName: row.mandate_seller_name ?? null,
+    mandateCommissionPct: row.mandate_commission_pct !== null ? Number(row.mandate_commission_pct) : null,
+    mandateExpiresAt: row.mandate_expires_at ?? null,
     floorSizeSqm: row.floor_size_sqm,
     erfSizeSqm: row.erf_size_sqm,
     ratesAndTaxes: row.rates_and_taxes,
@@ -768,7 +946,7 @@ async function generateUniqueListingSlug(pool: Pool, title: string): Promise<str
 }
 
 export async function loadPortalUserAccess(userId: string, userEmail?: string | null, env: PortalEnv = process.env): Promise<PortalUserAccess | null> {
-  const isAdminEmail = userEmail?.trim().toLowerCase() === ADMIN_EMAIL;
+  const isAdminEmail = isAllowedSuperAdminEmail(userEmail);
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
     return isAdminEmail
@@ -826,12 +1004,51 @@ export async function loadPortalUserAccess(userId: string, userEmail?: string | 
   return {
     userId,
     profileId: row.profile_id,
-    role: isAdminEmail ? 'super_admin' : normaliseRole(row.role),
+    role: isAdminEmail ? 'super_admin' : clampNonAdminRole(normaliseRole(row.role), row.agent_id !== null),
     agentId: row.agent_id,
     agentName: row.agent_name,
     agencyId: row.agency_id,
     agencyName: row.agency_name,
   };
+}
+
+/**
+ * Returns true when the email belongs to a verified, active agent — i.e. an
+ * agent who has passed PPRA/Fidelity Fund validation (modelled as
+ * agents.is_verified). Used to let onboarded agents self-serve their first
+ * passwordless login while keeping everyone else invite-only. Fails closed.
+ */
+export async function isVerifiedAgentEmail(email: string, env: PortalEnv = process.env): Promise<boolean> {
+  const clean = email.trim().toLowerCase();
+  if (!clean.includes('@')) return false;
+
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return false;
+
+  const pool = getPortalPool(databaseUrl);
+  const result = await pool.query<{ eligible: boolean }>(
+    `select exists(
+       select 1 from public.agents
+       where lower(email) = $1 and is_verified and is_active
+     ) as eligible`,
+    [clean],
+  );
+  return result.rows[0]?.eligible ?? false;
+}
+
+export async function doesProfileExistForEmail(email: string, env: PortalEnv = process.env): Promise<boolean> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return false;
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const result = await pool.query<{ exists: boolean }>(
+      `select exists(select 1 from public.profiles where email = $1) as exists`,
+      [email.trim().toLowerCase()],
+    );
+    return result.rows[0]?.exists ?? false;
+  } catch {
+    return false;
+  }
 }
 
 export async function loadManagedListingDrafts(access: PortalUserAccess, env: PortalEnv = process.env): Promise<PortalPayload<PortalListingDraft>> {
@@ -848,7 +1065,7 @@ export async function loadManagedListingDrafts(access: PortalUserAccess, env: Po
   }
 }
 
-const MODERATION_STATUSES = ['draft', 'pending_review', 'available', 'under_offer', 'sold', 'rented', 'archived'] as const;
+const MODERATION_STATUSES = ['draft', 'pending_review', 'available', 'coming_soon', 'under_offer', 'sold', 'rented', 'archived'] as const;
 export type ModerationStatus = (typeof MODERATION_STATUSES)[number];
 
 export type ListingModerationInput = {
@@ -945,7 +1162,7 @@ async function logAdminActivity(
 export async function loadMyPortalListings(access: PortalUserAccess, env: PortalEnv = process.env): Promise<PortalPayload<Listing>> {
   const databaseUrl = getPortalDatabaseUrl(env);
   if (!databaseUrl) {
-    return { source: 'demo', items: demoListings.filter((listing) => listing.agent === access.agentName || access.role === 'super_admin') };
+    return { source: 'demo', items: sakstonsListings.filter((listing) => listing.agent === access.agentName || access.role === 'super_admin') };
   }
 
   try {
@@ -955,6 +1172,7 @@ export async function loadMyPortalListings(access: PortalUserAccess, env: Portal
     return { source: 'error', items: [], error: errorMessage(error) };
   }
 }
+
 
 export async function loadPortalListingDraftBySlug(slug: string, access: PortalUserAccess, env: PortalEnv = process.env): Promise<PortalPayload<PortalListingDraft>> {
   const databaseUrl = getPortalDatabaseUrl(env);
@@ -1041,6 +1259,160 @@ export async function createPortalListing(access: PortalUserAccess, input: Porta
   }
 }
 
+export type ImportListingItem = {
+  externalRef: string | null;
+  listing: PortalListingWriteInput;
+};
+
+export type ImportListingsInput = {
+  /** Origin label stored on each listing, e.g. the agency feed name. */
+  source: string;
+  /** Required when a super admin imports on behalf of an agency. */
+  targetAgencyId?: string | null;
+  targetAgentId?: string | null;
+  items: ImportListingItem[];
+};
+
+export type ImportListingsResult = {
+  source: PortalDataSource;
+  created: number;
+  updated: number;
+  failed: number;
+  errors: { ref: string; message: string }[];
+  error?: string;
+};
+
+/**
+ * Bulk import listings from an agency feed. Listings carrying an external
+ * reference are upserted by (agency_id, external_ref) so re-running a feed
+ * updates rows instead of duplicating them. Listings without a reference are
+ * always inserted.
+ */
+export async function importPortalListings(
+  access: PortalUserAccess,
+  input: ImportListingsInput,
+  env: PortalEnv = process.env,
+): Promise<ImportListingsResult> {
+  const empty: ImportListingsResult = { source: 'error', created: 0, updated: 0, failed: 0, errors: [] };
+
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) {
+    return { ...empty, error: 'Database connection is not configured.' };
+  }
+
+  if (access.role !== 'super_admin' && access.role !== 'agency_admin') {
+    return { ...empty, error: 'Only admins can import listings.' };
+  }
+
+  const agencyId = access.role === 'super_admin' ? (input.targetAgencyId ?? null) : access.agencyId;
+  if (!agencyId) {
+    return { ...empty, error: 'A target agency is required to import listings.' };
+  }
+  if (access.role === 'agency_admin' && input.targetAgencyId && input.targetAgencyId !== access.agencyId) {
+    return { ...empty, error: 'You can only import listings into your own agency.' };
+  }
+
+  const agentId = access.role === 'super_admin' ? (input.targetAgentId ?? null) : (input.targetAgentId ?? access.agentId);
+  const source = input.source.trim() || 'feed-import';
+
+  let created = 0;
+  let updated = 0;
+  const errors: { ref: string; message: string }[] = [];
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    for (const item of input.items) {
+      const ref = item.externalRef ?? item.listing.title;
+      try {
+        const outcome = await upsertImportedListing(pool, agencyId, agentId, access.profileId, source, item, env);
+        if (outcome === 'updated') updated += 1;
+        else created += 1;
+      } catch (error) {
+        errors.push({ ref, message: errorMessage(error) });
+      }
+    }
+  } catch (error) {
+    return { ...empty, error: errorMessage(error) };
+  }
+
+  return {
+    source: 'database',
+    created,
+    updated,
+    failed: errors.length,
+    errors,
+  };
+}
+
+async function upsertImportedListing(
+  pool: Pool,
+  agencyId: string,
+  agentId: string | null,
+  profileId: string,
+  source: string,
+  item: ImportListingItem,
+  _env: PortalEnv,
+): Promise<'created' | 'updated'> {
+  const propertyTypeId = await ensurePropertyTypeId(pool, item.listing.propertyTypeSlug);
+  const listing = item.listing;
+
+  if (item.externalRef) {
+    const updateResult = await pool.query<{ id: string }>(
+      `update public.listings set
+        property_type_id = $1, agent_id = coalesce($2, agent_id), title = $3,
+        purpose = $4::public.listing_purpose, status = $5::public.listing_status, price = $6,
+        description = $7, suburb = $8, city = $9, province = $10,
+        bedrooms = $11, bathrooms = $12, parking = $13, floor_size_sqm = $14, erf_size_sqm = $15,
+        rates_and_taxes = $16, levies = $17, is_featured = $18, source = $19, imported_at = now(),
+        updated_at = now(),
+        published_at = case when $5::public.listing_status = 'available' and published_at is null then now() else published_at end
+      where agency_id = $20 and external_ref = $21
+      returning id`,
+      [
+        propertyTypeId, agentId, listing.title, listing.purpose, listing.status, listing.price,
+        listing.description, listing.suburb, listing.city, listing.province,
+        listing.bedrooms ?? null, listing.bathrooms ?? null, listing.parking ?? null,
+        listing.floorSizeSqm ?? null, listing.erfSizeSqm ?? null, listing.ratesAndTaxes ?? null, listing.levies ?? null,
+        Boolean(listing.isFeatured), source, agencyId, item.externalRef,
+      ],
+    );
+
+    const existing = updateResult.rows[0];
+    if (existing) {
+      if (listing.photos && listing.photos.length > 0) {
+        await replaceListingImages(pool, existing.id, listing.photos);
+      }
+      return 'updated';
+    }
+  }
+
+  const slug = await generateUniqueListingSlug(pool, listing.title);
+  const insertResult = await pool.query<{ id: string }>(
+    `insert into public.listings (
+      agency_id, agent_id, property_type_id, title, slug, purpose, status, price, description,
+      suburb, city, province, bedrooms, bathrooms, parking, floor_size_sqm, erf_size_sqm, rates_and_taxes, levies,
+      is_featured, created_by, source, external_ref, imported_at, published_at
+    ) values (
+      $1, $2, $3, $4, $5, $6::public.listing_purpose, $7::public.listing_status, $8, $9,
+      $10, $11, $12, $13, $14, $15, $16, $17, $18, $19,
+      $20, $21, $22, $23, now(), case when $7::public.listing_status = 'available' then now() else null end
+    ) returning id`,
+    [
+      agencyId, agentId, propertyTypeId, listing.title, slug, listing.purpose, listing.status, listing.price, listing.description,
+      listing.suburb, listing.city, listing.province, listing.bedrooms ?? null, listing.bathrooms ?? null, listing.parking ?? null,
+      listing.floorSizeSqm ?? null, listing.erfSizeSqm ?? null, listing.ratesAndTaxes ?? null, listing.levies ?? null,
+      Boolean(listing.isFeatured), profileId || null, source, item.externalRef,
+    ],
+  );
+
+  const inserted = insertResult.rows[0];
+  if (inserted && listing.photos && listing.photos.length > 0) {
+    await replaceListingImages(pool, inserted.id, listing.photos);
+  }
+
+  return 'created';
+}
+
 export async function updatePortalListingBySlug(
   slug: string,
   access: PortalUserAccess,
@@ -1079,6 +1451,10 @@ export async function updatePortalListingBySlug(
         rates_and_taxes = $15,
         levies = $16,
         is_featured = $17,
+        mandate_type = $19,
+        mandate_seller_name = $20,
+        mandate_commission_pct = $21,
+        mandate_expires_at = $22,
         updated_at = now(),
         published_at = case when $4::public.listing_status = 'available' and published_at is null then now() else published_at end
       where slug = $18
@@ -1088,7 +1464,8 @@ export async function updatePortalListingBySlug(
         (select name from public.property_types where id = property_type_id) as property_type_name,
         agency_id, (select name from public.agencies where id = agency_id) as agency_name,
         agent_id, (select name from public.agents where id = agent_id) as agent_name,
-        is_featured, floor_size_sqm, erf_size_sqm, rates_and_taxes, levies, published_at, created_at`,
+        is_featured, is_verified, mandate_type, mandate_seller_name, mandate_commission_pct, mandate_expires_at,
+        floor_size_sqm, erf_size_sqm, rates_and_taxes, levies, published_at, created_at`,
       [
         propertyTypeId,
         input.title,
@@ -1108,6 +1485,10 @@ export async function updatePortalListingBySlug(
         input.levies ?? null,
         Boolean(input.isFeatured),
         slug,
+        input.mandateType ?? null,
+        input.mandateSellerName ?? null,
+        input.mandateCommissionPct ?? null,
+        input.mandateExpiresAt ?? null,
       ],
     );
 
@@ -1123,6 +1504,115 @@ export async function updatePortalListingBySlug(
     return { source: 'database', items: [{ ...row, photos: input.photos ?? [] }] };
   } catch (error) {
     return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function toggleListingVerification(
+  slug: string,
+  verified: boolean,
+  access: PortalUserAccess,
+  env: PortalEnv = process.env,
+): Promise<{ ok: boolean; error?: string }> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { ok: false, error: 'Database not configured.' };
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const owned = await queryManagedListings(databaseUrl, access, slug);
+    if (owned.length === 0 && access.role !== 'super_admin') {
+      return { ok: false, error: 'You do not have access to this listing.' };
+    }
+
+    await pool.query(
+      `update public.listings set is_verified = $1, updated_at = now() where slug = $2`,
+      [verified, slug],
+    );
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: errorMessage(error) };
+  }
+}
+
+export type DuplicateListingGroup = {
+  slug1: string;
+  title1: string;
+  agent1: string | null;
+  slug2: string;
+  title2: string;
+  agent2: string | null;
+  suburb: string | null;
+  city: string | null;
+  bedrooms: number | null;
+  price: string;
+};
+
+export async function loadDuplicateListingGroups(
+  access: PortalUserAccess,
+  env: PortalEnv = process.env,
+): Promise<DuplicateListingGroup[]> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return [];
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const values: (string | boolean)[] = [];
+
+    // For non-admins scope to pairs involving the agent's own listings.
+    let ownershipFilter = '';
+    if (access.role !== 'super_admin') {
+      const ors: string[] = [];
+      if (access.agentId) {
+        values.push(access.agentId);
+        ors.push(`l1.agent_id = $${values.length} or l2.agent_id = $${values.length}`);
+      }
+      if (access.agencyId) {
+        values.push(access.agencyId);
+        ors.push(`l1.agency_id = $${values.length} or l2.agency_id = $${values.length}`);
+      }
+      if (ors.length > 0) ownershipFilter = `and (${ors.join(' or ')})`;
+    }
+
+    const sql = `
+      select
+        l1.slug  as slug1,  l1.title as title1,
+        a1.name  as agent1,
+        l2.slug  as slug2,  l2.title as title2,
+        a2.name  as agent2,
+        l1.suburb, l1.city,
+        l1.bedrooms,
+        l1.price
+      from public.listings l1
+      join public.listings l2
+        on  l2.id > l1.id
+        and lower(trim(coalesce(l1.suburb,''))) = lower(trim(coalesce(l2.suburb,'')))
+        and lower(trim(coalesce(l1.city,'')))   = lower(trim(coalesce(l2.city,'')))
+        and l1.purpose   = l2.purpose
+        and l1.bedrooms  = l2.bedrooms
+        and l1.price > 0
+        and abs(l1.price - l2.price) / l1.price < 0.05
+        and l2.status not in ('archived','fake_spam')
+      left join public.agents a1 on a1.id = l1.agent_id
+      left join public.agents a2 on a2.id = l2.agent_id
+      where l1.status not in ('archived','fake_spam')
+      ${ownershipFilter}
+      order by l1.created_at desc
+      limit 10
+    `;
+
+    const result = await pool.query<{
+      slug1: string; title1: string; agent1: string | null;
+      slug2: string; title2: string; agent2: string | null;
+      suburb: string | null; city: string | null;
+      bedrooms: string | null; price: string;
+    }>(sql, values);
+
+    return result.rows.map((r) => ({
+      ...r,
+      bedrooms: r.bedrooms !== null ? Number(r.bedrooms) : null,
+      price: formatListingPrice(Number(r.price), 'sale'),
+    }));
+  } catch {
+    return [];
   }
 }
 
@@ -1326,7 +1816,7 @@ export async function loadPortalDiagnostics(env: PortalEnv = process.env): Promi
   try {
     const pool = getPortalPool(databaseUrl);
     const [listingsCount, leadCount, agentCount, agencyCount] = await Promise.all([
-      queryCount(pool, "select count(*)::int as count from public.listings where status in ('available', 'under_offer', 'sold', 'rented')"),
+      queryCount(pool, "select count(*)::int as count from public.listings where status in ('available', 'coming_soon', 'under_offer', 'sold', 'rented')"),
       queryCount(pool, 'select count(*)::int as count from public.leads'),
       queryCount(pool, 'select count(*)::int as count from public.agents where is_active = true'),
       queryCount(pool, 'select count(*)::int as count from public.agencies where is_active = true'),
@@ -1352,7 +1842,7 @@ export async function loadPortalDiagnostics(env: PortalEnv = process.env): Promi
 async function queryListings(databaseUrl: string, slug?: string): Promise<ListingRow[]> {
   const pool = getPortalPool(databaseUrl);
   const values: Array<string> = [];
-  const clauses = ["l.status in ('available', 'under_offer', 'sold', 'rented')"];
+  const clauses = ["l.status in ('available', 'coming_soon', 'under_offer', 'sold', 'rented')"];
 
   if (slug) {
     values.push(slug);
@@ -1385,10 +1875,16 @@ async function queryListings(databaseUrl: string, slug?: string): Promise<Listin
       l.published_at,
       l.created_at,
       l.is_featured,
+      l.is_verified,
+      l.mandate_type,
+      l.mandate_seller_name,
+      l.mandate_commission_pct,
+      l.mandate_expires_at,
       l.floor_size_sqm,
       l.erf_size_sqm,
       l.rates_and_taxes,
-      l.levies
+      l.levies,
+      (select max(h.price) from public.listing_price_history h where h.listing_id = l.id) as max_historical_price
     from public.listings l
     left join public.agencies ag on ag.id = l.agency_id
     left join public.agents a on a.id = l.agent_id
@@ -1404,15 +1900,19 @@ async function queryListings(databaseUrl: string, slug?: string): Promise<Listin
   return result.rows;
 }
 
-async function queryLeads(databaseUrl: string, agentName?: string): Promise<LeadRow[]> {
+async function queryLeads(databaseUrl: string, scope: LeadQueueScope): Promise<LeadRow[]> {
   const pool = getPortalPool(databaseUrl);
   const values: Array<string> = [];
   const clauses: string[] = [];
 
-  if (agentName) {
-    values.push(agentName);
+  if (scope.kind === 'agent') {
+    values.push(scope.agentName);
     clauses.push(`a.name = $${values.length}`);
+  } else if (scope.kind === 'agency') {
+    values.push(scope.agencyId);
+    clauses.push(`l.agency_id = $${values.length}`);
   }
+  // scope.kind === 'all' adds no clause; 'none' never reaches this function.
 
   const sql = `
     select
@@ -1427,6 +1927,7 @@ async function queryLeads(databaseUrl: string, agentName?: string): Promise<Lead
       l.quality,
       l.flags,
       l.created_at,
+      l.viewing_at,
       l.source_page,
       li.slug as listing_slug,
       li.title as listing_title,
@@ -1529,20 +2030,26 @@ async function queryDirectoryAgents(databaseUrl: string): Promise<DirectoryAgent
     select
       a.name,
       a.slug,
+      a.is_verified,
+      a.ffc_number,
+      a.ffc_verified_at,
       coalesce(array_to_string(a.areas_served, ', '), coalesce(ag.city, 'South Africa')) as area,
       ag.name as agency_name,
       count(l.id)::int as listings
     from public.agents a
     left join public.agencies ag on ag.id = a.agency_id
-    left join public.listings l on l.agent_id = a.id and l.status in ('available', 'under_offer', 'sold', 'rented')
+    left join public.listings l on l.agent_id = a.id and l.status in ('available', 'coming_soon', 'under_offer', 'sold', 'rented')
     where a.is_active = true
-    group by a.name, a.slug, ag.name, ag.city
+    group by a.id, ag.name, ag.city
     order by a.name asc
   `;
 
   const result = await pool.query<{
     name: string;
     slug: string;
+    is_verified: boolean;
+    ffc_number: string | null;
+    ffc_verified_at: string | Date | null;
     area: string | null;
     agency_name: string | null;
     listings: number | string;
@@ -1553,6 +2060,9 @@ async function queryDirectoryAgents(databaseUrl: string): Promise<DirectoryAgent
     agency: row.agency_name ?? 'Independent agent',
     area: row.area ?? 'South Africa',
     listings: Number(row.listings ?? 0),
+    isVerified: row.is_verified === true,
+    ffcNumber: row.ffc_number ?? undefined,
+    ffcVerifiedAt: row.ffc_verified_at ? new Date(row.ffc_verified_at).toISOString() : undefined,
   }));
 }
 
@@ -1563,13 +2073,16 @@ async function queryDirectoryAgencies(databaseUrl: string): Promise<DirectoryAge
       ag.name,
       ag.slug,
       ag.city,
+      ag.is_verified,
+      ag.ffc_number,
+      ag.ffc_verified_at,
       count(distinct a.id)::int as agents,
-      count(distinct l.id) filter (where l.status in ('available', 'under_offer', 'sold', 'rented'))::int as listings
+      count(distinct l.id) filter (where l.status in ('available', 'coming_soon', 'under_offer', 'sold', 'rented'))::int as listings
     from public.agencies ag
     left join public.agents a on a.agency_id = ag.id and a.is_active = true
     left join public.listings l on l.agency_id = ag.id
     where ag.is_active = true
-    group by ag.name, ag.slug, ag.city
+    group by ag.name, ag.slug, ag.city, ag.is_verified, ag.ffc_number, ag.ffc_verified_at
     order by ag.name asc
   `;
 
@@ -1577,6 +2090,9 @@ async function queryDirectoryAgencies(databaseUrl: string): Promise<DirectoryAge
     name: string;
     slug: string;
     city: string | null;
+    is_verified: boolean;
+    ffc_number: string | null;
+    ffc_verified_at: string | Date | null;
     agents: number | string;
     listings: number | string;
   }>(sql);
@@ -1586,6 +2102,9 @@ async function queryDirectoryAgencies(databaseUrl: string): Promise<DirectoryAge
     city: row.city ?? 'South Africa',
     agents: Number(row.agents ?? 0),
     listings: Number(row.listings ?? 0),
+    isVerified: row.is_verified === true,
+    ffcNumber: row.ffc_number ?? undefined,
+    ffcVerifiedAt: row.ffc_verified_at ? new Date(row.ffc_verified_at).toISOString() : undefined,
   }));
 }
 
@@ -1626,6 +2145,9 @@ function mapListingRow(row: ListingRow): Listing {
   const price = formatListingPrice(priceValue, row.purpose);
   const photos = buildListingPhotos(row);
   const gradient = FALLBACK_GRADIENTS[stableIndex(row.slug, FALLBACK_GRADIENTS.length)];
+  const maxHistoricalPrice = toOptionalNumber(row.max_historical_price ?? null);
+  // A price drop of at least 1% from the highest recorded asking price.
+  const priceReduced = maxHistoricalPrice !== undefined && maxHistoricalPrice > priceValue * 1.01;
 
   return {
     id: row.id,
@@ -1656,8 +2178,18 @@ function mapListingRow(row: ListingRow): Listing {
     rates: toMoneyDisplay(row.rates_and_taxes),
     levies: toMoneyDisplay(row.levies),
     featured: Boolean(row.is_featured),
+    isVerified: Boolean(row.is_verified),
+    mandateType: (row.mandate_type as 'sole' | 'joint' | 'open' | null) ?? undefined,
+    mandateSellerName: row.mandate_seller_name ?? undefined,
+    mandateCommissionPct: row.mandate_commission_pct !== null ? Number(row.mandate_commission_pct) : undefined,
+    mandateExpiresAt: row.mandate_expires_at ?? undefined,
+    priceReduced,
+    previousPrice: priceReduced ? maxHistoricalPrice : undefined,
     viewsTotal: toOptionalNumber(row.views_total ?? null),
     views7d: toOptionalNumber(row.views_7d ?? null),
+    leadCount: toOptionalNumber(row.lead_count ?? null),
+    savesCount: toOptionalNumber(row.saves_count ?? null),
+    listingStatus: row.status,
   };
 }
 
@@ -1680,6 +2212,7 @@ function mapLeadRow(row: LeadRow): LeadRecord {
     agent: row.agent_name ?? 'Unassigned agent',
     agency: row.agency_name ?? 'Unassigned agency',
     sourcePage: row.source_page ?? undefined,
+    viewingAt: row.viewing_at != null ? new Date(row.viewing_at as unknown as string | Date).toISOString() : undefined,
     latestEventType: row.latest_event_type ?? undefined,
     latestEventAt: row.latest_event_at ?? undefined,
     latestEventNote: row.latest_event_note ?? undefined,
@@ -1712,12 +2245,16 @@ function buildListingPhotos(row: ListingRow): Listing['photos'] {
 
 function buildHighlights(row: ListingRow): Listing['highlights'] {
   const highlights = [buildMandate(row), row.is_featured ? 'Featured listing' : 'Freshly published'];
+  if (row.status === 'coming_soon') highlights.push('Coming soon');
   if (row.status === 'under_offer') highlights.push('Under offer');
   if (row.status === 'sold' || row.status === 'rented') highlights.push('Recently completed');
   return highlights.slice(0, 3);
 }
 
 function buildMandate(row: ListingRow): Listing['mandate'] {
+  if (row.mandate_type === 'sole') return 'Sole mandate';
+  if (row.mandate_type === 'joint') return 'Joint mandate';
+  if (row.mandate_type === 'open') return 'Open mandate';
   if (row.is_featured) return 'Verified mandate';
   if (row.agent_name && row.agency_name) return 'Agency verified';
   return 'Owner verified';
@@ -1850,4 +2387,249 @@ function isPoolerDatabaseHost(host: string | null): boolean {
 function normaliseEnvValue(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
   return trimmed && trimmed.length > 0 ? trimmed : undefined;
+}
+
+// --- Scheduled feed sources --------------------------------------------------
+
+export type FeedSourceFormat = 'csv' | 'xml' | 'json';
+
+export type FeedSourceRecord = {
+  id: string;
+  agencyId: string;
+  agencyName: string | null;
+  name: string;
+  url: string;
+  format: FeedSourceFormat | null;
+  recordTag: string | null;
+  defaultStatus: PortalListingStatus;
+  frequencyMinutes: number;
+  isActive: boolean;
+  lastRunAt: string | null;
+  lastStatus: string | null;
+  lastMessage: string | null;
+  lastSummary: unknown;
+  createdAt: string;
+};
+
+export type FeedSourceWriteInput = {
+  agencyId: string;
+  name: string;
+  url: string;
+  format?: FeedSourceFormat | null;
+  recordTag?: string | null;
+  defaultStatus?: PortalListingStatus;
+  frequencyMinutes?: number;
+  isActive?: boolean;
+};
+
+type FeedSourceRow = {
+  id: string;
+  agency_id: string;
+  agency_name: string | null;
+  name: string;
+  url: string;
+  format: string | null;
+  record_tag: string | null;
+  default_status: string;
+  frequency_minutes: number | string;
+  is_active: boolean;
+  last_run_at: string | null;
+  last_status: string | null;
+  last_message: string | null;
+  last_summary: unknown;
+  created_at: string;
+};
+
+const FEED_SOURCE_SELECT = `select
+  fs.id, fs.agency_id, fs.name, fs.url, fs.format, fs.record_tag, fs.default_status,
+  fs.frequency_minutes, fs.is_active, fs.last_run_at, fs.last_status, fs.last_message,
+  fs.last_summary, fs.created_at,
+  (select name from public.agencies where id = fs.agency_id) as agency_name
+from public.feed_sources fs`;
+
+function mapFeedSourceRow(row: FeedSourceRow): FeedSourceRecord {
+  return {
+    id: row.id,
+    agencyId: row.agency_id,
+    agencyName: row.agency_name,
+    name: row.name,
+    url: row.url,
+    format: (row.format as FeedSourceFormat | null) ?? null,
+    recordTag: row.record_tag,
+    defaultStatus: row.default_status as PortalListingStatus,
+    frequencyMinutes: Number(row.frequency_minutes),
+    isActive: row.is_active,
+    lastRunAt: row.last_run_at,
+    lastStatus: row.last_status,
+    lastMessage: row.last_message,
+    lastSummary: row.last_summary,
+    createdAt: row.created_at,
+  };
+}
+
+function feedSourceAgencyScope(access: PortalUserAccess): string | null {
+  // Agency admins are scoped to their own agency; super admins see all.
+  return access.role === 'super_admin' ? null : access.agencyId;
+}
+
+export async function loadFeedSources(access: PortalUserAccess, env: PortalEnv = process.env): Promise<PortalPayload<FeedSourceRecord>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  if (access.role !== 'super_admin' && access.role !== 'agency_admin') {
+    return { source: 'error', items: [], error: 'Only admins can manage feed sources.' };
+  }
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const scope = feedSourceAgencyScope(access);
+    const result = scope
+      ? await pool.query<FeedSourceRow>(`${FEED_SOURCE_SELECT} where fs.agency_id = $1 order by fs.created_at desc`, [scope])
+      : await pool.query<FeedSourceRow>(`${FEED_SOURCE_SELECT} order by fs.created_at desc`);
+    return { source: 'database', items: result.rows.map(mapFeedSourceRow) };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function createFeedSource(access: PortalUserAccess, input: FeedSourceWriteInput, env: PortalEnv = process.env): Promise<PortalPayload<FeedSourceRecord>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  if (access.role !== 'super_admin' && access.role !== 'agency_admin') {
+    return { source: 'error', items: [], error: 'Only admins can manage feed sources.' };
+  }
+
+  const agencyId = access.role === 'super_admin' ? input.agencyId : access.agencyId;
+  if (!agencyId) return { source: 'error', items: [], error: 'A target agency is required.' };
+  if (access.role === 'agency_admin' && input.agencyId && input.agencyId !== access.agencyId) {
+    return { source: 'error', items: [], error: 'You can only add feeds for your own agency.' };
+  }
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const result = await pool.query<{ id: string }>(
+      `insert into public.feed_sources (agency_id, name, url, format, record_tag, default_status, frequency_minutes, is_active, created_by)
+       values ($1, $2, $3, $4, $5, $6::public.listing_status, $7, $8, $9) returning id`,
+      [
+        agencyId,
+        input.name,
+        input.url,
+        input.format ?? null,
+        input.recordTag ?? null,
+        input.defaultStatus ?? 'pending_review',
+        input.frequencyMinutes ?? 1440,
+        input.isActive ?? true,
+        access.profileId || null,
+      ],
+    );
+    const id = result.rows[0]?.id;
+    if (!id) return { source: 'error', items: [], error: 'Feed source could not be created.' };
+    const created = await pool.query<FeedSourceRow>(`${FEED_SOURCE_SELECT} where fs.id = $1`, [id]);
+    return { source: 'database', items: created.rows.map(mapFeedSourceRow) };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function updateFeedSource(
+  id: string,
+  access: PortalUserAccess,
+  patch: Partial<Omit<FeedSourceWriteInput, 'agencyId'>>,
+  env: PortalEnv = process.env,
+): Promise<PortalPayload<FeedSourceRecord>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  if (access.role !== 'super_admin' && access.role !== 'agency_admin') {
+    return { source: 'error', items: [], error: 'Only admins can manage feed sources.' };
+  }
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const scope = feedSourceAgencyScope(access);
+    const result = await pool.query<FeedSourceRow>(
+      `update public.feed_sources set
+        name = coalesce($2, name),
+        url = coalesce($3, url),
+        format = coalesce($4, format),
+        record_tag = coalesce($5, record_tag),
+        default_status = coalesce($6, default_status)::public.listing_status,
+        frequency_minutes = coalesce($7, frequency_minutes),
+        is_active = coalesce($8, is_active),
+        updated_at = now()
+      where id = $1 ${scope ? 'and agency_id = $9' : ''}
+      returning id`,
+      scope
+        ? [id, patch.name ?? null, patch.url ?? null, patch.format ?? null, patch.recordTag ?? null, patch.defaultStatus ?? null, patch.frequencyMinutes ?? null, patch.isActive ?? null, scope]
+        : [id, patch.name ?? null, patch.url ?? null, patch.format ?? null, patch.recordTag ?? null, patch.defaultStatus ?? null, patch.frequencyMinutes ?? null, patch.isActive ?? null],
+    );
+    if (result.rowCount === 0) return { source: 'error', items: [], error: 'Feed source not found.' };
+    const updated = await pool.query<FeedSourceRow>(`${FEED_SOURCE_SELECT} where fs.id = $1`, [id]);
+    return { source: 'database', items: updated.rows.map(mapFeedSourceRow) };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+export async function deleteFeedSource(id: string, access: PortalUserAccess, env: PortalEnv = process.env): Promise<PortalPayload<{ id: string }>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  if (access.role !== 'super_admin' && access.role !== 'agency_admin') {
+    return { source: 'error', items: [], error: 'Only admins can manage feed sources.' };
+  }
+
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const scope = feedSourceAgencyScope(access);
+    const result = scope
+      ? await pool.query('delete from public.feed_sources where id = $1 and agency_id = $2', [id, scope])
+      : await pool.query('delete from public.feed_sources where id = $1', [id]);
+    if (result.rowCount === 0) return { source: 'error', items: [], error: 'Feed source not found.' };
+    return { source: 'database', items: [{ id }] };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+/** Load active feed sources for the scheduled runner (system context). */
+export async function loadActiveFeedSources(env: PortalEnv = process.env): Promise<PortalPayload<FeedSourceRecord>> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return { source: 'error', items: [], error: 'Database connection is not configured.' };
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const result = await pool.query<FeedSourceRow>(`${FEED_SOURCE_SELECT} where fs.is_active = true order by fs.last_run_at asc nulls first`);
+    return { source: 'database', items: result.rows.map(mapFeedSourceRow) };
+  } catch (error) {
+    return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+/** Record the outcome of a scheduled feed run. */
+export async function recordFeedRun(
+  id: string,
+  outcome: { status: 'ok' | 'error'; message: string; summary: unknown },
+  env: PortalEnv = process.env,
+): Promise<void> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return;
+  try {
+    const pool = getPortalPool(databaseUrl);
+    await pool.query(
+      `update public.feed_sources set last_run_at = now(), last_status = $2, last_message = $3, last_summary = $4::jsonb, updated_at = now() where id = $1`,
+      [id, outcome.status, outcome.message.slice(0, 500), JSON.stringify(outcome.summary ?? null)],
+    );
+  } catch (error) {
+    logServerError('recordFeedRun', error);
+  }
+}
+
+/** Synthetic super-admin access for system/cron-driven imports (no profile FK). */
+export function systemFeedAccess(): PortalUserAccess {
+  return {
+    userId: 'system-feed-cron',
+    profileId: '',
+    role: 'super_admin',
+    agentId: null,
+    agentName: null,
+    agencyId: null,
+    agencyName: null,
+  };
 }

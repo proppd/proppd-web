@@ -3,7 +3,7 @@
 import type React from 'react';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, ArrowLeft, Check, MapPin, Home, DollarSign, FileText, BedDouble, Bath, Car, Image as ImageIcon, Sparkles, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, MapPin, Home, DollarSign, FileText, BedDouble, Bath, Car, Image as ImageIcon, Sparkles, Loader2, AlertCircle, FileSignature } from 'lucide-react';
 import type { PortalListingDraft } from '@/lib/proppd/backend';
 import { portalPropertyTypeOptions } from '@/lib/proppd/listing-editor';
 import { PhotoUpload, type ListingPhoto } from '@/components/listings/photo-upload';
@@ -11,7 +11,7 @@ import { PhotoUpload, type ListingPhoto } from '@/components/listings/photo-uplo
 type ListingFormState = {
   title: string;
   purpose: 'sale' | 'rent';
-  status: 'draft' | 'pending_review' | 'available' | 'under_offer' | 'sold' | 'rented' | 'archived';
+  status: 'draft' | 'pending_review' | 'available' | 'coming_soon' | 'under_offer' | 'sold' | 'rented' | 'archived';
   price: string;
   description: string;
   suburb: string;
@@ -26,6 +26,10 @@ type ListingFormState = {
   ratesAndTaxes: string;
   levies: string;
   isFeatured: boolean;
+  mandateType: 'sole' | 'joint' | 'open' | '';
+  mandateSellerName: string;
+  mandateCommissionPct: string;
+  mandateExpiresAt: string;
   photos: ListingPhoto[];
 };
 
@@ -63,6 +67,10 @@ function buildInitialState(initialListing?: Partial<PortalListingDraft>): Listin
     ratesAndTaxes: toFieldValue(initialListing?.ratesAndTaxes),
     levies: toFieldValue(initialListing?.levies),
     isFeatured: Boolean(initialListing?.isFeatured),
+    mandateType: (initialListing?.mandateType as 'sole' | 'joint' | 'open' | undefined) ?? '',
+    mandateSellerName: toFieldValue(initialListing?.mandateSellerName),
+    mandateCommissionPct: toFieldValue(initialListing?.mandateCommissionPct),
+    mandateExpiresAt: toFieldValue(initialListing?.mandateExpiresAt),
     photos: initialListing?.photos ?? [],
   };
 }
@@ -73,6 +81,7 @@ const steps = [
   { id: 'details', label: 'Details', icon: BedDouble },
   { id: 'photos', label: 'Photos', icon: ImageIcon },
   { id: 'pricing', label: 'Pricing', icon: DollarSign },
+  { id: 'mandate', label: 'Mandate', icon: FileSignature },
   { id: 'review', label: 'Review', icon: FileText },
 ];
 
@@ -137,8 +146,6 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
   const canAdvance = () => {
     if (currentStep === 0) return state.title.trim().length > 0;
     if (currentStep === 1) return state.suburb.trim().length > 0 && state.city.trim().length > 0;
-    if (currentStep === 2) return true;
-    if (currentStep === 3) return true;
     if (currentStep === 4) return state.price.length > 0;
     return true;
   };
@@ -275,6 +282,7 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
             </div>
             <SelectField label="Listing status" value={state.status} onChange={(v) => update('status', v)}>
               <option value="draft">Save as draft (only you can see it)</option>
+              <option value="coming_soon">Coming soon — pre-market (visible, no offers yet)</option>
               <option value="available">Publish — available now</option>
               <option value="under_offer">Published — under offer</option>
               <option value="sold">Sold / no longer available</option>
@@ -284,8 +292,29 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
           </div>
         )}
 
-        {/* Step 6: Review */}
+        {/* Step 6: Mandate */}
         {currentStep === 5 && (
+          <div className="space-y-4">
+            <div className="rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] p-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">Mandate details</p>
+              <p className="mt-1 text-sm text-[#6B7280]">Recording mandate details builds buyer trust and gives Proppd the information needed to display accurate verification badges. This step is optional but recommended.</p>
+            </div>
+            <SelectField label="Mandate type" value={state.mandateType} onChange={(v) => update('mandateType', v)}>
+              <option value="">No mandate recorded</option>
+              <option value="sole">Sole mandate</option>
+              <option value="joint">Joint mandate</option>
+              <option value="open">Open mandate</option>
+            </SelectField>
+            <InputField label="Seller / landlord name" value={state.mandateSellerName} onChange={(v) => update('mandateSellerName', v)} placeholder="e.g. Jane Smith" />
+            <div className="grid grid-cols-2 gap-4">
+              <InputField label="Commission %" value={state.mandateCommissionPct} onChange={(v) => update('mandateCommissionPct', v)} type="number" placeholder="e.g. 5.5" />
+              <InputField label="Mandate expires" value={state.mandateExpiresAt} onChange={(v) => update('mandateExpiresAt', v)} type="date" />
+            </div>
+          </div>
+        )}
+
+        {/* Step 7: Review */}
+        {currentStep === 6 && (
           <div className="space-y-4">
             <div className="rounded-lg bg-[#F7F8FA] p-4">
               <h3 className="text-sm font-bold text-[#1A1A2E]">Listing summary</h3>
@@ -299,6 +328,15 @@ export function ListingEditorForm({ initialListing, mode, submitUrl, submitLabel
                 <div><span className="text-[#9CA3AF]">Type:</span> <span className="font-bold text-[#1A1A2E]">{propertyTypeLabel}</span></div>
                 <div><span className="text-[#9CA3AF]">Status:</span> <span className="font-bold text-[#1A1A2E]">{statusLabel(state.status)}</span></div>
                 <div><span className="text-[#9CA3AF]">Photos:</span> <span className="font-bold text-[#1A1A2E]">{state.photos.length}</span></div>
+                {state.mandateType && (
+                  <div><span className="text-[#9CA3AF]">Mandate:</span> <span className="font-bold text-[#1A1A2E] capitalize">{state.mandateType}</span></div>
+                )}
+                {state.mandateCommissionPct && (
+                  <div><span className="text-[#9CA3AF]">Commission:</span> <span className="font-bold text-[#1A1A2E]">{state.mandateCommissionPct}%</span></div>
+                )}
+                {state.mandateExpiresAt && (
+                  <div><span className="text-[#9CA3AF]">Expires:</span> <span className="font-bold text-[#1A1A2E]">{state.mandateExpiresAt}</span></div>
+                )}
               </div>
             </div>
             {state.description && (
@@ -347,6 +385,7 @@ function statusLabel(status: ListingFormState['status']): string {
     draft: 'Draft (private)',
     pending_review: 'Pending review',
     available: 'Published — available',
+    coming_soon: 'Coming soon',
     under_offer: 'Under offer',
     sold: 'Sold',
     rented: 'Rented',

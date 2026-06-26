@@ -1,10 +1,14 @@
 import { ArrowRight } from 'lucide-react';
-import { listings } from '@/lib/demo-data';
+import { loadPortalListings } from '@/lib/proppd/backend';
 import { ListingCard } from '@/components/properties/listing-card';
 
-const featuredListings = listings.filter((listing) => listing.featured);
+export async function FeaturedListings() {
+  const portalListings = await loadPortalListings();
+  const featured = portalListings.items.filter((listing) => listing.featured);
+  // Prefer flagged featured stock; otherwise fall back to the latest listings
+  // so the section is never empty.
+  const featuredListings = (featured.length > 0 ? featured : portalListings.items).slice(0, 6);
 
-export function FeaturedListings() {
   return (
     <section>
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">

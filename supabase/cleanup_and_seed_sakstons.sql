@@ -35,11 +35,12 @@ insert into public.agencies (id, name, slug, description, email, phone, website_
   ('5f060c4e-5bda-528a-ba9c-fba940dc59e0', 'Sakstons', 'sakstons', 'Live agency import from sakstons.com stock for Proppd.', 'info@sakstons.com', '+27 11 234 9801', 'https://www.sakstons.com/', 'Epsom Downs', 'Sandton', 'Gauteng', true, true)
 on conflict (slug) do update set name = excluded.name, description = excluded.description, email = excluded.email, phone = excluded.phone, website_url = excluded.website_url, suburb = excluded.suburb, city = excluded.city, province = excluded.province, is_verified = true, is_active = true;
 
-insert into public.agents (id, agency_id, name, slug, email, phone, whatsapp, bio, areas_served, is_verified, is_active) values
-  ('e4cb4bc0-90f5-5dc0-a8ce-60b2829da6d6', '5f060c4e-5bda-528a-ba9c-fba940dc59e0', 'Graham Donald', 'graham-donald', 'graham@sakstons.com', '+27 11 234 9801', '+27 11 234 9801', 'Sakstons agent for lead and history imports.', array['Fourways', 'Kyalami', 'Sandton'], true, true),
-  ('272e472f-fb8c-5b7d-90a3-8376dfa3b4e5', '5f060c4e-5bda-528a-ba9c-fba940dc59e0', 'Liz Marx', 'liz-marx', 'lize@sakstons.com', '+27 11 234 9801', '+27 11 234 9801', 'Sakstons agent for lead and history imports.', array['Fourways', 'Kyalami', 'Sandton'], true, true),
-  ('a12d171e-a2d6-5ae0-908b-4b9f8d310311', '5f060c4e-5bda-528a-ba9c-fba940dc59e0', 'Mark Chait', 'mark-chait', 'marc@sakstons.com', '+27 11 234 9801', '+27 11 234 9801', 'Sakstons agent for lead and history imports.', array['Fourways', 'Kyalami', 'Sandton'], true, true)
-on conflict (slug) do update set agency_id = excluded.agency_id, name = excluded.name, email = excluded.email, phone = excluded.phone, whatsapp = excluded.whatsapp, bio = excluded.bio, areas_served = excluded.areas_served, is_verified = true, is_active = true;
+insert into public.agents (id, agency_id, name, slug, email, phone, whatsapp, bio, areas_served, ffc_number, is_verified, is_active) values
+  ('e4cb4bc0-90f5-5dc0-a8ce-60b2829da6d6', '5f060c4e-5bda-528a-ba9c-fba940dc59e0', 'Graham Donald', 'graham-donald', 'graham@sakstons.com', '+27 11 234 9801', '+27 11 234 9801', 'Sakstons agent for lead and history imports.', array['Fourways', 'Kyalami', 'Sandton'], 'FFC 202624015840000', true, true),
+  ('272e472f-fb8c-5b7d-90a3-8376dfa3b4e5', '5f060c4e-5bda-528a-ba9c-fba940dc59e0', 'Lize Marx', 'lize-marx', 'lize@sakstons.com', '+27 11 234 9801', '+27 11 234 9801', 'Sakstons agent for lead and history imports.', array['Fourways', 'Kyalami', 'Sandton'], 'FFC 202634074660000', true, true),
+  ('a12d171e-a2d6-5ae0-908b-4b9f8d310311', '5f060c4e-5bda-528a-ba9c-fba940dc59e0', 'Marc Chait', 'marc-chait', 'marc@sakstons.com', '+27 11 234 9801', '+27 11 234 9801', 'Sakstons agent for lead and history imports.', array['Fourways', 'Kyalami', 'Sandton'], 'FFC 202401036404219', true, true),
+  ('c7e2b9d4-3a16-5c82-9f40-1b6d8e2a4f57', '5f060c4e-5bda-528a-ba9c-fba940dc59e0', 'James Saks', 'james-saks', 'james@sakstons.com', '+27 11 234 9801', '+27 11 234 9801', 'Sakstons agent.', array['Bryanston', 'Sandton', 'Fourways'], 'FFC 202623026100000', true, true)
+on conflict (slug) do update set agency_id = excluded.agency_id, name = excluded.name, email = excluded.email, phone = excluded.phone, whatsapp = excluded.whatsapp, bio = excluded.bio, areas_served = excluded.areas_served, ffc_number = excluded.ffc_number, is_verified = true, is_active = true;
 
 insert into public.property_types (name, slug, category, sort_order) values
   ('Apartment', 'apartment', 'residential', 200),
@@ -371,8 +372,32 @@ insert into public.listing_features (listing_id, feature) values ('16367b64-18e2
 insert into public.listing_features (listing_id, feature) values ('16367b64-18e2-514a-94e8-0d1c749887ae', 'Verified agency route') on conflict do nothing;
 insert into public.listing_features (listing_id, feature) values ('16367b64-18e2-514a-94e8-0d1c749887ae', 'POPIA-ready enquiry') on conflict do nothing;
 
+-- ---------------------------------------------------------------------------
+-- 6. Link Sakstons agents to their signed-in auth profiles (self-healing).
+--    The on_auth_user_created trigger auto-creates a public.profiles row the
+--    first time an agent signs in. Matching on email links that profile to the
+--    agent record so loadPortalUserAccess() resolves the correct workspace and
+--    the dashboard stops falling back to demo data. Safe to re-run: it only
+--    fills agents whose profile_id is still null, and only promotes profiles
+--    still on the default 'user' role.
+-- ---------------------------------------------------------------------------
+update public.agents a
+set profile_id = p.id
+from public.profiles p
+where a.profile_id is null
+  and lower(a.email) = lower(p.email);
+
+update public.profiles p
+set role = 'agent'
+from public.agents a
+where a.profile_id = p.id
+  and p.role = 'user';
+
 commit;
 
 -- Verify (run separately after commit):
 --   select slug, name from public.agencies order by name;  -- expect: sakstons
---   select slug, name from public.agents order by name;     -- expect: graham-donald, liz-marx, mark-chait
+--   select slug, name from public.agents order by name;     -- expect: graham-donald, james-saks, liz-marx, mark-chait
+--   select a.name, a.email, a.profile_id, pr.role
+--     from public.agents a left join public.profiles pr on pr.id = a.profile_id
+--    order by a.name;  -- james-saks should have a non-null profile_id and role 'agent' once he has signed in

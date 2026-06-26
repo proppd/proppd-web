@@ -2,21 +2,23 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BadgeCheck, Building2, Mail, MapPin } from 'lucide-react';
 import { AgentReviews } from '@/components/agent/agent-reviews';
+import { PpraVerifiedBadge } from '@/components/agent/ppra-verified-badge';
+import { PpraVerificationDialog } from '@/components/agent/ppra-verification-dialog';
 import { ListingCard } from '@/components/properties/listing-card';
 import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { loadPortalAgentBySlug, loadPortalListings } from '../../../lib/proppd/backend';
-import { agents as demoAgents, listings as demoListings } from '@/lib/demo-data';
+import { sakstonsAgents, sakstonsListings } from '@/lib/sakstons-data';
 import { formatDirectoryCount, getAgentListings, slugifyDirectoryName } from '@/lib/directory';
 
 export function generateStaticParams() {
-  return demoAgents.map((agent) => ({ slug: slugifyDirectoryName(agent.name) }));
+  return sakstonsAgents.map((agent) => ({ slug: slugifyDirectoryName(agent.name) }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const portalAgent = await loadPortalAgentBySlug(slug);
-  const agent = portalAgent.items[0] ?? demoAgents.find((entry) => slugifyDirectoryName(entry.name) === slug);
+  const agent = portalAgent.items[0] ?? sakstonsAgents.find((entry) => slugifyDirectoryName(entry.name) === slug);
 
   if (!agent) {
     return { title: 'Agent not found' };
@@ -48,28 +50,12 @@ export const dynamic = 'force-dynamic';
 export default async function AgentProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const portalAgent = await loadPortalAgentBySlug(slug);
-  const agent = portalAgent.items[0] ?? demoAgents.find((entry) => slugifyDirectoryName(entry.name) === slug);
+  const agent = portalAgent.items[0] ?? sakstonsAgents.find((entry) => slugifyDirectoryName(entry.name) === slug);
   if (!agent) notFound();
 
   const portalListings = await loadPortalListings();
-  const activeListings = getAgentListings(portalListings.source === 'demo' ? demoListings : portalListings.items, agent.name);
+  const activeListings = getAgentListings(portalListings.items.length > 0 ? portalListings.items : sakstonsListings, agent.name);
   const agentMarketSummary = buildAgentMarketSummary(activeListings);
-  const directoryStateLabel =
-    portalAgent.source === 'database'
-      ? 'Live agent profile connected'
-      : portalAgent.source === 'empty'
-        ? 'Live directory connected, profile not yet published'
-        : portalAgent.source === 'demo'
-          ? 'Demo agent profile'
-          : 'Agent profile unavailable';
-  const listingStateLabel =
-    portalListings.source === 'database'
-      ? 'Live listings connected'
-      : portalListings.source === 'empty'
-        ? 'Live listings connected, none active'
-        : portalListings.source === 'demo'
-          ? 'Demo stock'
-          : 'Listings unavailable';
 
   return (
     <main className="proppd-page">
@@ -77,25 +63,29 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
       <section className="px-4 py-14 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
-            <div className="rounded-xl border border-[#E5E7EB] bg-white p-8 shadow-sm sm:p-12">
+            <div className="relative rounded-xl border border-[#E5E7EB] bg-white p-8 shadow-sm sm:p-12">
+              {/* PPRA badge — top-right corner of the card */}
+              {agent.isVerified && agent.ffcNumber ? (
+                <div className="absolute right-6 top-6">
+                  <PpraVerificationDialog agentName={agent.name} agency={agent.agency} ffcNumber={agent.ffcNumber} verifiedAt={agent.ffcVerifiedAt} />
+                </div>
+              ) : agent.isVerified ? (
+                <div className="absolute right-6 top-6">
+                  <PpraVerifiedBadge />
+                </div>
+              ) : null}
+
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-gradient-to-br from-[#4A3AFF] to-[#60A5FA] text-3xl font-bold text-white">
                   {agent.name.split(' ').map((part: string) => part[0]).join('').slice(0, 2)}
                 </div>
                 <div>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-[#E9FFFC] px-4 py-2 text-xs font-bold uppercase tracking-[.14em] text-[#087d75]">
-                    <BadgeCheck size={15} /> Verified profile
-                  </div>
-                  <h1 className="mt-3 text-5xl font-bold tracking-[-.07em] sm:text-6xl">{agent.name}</h1>
+                  <h1 className="text-5xl font-bold tracking-[-.07em] sm:text-6xl">{agent.name}</h1>
                 </div>
               </div>
               <p className="mt-6 max-w-3xl text-lg leading-8 text-[#6B7280]">
                 {agent.name} helps buyers, tenants, and sellers across {agent.area}. This profile is wired to Proppd's verified enquiry foundation and active listing data.
               </p>
-              <div className="mt-6 flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[.16em]">
-                <span className="rounded-full bg-[#E9FFFC] px-4 py-2 text-[#087d75]">{directoryStateLabel}</span>
-                <span className="rounded-full bg-[#F7F8FA] px-4 py-2 text-[#6B7280]">{listingStateLabel}</span>
-              </div>
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
                 <ProfileStat label="Agency" value={agent.agency} icon={<Building2 size={18} />} />
                 <ProfileStat label="Area" value={agent.area} icon={<MapPin size={18} />} />

@@ -39,6 +39,11 @@ export async function getPortalServerUser(): Promise<PortalUser | null> {
   const cookieStore = await cookies();
 
   if (!config) {
+    // The dev-admin cookie is a localhost-only convenience for when Supabase is
+    // not configured. Never honour it in production, even if env is misconfigured
+    // — otherwise a missing config would silently grant admin to anyone who sets
+    // the (unsigned) cookie.
+    if (process.env.NODE_ENV === 'production') return null;
     const email = cookieStore.get(DEV_ADMIN_COOKIE)?.value?.trim().toLowerCase();
     if (email === DEV_ADMIN_EMAIL) {
       return { id: 'dev-admin', email };
