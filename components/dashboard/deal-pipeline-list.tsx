@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Handshake } from 'lucide-react';
 import { DealPipelineCard } from './deal-pipeline-card';
 import { NewDealButton } from './new-deal-form';
-import type { DealRecord } from '@/lib/proppd/deals';
+import type { DealRecord } from '@/lib/proppd/deal-stages';
 
 type Listing = { id: string; title: string; streetAddress: string };
 

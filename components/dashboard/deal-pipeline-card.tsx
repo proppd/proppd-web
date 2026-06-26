@@ -5,7 +5,7 @@ import {
   CheckCircle2, Circle, ChevronDown, ChevronUp, AlertTriangle,
   ArrowRight, Loader2, Trash2, Phone, Mail, Building2
 } from 'lucide-react';
-import { DEAL_STAGES, stageLabel, nextStage, type DealRecord, type DealStage, type ActiveDealStage } from '@/lib/proppd/deals';
+import { DEAL_STAGES, stageLabel, nextStage, type DealRecord, type DealStage, type ActiveDealStage } from '@/lib/proppd/deal-stages';
 import { formatZar } from '@/lib/billing/plans';
 
 type Props = {

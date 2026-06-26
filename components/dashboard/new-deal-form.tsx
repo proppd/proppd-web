@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Loader2, X, Handshake } from 'lucide-react';
-import type { DealRecord } from '@/lib/proppd/deals';
+import type { DealRecord } from '@/lib/proppd/deal-stages';
 
 type Listing = { id: string; title: string; streetAddress: string };
 
