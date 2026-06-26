@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Home, ListPlus, MessageCircle, User, BarChart3, Menu, X, ChevronRight, Plus, CalendarClock, CreditCard, Handshake } from 'lucide-react';
+import { Home, ListPlus, MessageCircle, User, BarChart3, Menu, X, ChevronRight, Plus, CalendarClock, CreditCard, Handshake, Rss } from 'lucide-react';
 
-const navItems = [
+const baseNavItems = [
   { label: 'Dashboard', helper: 'Start here', href: '/dashboard', icon: BarChart3 },
   { label: 'Leads', helper: 'Reply and follow up', href: '/dashboard/leads', icon: MessageCircle },
   { label: 'Viewings', helper: 'Upcoming schedule', href: '/dashboard/viewings', icon: CalendarClock },
@@ -14,11 +14,17 @@ const navItems = [
   { label: 'Billing', helper: 'Plan and payments', href: '/dashboard/billing', icon: CreditCard },
 ];
 
+const feedNavItem = { label: 'Feeds', helper: 'Auto-import stock', href: '/dashboard/feeds', icon: Rss };
+
 interface DashboardNavProps {
   currentPath?: string;
+  isAgencyAdmin?: boolean;
 }
 
-export function DashboardNav({ currentPath }: DashboardNavProps = {}) {
+export function DashboardNav({ currentPath, isAgencyAdmin = false }: DashboardNavProps = {}) {
+  const navItems = isAgencyAdmin
+    ? [...baseNavItems.slice(0, 5), feedNavItem, ...baseNavItems.slice(5)]
+    : baseNavItems;
   const pathname = usePathname();
   const activePath = currentPath ?? pathname ?? '/dashboard';
   const [mobileOpen, setMobileOpen] = useState(false);

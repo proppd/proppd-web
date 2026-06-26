@@ -1,10 +1,10 @@
 /**
  * Minimal RFC 4180-style CSV parser.
  *
- * Agency export tools (Prop Data, Entegral, generic spreadsheet exports) hand
- * out CSV with quoted fields, embedded commas, embedded newlines, and escaped
- * double quotes. This parser handles those cases without a third-party
- * dependency. The first non-empty row is treated as the header.
+ * Agency CRM and spreadsheet export tools hand out CSV with quoted fields,
+ * embedded commas, embedded newlines, and escaped double quotes. This parser
+ * handles those cases without a third-party dependency. The first non-empty row
+ * is treated as the header.
  */
 
 export type CsvRecord = Record<string, string>;

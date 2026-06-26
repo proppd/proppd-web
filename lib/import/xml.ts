@@ -1,7 +1,7 @@
 /**
  * Compact, dependency-free XML reader for agency property feeds.
  *
- * South African listing feeds (Prop Data, Entegral, agency CRM exports) are
+ * South African listing feeds (agency CRM and portal exports) are
  * almost always XML with a repeated record element — e.g. `<property>` repeated
  * under a `<properties>` root, with an `<images><image>…</image></images>`
  * block. This module parses that shape into flat field records that the import
