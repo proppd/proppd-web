@@ -5,6 +5,7 @@ import {
   loadFeedSources,
   loadPortalUserAccess,
   type FeedSourceFormat,
+  type FeedAuthType,
 } from '@/lib/proppd/backend';
 import { isListingStatus } from '@/lib/proppd/listing-editor';
 import { isSafeFeedUrl } from '@/lib/import/fetch';
@@ -59,6 +60,11 @@ export async function POST(request: NextRequest) {
   const defaultStatus = isListingStatus(body.defaultStatus) ? body.defaultStatus : 'pending_review';
   const frequencyMinutes = clampFrequency(body.frequencyMinutes);
 
+  const authType = isFeedAuthType(body.authType) ? body.authType : 'none';
+  const authUsername = typeof body.authUsername === 'string' ? body.authUsername.trim() || null : null;
+  const authPassword = typeof body.authPassword === 'string' ? body.authPassword || null : null;
+  const authToken = typeof body.authToken === 'string' ? body.authToken.trim() || null : null;
+
   const result = await createFeedSource(auth.access, {
     agencyId: auth.access.agencyId ?? '',
     name,
@@ -68,6 +74,10 @@ export async function POST(request: NextRequest) {
     defaultStatus,
     frequencyMinutes,
     isActive: body.isActive !== false,
+    authType,
+    authUsername,
+    authPassword,
+    authToken,
   });
 
   if (result.source === 'error' || result.items.length === 0) {
@@ -78,6 +88,10 @@ export async function POST(request: NextRequest) {
 
 function isFeedFormat(v: unknown): v is FeedSourceFormat {
   return v === 'csv' || v === 'xml' || v === 'json';
+}
+
+function isFeedAuthType(v: unknown): v is FeedAuthType {
+  return v === 'none' || v === 'basic' || v === 'bearer';
 }
 
 function clampFrequency(value: unknown): number {

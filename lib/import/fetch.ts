@@ -14,6 +14,7 @@ export type FetchFeedOptions = {
   timeoutMs?: number;
   maxBytes?: number;
   fetchImpl?: typeof fetch;
+  authorizationHeader?: string;
 };
 
 const DEFAULT_TIMEOUT_MS = 20_000;
@@ -58,11 +59,18 @@ export async function fetchFeedContent(rawUrl: string, options: FetchFeedOptions
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
+  const headers: Record<string, string> = {
+    accept: 'text/csv, application/xml, text/xml, application/json, text/plain, */*',
+  };
+  if (options.authorizationHeader) {
+    headers['authorization'] = options.authorizationHeader;
+  }
+
   try {
     const response = await fetchImpl(rawUrl, {
       signal: controller.signal,
       redirect: 'follow',
-      headers: { accept: 'text/csv, application/xml, text/xml, application/json, text/plain, */*' },
+      headers,
     });
 
     if (!response.ok) {

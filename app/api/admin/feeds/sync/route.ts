@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import {
   importPortalListings,
   loadActiveFeedSources,
+  loadFeedAuthHeader,
   recordFeedRun,
   systemFeedAccess,
   type FeedSourceRecord,
@@ -47,7 +48,8 @@ async function runSync(request: NextRequest) {
   const results: Array<{ id: string; name: string; status: 'ok' | 'error'; created?: number; updated?: number; failed?: number; invalid?: number; error?: string }> = [];
 
   for (const source of due) {
-    const outcome = await syncOne(source, access);
+    const authHeader = await loadFeedAuthHeader(source.id);
+    const outcome = await syncOne(source, access, authHeader);
     results.push({ id: source.id, name: source.name, ...outcome });
     await recordFeedRun(source.id, {
       status: outcome.status,
@@ -59,8 +61,8 @@ async function runSync(request: NextRequest) {
   return NextResponse.json({ ok: true, total: sources.items.length, ran: due.length, results });
 }
 
-async function syncOne(source: FeedSourceRecord, access: ReturnType<typeof systemFeedAccess>) {
-  const fetched = await fetchFeedContent(source.url);
+async function syncOne(source: FeedSourceRecord, access: ReturnType<typeof systemFeedAccess>, authorizationHeader?: string | null) {
+  const fetched = await fetchFeedContent(source.url, { authorizationHeader: authorizationHeader ?? undefined });
   if (!fetched.ok) {
     return { status: 'error' as const, error: fetched.error };
   }

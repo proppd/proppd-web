@@ -2392,6 +2392,7 @@ function normaliseEnvValue(value: string | undefined): string | undefined {
 // --- Scheduled feed sources --------------------------------------------------
 
 export type FeedSourceFormat = 'csv' | 'xml' | 'json';
+export type FeedAuthType = 'none' | 'basic' | 'bearer';
 
 export type FeedSourceRecord = {
   id: string;
@@ -2404,6 +2405,9 @@ export type FeedSourceRecord = {
   defaultStatus: PortalListingStatus;
   frequencyMinutes: number;
   isActive: boolean;
+  authType: FeedAuthType;
+  authUsername: string | null;
+  hasCredentials: boolean;  // true when a password or token is stored; credentials never returned
   lastRunAt: string | null;
   lastStatus: string | null;
   lastMessage: string | null;
@@ -2420,6 +2424,10 @@ export type FeedSourceWriteInput = {
   defaultStatus?: PortalListingStatus;
   frequencyMinutes?: number;
   isActive?: boolean;
+  authType?: FeedAuthType;
+  authUsername?: string | null;
+  authPassword?: string | null;  // undefined = don't change; null = clear
+  authToken?: string | null;     // undefined = don't change; null = clear
 };
 
 type FeedSourceRow = {
@@ -2433,6 +2441,9 @@ type FeedSourceRow = {
   default_status: string;
   frequency_minutes: number | string;
   is_active: boolean;
+  auth_type: string;
+  auth_username: string | null;
+  has_credentials: boolean;
   last_run_at: string | null;
   last_status: string | null;
   last_message: string | null;
@@ -2442,8 +2453,9 @@ type FeedSourceRow = {
 
 const FEED_SOURCE_SELECT = `select
   fs.id, fs.agency_id, fs.name, fs.url, fs.format, fs.record_tag, fs.default_status,
-  fs.frequency_minutes, fs.is_active, fs.last_run_at, fs.last_status, fs.last_message,
-  fs.last_summary, fs.created_at,
+  fs.frequency_minutes, fs.is_active, fs.auth_type, fs.auth_username,
+  (fs.auth_password is not null or fs.auth_token is not null) as has_credentials,
+  fs.last_run_at, fs.last_status, fs.last_message, fs.last_summary, fs.created_at,
   (select name from public.agencies where id = fs.agency_id) as agency_name
 from public.feed_sources fs`;
 
@@ -2459,6 +2471,9 @@ function mapFeedSourceRow(row: FeedSourceRow): FeedSourceRecord {
     defaultStatus: row.default_status as PortalListingStatus,
     frequencyMinutes: Number(row.frequency_minutes),
     isActive: row.is_active,
+    authType: (row.auth_type as FeedAuthType) ?? 'none',
+    authUsername: row.auth_username,
+    hasCredentials: Boolean(row.has_credentials),
     lastRunAt: row.last_run_at,
     lastStatus: row.last_status,
     lastMessage: row.last_message,
@@ -2507,8 +2522,8 @@ export async function createFeedSource(access: PortalUserAccess, input: FeedSour
   try {
     const pool = getPortalPool(databaseUrl);
     const result = await pool.query<{ id: string }>(
-      `insert into public.feed_sources (agency_id, name, url, format, record_tag, default_status, frequency_minutes, is_active, created_by)
-       values ($1, $2, $3, $4, $5, $6::public.listing_status, $7, $8, $9) returning id`,
+      `insert into public.feed_sources (agency_id, name, url, format, record_tag, default_status, frequency_minutes, is_active, auth_type, auth_username, auth_password, auth_token, created_by)
+       values ($1, $2, $3, $4, $5, $6::public.listing_status, $7, $8, $9, $10, $11, $12, $13) returning id`,
       [
         agencyId,
         input.name,
@@ -2518,6 +2533,10 @@ export async function createFeedSource(access: PortalUserAccess, input: FeedSour
         input.defaultStatus ?? 'pending_review',
         input.frequencyMinutes ?? 1440,
         input.isActive ?? true,
+        input.authType ?? 'none',
+        input.authUsername ?? null,
+        input.authPassword ?? null,
+        input.authToken ?? null,
         access.profileId || null,
       ],
     );
@@ -2545,22 +2564,64 @@ export async function updateFeedSource(
   try {
     const pool = getPortalPool(databaseUrl);
     const scope = feedSourceAgencyScope(access);
-    const result = await pool.query<FeedSourceRow>(
-      `update public.feed_sources set
-        name = coalesce($2, name),
-        url = coalesce($3, url),
-        format = coalesce($4, format),
-        record_tag = coalesce($5, record_tag),
-        default_status = coalesce($6, default_status)::public.listing_status,
-        frequency_minutes = coalesce($7, frequency_minutes),
-        is_active = coalesce($8, is_active),
-        updated_at = now()
-      where id = $1 ${scope ? 'and agency_id = $9' : ''}
-      returning id`,
-      scope
-        ? [id, patch.name ?? null, patch.url ?? null, patch.format ?? null, patch.recordTag ?? null, patch.defaultStatus ?? null, patch.frequencyMinutes ?? null, patch.isActive ?? null, scope]
-        : [id, patch.name ?? null, patch.url ?? null, patch.format ?? null, patch.recordTag ?? null, patch.defaultStatus ?? null, patch.frequencyMinutes ?? null, patch.isActive ?? null],
-    );
+
+    // Auth fields use explicit CASE so null means "clear to null" rather than "keep existing".
+    // Undefined (field absent from patch) falls through to the ELSE = keep existing.
+    const authProvided = 'authType' in patch || 'authPassword' in patch || 'authToken' in patch;
+    const scopeParam = scope ? `and agency_id = $${authProvided ? 13 : 10}` : '';
+
+    const baseParams = [
+      id,
+      patch.name ?? null,
+      patch.url ?? null,
+      patch.format ?? null,
+      patch.recordTag ?? null,
+      patch.defaultStatus ?? null,
+      patch.frequencyMinutes ?? null,
+      patch.isActive ?? null,
+    ];
+
+    let result;
+    if (authProvided) {
+      result = await pool.query<{ id: string }>(
+        `update public.feed_sources set
+          name = coalesce($2, name),
+          url = coalesce($3, url),
+          format = coalesce($4, format),
+          record_tag = coalesce($5, record_tag),
+          default_status = coalesce($6, default_status)::public.listing_status,
+          frequency_minutes = coalesce($7, frequency_minutes),
+          is_active = coalesce($8, is_active),
+          auth_type = coalesce($9, auth_type),
+          auth_username = coalesce($10, auth_username),
+          auth_password = $11,
+          auth_token = $12,
+          updated_at = now()
+        where id = $1 ${scopeParam}
+        returning id`,
+        scope
+          ? [...baseParams, patch.authType ?? null, patch.authUsername ?? null, patch.authPassword ?? null, patch.authToken ?? null, scope]
+          : [...baseParams, patch.authType ?? null, patch.authUsername ?? null, patch.authPassword ?? null, patch.authToken ?? null],
+      );
+    } else {
+      result = await pool.query<{ id: string }>(
+        `update public.feed_sources set
+          name = coalesce($2, name),
+          url = coalesce($3, url),
+          format = coalesce($4, format),
+          record_tag = coalesce($5, record_tag),
+          default_status = coalesce($6, default_status)::public.listing_status,
+          frequency_minutes = coalesce($7, frequency_minutes),
+          is_active = coalesce($8, is_active),
+          updated_at = now()
+        where id = $1 ${scopeParam}
+        returning id`,
+        scope
+          ? [...baseParams, scope]
+          : baseParams,
+      );
+    }
+
     if (result.rowCount === 0) return { source: 'error', items: [], error: 'Feed source not found.' };
     const updated = await pool.query<FeedSourceRow>(`${FEED_SOURCE_SELECT} where fs.id = $1`, [id]);
     return { source: 'database', items: updated.rows.map(mapFeedSourceRow) };
@@ -2586,6 +2647,34 @@ export async function deleteFeedSource(id: string, access: PortalUserAccess, env
     return { source: 'database', items: [{ id }] };
   } catch (error) {
     return { source: 'error', items: [], error: errorMessage(error) };
+  }
+}
+
+/**
+ * Returns the Authorization header value for a feed, or null if the feed has
+ * no credentials. Credentials are never included in FeedSourceRecord — call
+ * this only inside server-side sync runners immediately before fetching.
+ */
+export async function loadFeedAuthHeader(id: string, env: PortalEnv = process.env): Promise<string | null> {
+  const databaseUrl = getPortalDatabaseUrl(env);
+  if (!databaseUrl) return null;
+  try {
+    const pool = getPortalPool(databaseUrl);
+    const result = await pool.query<{ auth_type: string; auth_username: string | null; auth_password: string | null; auth_token: string | null }>(
+      `select auth_type, auth_username, auth_password, auth_token from public.feed_sources where id = $1`,
+      [id],
+    );
+    const row = result.rows[0];
+    if (!row) return null;
+    if (row.auth_type === 'basic' && row.auth_username && row.auth_password) {
+      return 'Basic ' + Buffer.from(`${row.auth_username}:${row.auth_password}`).toString('base64');
+    }
+    if (row.auth_type === 'bearer' && row.auth_token) {
+      return `Bearer ${row.auth_token}`;
+    }
+    return null;
+  } catch {
+    return null;
   }
 }
 
