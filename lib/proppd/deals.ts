@@ -179,10 +179,10 @@ export async function updateDeal(
 
   if (setClauses.length === 0) return null;
 
-  // Offset scope bindings past the SET values
+  // Offset scope bindings past the SET values AND the id parameter
   const offsetScopeSql = scopeSql.replace(
     /\$(\d+)/g,
-    (_, n) => `$${Number(n) + values.length}`,
+    (_, n) => `$${Number(n) + values.length + 1}`,
   );
 
   const { rows } = await pool.query<DealRow>(
