@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { buildAuthCallbackUrl } from '@/lib/auth/redirects';
 import { getSupabaseBrowserConfig } from '@/lib/supabase/env';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
-import { isVerifiedAgentEmail, doesProfileExistForEmail } from '@/lib/proppd/backend';
+import { isVerifiedAgentEmail, doesProfileExistForEmail, createAgentReviewRequest } from '@/lib/proppd/backend';
 import { rateLimitByIdentifier, rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 import { sendEmail, isEmailConfigured } from '@/lib/notifications/email';
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
-    await sendManualReviewEmail({
+    const reviewInput = {
       firstName,
       lastName,
       email,
@@ -107,7 +107,21 @@ export async function POST(request: NextRequest) {
       area: profile?.area,
       ffcNumber,
       verification: verification as Parameters<typeof sendManualReviewEmail>[0]['verification'],
-    });
+    };
+    await Promise.all([
+      sendManualReviewEmail(reviewInput),
+      createAgentReviewRequest({
+        firstName,
+        lastName,
+        email,
+        phone: profile?.phone,
+        agency: profile?.agency,
+        area: profile?.area,
+        ffcNumber,
+        verificationStatus: (verification as { status?: string }).status ?? 'unknown',
+        verificationReason: (verification as { reason?: string }).reason,
+      }),
+    ]);
 
     return NextResponse.json(
       {

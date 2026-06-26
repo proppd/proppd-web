@@ -126,6 +126,9 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                   <a href="/admin/listings" className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-[#1A1A2E] transition hover:bg-[#F7F8FA]">
                     Manage listings
                   </a>
+                  <a href="/admin/agents" className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-[#1A1A2E] transition hover:bg-[#F7F8FA]">
+                    Agent review queue
+                  </a>
                   <a href="/admin/diagnostics" className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-white/10">
                     Diagnostics
                   </a>

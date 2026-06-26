@@ -39,9 +39,8 @@ export function buildManualReviewEmail(input: ManualReviewInput): EmailMessage {
     `Reason: ${verification.reason || 'N/A'}`,
     '',
     'Action required',
-    '1. Verify the FFC manually at https://theppra.org.za/practitioner-search/',
-    '2. If valid, approve the agent and send a login link from the Supabase dashboard.',
-    '3. If invalid, contact the agent to clarify their PPRA registration.',
+    '1. Review and approve or reject from the Proppd admin console: /admin/agents',
+    '2. Alternatively, verify the FFC manually at https://theppra.org.za/practitioner-search/',
   ];
 
   const html = lines.map((l) => `<p style="margin:0 0 4px;">${escapeHtml(l)}</p>`).join('');
