@@ -88,7 +88,7 @@ function NewFeedModal({ onCreated, onClose }: { onCreated: (f: FeedSourceRecord)
               minLength={2}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="PropData – Sakstons"
+              placeholder="Main stock feed"
               className={inputCls}
             />
           </Field>
@@ -99,10 +99,10 @@ function NewFeedModal({ onCreated, onClose }: { onCreated: (f: FeedSourceRecord)
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://feed.propdata.net/agency/…"
+              placeholder="https://feeds.youragency.co.za/listings.xml"
               className={inputCls}
             />
-            <p className="mt-1 text-[11px] text-[#9CA3AF]">Must be a public https URL. Paste your PropData or Entegral feed link here.</p>
+            <p className="mt-1 text-[11px] text-[#9CA3AF]">Must be a public https URL. Paste the listing feed link from your CRM or website export.</p>
           </Field>
 
           <div className="grid gap-4 sm:grid-cols-2">

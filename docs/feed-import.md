@@ -16,7 +16,7 @@ agencies — the listing supply that makes a property marketplace viable.
 | `records`        | object[]  | Pre-parsed records, if you parsed the feed elsewhere.                  |
 | `format`         | string    | `csv` \| `xml` \| `json`. Auto-detected from `content` when omitted.   |
 | `recordTag`      | string    | XML record element (e.g. `property`). Auto-detected when omitted.      |
-| `source`         | string    | Feed name stored on each listing (e.g. `sakstons-propdata`).          |
+| `source`         | string    | Feed name stored on each listing (e.g. `sakstons-feed`).              |
 | `defaultStatus`  | string    | Status when the feed has none. Defaults to `pending_review`.           |
 | `targetAgencyId` | string    | Required when a super admin imports on behalf of an agency.            |
 | `targetAgentId`  | string    | Optional agent assignment.                                             |

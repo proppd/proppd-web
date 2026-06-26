@@ -6,7 +6,7 @@ import { FeedSourcesList } from '@/components/dashboard/feed-sources-list';
 
 export const metadata: Metadata = {
   title: { absolute: 'Feed Sources | Proppd' },
-  description: 'Connect your PropData or Entegral feed to sync listings automatically.',
+  description: 'Connect your listing feed to sync your stock into Proppd automatically.',
   alternates: { canonical: '/dashboard/feeds' },
   robots: { index: false, follow: false },
 };
@@ -28,7 +28,7 @@ export default async function FeedsPage() {
               <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Feed sources</p>
               <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#1A1A2E]">Agency admins only</h1>
               <p className="mt-2 text-sm text-[#6B7280]">
-                Feed source management is handled by your agency admin. Ask them to set up your PropData or Entegral feed connection.
+                Feed source management is handled by your agency admin. Ask them to set up your listing feed connection.
               </p>
             </div>
           </div>
@@ -54,7 +54,7 @@ export default async function FeedsPage() {
             <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Feed sources</p>
             <h1 className="mt-1 text-3xl font-bold tracking-tight text-[#1A1A2E]">Listing feeds</h1>
             <p className="mt-1 text-sm font-semibold text-[#6B7280]">
-              Connect your PropData or Entegral feed to sync listings automatically.
+              Connect your listing feed to sync your stock into Proppd automatically.
             </p>
           </div>
         </div>

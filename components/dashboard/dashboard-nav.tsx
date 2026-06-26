@@ -14,7 +14,7 @@ const baseNavItems = [
   { label: 'Billing', helper: 'Plan and payments', href: '/dashboard/billing', icon: CreditCard },
 ];
 
-const feedNavItem = { label: 'Feeds', helper: 'PropData / Entegral', href: '/dashboard/feeds', icon: Rss };
+const feedNavItem = { label: 'Feeds', helper: 'Auto-import stock', href: '/dashboard/feeds', icon: Rss };
 
 interface DashboardNavProps {
   currentPath?: string;

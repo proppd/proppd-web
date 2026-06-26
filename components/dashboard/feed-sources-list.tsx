@@ -46,7 +46,7 @@ export function FeedSourcesList({ initialFeeds }: Props) {
           <Rss size={32} className="text-[#D1D5DB]" />
           <p className="text-sm font-bold text-[#6B7280]">No feeds yet</p>
           <p className="max-w-xs text-xs text-[#9CA3AF]">
-            Add your PropData or Entegral feed URL and Proppd will pull listings
+            Add your listing feed URL and Proppd will pull your stock
             automatically on your chosen schedule.
           </p>
           <div className="mt-2">
