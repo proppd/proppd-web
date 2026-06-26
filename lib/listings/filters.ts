@@ -1,7 +1,7 @@
 import type { Listing } from '@/lib/demo-data';
 
 export type ListingPurposeFilter = 'all' | 'sale' | 'rent';
-export type ListingSort = 'featured' | 'price-asc' | 'price-desc' | 'newest';
+export type ListingSort = 'featured' | 'price-asc' | 'price-desc' | 'newest' | 'alpha';
 
 export type ListingFilters = {
   purpose: ListingPurposeFilter;
@@ -22,7 +22,7 @@ export type ListingFilters = {
 };
 
 const PURPOSES = new Set<ListingPurposeFilter>(['all', 'sale', 'rent']);
-const SORTS = new Set<ListingSort>(['featured', 'price-asc', 'price-desc', 'newest']);
+const SORTS = new Set<ListingSort>(['featured', 'price-asc', 'price-desc', 'newest', 'alpha']);
 
 export function parseListingFilters(searchParams: URLSearchParams): ListingFilters {
   const purpose = normalizePurpose(searchParams.get('purpose'));
@@ -151,6 +151,7 @@ function sortListings(items: Listing[], sort: ListingSort): Listing[] {
   const cloned = [...items];
   if (sort === 'price-asc') return cloned.sort((a, b) => a.priceValue - b.priceValue);
   if (sort === 'price-desc') return cloned.sort((a, b) => b.priceValue - a.priceValue);
-  if (sort === 'newest') return cloned.reverse();
+  if (sort === 'newest') return cloned.sort((a, b) => new Date(b.listedAt).getTime() - new Date(a.listedAt).getTime());
+  if (sort === 'alpha') return cloned.sort((a, b) => a.title.localeCompare(b.title, 'en-ZA'));
   return cloned.sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
 }

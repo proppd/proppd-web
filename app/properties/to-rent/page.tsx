@@ -31,6 +31,14 @@ export const metadata: Metadata = {
   },
 };
 
+const sortOptions: Array<{ value: string; label: string }> = [
+  { value: 'featured', label: 'Featured' },
+  { value: 'newest', label: 'Newest first' },
+  { value: 'price-asc', label: 'Price: low → high' },
+  { value: 'price-desc', label: 'Price: high → low' },
+  { value: 'alpha', label: 'A → Z' },
+];
+
 export default async function ToRentPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const filters = parseListingFilters(toURLSearchParams({ ...params, purpose: 'rent' }));
@@ -100,9 +108,10 @@ export default async function ToRentPage({ searchParams }: { searchParams: Searc
 
               <SelectField label="Sort" name="sort" defaultValue={filters.sort}>
                 <option value="featured">Featured</option>
-                <option value="newest">Newest</option>
+                <option value="newest">Newest first</option>
                 <option value="price-asc">Price: low to high</option>
                 <option value="price-desc">Price: high to low</option>
+                <option value="alpha">A → Z</option>
               </SelectField>
             </div>
 
@@ -152,7 +161,20 @@ export default async function ToRentPage({ searchParams }: { searchParams: Searc
             </a>
           </div>
 
-          <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-[.16em] text-[#9CA3AF]">Sort:</span>
+            {sortOptions.map(({ value, label }) => (
+              <a
+                key={value}
+                href={buildToRentHref(params, { sort: value })}
+                className={`inline-flex items-center rounded-full border px-4 py-2 text-sm font-bold transition ${filters.sort === value ? 'border-[#4A3AFF] bg-[#4A3AFF] text-white' : 'border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#4A3AFF] hover:text-[#4A3AFF]'}`}
+              >
+                {label}
+              </a>
+            ))}
+          </div>
+
+          <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {rentListings.map((listing) => <ListingCard key={listing.slug} listing={listing} />)}
           </div>
 
