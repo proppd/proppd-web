@@ -119,7 +119,7 @@ export function DealPipelineCard({ deal, onUpdate, onDelete }: Props) {
               Est. commission: {formatZar(commissionCents)}
               {deal.purchasePriceCents && (
                 <span className="ml-1 font-normal text-[#9CA3AF]">
-                  ({deal.commissionPct}% of {formatZar(deal.purchasePriceCents)})
+                  ({deal.commissionPct}% of {formatZar(deal.purchasePriceCents)}, excl. VAT)
                 </span>
               )}
             </p>
@@ -387,7 +387,7 @@ function stepperShortLabel(stage: ActiveDealStage): string {
     otp_signed: 'OTP',
     bond_submitted: 'Bond in',
     bond_approved: 'Bond OK',
-    attorney_instructed: 'Attorney',
+    attorney_instructed: 'Attorneys',
     deeds_lodged: 'Deeds',
     registered: 'Done ✓',
   };

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getPortalServerUser } from '@/lib/supabase/server';
 import { canAccessAgentWorkspace, AGENT_WORKSPACE_FORBIDDEN_MESSAGE, loadPortalUserAccess } from '@/lib/proppd/backend';
-import { deleteDeal, updateDeal, type UpdateDealInput } from '@/lib/proppd/deals';
+import { deleteDeal, updateDeal, DEAL_STAGES, type UpdateDealInput, type DealStage } from '@/lib/proppd/deals';
 import { rejectCrossOriginMutation } from '@/lib/security/request-guards';
 import { rateLimitPolicies, rateLimitRequest } from '@/lib/security/rate-limit';
 
@@ -38,7 +38,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const ts = (v: unknown): string | null | undefined =>
     v === null ? null : typeof v === 'string' ? v : undefined;
 
-  if ('stage' in body) patch.stage = body.stage as UpdateDealInput['stage'];
+  const VALID_STAGES = new Set<string>([...DEAL_STAGES, 'fallen_through']);
+  if ('stage' in body) {
+    if (typeof body.stage !== 'string' || !VALID_STAGES.has(body.stage)) {
+      return err('Invalid stage value.');
+    }
+    patch.stage = body.stage as DealStage;
+  }
   if ('propertyAddress' in body) patch.propertyAddress = str(body.propertyAddress) ?? undefined;
   if ('buyerName' in body) patch.buyerName = str(body.buyerName) ?? undefined;
   if ('buyerEmail' in body) patch.buyerEmail = str(body.buyerEmail);
@@ -47,9 +53,21 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if ('buyerAttorneyContact' in body) patch.buyerAttorneyContact = str(body.buyerAttorneyContact);
   if ('sellerAttorneyFirm' in body) patch.sellerAttorneyFirm = str(body.sellerAttorneyFirm);
   if ('sellerAttorneyContact' in body) patch.sellerAttorneyContact = str(body.sellerAttorneyContact);
-  if ('purchasePriceCents' in body) patch.purchasePriceCents = num(body.purchasePriceCents);
-  if ('bondAmountCents' in body) patch.bondAmountCents = num(body.bondAmountCents);
-  if ('commissionPct' in body) patch.commissionPct = num(body.commissionPct);
+  if ('purchasePriceCents' in body) {
+    const v = num(body.purchasePriceCents);
+    if (v !== undefined && v !== null && v <= 0) return err('Purchase price must be positive.');
+    patch.purchasePriceCents = v;
+  }
+  if ('bondAmountCents' in body) {
+    const v = num(body.bondAmountCents);
+    if (v !== undefined && v !== null && v < 0) return err('Bond amount cannot be negative.');
+    patch.bondAmountCents = v;
+  }
+  if ('commissionPct' in body) {
+    const v = num(body.commissionPct);
+    if (v !== undefined && v !== null && (v <= 0 || v > 25)) return err('Commission must be between 0 and 25%.');
+    patch.commissionPct = v;
+  }
   if ('otpSignedAt' in body) patch.otpSignedAt = ts(body.otpSignedAt);
   if ('bondSubmittedAt' in body) patch.bondSubmittedAt = ts(body.bondSubmittedAt);
   if ('bondApprovedAt' in body) patch.bondApprovedAt = ts(body.bondApprovedAt);

@@ -199,7 +199,7 @@ function NewDealModal({ listings, onCreated, onClose }: Props & { onClose: () =>
                 className={inputCls}
               />
             </Field>
-            <Field label="Commission %">
+            <Field label="Commission % (excl. VAT)">
               <input
                 type="number"
                 min={0}
