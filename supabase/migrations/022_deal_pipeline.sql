@@ -3,18 +3,15 @@
 -- deeds office registration, capturing buyer details, attorney contacts,
 -- financial terms, and the key milestone dates for each stage.
 
-do $$ begin
-  create type public.deal_stage as enum (
-    'otp_signed',
-    'bond_submitted',
-    'bond_approved',
-    'attorney_instructed',
-    'deeds_lodged',
-    'registered',
-    'fallen_through'
-  );
-exception when duplicate_object then null;
-end $$;
+create type public.deal_stage as enum (
+  'otp_signed',
+  'bond_submitted',
+  'bond_approved',
+  'attorney_instructed',
+  'deeds_lodged',
+  'registered',
+  'fallen_through'
+);
 
 create table if not exists public.deals (
   id              uuid        primary key default gen_random_uuid(),
