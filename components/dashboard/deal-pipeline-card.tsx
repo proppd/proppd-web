@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import {
   CheckCircle2, Circle, ChevronDown, ChevronUp, AlertTriangle,
-  ArrowRight, Loader2, Trash2, Phone, Mail, Building2
+  ArrowRight, Loader2, Trash2, Phone, Mail, Building2, RotateCcw, Pencil
 } from 'lucide-react';
-import { DEAL_STAGES, stageLabel, nextStage, type DealRecord, type DealStage, type ActiveDealStage } from '@/lib/proppd/deal-stages';
+import { DEAL_STAGES, stageLabel, nextStage, type DealRecord, type DealStage, type ActiveDealStage, type UpdateDealInput } from '@/lib/proppd/deal-stages';
 import { formatZar } from '@/lib/billing/plans';
 
 type Props = {
@@ -22,6 +22,7 @@ type State =
 
 export function DealPipelineCard({ deal, onUpdate, onDelete }: Props) {
   const [expanded, setExpanded] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [state, setState] = useState<State>({ kind: 'idle' });
   const [error, setError] = useState<string | null>(null);
 
@@ -29,48 +30,56 @@ export function DealPipelineCard({ deal, onUpdate, onDelete }: Props) {
   const isComplete = deal.stage === 'registered';
   const next = isFallen || isComplete ? null : nextStage(deal.stage);
 
-  async function advanceStage() {
-    if (state.kind !== 'advancing' || !state.date) return;
+  // Shared PATCH handler: send a partial deal update, then reconcile from the
+  // server response. Returns true on success, false (with an error set) on
+  // failure — callers decide what to do with their own UI state.
+  async function patchDeal(body: UpdateDealInput): Promise<boolean> {
     setError(null);
     setState({ kind: 'saving' });
-
-    const dateField = stageDateFieldOf(state.stage);
     const res = await fetch(`/api/dashboard/deals/${deal.id}`, {
       method: 'PATCH',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ stage: state.stage, [dateField]: state.date }),
+      body: JSON.stringify(body),
     });
     const json = await res.json().catch(() => ({}));
     if (!res.ok) {
       setError(json.error ?? 'Failed to update deal.');
       setState({ kind: 'idle' });
-      return;
+      return false;
     }
     onUpdate(json.deal as DealRecord);
     setState({ kind: 'idle' });
+    return true;
+  }
+
+  async function advanceStage() {
+    if (state.kind !== 'advancing' || !state.date) return;
+    const dateField = stageDateFieldOf(state.stage) as keyof UpdateDealInput;
+    await patchDeal({ stage: state.stage, [dateField]: state.date });
+  }
+
+  // Save edited details; only leave edit mode if the save succeeded so any
+  // error stays visible in the open form.
+  async function saveDetails(patch: UpdateDealInput) {
+    const ok = await patchDeal(patch);
+    if (ok) setEditing(false);
   }
 
   async function markFallenThrough(reason: string) {
-    setError(null);
-    setState({ kind: 'saving' });
-    const now = new Date().toISOString();
-    const res = await fetch(`/api/dashboard/deals/${deal.id}`, {
-      method: 'PATCH',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        stage: 'fallen_through',
-        fallenThroughAt: now,
-        fallenThroughReason: reason || null,
-      }),
+    await patchDeal({
+      stage: 'fallen_through',
+      fallenThroughAt: new Date().toISOString(),
+      fallenThroughReason: reason || null,
     });
-    const json = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      setError(json.error ?? 'Failed to update deal.');
-      setState({ kind: 'idle' });
-      return;
-    }
-    onUpdate(json.deal as DealRecord);
-    setState({ kind: 'idle' });
+  }
+
+  // Restore a fallen-through deal to the furthest milestone it had reached.
+  async function reopenDeal() {
+    await patchDeal({
+      stage: reopenTargetStage(deal),
+      fallenThroughAt: null,
+      fallenThroughReason: null,
+    });
   }
 
   async function confirmDelete() {
@@ -78,6 +87,8 @@ export function DealPipelineCard({ deal, onUpdate, onDelete }: Props) {
     await fetch(`/api/dashboard/deals/${deal.id}`, { method: 'DELETE' });
     onDelete(deal.id);
   }
+
+  const saving = state.kind === 'saving';
 
   const commissionCents =
     deal.purchasePriceCents != null && deal.commissionPct != null
@@ -190,90 +201,138 @@ export function DealPipelineCard({ deal, onUpdate, onDelete }: Props) {
         </div>
       )}
 
+      {/* Fallen-through banner with reopen */}
+      {isFallen && (
+        <div className="border-t border-[#F3F4F6] px-5 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600">
+              <AlertTriangle size={13} />
+              Fallen through{deal.fallenThroughReason ? ` — ${deal.fallenThroughReason}` : ''}
+            </span>
+            <button
+              type="button"
+              onClick={reopenDeal}
+              disabled={saving}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-xs font-bold text-[#1A1A2E] transition hover:border-[#2563EB]/40 hover:text-[#2563EB] disabled:opacity-50"
+            >
+              {saving ? <Loader2 size={13} className="animate-spin" /> : <RotateCcw size={13} />} Reopen deal
+            </button>
+          </div>
+          {error && <p className="mt-2 text-xs font-bold text-red-600">{error}</p>}
+        </div>
+      )}
+
       {/* Expanded details */}
       {expanded && (
         <div className="border-t border-[#F3F4F6] p-5 space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            {/* Buyer details */}
-            <DetailSection title="Buyer">
-              <DetailRow icon={<Mail size={12} />} label="Email" value={deal.buyerEmail} />
-              <DetailRow icon={<Phone size={12} />} label="Phone" value={deal.buyerPhone} />
-              <DetailRow icon={<Building2 size={12} />} label="Attorney" value={deal.buyerAttorneyFirm} />
-              <DetailRow icon={null} label="Contact" value={deal.buyerAttorneyContact} />
-            </DetailSection>
-
-            {/* Seller attorney */}
-            <DetailSection title="Transfer Attorney">
-              <DetailRow icon={<Building2 size={12} />} label="Firm" value={deal.sellerAttorneyFirm} />
-              <DetailRow icon={null} label="Contact" value={deal.sellerAttorneyContact} />
-            </DetailSection>
-          </div>
-
-          {/* Milestone dates */}
-          <DetailSection title="Milestone dates">
-            <div className="grid gap-1 sm:grid-cols-2">
-              {DEAL_STAGES.map((s) => {
-                const dateKey = stageDateFieldOf(s) as keyof DealRecord;
-                const dateVal = deal[dateKey] as string | null;
-                return dateVal ? (
-                  <div key={s} className="flex items-center justify-between text-xs">
-                    <span className="text-[#6B7280]">{stageLabel(s)}</span>
-                    <span className="font-bold text-[#1A1A2E]">
-                      {new Date(dateVal).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </span>
-                  </div>
-                ) : null;
-              })}
-              {deal.fallenThroughAt && (
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-red-600">Fallen through</span>
-                  <span className="font-bold text-[#1A1A2E]">
-                    {new Date(deal.fallenThroughAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}
-                  </span>
-                </div>
-              )}
-            </div>
-            {deal.fallenThroughReason && (
-              <p className="mt-2 text-xs text-red-600">Reason: {deal.fallenThroughReason}</p>
-            )}
-          </DetailSection>
-
-          {deal.notes && (
-            <DetailSection title="Notes">
-              <p className="text-xs text-[#374151] whitespace-pre-wrap">{deal.notes}</p>
-            </DetailSection>
-          )}
-
-          {/* Delete */}
-          <div className="flex justify-end pt-2 border-t border-[#F3F4F6]">
-            {state.kind === 'confirming_delete' ? (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-[#6B7280]">Delete this deal?</span>
+          {editing ? (
+            <EditDetailsForm
+              deal={deal}
+              saving={saving}
+              error={error}
+              onCancel={() => { setError(null); setEditing(false); }}
+              onSave={saveDetails}
+            />
+          ) : (
+            <>
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Deal details</p>
                 <button
                   type="button"
-                  onClick={confirmDelete}
-                  className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-red-700"
+                  onClick={() => { setError(null); setEditing(true); }}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6B7280] transition hover:text-[#4A3AFF]"
                 >
-                  Delete
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setState({ kind: 'idle' })}
-                  className="text-xs font-bold text-[#9CA3AF] hover:text-[#4A3AFF]"
-                >
-                  Cancel
+                  <Pencil size={12} /> Edit details
                 </button>
               </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setState({ kind: 'confirming_delete' })}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9CA3AF] hover:text-red-600"
-              >
-                <Trash2 size={13} /> Delete deal
-              </button>
-            )}
-          </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {/* Buyer details */}
+                <DetailSection title="Buyer">
+                  <DetailRow icon={<Mail size={12} />} label="Email" value={deal.buyerEmail} />
+                  <DetailRow icon={<Phone size={12} />} label="Phone" value={deal.buyerPhone} />
+                  <DetailRow icon={<Building2 size={12} />} label="Attorney" value={deal.buyerAttorneyFirm} />
+                  <DetailRow icon={null} label="Contact" value={deal.buyerAttorneyContact} />
+                  {!deal.buyerEmail && !deal.buyerPhone && !deal.buyerAttorneyFirm && !deal.buyerAttorneyContact && (
+                    <EmptyHint />
+                  )}
+                </DetailSection>
+
+                {/* Seller attorney */}
+                <DetailSection title="Transfer Attorney">
+                  <DetailRow icon={<Building2 size={12} />} label="Firm" value={deal.sellerAttorneyFirm} />
+                  <DetailRow icon={null} label="Contact" value={deal.sellerAttorneyContact} />
+                  {!deal.sellerAttorneyFirm && !deal.sellerAttorneyContact && <EmptyHint />}
+                </DetailSection>
+              </div>
+
+              {/* Milestone dates */}
+              <DetailSection title="Milestone dates">
+                <div className="grid gap-1 sm:grid-cols-2">
+                  {DEAL_STAGES.map((s) => {
+                    const dateKey = stageDateFieldOf(s) as keyof DealRecord;
+                    const dateVal = deal[dateKey] as string | null;
+                    return dateVal ? (
+                      <div key={s} className="flex items-center justify-between text-xs">
+                        <span className="text-[#6B7280]">{stageLabel(s)}</span>
+                        <span className="font-bold text-[#1A1A2E]">
+                          {new Date(dateVal).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </span>
+                      </div>
+                    ) : null;
+                  })}
+                  {deal.fallenThroughAt && (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-red-600">Fallen through</span>
+                      <span className="font-bold text-[#1A1A2E]">
+                        {new Date(deal.fallenThroughAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {deal.fallenThroughReason && (
+                  <p className="mt-2 text-xs text-red-600">Reason: {deal.fallenThroughReason}</p>
+                )}
+              </DetailSection>
+
+              {deal.notes && (
+                <DetailSection title="Notes">
+                  <p className="text-xs text-[#374151] whitespace-pre-wrap">{deal.notes}</p>
+                </DetailSection>
+              )}
+
+              {/* Delete */}
+              <div className="flex justify-end pt-2 border-t border-[#F3F4F6]">
+                {state.kind === 'confirming_delete' ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-[#6B7280]">Delete this deal?</span>
+                    <button
+                      type="button"
+                      onClick={confirmDelete}
+                      className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-red-700"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setState({ kind: 'idle' })}
+                      className="text-xs font-bold text-[#9CA3AF] hover:text-[#4A3AFF]"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setState({ kind: 'confirming_delete' })}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9CA3AF] hover:text-red-600"
+                  >
+                    <Trash2 size={13} /> Delete deal
+                  </button>
+                )}
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -326,8 +385,8 @@ function StepperBar({ deal }: { deal: DealRecord }) {
 function stepperShortLabel(stage: ActiveDealStage): string {
   const map: Record<ActiveDealStage, string> = {
     otp_signed: 'OTP',
-    bond_submitted: 'Bond\nSubmit',
-    bond_approved: 'Bond\nApproved',
+    bond_submitted: 'Bond in',
+    bond_approved: 'Bond OK',
     attorney_instructed: 'Attorney',
     deeds_lodged: 'Deeds',
     registered: 'Done ✓',
@@ -438,3 +497,124 @@ function stageDateFieldOf(stage: ActiveDealStage): string {
   };
   return map[stage];
 }
+
+// The stage a reopened deal returns to: the furthest milestone it had already
+// reached (by recorded date), falling back to the first stage.
+function reopenTargetStage(deal: DealRecord): ActiveDealStage {
+  for (let i = DEAL_STAGES.length - 1; i >= 0; i--) {
+    const field = stageDateFieldOf(DEAL_STAGES[i]) as keyof DealRecord;
+    if (deal[field]) return DEAL_STAGES[i];
+  }
+  return 'otp_signed';
+}
+
+// ---------------------------------------------------------------------------
+// Edit details form (buyer contact, attorneys, notes)
+// ---------------------------------------------------------------------------
+
+function EditDetailsForm({
+  deal, saving, error, onCancel, onSave,
+}: {
+  deal: DealRecord;
+  saving: boolean;
+  error: string | null;
+  onCancel: () => void;
+  onSave: (patch: UpdateDealInput) => void;
+}) {
+  const [buyerEmail, setBuyerEmail] = useState(deal.buyerEmail ?? '');
+  const [buyerPhone, setBuyerPhone] = useState(deal.buyerPhone ?? '');
+  const [buyerAttorneyFirm, setBuyerAttorneyFirm] = useState(deal.buyerAttorneyFirm ?? '');
+  const [buyerAttorneyContact, setBuyerAttorneyContact] = useState(deal.buyerAttorneyContact ?? '');
+  const [sellerAttorneyFirm, setSellerAttorneyFirm] = useState(deal.sellerAttorneyFirm ?? '');
+  const [sellerAttorneyContact, setSellerAttorneyContact] = useState(deal.sellerAttorneyContact ?? '');
+  const [notes, setNotes] = useState(deal.notes ?? '');
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    onSave({
+      buyerEmail: buyerEmail.trim() || null,
+      buyerPhone: buyerPhone.trim() || null,
+      buyerAttorneyFirm: buyerAttorneyFirm.trim() || null,
+      buyerAttorneyContact: buyerAttorneyContact.trim() || null,
+      sellerAttorneyFirm: sellerAttorneyFirm.trim() || null,
+      sellerAttorneyContact: sellerAttorneyContact.trim() || null,
+      notes: notes.trim() || null,
+    });
+  }
+
+  return (
+    <form onSubmit={submit} className="space-y-4">
+      <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Edit deal details</p>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <EditField label="Buyer email" type="email" value={buyerEmail} onChange={setBuyerEmail} placeholder="buyer@example.com" />
+        <EditField label="Buyer phone" type="tel" value={buyerPhone} onChange={setBuyerPhone} placeholder="+27 82 000 0000" />
+        <EditField label="Buyer's attorney (firm)" value={buyerAttorneyFirm} onChange={setBuyerAttorneyFirm} placeholder="Firm name" />
+        <EditField label="Buyer's attorney (contact)" value={buyerAttorneyContact} onChange={setBuyerAttorneyContact} placeholder="Name / phone / email" />
+        <EditField label="Transfer attorney (firm)" value={sellerAttorneyFirm} onChange={setSellerAttorneyFirm} placeholder="Conveyancer firm" />
+        <EditField label="Transfer attorney (contact)" value={sellerAttorneyContact} onChange={setSellerAttorneyContact} placeholder="Name / phone / email" />
+      </div>
+
+      <label className="block">
+        <span className="mb-1.5 block text-xs font-bold text-[#374151]">Notes</span>
+        <textarea
+          rows={3}
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Any context for this deal…"
+          className={editInputCls}
+        />
+      </label>
+
+      {error && <p className="text-xs font-bold text-red-600">{error}</p>}
+
+      <div className="flex justify-end gap-2">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={saving}
+          className="rounded-lg border border-[#E5E7EB] px-3 py-2 text-xs font-bold text-[#6B7280] transition hover:border-[#4A3AFF]/30 hover:text-[#4A3AFF] disabled:opacity-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[#4A3AFF] px-3 py-2 text-xs font-bold text-white transition hover:bg-[#3A2AE0] disabled:opacity-50"
+        >
+          {saving ? <><Loader2 size={13} className="animate-spin" /> Saving…</> : 'Save details'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function EditField({
+  label, value, onChange, type = 'text', placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  placeholder?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-xs font-bold text-[#374151]">{label}</span>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={editInputCls}
+      />
+    </label>
+  );
+}
+
+function EmptyHint() {
+  return <p className="text-xs italic text-[#B0B4BD]">Not captured yet — use &ldquo;Edit details&rdquo;.</p>;
+}
+
+const editInputCls =
+  'w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm font-semibold text-[#1A1A2E] outline-none placeholder:text-[#D1D5DB] focus:border-[#4A3AFF] focus:ring-1 focus:ring-[#4A3AFF]/20';
