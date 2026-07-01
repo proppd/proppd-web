@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import { ArrowLeft, CalendarClock, CheckCircle2, ExternalLink, Mail, MapPinned, MessageCircle, Phone, MessageSquare, ShieldCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { LeadAiReply } from '@/components/dashboard/lead-ai-reply';
 import { LeadPipelineControls } from '@/components/dashboard/lead-pipeline-controls';
 import { LeadStageSuggestionControls } from '@/components/dashboard/lead-stage-suggestion-controls';
 import { QuickReplyTemplates } from '@/components/dashboard/quick-reply-templates';
+import { isAiConfigured } from '@/lib/ai/listing-description';
 import { loadPortalLeadTimeline } from '@/lib/proppd/backend';
-import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
+import { canAccessLeadRecord, requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 import { buildWhatsAppHref, formatLeadIntent, formatLeadStatus, getLeadNextAction, getLeadSourceLabel, getLeadStageSuggestion } from '@/lib/leads/pipeline';
 
 export const dynamic = 'force-dynamic';
@@ -30,11 +32,7 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
   const lead = timeline.lead;
 
   // Agents only see their own leads (agency admins see their agency; super admins all).
-  const owns =
-    access.role === 'super_admin' ||
-    (access.agentName !== null && lead.agent === access.agentName) ||
-    (access.agencyName !== null && lead.agency === access.agencyName);
-  if (!owns) notFound();
+  if (!canAccessLeadRecord(access, lead)) notFound();
 
   const controlsEnabled = timeline.source === 'database';
   const emailHref = `mailto:${lead.email}?subject=${encodeURIComponent(`Re: ${lead.listingTitle}`)}&body=${encodeURIComponent(`Hi ${lead.name.split(' ')[0]},\n\n`)}`;
@@ -147,6 +145,14 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
                   )}
                 </div>
               </div>
+
+              <LeadAiReply
+                leadId={lead.id}
+                listingTitle={lead.listingTitle}
+                email={lead.email}
+                phone={lead.phone}
+                aiEnabled={isAiConfigured()}
+              />
 
               <QuickReplyTemplates
                 firstName={lead.name.split(' ')[0] ?? ''}

@@ -25,3 +25,16 @@ export async function requireAgentWorkspaceAccess(nextPath: string): Promise<Por
 
   return access;
 }
+
+/**
+ * Per-record lead authorisation: agents only see their own leads, agency
+ * admins their agency's, super admins everything. Shared by the lead detail
+ * page and the lead API routes so the rule can't drift between them.
+ */
+export function canAccessLeadRecord(access: PortalUserAccess, lead: { agent: string; agency: string }): boolean {
+  return (
+    access.role === 'super_admin' ||
+    (access.agentName !== null && lead.agent === access.agentName) ||
+    (access.agencyName !== null && lead.agency === access.agencyName)
+  );
+}

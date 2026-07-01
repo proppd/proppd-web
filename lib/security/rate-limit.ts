@@ -29,6 +29,8 @@ export const rateLimitPolicies = {
   dashboardMutation: { key: 'dashboard-mutation', limit: 60, windowMs: 60_000 },
   adminMutation: { key: 'admin-mutation', limit: 60, windowMs: 60_000 },
   aiDescription: { key: 'ai-description', limit: 10, windowMs: 60_000 },
+  aiLeadReply: { key: 'ai-lead-reply', limit: 10, windowMs: 60_000 },
+  dashboardExport: { key: 'dashboard-export', limit: 10, windowMs: 60_000 },
 } satisfies Record<string, RateLimitPolicy>;
 
 export function rateLimitRequest(request: RequestLike, policy: RateLimitPolicy): NextResponse | null {
