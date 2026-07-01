@@ -6,6 +6,10 @@ export type DirectoryAgent = {
   area: string;
   listings: number;
   isActive?: boolean;
+  /** Contact phone number as entered by the agent (any format). */
+  phone?: string;
+  /** WhatsApp number as entered by the agent (any format). */
+  whatsapp?: string;
   /** Passed PPRA / Fidelity Fund validation (agents.is_verified). */
   isVerified?: boolean;
   /** Normalised Fidelity Fund Certificate number from the PPRA register. */

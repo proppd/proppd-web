@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BadgeCheck, Building2, Mail, MapPin } from 'lucide-react';
+import { WhatsAppIcon } from '@/components/ui/whatsapp-icon';
+import { buildAgentWhatsAppLink } from '@/lib/leads/whatsapp';
 import { AgentReviews } from '@/components/agent/agent-reviews';
 import { PpraVerifiedBadge } from '@/components/agent/ppra-verified-badge';
 import { PpraVerificationDialog } from '@/components/agent/ppra-verification-dialog';
@@ -57,6 +59,8 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
   const portalListings = await loadPortalListings();
   const activeListings = getAgentListings(portalListings.items.length > 0 ? portalListings.items : sakstonsListings, agent.name);
   const agentMarketSummary = buildAgentMarketSummary(activeListings);
+  // WhatsApp is opt-in: only shown when the agent captured a WhatsApp number.
+  const whatsappHref = buildAgentWhatsAppLink(agent.whatsapp, agent.name);
 
   return (
     <main className="proppd-page">
@@ -120,6 +124,17 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
               >
                 <Mail size={18} /> Email enquiry
               </a>
+              {whatsappHref && (
+                <a
+                  className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 font-bold text-white shadow-lg shadow-[#25D366]/25 transition hover:bg-[#1EBE5B]"
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`WhatsApp ${agent.name}`}
+                >
+                  <WhatsAppIcon size={18} /> WhatsApp {agent.name.split(' ')[0]}
+                </a>
+              )}
               <a
                 className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 px-5 py-3 font-bold text-white hover:bg-white/5"
                 href={`/properties?agent=${encodeURIComponent(agent.name)}`}

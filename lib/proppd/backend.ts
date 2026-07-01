@@ -2030,6 +2030,8 @@ async function queryDirectoryAgents(databaseUrl: string): Promise<DirectoryAgent
     select
       a.name,
       a.slug,
+      a.phone,
+      a.whatsapp,
       a.is_verified,
       a.ffc_number,
       a.ffc_verified_at,
@@ -2047,6 +2049,8 @@ async function queryDirectoryAgents(databaseUrl: string): Promise<DirectoryAgent
   const result = await pool.query<{
     name: string;
     slug: string;
+    phone: string | null;
+    whatsapp: string | null;
     is_verified: boolean;
     ffc_number: string | null;
     ffc_verified_at: string | Date | null;
@@ -2060,6 +2064,8 @@ async function queryDirectoryAgents(databaseUrl: string): Promise<DirectoryAgent
     agency: row.agency_name ?? 'Independent agent',
     area: row.area ?? 'South Africa',
     listings: Number(row.listings ?? 0),
+    phone: row.phone ?? undefined,
+    whatsapp: row.whatsapp ?? undefined,
     isVerified: row.is_verified === true,
     ffcNumber: row.ffc_number ?? undefined,
     ffcVerifiedAt: row.ffc_verified_at ? new Date(row.ffc_verified_at).toISOString() : undefined,

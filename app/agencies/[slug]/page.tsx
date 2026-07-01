@@ -7,7 +7,7 @@ import { SiteFooter } from '@/components/site/footer';
 import { SiteHeader } from '@/components/site/header';
 import { loadPortalAgencies, loadPortalAgents, loadPortalListings } from '../../../lib/proppd/backend';
 import { agencies as demoAgencies, agents as demoAgents, listings as demoListings } from '@/lib/demo-data';
-import { formatDirectoryCount, getAgencyAgents, getAgencyListings, slugifyDirectoryName } from '@/lib/directory';
+import { formatDirectoryCount, getAgencyAgents, getAgencyListings, slugifyDirectoryName, type DirectoryAgent } from '@/lib/directory';
 import { realEstateAgencySchema } from '@/lib/seo/schema';
 
 export function generateStaticParams() {
@@ -53,7 +53,7 @@ export default async function AgencyProfilePage({ params }: { params: Promise<{ 
   if (!agency) notFound();
 
   const [portalAgents, portalListings] = await Promise.all([loadPortalAgents(), loadPortalListings()]);
-  const team = getAgencyAgents(portalAgents.source === 'demo' ? demoAgents : portalAgents.items, agency.name);
+  const team = getAgencyAgents<DirectoryAgent>(portalAgents.source === 'demo' ? demoAgents : portalAgents.items, agency.name);
   const activeListings = getAgencyListings(portalListings.source === 'demo' ? demoListings : portalListings.items, agency.name);
   const agencyMarketSummary = buildAgencyMarketSummary(activeListings);
   const directoryStateLabel =
