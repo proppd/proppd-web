@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { MessageCircle, Mail, Phone, Clock, CheckCircle, TrendingUp, ExternalLink, Filter, ListChecks, Search, X, CalendarClock } from 'lucide-react';
+import { MessageCircle, Mail, Phone, Clock, CheckCircle, TrendingUp, Download, ExternalLink, Filter, ListChecks, Search, X, CalendarClock } from 'lucide-react';
 import { loadPortalLeadQueue, leadQueueScopeForAccess } from '@/lib/proppd/backend';
 import { requireAgentWorkspaceAccess } from '@/lib/proppd/dashboard-access';
 import { buildLeadFilterHref, buildWhatsAppHref, filterLeads, formatLeadStatus, getLeadCrmStats, getLeadNextAction, getLeadQueue, getLeadSourceStats, getScoreLabel, hasLeadFilters, isLeadStatus, scoreLeadRecord, type LeadFilters, type LeadQuality, type LeadRecord, type LeadStatus } from '@/lib/leads/pipeline';
@@ -123,6 +123,13 @@ export default async function Page({ searchParams }: PageProps) {
               <FilterChip label="Quality review" href={buildLeadFilterHref({ quality: 'flagged' }, '/dashboard/leads')} active={activeFilters.quality === 'flagged'} count={crmStats.flagged} />
               <FilterChip label="Viewings" href={buildLeadFilterHref({ status: 'viewing_booked' }, '/dashboard/leads')} active={activeFilters.status === 'viewing_booked'} count={crmStats.viewingBooked} />
               <FilterChip label="Qualified" href={buildLeadFilterHref({ status: 'qualified' }, '/dashboard/leads')} active={activeFilters.status === 'qualified'} count={crmStats.qualified} />
+              <a
+                href={buildLeadFilterHref(activeFilters, '/api/dashboard/leads/export')}
+                className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-[#E5E7EB] bg-white px-3 py-2 text-xs font-bold text-[#6B7280] transition hover:border-[#4A3AFF] hover:text-[#4A3AFF]"
+                title={filtersActive ? 'Download the filtered leads as CSV' : 'Download all leads as CSV'}
+              >
+                <Download size={13} /> Export CSV
+              </a>
             </div>
           </div>
 
