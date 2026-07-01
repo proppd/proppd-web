@@ -23,6 +23,7 @@ import { PpraVerificationDialog } from '@/components/agent/ppra-verification-dia
 import { PpraVerifiedBadge } from '@/components/agent/ppra-verified-badge';
 import { listings as demoListings } from '@/lib/demo-data';
 import { buildEnquiryMailto, buildListingShareText, getListingBySlug, getListingFacts, getRelatedListings } from '@/lib/listings/details';
+import { buildListingWhatsAppLink } from '@/lib/leads/whatsapp';
 
 export function generateStaticParams() {
   return demoListings.map((listing) => ({ slug: listing.slug }));
@@ -76,6 +77,13 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
   if (!listing) notFound();
 
   const listingAgent = portalAgents.items.find((a) => a.name === listing.agent);
+  // WhatsApp is opt-in: only shown when the agent captured a WhatsApp number.
+  const whatsappHref = buildListingWhatsAppLink(listingAgent?.whatsapp, {
+    slug: listing.slug,
+    title: listing.title,
+    price: listing.price,
+    location: listing.location,
+  });
 
   const facts = getListingFacts(listing);
   const relatedSourceListings = portalListings.source === 'database' ? portalListings.items : demoListings;
@@ -365,6 +373,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
               <div id="enquiry" className="scroll-mt-24">
                 <EnquiryForm
                   agentProfileHref={agentProfileHref}
+                  whatsappHref={whatsappHref}
                   listing={{
                     id: listing.id,
                     slug: listing.slug,
@@ -404,7 +413,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
 
       <SiteFooter />
 
-      <MobileEnquiryBar price={listing.price} agent={listing.agent} />
+      <MobileEnquiryBar price={listing.price} agent={listing.agent} whatsappHref={whatsappHref} />
     </main>
   );
 }

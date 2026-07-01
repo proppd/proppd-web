@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
 import { CheckCircle2, Mail, ShieldCheck } from 'lucide-react';
+import { WhatsAppIcon } from '@/components/ui/whatsapp-icon';
 import { buildLeadMailto, type ListingLeadContext } from '@/lib/leads/mailto';
 import { type LeadInput, validateLeadInput } from '@/lib/leads/validation';
 
@@ -11,6 +12,8 @@ type EnquiryFormProps = {
   shareText: string;
   routingLabel: string;
   routingDetail: string;
+  /** wa.me deep link with pre-filled listing context; omitted when the agent has no WhatsApp number. */
+  whatsappHref?: string | null;
 };
 
 type LeadFormState = LeadInput;
@@ -25,7 +28,7 @@ const initialState: LeadFormState = {
   popiaConsent: false,
 };
 
-export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel, routingDetail }: EnquiryFormProps) {
+export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel, routingDetail, whatsappHref }: EnquiryFormProps) {
   const [form, setForm] = useState<LeadFormState>({
     ...initialState,
     message: `I am interested in ${listing.title}. Please contact me with the next steps.`,
@@ -235,6 +238,18 @@ export function EnquiryForm({ listing, agentProfileHref, shareText, routingLabel
           </a>
         )}
       </form>
+
+      {whatsappHref && (
+        <a
+          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 font-bold text-white shadow-lg shadow-[#25D366]/25 transition hover:bg-[#1EBE5B]"
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`WhatsApp ${listing.agent} about this listing`}
+        >
+          <WhatsAppIcon size={18} /> <span className="text-white">WhatsApp {listing.agent.split(' ')[0]}</span>
+        </a>
+      )}
 
       <a className="mt-3 inline-flex w-full justify-center rounded-full border border-[#E5E7EB] px-5 py-3 font-bold text-[#1A1A2E]" href={agentProfileHref}>
         View agent profile

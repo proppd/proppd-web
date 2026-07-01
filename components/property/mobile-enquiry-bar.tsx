@@ -1,11 +1,12 @@
 'use client';
 
 import { MessageSquare } from 'lucide-react';
+import { WhatsAppIcon } from '@/components/ui/whatsapp-icon';
 
 // Persistent bottom action bar on mobile listing pages so the primary action
 // (enquire) is always one tap away without scrolling back to the form.
 // Hidden on lg+ where the enquiry form is already sticky in the sidebar.
-export function MobileEnquiryBar({ price, agent }: { price: string; agent: string }) {
+export function MobileEnquiryBar({ price, agent, whatsappHref }: { price: string; agent: string; whatsappHref?: string | null }) {
   function scrollToEnquiry() {
     const target = document.getElementById('enquiry');
     if (target) {
@@ -22,14 +23,27 @@ export function MobileEnquiryBar({ price, agent }: { price: string; agent: strin
           <p className="truncate text-lg font-bold tracking-tight text-[#1A1A2E]">{price}</p>
           <p className="truncate text-xs font-semibold text-[#9CA3AF]">Contact {agent}</p>
         </div>
-        <button
-          type="button"
-          onClick={scrollToEnquiry}
-          aria-label={`Enquire about this listing with ${agent}`}
-          className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#4A3AFF] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#4A3AFF]/20 transition hover:bg-[#3A2AE0]"
-        >
-          <MessageSquare size={16} /> Enquire
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          {whatsappHref && (
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`WhatsApp ${agent} about this listing`}
+              className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-[#25D366]/25 transition hover:bg-[#1EBE5B]"
+            >
+              <WhatsAppIcon size={18} /> <span className="hidden sm:inline">WhatsApp</span>
+            </a>
+          )}
+          <button
+            type="button"
+            onClick={scrollToEnquiry}
+            aria-label={`Enquire about this listing with ${agent}`}
+            className="inline-flex items-center gap-2 rounded-full bg-[#4A3AFF] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#4A3AFF]/20 transition hover:bg-[#3A2AE0]"
+          >
+            <MessageSquare size={16} /> Enquire
+          </button>
+        </div>
       </div>
     </div>
   );
