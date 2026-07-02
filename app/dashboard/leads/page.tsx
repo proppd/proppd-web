@@ -133,8 +133,8 @@ export default async function Page({ searchParams }: PageProps) {
             </div>
           </div>
 
-          {/* Lead list */}
-          <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_340px] lg:items-start">
+          {/* Lead list — full width so rows stay legible on desktop */}
+          <section className="mt-6">
             <div className="rounded-xl border border-[#E5E7EB] bg-white shadow-sm overflow-hidden">
             {filteredLeads.length === 0 ? (
               <div className="p-12 text-center">
@@ -234,55 +234,56 @@ export default async function Page({ searchParams }: PageProps) {
               </div>
             )}
             </div>
-
-            <aside className="space-y-4">
-              <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Agent CRM focus</p>
-                <h2 className="mt-2 text-xl font-bold tracking-tight text-[#1A1A2E]">Today&apos;s follow-up board</h2>
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <CrmMetric label="Active" value={crmStats.active} />
-                  <CrmMetric label="First response" value={crmStats.needsFirstResponse} tone="urgent" />
-                  <CrmMetric label="Viewings" value={crmStats.viewingBooked} />
-                  <CrmMetric label="Qualified" value={crmStats.qualified} tone="positive" />
-                </div>
-                <div className="mt-4 rounded-2xl bg-[#F7F8FA] p-4">
-                  <p className="text-xs font-bold uppercase tracking-[.14em] text-[#9CA3AF]">Queue health</p>
-                  <p className="mt-2 text-sm font-bold leading-6 text-[#6B7280]">
-                    {crmStats.flagged > 0
-                      ? `${crmStats.flagged} flagged lead${crmStats.flagged === 1 ? '' : 's'} need quality review before handoff.`
-                      : crmStats.active > 0
-                        ? `${crmStats.active} active lead${crmStats.active === 1 ? '' : 's'} remain in the agent CRM loop.`
-                        : `${crmStats.closed} closed lead${crmStats.closed === 1 ? '' : 's'} are preserved for reporting.`}
-                  </p>
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Next best actions</p>
-                <div className="mt-4 space-y-3">
-                  {crmFocusLeads.length > 0 ? (
-                    crmFocusLeads.map((lead) => <CrmActionCard key={lead.id} lead={lead} />)
-                  ) : (
-                    <p className="rounded-2xl bg-[#F7F8FA] p-4 text-sm font-bold leading-6 text-[#6B7280]">
-                      No active lead handoffs right now. New enquiries will appear here with a suggested next step.
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Lead sources</p>
-                <h2 className="mt-2 text-base font-bold text-[#1A1A2E]">Where enquiries come from</h2>
-                <div className="mt-4 space-y-2">
-                  <LeadSourceRow label="Property pages" count={sourceStats.property} total={stats.total} />
-                  <LeadSourceRow label="Agent profile" count={sourceStats.agent} total={stats.total} />
-                  <LeadSourceRow label="Valuation" count={sourceStats.valuation} total={stats.total} />
-                  <LeadSourceRow label="Launch application" count={sourceStats.launch} total={stats.total} />
-                  <LeadSourceRow label="General portal" count={sourceStats.portal + sourceStats.general} total={stats.total} />
-                </div>
-              </div>
-            </aside>
           </section>
+
+          {/* Insight panels — block columns under the queue instead of a tall right rail */}
+          <section className="mt-6 grid gap-4 lg:grid-cols-3 lg:items-start">
+            <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Agent CRM focus</p>
+              <h2 className="mt-2 text-xl font-bold tracking-tight text-[#1A1A2E]">Today&apos;s follow-up board</h2>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <CrmMetric label="Active" value={crmStats.active} />
+                <CrmMetric label="First response" value={crmStats.needsFirstResponse} tone="urgent" />
+                <CrmMetric label="Viewings" value={crmStats.viewingBooked} />
+                <CrmMetric label="Qualified" value={crmStats.qualified} tone="positive" />
+              </div>
+              <div className="mt-4 rounded-2xl bg-[#F7F8FA] p-4">
+                <p className="text-xs font-bold uppercase tracking-[.14em] text-[#9CA3AF]">Queue health</p>
+                <p className="mt-2 text-sm font-bold leading-6 text-[#6B7280]">
+                  {crmStats.flagged > 0
+                    ? `${crmStats.flagged} flagged lead${crmStats.flagged === 1 ? '' : 's'} need quality review before handoff.`
+                    : crmStats.active > 0
+                      ? `${crmStats.active} active lead${crmStats.active === 1 ? '' : 's'} remain in the agent CRM loop.`
+                      : `${crmStats.closed} closed lead${crmStats.closed === 1 ? '' : 's'} are preserved for reporting.`}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Next best actions</p>
+              <div className="mt-4 space-y-3">
+                {crmFocusLeads.length > 0 ? (
+                  crmFocusLeads.map((lead) => <CrmActionCard key={lead.id} lead={lead} />)
+                ) : (
+                  <p className="rounded-2xl bg-[#F7F8FA] p-4 text-sm font-bold leading-6 text-[#6B7280]">
+                    No active lead handoffs right now. New enquiries will appear here with a suggested next step.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Lead sources</p>
+              <h2 className="mt-2 text-base font-bold text-[#1A1A2E]">Where enquiries come from</h2>
+              <div className="mt-4 space-y-2">
+                <LeadSourceRow label="Property pages" count={sourceStats.property} total={stats.total} />
+                <LeadSourceRow label="Agent profile" count={sourceStats.agent} total={stats.total} />
+                <LeadSourceRow label="Valuation" count={sourceStats.valuation} total={stats.total} />
+                <LeadSourceRow label="Launch application" count={sourceStats.launch} total={stats.total} />
+                <LeadSourceRow label="General portal" count={sourceStats.portal + sourceStats.general} total={stats.total} />
+              </div>
+            </div>
+        </section>
         </div>
       </section>
 
