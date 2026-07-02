@@ -92,7 +92,9 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
             </div>
           </div>
 
-          <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_340px] lg:items-start">
+          {/* Timeline + next action side by side; reply tools and reference cards
+              follow as full-width block rows so nothing piles up in a tall rail. */}
+          <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
             <div className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm sm:p-8">
               <div className="flex items-center justify-between gap-4">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-[#1A1A2E]"><MessageSquare size={18} className="text-[#4A3AFF]" /> Activity timeline</h2>
@@ -120,68 +122,72 @@ export default async function AgentLeadDetailPage({ params }: { params: Promise<
               )}
             </div>
 
-            <aside className="space-y-4">
-              <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
-                <div className="flex items-start gap-3">
-                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${nextAction.tone === 'danger' ? 'bg-red-50 text-red-700' : nextAction.tone === 'urgent' ? 'bg-amber-50 text-amber-700' : nextAction.tone === 'positive' ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-[#4A3AFF]/10 text-[#4A3AFF]'}`}>
-                    <ShieldCheck size={18} />
-                  </span>
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Next best action</p>
-                    <h2 className="mt-1 text-xl font-bold tracking-tight text-[#1A1A2E]">{nextAction.label}</h2>
-                  </div>
-                </div>
-                <p className="mt-4 text-sm font-bold leading-6 text-[#6B7280]">{nextAction.detail}</p>
-                <div className="mt-4">
-                  <LeadStageSuggestionControls leadId={lead.id} suggestion={stageSuggestion} enabled={controlsEnabled} />
-                </div>
-                <div className="mt-4 grid gap-2">
-                  <a href={emailHref} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#4A3AFF] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0]"><Mail size={15} /> Reply by email</a>
-                  {whatsappHref && (
-                    <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#A7F3D0] bg-[#F0FDF4] px-4 py-3 text-sm font-bold text-[#166534] transition hover:bg-[#DCFCE7]"><MessageCircle size={15} /> WhatsApp</a>
-                  )}
-                  {lead.listingSlug && (
-                    <a href={`/property/${lead.listingSlug}`} className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF]"><ExternalLink size={15} /> View listing</a>
-                  )}
+            <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+              <div className="flex items-start gap-3">
+                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${nextAction.tone === 'danger' ? 'bg-red-50 text-red-700' : nextAction.tone === 'urgent' ? 'bg-amber-50 text-amber-700' : nextAction.tone === 'positive' ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-[#4A3AFF]/10 text-[#4A3AFF]'}`}>
+                  <ShieldCheck size={18} />
+                </span>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#4A3AFF]">Next best action</p>
+                  <h2 className="mt-1 text-xl font-bold tracking-tight text-[#1A1A2E]">{nextAction.label}</h2>
                 </div>
               </div>
-
-              <LeadAiReply
-                leadId={lead.id}
-                listingTitle={lead.listingTitle}
-                email={lead.email}
-                phone={lead.phone}
-                aiEnabled={isAiConfigured()}
-              />
-
-              <QuickReplyTemplates
-                firstName={lead.name.split(' ')[0] ?? ''}
-                listingTitle={lead.listingTitle}
-                agentName={lead.agent}
-                agency={lead.agency}
-                email={lead.email}
-                phone={lead.phone}
-              />
-
-              <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Routing snapshot</p>
-                <div className="mt-4 space-y-3 text-sm font-bold text-[#6B7280]">
-                  <SnapshotRow label="Source" value={getLeadSourceLabel(lead.sourcePage)} />
-                  <SnapshotRow label="Intent" value={formatLeadIntent(lead.intent)} />
-                  <SnapshotRow label="Status" value={formatLeadStatus(lead.status)} />
-                  <SnapshotRow label="Quality" value={lead.quality === 'clean' ? 'Clean' : lead.quality === 'duplicate' ? 'Duplicate' : 'Flagged'} />
-                  <SnapshotRow label="Latest" value={latestEvent ? latestEvent.label : 'No activity yet'} />
-                </div>
+              <p className="mt-4 text-sm font-bold leading-6 text-[#6B7280]">{nextAction.detail}</p>
+              <div className="mt-4">
+                <LeadStageSuggestionControls leadId={lead.id} suggestion={stageSuggestion} enabled={controlsEnabled} />
               </div>
-
-              <div className="rounded-xl proppd-panel p-5 shadow-sm">
-                <CheckCircle2 size={24} className="text-[#2563EB]" />
-                <h2 className="mt-3 text-lg font-bold">Agent handoff rule</h2>
-                <p className="mt-2 text-sm font-bold leading-6 text-white/65">
-                  Keep every reply, status change, and qualification note on this record so the agency can audit the follow-up path later.
-                </p>
+              <div className="mt-4 grid gap-2">
+                <a href={emailHref} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#4A3AFF] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#3A2AE0]"><Mail size={15} /> Reply by email</a>
+                {whatsappHref && (
+                  <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#A7F3D0] bg-[#F0FDF4] px-4 py-3 text-sm font-bold text-[#166534] transition hover:bg-[#DCFCE7]"><MessageCircle size={15} /> WhatsApp</a>
+                )}
+                {lead.listingSlug && (
+                  <a href={`/property/${lead.listingSlug}`} className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-bold text-[#1A1A2E] transition hover:border-[#4A3AFF]"><ExternalLink size={15} /> View listing</a>
+                )}
               </div>
-            </aside>
+            </div>
+          </div>
+
+          {/* Reply tools */}
+          <div className="mt-6 grid gap-6 lg:grid-cols-2 lg:items-start">
+            <LeadAiReply
+              leadId={lead.id}
+              listingTitle={lead.listingTitle}
+              email={lead.email}
+              phone={lead.phone}
+              aiEnabled={isAiConfigured()}
+            />
+
+            <QuickReplyTemplates
+              firstName={lead.name.split(' ')[0] ?? ''}
+              listingTitle={lead.listingTitle}
+              agentName={lead.agent}
+              agency={lead.agency}
+              email={lead.email}
+              phone={lead.phone}
+            />
+          </div>
+
+          {/* Reference cards */}
+          <div className="mt-6 grid gap-6 lg:grid-cols-2 lg:items-start">
+            <div className="rounded-xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Routing snapshot</p>
+              <div className="mt-4 space-y-3 text-sm font-bold text-[#6B7280]">
+                <SnapshotRow label="Source" value={getLeadSourceLabel(lead.sourcePage)} />
+                <SnapshotRow label="Intent" value={formatLeadIntent(lead.intent)} />
+                <SnapshotRow label="Status" value={formatLeadStatus(lead.status)} />
+                <SnapshotRow label="Quality" value={lead.quality === 'clean' ? 'Clean' : lead.quality === 'duplicate' ? 'Duplicate' : 'Flagged'} />
+                <SnapshotRow label="Latest" value={latestEvent ? latestEvent.label : 'No activity yet'} />
+              </div>
+            </div>
+
+            <div className="rounded-xl proppd-panel p-5 shadow-sm">
+              <CheckCircle2 size={24} className="text-[#2563EB]" />
+              <h2 className="mt-3 text-lg font-bold">Agent handoff rule</h2>
+              <p className="mt-2 text-sm font-bold leading-6 text-white/65">
+                Keep every reply, status change, and qualification note on this record so the agency can audit the follow-up path later.
+              </p>
+            </div>
           </div>
         </div>
       </section>
