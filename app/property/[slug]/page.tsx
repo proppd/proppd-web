@@ -86,6 +86,9 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
   });
 
   const facts = getListingFacts(listing);
+  // Most feed-imported listings carry a single photo; without extras the
+  // gallery side column must not render or the hero gets a blank sibling.
+  const extraPhotos = listing.photos.slice(1, 3);
   const relatedSourceListings = portalListings.source === 'database' ? portalListings.items : demoListings;
   const relatedListings = getRelatedListings(relatedSourceListings, listing, 2);
   const shareText = buildListingShareText(listing);
@@ -194,7 +197,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
 
       <section className="px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="grid gap-3 overflow-hidden rounded-xl bg-white p-3 shadow-sm lg:grid-cols-[1.35fr_.65fr]">
+          <div className={`grid gap-3 overflow-hidden rounded-xl bg-white p-3 shadow-sm ${extraPhotos.length > 0 ? 'lg:grid-cols-[1.35fr_.65fr]' : ''}`}>
             <div className={`relative min-h-[16rem] overflow-hidden rounded-lg bg-gradient-to-br ${listing.gradient} p-4 text-white sm:min-h-[25rem] sm:p-6`}>
               <PhotoLightbox photos={listing.photos} startIndex={0} />
               {listing.photos[0]?.src && (
@@ -224,26 +227,30 @@ export default async function PropertyPage({ params }: { params: Promise<{ slug:
                   <SourceBadge tone="emerald">{relatedSourceLabel}</SourceBadge>
                 </div>
               </div>
-              <div className="absolute bottom-3 right-3 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-[#1A1A2E] shadow-lg backdrop-blur sm:bottom-6 sm:right-6 sm:px-4 sm:py-2 sm:text-sm">
-                View all {listing.photos.length} photos
-              </div>
-            </div>
-            <div className="hidden gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-1">
-              {listing.photos.slice(1, 3).map((photo, index) => (
-                <div key={photo.src} className={`group relative min-h-48 overflow-hidden rounded-lg bg-gradient-to-br ${listing.gradient} p-5 text-white`}>
-                  {photo.src && (
-                    <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 1024px) 50vw, 25vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
-                  )}
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,48,.18)_0%,rgba(5,10,48,.62)_100%)]" />
-                  {/* Open the gallery at this photo */}
-                  <PhotoLightbox photos={listing.photos} startIndex={index + 1} />
-                  <div className="relative flex h-full flex-col justify-between">
-                    <span className="w-fit rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#1A1A2E]">Photo {index + 2} / {listing.photos.length}</span>
-                    <p className="text-xl font-bold tracking-[-.03em]">{listing.highlights[index]}</p>
-                  </div>
+              {listing.photos.length > 1 && (
+                <div className="absolute bottom-3 right-3 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-[#1A1A2E] shadow-lg backdrop-blur sm:bottom-6 sm:right-6 sm:px-4 sm:py-2 sm:text-sm">
+                  View all {listing.photos.length} photos
                 </div>
-              ))}
+              )}
             </div>
+            {extraPhotos.length > 0 && (
+              <div className="hidden gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-1">
+                {extraPhotos.map((photo, index) => (
+                  <div key={photo.src} className={`group relative min-h-48 overflow-hidden rounded-lg bg-gradient-to-br ${listing.gradient} p-5 text-white`}>
+                    {photo.src && (
+                      <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 1024px) 50vw, 25vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                    )}
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,48,.18)_0%,rgba(5,10,48,.62)_100%)]" />
+                    {/* Open the gallery at this photo */}
+                    <PhotoLightbox photos={listing.photos} startIndex={index + 1} />
+                    <div className="relative flex h-full flex-col justify-between">
+                      <span className="w-fit rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#1A1A2E]">Photo {index + 2} / {listing.photos.length}</span>
+                      <p className="text-xl font-bold tracking-[-.03em]">{listing.highlights[index]}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_390px]">
